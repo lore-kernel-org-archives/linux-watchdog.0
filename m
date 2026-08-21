@@ -1,240 +1,130 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 109464DA548
-	for <linux-watchdog@vger.kernel.org>; Fri, 21 Aug 2026 14:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FBFC4C77A2;
+	Fri, 21 Aug 2026 15:15:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787322324; cv=none; b=A41sc52kmOXnJUpS04N95AdSlFnMPcjuhRaiLdkuOopaj20eAtSEwqqF18dkfrjmENXGCh5ht2vavURg63p+OLyQWfeAbVhntQdMd/qfeW7F28a6crauNfApr23IlPL6I/QuA8L47lHbQ7L0NQXeU7P6qnnKr47XldsNJMixDjM=
+	t=1787325306; cv=none; b=IjWn+eIC1vL9BCAzYXbMb2rQaupaUWYXzAr8QnJBG+WU3/FYt4ej4UIs2qkKus2DcaVq0mRsMjWXxGHMIQuaTjC6aINZp6FnUoD7xxuyF9YFHHmnjQqtdcHw8YDZqS4nP9oOHnwo3QVdxyDBzflTh17ZHalcCQKXfWSL/zQzRpo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787322324; c=relaxed/simple;
-	bh=7JV4nXUjZAoRBcGumksx0+ndKmHIY3HiRQBLnDLHigY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kMiVik+c8u/SHrBwnmq5mD+pm6eO+Vy4kuWDxoCsKZnflM4Rfon5p/JHNNfzUQ2wZrazFmezTfHu4D69Mj8go1uEJmB3FNGsJugGmbX3HjSqnRh/mc+kT3Ud4IEhAtyGIcPkI/FUVFTRGEi/o6HKWL6Sl2OaviIBJsFXWs8Bybs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VB50uZew; arc=none smtp.client-ip=209.85.218.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787325306; c=relaxed/simple;
+	bh=k0zLHKLH68lpVPba9E7LUjEcjJ/gs624234l1bwj2uU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Vx3lbDSzZDUFbS3Zh/ATgzKrly33uF2ZYuTjW05ZY1ZbINyEkyBT3bD34AQgJSV9IfmtHSU+oNyFK7y0TYxPJIL1QWB0fx5i2NZ8ft4W8Bp3uT22+q1TlEzVIGpsBc9bWZp+yQ7GabeooQ9xDHHb1RiohRIXcadWiVWVfXgljqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IO3d5jGZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VB50uZew"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c2055f5a993so125561666b.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 21 Aug 2026 07:25:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787322321; x=1787927121; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Ghfr0i78CUZ4Akb16hbS992NQfKQCN5UasulxqlP14I=;
-        b=VB50uZew6v4dk/2rf9Ca3asWiVeQXdTYR/JnD9exqztcvZkikMc9FTFfHCHiziwYSE
-         QyxVuseCfXqcTs4VcBFbPgwp6w4lUxDMmBhm5avxPndTKHU0Q8wv2MUehB9v39FyE3hq
-         +HHB3Fcr+hwDeF/pAGrFtl0wSlZ5XiB0ryWk7IO8bTOm8y8lAib4FKgwSmdznmIo08ni
-         pJ1aWp1gv74tyy3/CUauGv2sOzSD/vacj4ivS02AEoIVvg+abi2dkMDS4V0rWQdLchXP
-         +SFXIp+dGEjkPA25XTn6o25eFUYpuPJWkiy70tloqNe7a2kWIV4szFMBnxaGQbLSKWpQ
-         trHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787322321; x=1787927121;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Ghfr0i78CUZ4Akb16hbS992NQfKQCN5UasulxqlP14I=;
-        b=BqUyx9gHQQ+8wzNuELcUsEH/T6wxw3XJJ9VB+3yEVpMdA+cawAT1M32W7V15aSkS/r
-         XMWsqKRjssckHsY4PrQksHeGFMqwItvxSqVpGKRMeGsHUrXhLUdBmatPClCG+wUHHGaO
-         eqi6+OVE4tt995nEoSiun+TPs+3+OJb5wqwdMJl1g5+Op8LlifG2mFkvHv1ssqP5xR9t
-         CmysIFLg8bgnZlGRgc891hOxoKVpUxPgxL8E6GgIRLjrCp4eKY7UZLfjSPkkndzpaUSW
-         Apn8UUCck2uhffWmmmzHXl8UIf0Nkx5qbW7bLyh9tyvXqMluWeORm/VAsE2c/Mz+X1Wq
-         0LFw==
-X-Gm-Message-State: AFuF++nVSAz1NuWqatEMS0UGO1+4V6gntkGYTFzwif21Gq3s+H7koyf2
-	q5po5HMcrr01q5XK8biqfqYhWHq74joJJN1RGwZxlxjF82drprkU6kWYanE/iA==
-X-Gm-Gg: AR+sD12AAtX4NGljD3Z4Ycm0AXJ9U1L461VKTOW+9VlWHxaz7+Dw+L+3VTUgbGHeK0w
-	O/MQlwhh+6+4IyJZPO8qheg/FjTeAfDQVSYszMK0DxevS2nA4X4pvWwjDTcvyrsCVImmVcuy3aA
-	Vz5LlTY27SZddI6GH3ACNabWKa8gjhoCDHOXUZERxa3Ir0f7SejF3XWVFuj8Nu/e555QGJcmMZd
-	7qLkCWtwWlmeLxCDg+4o2VyMBE2RCCmddtDHZ55l1wQpUTCF96z0iC/aUjzx8wb2lTMnsmuiAq5
-	coOClEdz3m1q3Gj6y8+cpGnhyVTX34dEZVV6dqDsaTa99eMXwOXnvNjoG5VC7AGifP1hTr/yxEh
-	qo2dBCExGq66v6xmkTDW6ADUov055o1YH6Gm1RoLm2XShGOj1U/HaNAsr4UHRy1/xw8pJhIrrrx
-	7Rd0oRf0n2z+sLnxDzHGM2oDVWKeSoRJ+6IUFilCi/V0yQHZsmiIc2D3IMHIphcOsRhuIL7ODUH
-	WAIeKqTDUQckWyZlFARPmWKmWPx1WXGhtgmzz7eOMW2kkt043TSgN6xy5ln/X08/aap
-X-Received: by 2002:a17:907:d08c:b0:c16:8931:245c with SMTP id a640c23a62f3a-c246a72fdcdmr706454866b.21.1787322320902;
-        Fri, 21 Aug 2026 07:25:20 -0700 (PDT)
-Received: from Arbeitszimmer.fritz.box ([2001:9e8:db15:b000:a01f:964b:34ea:c4dc])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c24589e1ab3sm546904466b.4.2026.08.21.07.25.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Aug 2026 07:25:20 -0700 (PDT)
-From: Christoph Berliner <caberliner@gmail.com>
-To: linux@roeck-us.net,
-	wim@linux-watchdog.org
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Christoph Berliner <caberliner@gmail.com>
-Subject: [PATCH v3] watchdog: sp5100_tco: allow unreserved MMIO on GA-78LMT-USB3
-Date: Fri, 21 Aug 2026 16:25:11 +0200
-Message-ID: <20260821142511.49934-1-caberliner@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260820231409.8427-1-caberliner@gmail.com>
-References: <20260820231409.8427-1-caberliner@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IO3d5jGZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id EF0A7C2BCFC;
+	Fri, 21 Aug 2026 15:15:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1787325306;
+	bh=k0zLHKLH68lpVPba9E7LUjEcjJ/gs624234l1bwj2uU=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=IO3d5jGZNG7af7lE2L9Wq4CpJe4zeO17L++VkxBWgvsrwXQN4BZqI4gjjXQzNCHTz
+	 btUyd92Aqnxc2fgYCk8+4HjkwMSB8i8vg7x+itwr2A+tfKb0WHH3ymzP5ZJJfIXWSg
+	 u9kfPb4kDbQ59RQbrlL4yOHSEqLayZztEh3I66jLehU7dEC5tG0sqBm/zqeavz6ugD
+	 HOo1Y4C0QVGJkyyFAuRUr5JmIt117BW65FtpziGp62FXG6zJ9LDBEjowXYiBylEPj/
+	 DsSMWLJFVcLptwjTluXVHn3u5mBQnb6haFMySTRyKUqr70L0Cy7OfMFQWhIqWS+s/H
+	 YHSXguXowlhVA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8248C5DF96;
+	Fri, 21 Aug 2026 15:15:05 +0000 (UTC)
+From: Aiden Isik via B4 Relay <devnull+aidenisik.member.fsf.org@kernel.org>
+Date: Fri, 21 Aug 2026 16:14:50 +0100
+Subject: [PATCH v4 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt
+ compatible data
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260821-for-next-lucky7-watchdog-v4-2-d070cee5009f@member.fsf.org>
+References: <20260821-for-next-lucky7-watchdog-v4-0-d070cee5009f@member.fsf.org>
+In-Reply-To: <20260821-for-next-lucky7-watchdog-v4-0-d070cee5009f@member.fsf.org>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Peter Griffin <peter.griffin@linaro.org>, 
+ Alim Akhtar <alim.akhtar@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-watchdog@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+ Aiden Isik <aidenisik@member.fsf.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1808;
+ i=aidenisik@member.fsf.org; h=from:subject:message-id;
+ bh=QWYVk8sPa3JpVI2qehkdPPdXsdkAd9IZBVEvEfGjKrA=;
+ b=owEBbQKS/ZANAwAIAUknAbLEetfrAcsmYgBqiGt3sDmRORR/fLqcaMqThVjJHZWLnAKsHoQ0V
+ b8XQDOS8DWJAjMEAAEIAB0WIQSDy8UkXGpc3JNbEaVJJwGyxHrX6wUCaohrdwAKCRBJJwGyxHrX
+ 62M5EADqq638uNLyQAj0YtUWxeEU5/5rcG4wuWMzIdCJ/lJWPbpH127DRiigccTmvXSvB9a5CEZ
+ jlR99X6ccqSHdv3qKIfV+3C1WXagZKmslOCwJrQ1KbQvmPAFtEmUhV3bhz2k/ZjTuxxzINCwlQo
+ pD7Y8d/99GcLBtOXF2KQCUXYsKxwI20NHk5T6G014KxcwRiHadHlzCYulNdIRNh1P30Us7ulwhV
+ 7roCC6yZrL+Ug0fOhSd6l0h5tFfIKBva0IQfC6Pq8OecUvdcHSFn7WeQswrqDnKG9RdQIzorDhK
+ chILIUE6Mc2AxgCyDF1ZQPvYQDO8gZjlCdwlXYB51amcYLorSW2adupeUzTzYMZslVg9FrUYDgG
+ d26Dj+wSq+M2IfcokS0U8VFRaV+5+Cu+801EJQHw4eRicXz+0A/MboeJcVE2YK4TkF0jjDrznqW
+ ahWGpqBrNtdV2XwldI8khaD6hsi0y+DI07+BP7dEQv1ltuFigkv7h1sPVVYHaIHeD7c0TnTISWD
+ +/Dvbq0Lm+Ml4m7i7XX7SsdVh9q3goJ6LEcTWogJIDjweDbzKkE5FQht3+TRHDlAd4G4oj3Nk23
+ Ucef8lM1TjBvLPNpobBDVjzlnFXaaPsl7wxqPJ5KLD9LOHHy58gowvXsoq+1S5nJt/JoCcas3tw
+ D7iadSYtVPR/UCw==
+X-Developer-Key: i=aidenisik@member.fsf.org; a=openpgp;
+ fpr=83CBC5245C6A5CDC935B11A5492701B2C47AD7EB
+X-Endpoint-Received: by B4 Relay for aidenisik@member.fsf.org/default with
+ auth_id=956
+X-Original-From: Aiden Isik <aidenisik@member.fsf.org>
+Reply-To: aidenisik@member.fsf.org
 
-The Gigabyte GA-78LMT-USB3 firmware programs the legacy SP5100
-watchdog MMIO window at 0xfec000f0. This address falls inside the
-IOAPIC resource, so sp5100_tco fails to reserve it and aborts probing.
+From: Aiden Isik <aidenisik@member.fsf.org>
 
-Do not relocate or reprogram the watchdog. Instead, add a narrowly
-scoped DMI quirk for this board which permits use of the
-firmware-provided MMIO address without reserving it.
+Add driver data for the Exynos5515 SoC's watchdog timer.
 
-The exception is limited to the legacy SP5100 register layout, the
-GA-78LMT-USB3 DMI identity, and the firmware address 0xfec000f0.
-All other systems retain the existing resource reservation behavior.
+Unlike similar SoCs such as GS101 or Exynos990, Exynos5515's PMU does
+not require explicit counter enablement for the watchdog to tick.
 
-On the affected system the watchdog initializes successfully and
-/dev/watchdog0 is registered while the firmware-programmed watchdog
-base remains unchanged at 0xfec000f0 during load and unload.
-
-Tested on a Gigabyte GA-78LMT-USB3 with AMD SBx00 SMBus controller
-(PCI 1002:4385, revision 0x3c).
-
-Signed-off-by: Christoph Berliner <caberliner@gmail.com>
+Signed-off-by: Aiden Isik <aidenisik@member.fsf.org>
 ---
-Thanks Guenter. I reworked the patch along the lines you suggested.
+ drivers/watchdog/s3c2410_wdt.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-v3 is a complete replacement of the v2 relocation approach. None of the
-relocation code from v2 is retained.
-
-Instead, v3 adds a narrowly scoped DMI quirk for the affected
-GA-78LMT-USB3. On that system, and only for the legacy SP5100 register
-layout with the firmware-programmed watchdog address 0xfec000f0, the
-driver is allowed to map and use the existing watchdog MMIO window
-without reserving it.
-
-The watchdog base is not relocated or reprogrammed. All other systems
-retain the existing resource reservation behavior.
-
-I tested the new path on the affected machine and again from a fresh
-clone of the published GitHub repository. The watchdog initializes
-successfully and /dev/watchdog0 is registered, while the firmware MMIO
-base remains unchanged at 0xfec000f0 before, during and after driver use.
-No separate SP5100 TCO resource is added to /proc/iomem.
-
-Changes in v3:
-- replace the v2 relocation approach entirely; none of the relocation
-  code from v2 is retained
-- add a DMI quirk for the affected Gigabyte GA-78LMT-USB3
-- allow the firmware-programmed 0xfec000f0 watchdog window to be used
-  without reserving it
-- restrict the exception to the legacy SP5100 register layout and the
-  known firmware address
-- leave all other systems on the existing resource reservation path
-- hardware-test the new path and verify that the watchdog MMIO base
-  remains unchanged
-
- drivers/watchdog/sp5100_tco.c | 61 ++++++++++++++++++++++++++++++++---
- 1 file changed, 56 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 7e99c3b1f367..6c85f11cff24 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -33,6 +33,7 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
- #include <linux/init.h>
-+#include <linux/dmi.h>
- #include <linux/io.h>
- #include <linux/ioport.h>
- #include <linux/module.h>
-@@ -240,6 +241,35 @@ static u32 sp5100_tco_read_pm_reg32(u8 index)
- 	return val;
- }
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index e31f93db0509..e61439a3f4b2 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -232,6 +232,20 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+ 		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_PMU_AUTO_DISABLE,
+ };
  
 +/*
-+ * The Gigabyte GA-78LMT-USB3 firmware programs the legacy SP5100 watchdog
-+ * MMIO window at 0xfec000f0. This address lies inside the IOAPIC resource,
-+ * so the generic resource reservation fails even though firmware explicitly
-+ * assigns the watchdog to this address.
-+ *
-+ * Keep this exception narrowly scoped to the affected system and firmware
-+ * address. Do not relocate or otherwise reprogram the watchdog.
++ * Unlike similar SoCs like GS101, Exynos5515's PMU does not require
++ * explicit counter enablement. Hence, QUIRK_HAS_PMU_CNT_EN is not set.
 + */
-+#define SP5100_WDT_GA78LMT_MMIO	0xfec000f0
-+
-+static const struct dmi_system_id sp5100_tco_unreserved_mmio_dmi[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Gigabyte Technology Co., Ltd."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "GA-78LMT-USB3"),
-+		},
-+	},
-+	{}
++static const struct s3c2410_wdt_variant drv_data_exynos5515 = {
++	.mask_reset_reg = EXYNOSAUTOV920_CLUSTER0_NONCPU_INT_EN,
++	.mask_bit = 2,
++	.mask_reset_inv = true,
++	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 24,
++	.quirks = QUIRK_HAS_WTCLRINT_REG | QUIRK_HAS_PMU_MASK_RESET | \
++		  QUIRK_HAS_PMU_RST_STAT | QUIRK_HAS_DBGACK_BIT,
 +};
 +
-+static bool sp5100_tco_allow_unreserved_mmio(struct sp5100_tco *tco,
-+					     u32 mmio_addr)
-+{
-+	return tco->tco_reg_layout == sp5100 &&
-+	       mmio_addr == SP5100_WDT_GA78LMT_MMIO &&
-+	       dmi_check_system(sp5100_tco_unreserved_mmio_dmi);
-+}
-+
- static u32 sp5100_tco_request_region(struct device *dev,
- 				     u32 mmio_addr,
- 				     const char *dev_name)
-@@ -259,6 +289,7 @@ static u32 sp5100_tco_prepare_base(struct sp5100_tco *tco,
- 				   const char *dev_name)
- {
- 	struct device *dev = tco->wdd.parent;
-+	bool reserved = false;
- 
- 	dev_dbg(dev, "Got 0x%08x from SBResource_MMIO register\n", mmio_addr);
- 
-@@ -266,11 +297,29 @@ static u32 sp5100_tco_prepare_base(struct sp5100_tco *tco,
- 		return -ENODEV;
- 
- 	/* Check for MMIO address and alternate MMIO address conflicts */
--	if (mmio_addr)
--		mmio_addr = sp5100_tco_request_region(dev, mmio_addr, dev_name);
-+	if (mmio_addr) {
-+		u32 requested_addr;
-+
-+		requested_addr = sp5100_tco_request_region(dev, mmio_addr,
-+							   dev_name);
-+		if (requested_addr) {
-+			mmio_addr = requested_addr;
-+			reserved = true;
-+		} else if (sp5100_tco_allow_unreserved_mmio(tco, mmio_addr)) {
-+			dev_info(dev,
-+				 "Using firmware watchdog MMIO 0x%08x without reserving it\n",
-+				 mmio_addr);
-+		} else {
-+			mmio_addr = 0;
-+		}
-+	}
- 
--	if (!mmio_addr && alt_mmio_addr)
--		mmio_addr = sp5100_tco_request_region(dev, alt_mmio_addr, dev_name);
-+	if (!mmio_addr && alt_mmio_addr) {
-+		mmio_addr = sp5100_tco_request_region(dev, alt_mmio_addr,
-+						      dev_name);
-+		if (mmio_addr)
-+			reserved = true;
-+	}
- 
- 	if (!mmio_addr) {
- 		dev_err(dev, "Failed to reserve MMIO or alternate MMIO region\n");
-@@ -280,7 +329,9 @@ static u32 sp5100_tco_prepare_base(struct sp5100_tco *tco,
- 	tco->tcobase = devm_ioremap(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE);
- 	if (!tco->tcobase) {
- 		dev_err(dev, "MMIO address 0x%08x failed mapping\n", mmio_addr);
--		devm_release_mem_region(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE);
-+		if (reserved)
-+			devm_release_mem_region(dev, mmio_addr,
-+						SP5100_WDT_MEM_MAP_SIZE);
- 		return -ENOMEM;
- 	}
- 
+ static const struct s3c2410_wdt_variant drv_data_exynos7 = {
+ 	.disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
+ 	.mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
+@@ -379,6 +393,8 @@ static const struct of_device_id s3c2410_wdt_match[] = {
+ 	  .data = &drv_data_exynos5250 },
+ 	{ .compatible = "samsung,exynos5420-wdt",
+ 	  .data = &drv_data_exynos5420 },
++	{ .compatible = "samsung,exynos5515-wdt",
++	  .data = &drv_data_exynos5515 },
+ 	{ .compatible = "samsung,exynos7-wdt",
+ 	  .data = &drv_data_exynos7 },
+ 	{ .compatible = "samsung,exynos850-wdt",
+
 -- 
-2.55.0
+2.54.0
+
 
