@@ -1,192 +1,282 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF9925EF87
-	for <linux-watchdog@vger.kernel.org>; Fri, 21 Aug 2026 00:59:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13EF4377ED4
+	for <linux-watchdog@vger.kernel.org>; Fri, 21 Aug 2026 03:35:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787273987; cv=none; b=ZSd92PHt4F4D3xGWMOmgp7lk9f5twtludZq3/RD4nOunwFNORN2rWSMyLkhAo65zwLAuC+Lpm5LhPTGDp7swW23B/VbZJm7J98MtgWhhn1Wcvslg5wINrxkX+ssS/ra4z6WXmwrtI2pZBScfFihsuXMvXZu1N+WUMHo3Sr/vihA=
+	t=1787283330; cv=none; b=YALNni6wkDWeZm1yKbDqSZZNwMHC0L4PC/ueGbINoSaBBbebDi69WaDHb4QngV12WMQloiOkidrxFvaGZ3zKLDghkh1L6sqoRymdWsLYt1ndjNlhHHq3f41/lb5dIzTt1i5lxqjPgwvlfvTXj3xqvEu2LewdmtNcO04vUpDf3XM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787273987; c=relaxed/simple;
-	bh=K6FXpvA9d0I8igTog7ntPon++21mKCAVjx3GG0qZiHg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JagEg8vM/w5XGhH6K/Fm6rxqY7uTXifiSk6OO0fbz3frJeVmqkM5dRwTZjhpwoBGwiE7jScckZEw2Y1bMihUlRsaSNMFsrGg4313Z0P2veAm/LVV0ThH1E6OvA37OqyWgY447DtfQQERm5GkmNHelCcRwtQ30OKM+eWjbEBGknM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oiqZ3SGB; arc=none smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1787283330; c=relaxed/simple;
+	bh=B1ouq7zNk3OffF9x05iRPTwxZeo6B5tYmbwVJug955A=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=mZII340wXzhWPmnX7gl+PspM88G1xCIE0C1ZcJvC5opcrpokeALikxBNYT/ZNLv1cCcfy5gKleKaiYawaaweUU2XZLVSzn+/OtaiTTnseAMWHmXed4JDskH82Pf6fEdnpBhXSLyuGsU6wCAM+WxqHgaFJS1+FY5lThCO6f1eNqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VnrhaUv2; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oiqZ3SGB"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2ccf2360620so4017905ad.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 17:59:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VnrhaUv2"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c9cf07d2df6so373327a12.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 20:35:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787273985; x=1787878785; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=haJCnuG98e0n1VLIbY6tb+ggrITBMJjjGu/nAQ06pNg=;
-        b=oiqZ3SGBzuXxy1EE2tBtR2yus7Fr3Z97QsnHi51LY9FBixO2CS61Pk38NtnImSCScg
-         wrm3JN8JyvphAWyJJVX8x8vQyJcaIy5TW2pjQMYPR7BaqJwxJY/7NZcBoWkNFKiRlF3U
-         2M435iyKcaQjVQB3QItcUZj+zoVI2SyIH+1XMbmxvfntqWhSTjZMBHyIGt1IEomff+/y
-         kbhxkh9FSJKzXlSKZaAPqwe51vIKxFnfPeBJ8vhtzptD2wmGj2EwqbePxHvv0bPMyce+
-         Bkd8oWOs6j5OE2RXfEPxgsjw7D9ICVYtgvtUkJIr4r+Hb7wRGMKr5Z5pcOI14YtSc9mN
-         uZ+Q==
+        d=gmail.com; s=20251104; t=1787283327; x=1787888127; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=OlQ97Apv2CPkVoHg6S8Gou0Qv9jKg/Qt6XZBOTaFmHE=;
+        b=VnrhaUv2dYCrSiZGhJIvCZ8tV7LnOpm60K2LIMMZzCw3FFjMuT8C23WKtg6yl1fowv
+         W5Gq4KwK7y/M29WzGPX73wNw3JgxNFkyny25CZgqnicLG8hki6jRIpcVeE2WGMXz55sJ
+         0TJSG5KKG/u3W8orCNz/nFQMDrOLV39Lp2np5I/T6rGhTfpOKMBJWT5lvGRpbgrSnBqG
+         IHK1GtHuMOR+xspbJ4sIKQg6xECz6Wh3pU5Im6LU9C8TMK9YamK5ZmrrgAaPhNaJggzD
+         2CcZiSauWJAymUfd7ZnbKzdTJRDdicXFiobBfjzv3j8CJb1uPjq4VQjs4Nzih+E57HKa
+         cnGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787273985; x=1787878785;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=haJCnuG98e0n1VLIbY6tb+ggrITBMJjjGu/nAQ06pNg=;
-        b=Yh6hCuJlLn8Tij+mVzaETSiI7b0foOI7DP9lKh3rRQAEWzVCgrJ6FMEUvVoU7lIZWr
-         Jf8tttl0eqIEf2/rYrmnsEkYVAJqqJXeIfZBQE95UgCJggXl91SE5pODllLBHolfxDo0
-         6KZrp12TsoGup7Du3LUjjIq0dkQBmpiQmw38FZS1JkwRyWur38BqkWNB8ThTnK0WH1Rb
-         SVbJkh570mea/glzYcO6XF1F0Jmq2ZQMdw8QJm1opJmDh3nNfzSOtflh43nviLlIJwdt
-         l4ZQVZI1duRU7swGus9A0Q0cTxOZoT9JMP+AMpdMh3dGyKhzcu3JdeNNQTPotYrqrOoN
-         tFfg==
-X-Gm-Message-State: AFuF++kxNvWE3WOxxtdbeC4MmbDO89lH+Iy0xX1l7/YZC81fhUNeGRXI
-	nKVqPNMPyCsKkDWugz2NMzL4hIuaQTobVDoVhGLs4kact1Q4K4pETqTH
-X-Gm-Gg: AR+sD12OB7+/5TbRMOvW84e1byGYfjAAIoynlLuuu6v4pFdAnzcvXjUj6fgxRChcgOY
-	8GQtHBVb4UKoKsJgJUmJmfhKtL8Jp6lxWXR2t5Gxm6e55nBYBm0wyH5KSU5gQzaXOVc7MHW2nb9
-	UsZJJpIhr3CT/xwSgxDfPKaFtbPkcaAA/mb7hMWSNk3P424JoYxgoDpjWSvTg7HXhW0FLX0TNPa
-	xpWQ0X7kQ3JCh0YR9ai0E6jYgUigQdWWaI0isNBBPKLGwwk4E7WCGwL5V+yCSWtfgATLQlXkgZu
-	vjAGq/LLLEdhAetueeAKpnPIu0yrBm6Kin2jiBSFIVDg1aYGtIZr7XMNGsTGhrCVfzCjeuAT7gN
-	/45sV1u+rI/R/nDEbUJKU0EhNlkMUGDSdR8UYjUui9LzdFCij5CMOwqRDUxhAbCLeErEibouuuE
-	AveGArji0SVdhwTBjqxmBCbbqtWYPJdDmXmKArepFUvjIoJ8Jgo/4nbtQAWR8Ln1uiF9hvWxYRe
-	YyeFBIzCoyD23kqIBnto0aGNhxltorVDRcVbA==
-X-Received: by 2002:a17:902:ce08:b0:2c2:62ee:5a0d with SMTP id d9443c01a7336-2d64b14fe10mr47484475ad.14.1787273984882;
-        Thu, 20 Aug 2026 17:59:44 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327cb5a9831sm13921074eec.21.2026.08.20.17.59.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Aug 2026 17:59:44 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <22315f2c-5434-4361-9ec3-d8c256cdf50e@roeck-us.net>
-Date: Thu, 20 Aug 2026 17:59:43 -0700
+        d=1e100.net; s=20251104; t=1787283327; x=1787888127;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=OlQ97Apv2CPkVoHg6S8Gou0Qv9jKg/Qt6XZBOTaFmHE=;
+        b=nf4Lf+oIgBWFUzdmQVqRlpLiPk5P8YDQbjbgCQV5XfkBauOd2JAJiCnKaARquf8mz4
+         ucIIb7ldplGKXfM4J3bfjUzhM6Mhatx45GFaTaeEwXb+UiBo3u5ingfdU6gIXKApuS+A
+         uQMV3ejqoULsexpN7608sRuKdX4An9VMKYipzN7vJaI47on+MHbdM0bA1XYJc1wrth+I
+         /1hBI9yV1RZNEMtF+4zMtnNQ5ZIZMT8l+WCKVJ0u0mNj6uVNuxF7ePT05WIqYwofGgnG
+         xEUSBY4PEr0MhbtnMhUm3LiTxZTem36AJAC3aL12LiXO49+UajS+5yTYQpoouyZIliPT
+         v5ZQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rpb0DX8DgQM/OT0O2bBpDAP/LJHsWHxKiCAiIlSqLtA03ph4AA5m0DOL9lmUp+Z6h0CdZZlufYqwKi/w/NO8Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywc4YSV72l+sKCWM2ZwBq4Vk/cScHDzDC9L2WOpyWolgPONsA5u
+	ck9jqoP/b6bOHJkHPFF52f905lMoSKZ9xm3sKU9ja/6dOu7roTasr3YX
+X-Gm-Gg: AR+sD10jud+CCEgE3CDG025MvCtaOJAnVA6VtYw52rTYPYMBch3ROSymmH0fPJhUQnf
+	QSxrvbiP33UhS9+Ca1BEXhGOfwZmFfW8LBqh2ZWAlgF7ywhDBIrn//kz9/EpJT674Zs6qe7e/s/
+	eByQ9eLAwVi/JqaMv/MzZpHlqfC6S6NxYGVYstYrPe5q3fh5R9QR1qKwvcMClxtXClcf/sXGKPI
+	rIFjdiy3vyvlGlRjgGoznokJFtZAdmDFodPl5d668Y6yI2cuR3uFyzSqx/Ok7MztfnhUENUIYEh
+	hnxG5T1358CSLQ+o4JLXtUQ5LwPyn1qRqbMrNBML3PElBnou9L470ih9Of9FiFwk9XOQFCSJEOi
+	OtJ7wvVDcgSY0jJG8d0husizM0l/kSVsSCCrOOUjnKJStRD0fIL3eP2LHCYIx+HNkV/RzG4HWDy
+	i0mNZbBjzfXyhHVJMeZ8pAAavmYwxuGB8FavUsz1Xot42j5HCif5N5O6y3dvs+bvleGNLRBvFDW
+	5Wx6uqSoJDtARkxmOqvt00IF3M8DyeToOTZzm7DjA==
+X-Received: by 2002:a05:6a21:3a46:b0:3bf:63af:855 with SMTP id adf61e73a8af0-3cd2fddf03emr6085839637.1.1787283327385;
+        Thu, 20 Aug 2026 20:35:27 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15891a04csm2204271a12.15.2026.08.20.20.35.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Aug 2026 20:35:27 -0700 (PDT)
+From: a0282524688@gmail.com
+To: lee@kernel.org,
+	Ming Yu <tmyu0@nuvoton.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: linux-kernel@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>,
+	linux-gpio@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	mfd@lists.linux.dev
+Subject: [PATCH v7 01/10] mfd: nct6694: Move module type macros to shared header
+Date: Fri, 21 Aug 2026 11:34:56 +0800
+Message-Id: <20260821033505.4017901-2-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260821033505.4017901-1-a0282524688@gmail.com>
+References: <20260821033505.4017901-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] watchdog: sp5100_tco: add reversible legacy MMIO
- relocation
-To: Christoph Berliner <caberliner@gmail.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260820222541.16494-1-caberliner@gmail.com>
- <20260820231409.8427-1-caberliner@gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260820231409.8427-1-caberliner@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 8/20/26 16:14, Christoph Berliner wrote:
-> Older SP5100/SB7x0 systems may provide a watchdog MMIO base that
-> overlaps another reserved resource. On the tested system firmware
-> programs the watchdog at 0xfec000f0, which falls inside the IOAPIC
-> resource and causes sp5100_tco to fail probing with -EBUSY.
-> 
-> A relocation mechanism for this class of conflict was introduced by
-> commit 740fbddf5c3f ("watchdog: sp5100_tco: Add SB8x0 chipset support")
-> for Linux 3.8.
-> 
-> It was deliberately removed shortly afterwards by commit 18e4321276fc
-> ("watchdog: sp5100_tco: Remove code that may cause a boot failure")
-> after an SB700 machine failed to load BIOS after running a kernel
-> containing the relocation path until power was completely removed.
-> 
-> The exact cause of that failure is not documented. One relevant
-> difference is that the old relocation path reprogrammed the watchdog
-> base but did not restore the firmware-programmed PM register state when
-> the driver was removed.
-> 
-> Add a reversible relocation path for the legacy SP5100 register layout.
-> 
-> When the firmware-provided watchdog address cannot be reserved, search a
-> bounded 4 KiB range above it for a free, naturally aligned 8-byte MMIO
-> window. Use devm_request_mem_region() for each candidate so resource-tree
-> traversal, conflict checking and IORESOURCE_BUSY registration are handled
-> by the resource core under its lock.
-> 
-> Before reprogramming the watchdog, save the original PM control and base
-> registers as well as the PCI watchdog decode register. Disable PCI MMIO
-> decode and the watchdog timer before changing the byte-wise base
-> registers, avoiding transient decoded addresses while BASE0..3 are being
-> updated.
-> 
-> Restore the original firmware PM and PCI state on probe failure or device
-> removal and release the relocated MMIO resource through devres.
-> 
-> On the tested system the complete load/unload lifecycle is:
-> 
->    firmware:  0xfec000f0, PM control 0x03
->    relocated: 0xfec00400, PM control 0x06
->    restored:  0xfec000f0, PM control 0x03
-> 
-> The relocated range appears as an exclusive SP5100 TCO resource in
-> /proc/iomem, /dev/watchdog0 registers successfully, and unloading the
-> module restores the original firmware state and removes the resource.
-> 
-> A warm reboot with the relocated watchdog loaded was also tested
-> successfully; the machine booted normally and the firmware watchdog state
-> after reboot was again 0xfec000f0 with PM control 0x03.
-> 
-> Tested on Linux 7.1.8 with an AMD SBx00 SMBus controller
-> (PCI 1002:4385, revision 0x3c). The sp5100_tco.c driver in current
-> mainline is identical to the tested 7.1.8 version.
-> 
-> Signed-off-by: Christoph Berliner <caberliner@gmail.com>
+From: Ming Yu <a0282524688@gmail.com>
 
-Your solution is way too risky. Try to find one that lets the driver use the
-region without reserving it, specifically suited for the system affected
-by the problem. You should be able to identify that system using DMI.
+Move NCT6694_XXX_MOD macro definitions from individual sub-device
+drivers into the shared header include/linux/mfd/nct6694.h.
 
-Thanks,
-Guenter
+This is a prerequisite for supporting multiple transport interfaces
+(USB, HIF) without duplicating these definitions.
+
+No functional change.
+
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
+---
+Changes in v7:
+
+Changes in v6:
+
+Changes in v5:
+- Split from the monolithic v4 patch to follow the single logical change
+  principle.
+
+ drivers/gpio/gpio-nct6694.c         |  7 -------
+ drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
+ drivers/i2c/busses/i2c-nct6694.c    |  7 -------
+ drivers/net/can/usb/nct6694_canfd.c |  6 ------
+ drivers/rtc/rtc-nct6694.c           |  7 -------
+ drivers/watchdog/nct6694_wdt.c      |  7 -------
+ include/linux/mfd/nct6694.h         |  9 +++++++++
+ 7 files changed, 9 insertions(+), 55 deletions(-)
+
+diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
+index a8607f0d9915..53bfc5983648 100644
+--- a/drivers/gpio/gpio-nct6694.c
++++ b/drivers/gpio/gpio-nct6694.c
+@@ -13,13 +13,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 GPIO controller.
+- * This defines the module type used for communication with the NCT6694
+- * GPIO controller over the USB interface.
+- */
+-#define NCT6694_GPIO_MOD	0xFF
+-
+ #define NCT6694_GPIO_VER	0x90
+ #define NCT6694_GPIO_VALID	0x110
+ #define NCT6694_GPI_DATA	0x120
+diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
+index 6dcf22ca5018..581451875f2c 100644
+--- a/drivers/hwmon/nct6694-hwmon.c
++++ b/drivers/hwmon/nct6694-hwmon.c
+@@ -15,13 +15,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 report channel
+- * This defines the module type used for communication with the NCT6694
+- * report channel over the USB interface.
+- */
+-#define NCT6694_RPT_MOD			0xFF
+-
+ /* Report channel */
+ /*
+  * The report channel is used to report the status of the hardware monitor
+@@ -38,13 +31,6 @@
+ #define NCT6694_TIN_STS(x)		(0x6A + (x))
+ #define NCT6694_FIN_STS(x)		(0x6E + (x))
+ 
+-/*
+- * USB command module type for NCT6694 HWMON controller.
+- * This defines the module type used for communication with the NCT6694
+- * HWMON controller over the USB interface.
+- */
+-#define NCT6694_HWMON_MOD		0x00
+-
+ /* Command 00h - Hardware Monitor Control */
+ #define NCT6694_HWMON_CONTROL		0x00
+ #define NCT6694_HWMON_CONTROL_SEL	0x00
+@@ -53,13 +39,6 @@
+ #define NCT6694_HWMON_ALARM		0x02
+ #define NCT6694_HWMON_ALARM_SEL		0x00
+ 
+-/*
+- * USB command module type for NCT6694 PWM controller.
+- * This defines the module type used for communication with the NCT6694
+- * PWM controller over the USB interface.
+- */
+-#define NCT6694_PWM_MOD			0x01
+-
+ /* PWM Command - Manual Control */
+ #define NCT6694_PWM_CONTROL		0x01
+ #define NCT6694_PWM_CONTROL_SEL		0x00
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index 1413ab6f9462..ef3329f34246 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -12,13 +12,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 I2C controller.
+- * This defines the module type used for communication with the NCT6694
+- * I2C controller over the USB interface.
+- */
+-#define NCT6694_I2C_MOD			0x03
+-
+ /* Command 00h - I2C Deliver */
+ #define NCT6694_I2C_DELIVER		0x00
+ #define NCT6694_I2C_DELIVER_SEL		0x00
+diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
+index e5f7f8849a73..262b4c26c9d4 100644
+--- a/drivers/net/can/usb/nct6694_canfd.c
++++ b/drivers/net/can/usb/nct6694_canfd.c
+@@ -18,12 +18,6 @@
+ 
+ #define DEVICE_NAME "nct6694-canfd"
+ 
+-/* USB command module type for NCT6694 CANfd controller.
+- * This defines the module type used for communication with the NCT6694
+- * CANfd controller over the USB interface.
+- */
+-#define NCT6694_CANFD_MOD			0x05
+-
+ /* Command 00h - CAN Setting and Initialization */
+ #define NCT6694_CANFD_SETTING			0x00
+ #define NCT6694_CANFD_SETTING_ACTIVE_CTRL1	BIT(0)
+diff --git a/drivers/rtc/rtc-nct6694.c b/drivers/rtc/rtc-nct6694.c
+index 35401a0d9cf5..c06902f150c9 100644
+--- a/drivers/rtc/rtc-nct6694.c
++++ b/drivers/rtc/rtc-nct6694.c
+@@ -14,13 +14,6 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 RTC controller.
+- * This defines the module type used for communication with the NCT6694
+- * RTC controller over the USB interface.
+- */
+-#define NCT6694_RTC_MOD		0x08
+-
+ /* Command 00h - RTC Time */
+ #define NCT6694_RTC_TIME	0x0000
+ #define NCT6694_RTC_TIME_SEL	0x00
+diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
+index bc3689bd4b6b..4c06ac105562 100644
+--- a/drivers/watchdog/nct6694_wdt.c
++++ b/drivers/watchdog/nct6694_wdt.c
+@@ -20,13 +20,6 @@
+ 
+ #define NCT6694_WDT_MAX_DEVS		2
+ 
+-/*
+- * USB command module type for NCT6694 WDT controller.
+- * This defines the module type used for communication with the NCT6694
+- * WDT controller over the USB interface.
+- */
+-#define NCT6694_WDT_MOD			0x07
+-
+ /* Command 00h - WDT Setup */
+ #define NCT6694_WDT_SETUP		0x00
+ #define NCT6694_WDT_SETUP_SEL(idx)	(idx ? 0x01 : 0x00)
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 6eb9be2cd4a0..3c683e317aa3 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -8,6 +8,15 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#define NCT6694_HWMON_MOD	0x00
++#define NCT6694_PWM_MOD		0x01
++#define NCT6694_I2C_MOD		0x03
++#define NCT6694_CANFD_MOD	0x05
++#define NCT6694_WDT_MOD		0x07
++#define NCT6694_RTC_MOD		0x08
++#define NCT6694_RPT_MOD		0xFF
++#define NCT6694_GPIO_MOD	NCT6694_RPT_MOD
++
+ #define NCT6694_VENDOR_ID	0x0416
+ #define NCT6694_PRODUCT_ID	0x200B
+ #define NCT6694_INT_IN_EP	0x81
+-- 
+2.34.1
 
