@@ -1,69 +1,68 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2B5730EF89
-	for <linux-watchdog@vger.kernel.org>; Fri, 21 Aug 2026 00:56:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF9925EF87
+	for <linux-watchdog@vger.kernel.org>; Fri, 21 Aug 2026 00:59:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787273768; cv=none; b=SCVzNRVtJfQxnasSv2dWTugFMRH7SbUvm4l3qSlBZYOxJRJ7CSplYQC26xJSigQi9m84vdlyaPD/PkLHA9+3Ql01ggf2Nf8X6XSzKyK9SaCgo27Z+P6U6Ii2ZBmiOFfp+weSzmrbpiJWWnkPAXqHBPbHO8frp6r2AjTOxQ1nDNw=
+	t=1787273987; cv=none; b=ZSd92PHt4F4D3xGWMOmgp7lk9f5twtludZq3/RD4nOunwFNORN2rWSMyLkhAo65zwLAuC+Lpm5LhPTGDp7swW23B/VbZJm7J98MtgWhhn1Wcvslg5wINrxkX+ssS/ra4z6WXmwrtI2pZBScfFihsuXMvXZu1N+WUMHo3Sr/vihA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787273768; c=relaxed/simple;
-	bh=iRr+T9DT08RWnG9Y3JZPuJ7Q+vmgWgAVpS7v7VBGrfQ=;
+	s=arc-20240116; t=1787273987; c=relaxed/simple;
+	bh=K6FXpvA9d0I8igTog7ntPon++21mKCAVjx3GG0qZiHg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rivc8I8M37aZPGlTqmZLbknlZ0YWOagcZtGy0CdDG7EUyt0wQGbc6yKMyzjM76m8b8b8uOqzUUyUXlwdKnfs09q2Rbk3pGbyoW9eld/NUA1wkw2F7cXOjgw/s4/VzNBKiKuiAZn7kvfqWqDgpC2o6LG85uGqGGXxC0QdJ9CHEwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a6XbBlky; arc=none smtp.client-ip=209.85.210.181
+	 In-Reply-To:Content-Type; b=JagEg8vM/w5XGhH6K/Fm6rxqY7uTXifiSk6OO0fbz3frJeVmqkM5dRwTZjhpwoBGwiE7jScckZEw2Y1bMihUlRsaSNMFsrGg4313Z0P2veAm/LVV0ThH1E6OvA37OqyWgY447DtfQQERm5GkmNHelCcRwtQ30OKM+eWjbEBGknM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oiqZ3SGB; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a6XbBlky"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8518d5ddaabso326890b3a.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 17:56:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oiqZ3SGB"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2ccf2360620so4017905ad.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2026 17:59:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787273766; x=1787878566; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787273985; x=1787878785; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=eCBKrA8yYc1VlDezvAZtjK4Y9OSDc+NprzK0Q+M2AM0=;
-        b=a6XbBlkyAuGz8UKy9jybHkfEqbGGErbF/KIpEo9if7qMhkt0sA28+ScZ1VX5mXJ7Jp
-         SqoY+oCFYvYKzQEdqCAnyYbzxmVK9qPjeFuZ6iNmbPz0Du+n9jie/6r7dEc4hBFrxkMK
-         xT42NpEkgkge9PX0+HrmMcPSZgluqC9Kwa6BWijtbZ/pimKs3+E8gUXBZzX64vfx+EB8
-         Dck6AmrzXv2NGyG2b9yxCHZERcEm/SjC5SaMRuXsSMNSUF0xZrBybV9tkK7210SDUcrf
-         zIpeMVLUXb0js/L3aeQ3PzQcfn+TXlcFyiFPCiB5V2wvSgdcYI9vWB2h/83P6Iw2aKYR
-         Prsg==
+        bh=haJCnuG98e0n1VLIbY6tb+ggrITBMJjjGu/nAQ06pNg=;
+        b=oiqZ3SGBzuXxy1EE2tBtR2yus7Fr3Z97QsnHi51LY9FBixO2CS61Pk38NtnImSCScg
+         wrm3JN8JyvphAWyJJVX8x8vQyJcaIy5TW2pjQMYPR7BaqJwxJY/7NZcBoWkNFKiRlF3U
+         2M435iyKcaQjVQB3QItcUZj+zoVI2SyIH+1XMbmxvfntqWhSTjZMBHyIGt1IEomff+/y
+         kbhxkh9FSJKzXlSKZaAPqwe51vIKxFnfPeBJ8vhtzptD2wmGj2EwqbePxHvv0bPMyce+
+         Bkd8oWOs6j5OE2RXfEPxgsjw7D9ICVYtgvtUkJIr4r+Hb7wRGMKr5Z5pcOI14YtSc9mN
+         uZ+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787273766; x=1787878566;
+        d=1e100.net; s=20251104; t=1787273985; x=1787878785;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=eCBKrA8yYc1VlDezvAZtjK4Y9OSDc+NprzK0Q+M2AM0=;
-        b=hFlvGvFKW3KHzPI97XqJr09GMlEMIKC4smtzfdzk09fkQ25C0XN84sdgr2qJxY35g5
-         Pipibh2dQecNiyU9pzeeCORAG0WrxzJKPPzpq08gqeXA6J4/RutLiffjZAjgLVMuOFFB
-         OBXsBjVDSkS9aAMMFXsEavkbdyOROEvoqfLADC0ZF75x8MVy4ds0ybXnsPxCcK0AJsly
-         VWjRNmYo7jqo4AdlSY1V3ne7Bx9K1kiF/EXZyb84wiYRXStmiT9IM8A96nYeG+1NwV0X
-         587vmOZJvp04s8FoNpQQv65Ju9wvdlYLNnfZwZBXTznoUiklXi2Si21EsBp2xcAiDzBj
-         /kNg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr0//P2XfQquVg0sgwIj2e3laMT3uLdJp5HTmwH42KB0+9rw8aBaeotHw9rxphnIlWNxrG9oHuQdAa1eFWT6A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwKz6f8tbkRWwFI4oj0857hGJYTOP5JTuTEKrB20sjbXwdI+UzM
-	K5dkW+9Mt387JB5MkqxucKcpiSPKzJsZUzf55eofMfuEPNOLJ5CqHsP6
-X-Gm-Gg: AR+sD10BGkHKYdtnN3UdE/rcThIDT/TO1+Rfw2k2X5nyabkkSmlSJ9r3pAUI2AQVYcB
-	+K/wMAi+agm2tEWuq6jgsLLWhUvsETPakPkWrB1JKAN639eWV4BpjLkH9guC0TywVWI70iWbAJR
-	xLlBjMTJYUXn/IypT0if4WkAAJagZPC+lNxzqBZI6zoHQFDlq+YQmWTR+V58KHHkqCEhW8dXLS9
-	SKTh/Xez3opzVSieelAXIsCiMEX0xtn/d4J3qjNxgHDKN3fBkXExZyXZgRX1jUgIO+ad8EmNwBn
-	B2pxtCmNXKDb9Cyh2NxSdFdK6B3Okj/359tqLWzyIDNLECDooTHN28AxXAL+t0Z/R3cUeTzrEGz
-	T89CckBvnCJXQykycyP0Dmz6tQMgGqTga2OL6L4TBUT/J0yjntBcDGFLASUANK9eC58ez6VyYDa
-	z23cPZ7vVGigmlXLJNtklklfFnpH1KXxIMEsF7auigOKmr03z7ZLEwKaQcmudqZn3W2Vy7If1U5
-	UEqJvqrhM8zE4+p/LGpdJ5VPzP/qPDlZmHDjw==
-X-Received: by 2002:a05:6a21:3a83:b0:3cc:b26a:7686 with SMTP id adf61e73a8af0-3cd2fea4c50mr5165807637.6.1787273765850;
-        Thu, 20 Aug 2026 17:56:05 -0700 (PDT)
+        bh=haJCnuG98e0n1VLIbY6tb+ggrITBMJjjGu/nAQ06pNg=;
+        b=Yh6hCuJlLn8Tij+mVzaETSiI7b0foOI7DP9lKh3rRQAEWzVCgrJ6FMEUvVoU7lIZWr
+         Jf8tttl0eqIEf2/rYrmnsEkYVAJqqJXeIfZBQE95UgCJggXl91SE5pODllLBHolfxDo0
+         6KZrp12TsoGup7Du3LUjjIq0dkQBmpiQmw38FZS1JkwRyWur38BqkWNB8ThTnK0WH1Rb
+         SVbJkh570mea/glzYcO6XF1F0Jmq2ZQMdw8QJm1opJmDh3nNfzSOtflh43nviLlIJwdt
+         l4ZQVZI1duRU7swGus9A0Q0cTxOZoT9JMP+AMpdMh3dGyKhzcu3JdeNNQTPotYrqrOoN
+         tFfg==
+X-Gm-Message-State: AFuF++kxNvWE3WOxxtdbeC4MmbDO89lH+Iy0xX1l7/YZC81fhUNeGRXI
+	nKVqPNMPyCsKkDWugz2NMzL4hIuaQTobVDoVhGLs4kact1Q4K4pETqTH
+X-Gm-Gg: AR+sD12OB7+/5TbRMOvW84e1byGYfjAAIoynlLuuu6v4pFdAnzcvXjUj6fgxRChcgOY
+	8GQtHBVb4UKoKsJgJUmJmfhKtL8Jp6lxWXR2t5Gxm6e55nBYBm0wyH5KSU5gQzaXOVc7MHW2nb9
+	UsZJJpIhr3CT/xwSgxDfPKaFtbPkcaAA/mb7hMWSNk3P424JoYxgoDpjWSvTg7HXhW0FLX0TNPa
+	xpWQ0X7kQ3JCh0YR9ai0E6jYgUigQdWWaI0isNBBPKLGwwk4E7WCGwL5V+yCSWtfgATLQlXkgZu
+	vjAGq/LLLEdhAetueeAKpnPIu0yrBm6Kin2jiBSFIVDg1aYGtIZr7XMNGsTGhrCVfzCjeuAT7gN
+	/45sV1u+rI/R/nDEbUJKU0EhNlkMUGDSdR8UYjUui9LzdFCij5CMOwqRDUxhAbCLeErEibouuuE
+	AveGArji0SVdhwTBjqxmBCbbqtWYPJdDmXmKArepFUvjIoJ8Jgo/4nbtQAWR8Ln1uiF9hvWxYRe
+	YyeFBIzCoyD23kqIBnto0aGNhxltorVDRcVbA==
+X-Received: by 2002:a17:902:ce08:b0:2c2:62ee:5a0d with SMTP id d9443c01a7336-2d64b14fe10mr47484475ad.14.1787273984882;
+        Thu, 20 Aug 2026 17:59:44 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327bef77be3sm20488962eec.10.2026.08.20.17.56.04
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327cb5a9831sm13921074eec.21.2026.08.20.17.59.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Aug 2026 17:56:05 -0700 (PDT)
+        Thu, 20 Aug 2026 17:59:44 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <c72dd8c1-187b-4c33-acbc-cf834bbf6222@roeck-us.net>
-Date: Thu, 20 Aug 2026 17:56:03 -0700
+Message-ID: <22315f2c-5434-4361-9ec3-d8c256cdf50e@roeck-us.net>
+Date: Thu, 20 Aug 2026 17:59:43 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -71,23 +70,13 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt
- compatible data
-To: Aiden Isik <aidenisik@protonmail.com>
-Cc: sashiko-reviews@lists.linux.dev, Aiden Isik <aidenisik@member.fsf.org>,
- devicetree@vger.kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org,
- conor+dt@kernel.org
-References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
- <20260818-for-next-lucky7-watchdog-v3-2-2912bd122c57@member.fsf.org>
- <20260818181349.894171F000E9@smtp.kernel.org>
- <k_6CWq_7vPkV72MkyL0wCdcr9ptTffpGOGc6dBLbXjcHBV4DGRzP-35mxO0tdOBaIEhy4BxByYLCh8T5nidgwaMwGcNYD9KCIpxkeF4RRiE=@protonmail.com>
- <83b5d8e7-9504-41c9-9f24-8fce60641de4@roeck-us.net>
- <-HoGjao7Mdcx5P3JHoh9WjecLbbXBISKawVeEa59KRfhq7rul5NozHGaISvi0T-ZTp2otj7_b5qqb9tQI5XR0Wvp4UzG7crAekiRTXhiOd4=@protonmail.com>
- <d8191041-a4bc-4674-ab9e-7fb56ca2b56f@roeck-us.net>
- <cTie_daC2kaIY2BT6HkyAeivwspRhq3thkrkGDMVdIpF2vF5Vr38HQxPcvKFK6pvWatAFk-CO7XL2uz3OCfDSwI-EOxQqI8hNylXjG1jrQI=@protonmail.com>
- <XNt95pVriUNFbMMYsr5mnQo9LUABboJjUMboxV5mWYj9FQJb6XGjsGkGRre7eSK4bvCG4oOuTg4YNiujCpX7ZlonVgQSHFBEzpFvZLFTXtw=@protonmail.com>
- <01a0682b-b7ec-45f0-a19d-df40ed6366a2@roeck-us.net>
- <s4LZj1kKLrHHKsrkc1s32s4sh7oKzXqEG4hA_W99bG1YTsgnCj-shElNsnI04D-eVsK4Y0tx7ViBSkjy8LZjZmZ8N4D5UEg0bcU16gOXHP0=@protonmail.com>
+Subject: Re: [PATCH v2] watchdog: sp5100_tco: add reversible legacy MMIO
+ relocation
+To: Christoph Berliner <caberliner@gmail.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260820222541.16494-1-caberliner@gmail.com>
+ <20260820231409.8427-1-caberliner@gmail.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -133,18 +122,70 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <s4LZj1kKLrHHKsrkc1s32s4sh7oKzXqEG4hA_W99bG1YTsgnCj-shElNsnI04D-eVsK4Y0tx7ViBSkjy8LZjZmZ8N4D5UEg0bcU16gOXHP0=@protonmail.com>
+In-Reply-To: <20260820231409.8427-1-caberliner@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 8/20/26 03:18, Aiden Isik wrote:
-
-> But if it's just a comment like the example you described, I can do that.
-> Do you want the source to be "Samsung's downstream code", or a link to
-> it?
+On 8/20/26 16:14, Christoph Berliner wrote:
+> Older SP5100/SB7x0 systems may provide a watchdog MMIO base that
+> overlaps another reserved resource. On the tested system firmware
+> programs the watchdog at 0xfec000f0, which falls inside the IOAPIC
+> resource and causes sp5100_tco to fail probing with -EBUSY.
 > 
+> A relocation mechanism for this class of conflict was introduced by
+> commit 740fbddf5c3f ("watchdog: sp5100_tco: Add SB8x0 chipset support")
+> for Linux 3.8.
+> 
+> It was deliberately removed shortly afterwards by commit 18e4321276fc
+> ("watchdog: sp5100_tco: Remove code that may cause a boot failure")
+> after an SB700 machine failed to load BIOS after running a kernel
+> containing the relocation path until power was completely removed.
+> 
+> The exact cause of that failure is not documented. One relevant
+> difference is that the old relocation path reprogrammed the watchdog
+> base but did not restore the firmware-programmed PM register state when
+> the driver was removed.
+> 
+> Add a reversible relocation path for the legacy SP5100 register layout.
+> 
+> When the firmware-provided watchdog address cannot be reserved, search a
+> bounded 4 KiB range above it for a free, naturally aligned 8-byte MMIO
+> window. Use devm_request_mem_region() for each candidate so resource-tree
+> traversal, conflict checking and IORESOURCE_BUSY registration are handled
+> by the resource core under its lock.
+> 
+> Before reprogramming the watchdog, save the original PM control and base
+> registers as well as the PCI watchdog decode register. Disable PCI MMIO
+> decode and the watchdog timer before changing the byte-wise base
+> registers, avoiding transient decoded addresses while BASE0..3 are being
+> updated.
+> 
+> Restore the original firmware PM and PCI state on probe failure or device
+> removal and release the relocated MMIO resource through devres.
+> 
+> On the tested system the complete load/unload lifecycle is:
+> 
+>    firmware:  0xfec000f0, PM control 0x03
+>    relocated: 0xfec00400, PM control 0x06
+>    restored:  0xfec000f0, PM control 0x03
+> 
+> The relocated range appears as an exclusive SP5100 TCO resource in
+> /proc/iomem, /dev/watchdog0 registers successfully, and unloading the
+> module restores the original firmware state and removes the resource.
+> 
+> A warm reboot with the relocated watchdog loaded was also tested
+> successfully; the machine booted normally and the firmware watchdog state
+> after reboot was again 0xfec000f0 with PM control 0x03.
+> 
+> Tested on Linux 7.1.8 with an AMD SBx00 SMBus controller
+> (PCI 1002:4385, revision 0x3c). The sp5100_tco.c driver in current
+> mainline is identical to the tested 7.1.8 version.
+> 
+> Signed-off-by: Christoph Berliner <caberliner@gmail.com>
 
-Links may not be available forever. Just a brief explanation, please.
+Your solution is way too risky. Try to find one that lets the driver use the
+region without reserving it, specifically suited for the system affected
+by the problem. You should be able to identify that system using DMI.
 
 Thanks,
 Guenter
