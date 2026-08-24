@@ -1,223 +1,176 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194613B38B8;
-	Mon, 24 Aug 2026 07:09:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B18113F1660
+	for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2026 09:17:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787555345; cv=none; b=EYlcPaupW/ZjllYgcA1+NWRFhVTX1S1Lawz9BsEkgsBwklDlgZqnqA0szV6SYFlXbiaE1SIjoR6+tfjFs3eqz89MUixIMdi03dJ7OC9LMQ2nekCONrs1clgyBUwj/LkAG+LnWKOzfvbcKd0Y0HaubIYs9FBr30TrUPVx6EZ1yBM=
+	t=1787563037; cv=none; b=EygOQ+0UxZ2D3ti0NqGIZHMHXaRw66UgCpeEg9m7MtYHhynzNbRZNaM7boBYJo2pSJkngwQdVoJcoXl1bq6vDtxwDEMUZ1Jq2uYy6upM1xOQ53ObTTa+3PTkLy/4HwRdhnYP6czfOgK6TNXQKJBBkOd1HJBvPIadb2c51lScJPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787555345; c=relaxed/simple;
-	bh=Y82996GUghOrVqOsTcxJKrpSHnpuxn5rs9GT/EHQiWU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dc2XuBTgiyWmna3SM1J9yfO+P1UoFFoYRuJb1kgLdoPDTS8L7FrZCgUL4Ad5kIriGcTAIPu9qdEf6xgNcbqV8GY6zmZ2cSIgH6l1FxZAWVfVN0G2Wv77sld2gx9TtWH4G9Pkwr0h5dY/KEynT5sLGkq5OalpZkDb0a8rgdJ7bqk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=anhaRWJc; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787563037; c=relaxed/simple;
+	bh=HY3quUIZFTbjvevuitlFBgXCQy04pa7QPQrGbVgQ0yM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fFoV9kzpS3Puz5gUJUJmHDm1/X9t/xcg5jNsT5PZRZqKaVC4QnYhLnVnDnpKVnRAq01rooP4WATdgHRH/HyEgKK4ZMNgtEqOR/OLmqtSf5sglxs7vL/562gkvsIKnY77f9EwYQ3xA7gK0heBD0dyw8zgZtovAo3aRDmG5XG/b3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=HzBpy6bL; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Wz98jR22; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="anhaRWJc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6E51F000E9;
-	Mon, 24 Aug 2026 07:09:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787555342;
-	bh=MuqXsN2Lbqhc9HF1rAT/JgKdjXIpLysNHrM0e02YjgU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=anhaRWJc7/AdWpbilVzA/7wZb4RBHHw1sBOCZGj2q0TUnKDxVDOMkX1+ksvv7CSyA
-	 hQF33eAee65dWooxlUksJYPjwDvW92I0/Nea89bTipywhd6KXi2qWzDxzfvxQyNMRd
-	 DfhRwgt9A2WsogzjCwuMxarKGmZUC6wWw7a7DzveDZKwvmc/O4wdq4IQM3QCoK6jKf
-	 98Db5NJcFU3U4tqfuclqk0xvSRHD7e4jJdIjk+M2DFYTPLiegzTSeUhuqgka24MTNC
-	 SCLBbSy7ccJSmetnysMmIJOwa7y5LlYxZyL8L/FV4Qiv0YPvyVdCLN/OJpjWNgzT9B
-	 +bP4ObNJlvZtA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/4] rtc: pcf8525: Add watchdog support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260824065531.693701-4-shivprakash.gupta@nxp.com>
-References: <20260824065531.693701-1-shivprakash.gupta@nxp.com>
- <20260824065531.693701-4-shivprakash.gupta@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 07:09:01 +0000
-Message-Id: <20260824070901.BD6E51F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="HzBpy6bL";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Wz98jR22"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67O9A3qh1510216
+	for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2026 09:17:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	m7lsraZhCPgC1BRKXbcGaxnflmdJRncfoKjV8SVGtLg=; b=HzBpy6bLvxcKobmj
+	kjeekBmBj09BzR2IySij75Pa7rmheFJ2IPQEeDK+5cEuAijTDifdPe3hssBmG1fD
+	eAWwaq3diN81Z7khCN+eP/JM6x07pnxYMaxY/HztC4Ya8VSe4kVc8lgDtEbzk7c+
+	MupRD5LQBlogcQVoFJ1dx27SBngWbiHNuDAqPOXIRfhqFitB15K9yNcIkmltWLWc
+	8x0cjXjeEpqH42MGpsvR2ie1i8OGXNoNfFHaXVJVVTlLOD6nkh7+uUBOws+sebRW
+	u7TNkQgUdmUouf3YPwLyvcjW8J8Ae6xYLd5IHj7LYSZnfcWm2fzMku1E5qRM5tWh
+	5nUhpg==
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g74xhe6s0-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2026 09:17:14 +0000 (GMT)
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2cc86a9ef97so13000415ad.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2026 02:17:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1787563034; x=1788167834; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=m7lsraZhCPgC1BRKXbcGaxnflmdJRncfoKjV8SVGtLg=;
+        b=Wz98jR22cKjFjFAwQy+ow/UcPOuPwSt1mVsiJjltjt+WehBP1/VGzVwdBR5UTs0Dv/
+         86W1bXp80f4bxAxr594G3t+eYQINYyDSPY6KeJI3/2MmuukocWxdja2FNHZh48AAG10K
+         wDovVGlgTvQWqdfVBSmokLUNAwZ/TRljuMmwTQd3A+LdtHFv8SRLiByfpA9VFoVD15dU
+         ySDWj055JNwaNrF9Sc1mhWgpBAx3X6o7mF13vJe+llwGdSOok/ZvqT0puUrwYh3VL6DE
+         GGCxC0UaOkeOo8NTppR7QgnUuuEmX83L05B5PivAspdq6MvbPWGyy/DP/ZSsYVNa4HRN
+         qKOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787563034; x=1788167834;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=m7lsraZhCPgC1BRKXbcGaxnflmdJRncfoKjV8SVGtLg=;
+        b=idM5P9l8rsvv15zSYOSEc2183nXoGGa6Rx+wokk9FuhOFX4D0gtceK3OL+n7AiVPFz
+         L4P0a0oiyKclYAKtSX1xu1j1EG7bJ7cVIn0HA80MCe7rPCqPYbQZ7pbNbyBbnDITPy7p
+         MnzF5dRkh09x6KZSAdPX7/XM9YBMLJBOkpd2FIwB15FwGb48ykVG1i2PeeUmEC2odijX
+         Unx7VWNeQ39giZ0spgEBErfq8+2s/8cmXxXRVL/7kCE2nBtPhWXd7L7ZrjDRtTezRgf4
+         f7LLsMQ73tCxyYYYBfj2p/p2wI6jMaRPcStWi4W8qkyEIH8+iTTchWHZERBtman/iutP
+         q/cw==
+X-Forwarded-Encrypted: i=1; AHgh+Rr1Hz+7q5CtcKuM9a5ONWftmXYgnOk2B/HAewlafim4tObeOZReHcB9LcvxNfW7hrTu9aAT3zyh51xkIoBg2w==@vger.kernel.org
+X-Gm-Message-State: AFuF++lHMMKKk7jL73NQDKNumJ+vwuhCpOc54llHX8Fie4xqFikq2+i7
+	MFHIuS8TIN8cswPe7mOEWWOKU95bSP3b/KmRsRrIHnTZl7ZnjdMOROgKUHOhC/5x4K4gtfMtumz
+	Lmk98sfD9DexrqI6Z7HC0byIxXCCCaYPL3yLJJ8uOTs0vWm4gB4K/NHu/oLC3InEwD1a2
+X-Gm-Gg: AR+sD11dw/J/9eJlaurQJGA2KjjuIoPjOMQ4Gvq1nFw5cMLGwNZ+g9+O8ocwRgIF/a5
+	mDJaucd8S2z9mBM9T6vjkTLizH6ZWD/EZt6HsCh4kreu66Ems34zjwTEmukVx01NkqBFtvKfc2j
+	O06cPnQzqaxKUHQcf+NtXUWQBZ5kAW/cJuYCqcys5187Kn6WTWzTqLn9h6GN+GhUpYdx7BmIRMO
+	l5MEdoPzk8zY5AZqoVd1NsZsPTTYR46D5b3/gSoc9QcgijxCM6SBc6inRNy6s/+ASiWCiA8snfi
+	Ha4BNRBvDoGzyGtjsgoxGjnRs1OSr/GmX+BR7PFLsB7ET3jdrcbG+OvnZRai7M4JwknIZ5EmbCG
+	tCqFn+lVuJ/sOMh8ATXvKnqqPJ1OUaQc=
+X-Received: by 2002:a17:903:b07:b0:2d0:cc92:f7a3 with SMTP id d9443c01a7336-2d64ada8eb8mr488355135ad.2.1787563033950;
+        Mon, 24 Aug 2026 02:17:13 -0700 (PDT)
+X-Received: by 2002:a17:903:b07:b0:2d0:cc92:f7a3 with SMTP id d9443c01a7336-2d64ada8eb8mr488354125ad.2.1787563033470;
+        Mon, 24 Aug 2026 02:17:13 -0700 (PDT)
+Received: from [10.218.33.235] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d67679e55bsm15110925ad.30.2026.08.24.02.17.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Aug 2026 02:17:13 -0700 (PDT)
+Message-ID: <46db44b5-ae8e-491f-a381-0494fd4916f9@oss.qualcomm.com>
+Date: Mon, 24 Aug 2026 14:47:03 +0530
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/4] arm64: dts: qcom: lemans: Add PSCRR NVMEM recorder
+ node
+To: Abel Vesa <abel.vesa@oss.qualcomm.com>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck
+ <linux@roeck-us.net>,
+        Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>,
+        Srinivas Kandagatla <srini@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+        =?UTF-8?Q?S=C3=B8ren_Andersen?=
+ <san@skov.dk>,
+        Guenter Roeck <groeck@chromium.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        avaneesh.dwivedi@oss.qualcomm.com,
+        Umang Chheda <umang.chheda@oss.qualcomm.com>
+References: <20260819-pscrr-provider-v2-0-9072383e0f4d@oss.qualcomm.com>
+ <20260819-pscrr-provider-v2-4-9072383e0f4d@oss.qualcomm.com>
+ <yh4d3236iq4kjp5gumj6sj6b2dbiwjbmyywiayzbm4ul2mqjr2@hu3ddfqxfftr>
+Content-Language: en-US
+From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+In-Reply-To: <yh4d3236iq4kjp5gumj6sj6b2dbiwjbmyywiayzbm4ul2mqjr2@hu3ddfqxfftr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: tY_ccrDkbG4EZ7tlo0XBNEriRqIFY3WO
+X-Authority-Analysis: v=2.4 cv=GdQnWwXL c=1 sm=1 tr=0 ts=6a8c0c1a cx=c_pps
+ a=IZJwPbhc+fLeJZngyXXI0A==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
+ a=EUspDBNiAAAA:8 a=A7GeVftTVcCg-GgeXEgA:9 a=QEXdDO2ut3YA:10
+ a=uG9DUKGECoFWVXl0Dc02:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDA4MSBTYWx0ZWRfXzwveFtZKDi5z
+ gbaBzfe36FwRDowjlolUyHcR6gzI6hVmCSi2KQzc2ZDuDuIllyGwg+VgTOUkgVEqRm8zMw0pl5Q
+ T7x2I0RnZN5hUeVJI1ANPbZ1OfUkO5mBUqKMM6sPj50prfzSWBkt8R4vAiQ1Y3ixBgy0FqlmiSp
+ x5QguTrzpAJicGF4i2OSNsZlqh9zeJIYflidZ1O7WckS7QM0Zb4tgtXrypt0eBmwe5D3B7I2dK8
+ Ef/8iVN3b1hezWTklxXw8sc11bsYDU46pzuzWwNMMLT1qpnu0Ftak58FXSOrbRP5W0WtwGfsUyD
+ myewi//djRlvwTzWT9lKvBNUenAi4D3YdKVKavGd6IXT/OlcNQeDvtznh79KXreRDCkpqPbde4/
+ EexOZSiHmoEAYOQoNqPDSudqzdmejYjXwkfoEb5OUb9NXdbGLxAgXt7l333shpQ6dycjJJDBSWQ
+ l55vRQG6m9Pz9c6dTwg==
+X-Proofpoint-GUID: tY_ccrDkbG4EZ7tlo0XBNEriRqIFY3WO
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDA4MSBTYWx0ZWRfXzZVHHWXFNNzg
+ ugKPrSR0cULWduf/gyXZfhqlvBcynAH5A7BM5jMfUbOxxMEfBYk55NN12rMk1eDKsEkZmP6luns
+ qgJeqF3dXwM9M5XKxs+8gsWiKaFrc0E=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-24_03,2026-08-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 clxscore=1015 priorityscore=1501
+ malwarescore=0 lowpriorityscore=0 spamscore=0 adultscore=0 phishscore=0
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608240081
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Hi Abel Vesa,
 
-New issues:
-- [High] devm_request_threaded_irq is called before the hardware is configu=
-red, risking an interrupt storm.
-- [High] The watchdog is not stopped or paused during system suspend, leadi=
-ng to unintended system resets.
-- [Medium] Missing WDIOF_PRETIMEOUT flag prevents the pretimeout feature fr=
-om functioning.
+On 20-Aug-26 12:25 AM, Abel Vesa wrote:
+> On 26-08-19 22:50:46, Faruque Ansari wrote:
+>> Add a one-byte NVMEM cell node  in the SDAM to persist the power
+> 
+> Super nit: If you respin, drop the extra space between node and in.
 
-Pre-existing issues:
-- [High] Read-modify-write race condition on Write-0-to-Clear (W0C) bits in=
- the CTRL2 register.
-- [High] Hardware interrupts are left unmasked on driver unbind and probe e=
-rror paths.
---
+Thanks for the review.
+I'll fix this in V3.
 
---- Patch [3]: [PATCH v2 3/4] rtc: pcf8525: Add watchdog support ---
-commit a10f54adc977106a229d75b8d56bf77bb2ae1d33
-Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Thanks
+Faruque Ansari>
+>> state change reason across resets, and wire it to a pscrr-nvmem
+>> recorder consumer node so the reason is recorded before
+>> shutdown/reboot and read back on the next boot.
+>>
+>> Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+> 
+> Reviewed-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
 
-rtc: pcf8525: Add watchdog support
-
-This commit adds watchdog support for the NXP PCF8525 real time clock devic=
-e.
-It adds support for setting timeouts and handling pretimeout notifications
-using the INTB interrupt.
-
-> diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> index 843d4bb266847..415615ea0a406 100644
-> --- a/drivers/rtc/rtc-pcf8525.c
-> +++ b/drivers/rtc/rtc-pcf8525.c
-[ ... ]
-> @@ -249,6 +249,11 @@ static int pcf8525_wdt_set_timeout(struct watchdog_d=
-evice *wdd,
-> +static const struct watchdog_info pcf8525_wdt_info =3D {
-> +	.identity =3D "NXP PCF8525 Watchdog",
-> +	.options =3D WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-
-[Severity: Medium]
-Is the WDIOF_PRETIMEOUT flag missing here? Without this flag,
-watchdog_have_pretimeout() returns false, which prevents the watchdog
-core from attaching a pretimeout governor. When the hardware interrupt fire=
-s,
-watchdog_notify_pretimeout() might just return without taking action.
-
-> +};
-[ ... ]
-> @@ -267,6 +272,31 @@ static int pcf8525_watchdog_get_period(int n, int f1=
-000)
-> +static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
-> +{
-[ ... ]
-> +	if (!(ctrl2 & PCF8525_CTRL2_WDTF))
-> +		return IRQ_NONE;
-> +
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +				 PCF8525_CTRL2_WDTF, 0);
-
-[Severity: High]
-This is a pre-existing issue, but does using regmap_update_bits() here
-and in pcf8525_watchdog_config() introduce a race condition?
-
-The PCF8525 CTRL2 register contains multiple Write-0-to-Clear flags.
-Since regmap_update_bits() performs a read-modify-write cycle, if a hardware
-event like an alarm asserts the AF flag between the read and the write,
-won't writing back the read value of 0 silently wipe out the new interrupt
-flag? This also applies to the pre-existing regmap_update_bits() usage in
-pcf8525_irq() clearing PCF8525_CTRL2_AF.
-
-> +	if (ret)
-> +		return IRQ_NONE;
-> +
-> +	watchdog_notify_pretimeout(&pcf8525->wdd);
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int pcf8525_watchdog_config(struct device *dev,
-> +				   struct pcf8525 *pcf8525)
-> +{
-[ ... ]
-> +	/* Route watchdog only to INTB, and keep RTC interrupts masked on INTB.=
- */
-> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/*
-> +	 * Clear any stale WDTF before unmasking the watchdog on INTB.
-> +	 * With battery backup the flag survives a power cycle and would
-> +	 * assert INTB immediately on the next boot, causing an infinite
-> +	 * reset loop if INTB is wired to a hardware reset line.
-> +	 */
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +				 PCF8525_CTRL2_WDTF, 0);
-> +	if (ret)
-> +		return ret;
-> +
-> +	m1 |=3D PCF8525_MASK1_BIE |
-> +	      PCF8525_MASK1_AIE |
-> +	      PCF8525_MASK1_OSIE |
-> +	      PCF8525_MASK1_SI |
-> +	      PCF8525_MASK1_MI;
-> +	m1 &=3D ~PCF8525_MASK1_WD_CD;
-> +
-> +	ret =3D regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
-
-[Severity: High]
-This is a pre-existing issue, but are hardware interrupts left unmasked on
-driver unbind and probe error paths?
-
-The driver unmasks hardware interrupts here and in pcf8525_unmask_irqs_intA=
-().
-It relies on devm to free the IRQ handler, but lacks an i2c_driver.remove
-function or a devm_add_action callback to explicitly mask these interrupts =
-in
-the device registers on teardown. If the driver is unbound, could the exter=
-nal
-device actively assert the open-drain interrupt lines and cause an unhandled
-interrupt storm?
-
-> +	if (ret)
-> +		return ret;
-> +
-[ ... ]
-> +static int pcf8525_watchdog_init(struct device *dev,
-> +				 struct pcf8525 *pcf8525)
-> +{
-> +	int ret;
-> +
-> +	if (!IS_ENABLED(CONFIG_WATCHDOG_CORE) ||
-> +	    !device_property_read_bool(dev, "reset-source"))
-> +		return 0;
-> +
-> +	if (pcf8525->irq_intb > 0) {
-> +		ret =3D devm_request_threaded_irq(dev, pcf8525->irq_intb,
-> +						NULL, pcf8525_wdt_irq,
-> +						IRQF_ONESHOT,
-> +						"pcf8525-wdt", dev);
-
-[Severity: High]
-Should the IRQ be requested after the hardware is configured?
-
-In pcf8525_watchdog_config(), the INTB/CLKOUT pin defaults to a clock output
-(CLKOE=3D1). Requesting the IRQ here before pcf8525_watchdog_config() disab=
-les
-CLKOE could flood the CPU with interrupts. The IRQ handler will read WDTF as
-0 and return IRQ_NONE repeatedly, which might cause the spurious interrupt
-detector to permanently disable the IRQ line.
-
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	ret =3D pcf8525_watchdog_config(dev, pcf8525);
-> +	if (ret)
-> +		return ret;
-> +
-[ ... ]
-> +	pcf8525->wdd.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS;
-> +
-> +	watchdog_set_drvdata(&pcf8525->wdd, pcf8525);
-> +	watchdog_stop_on_reboot(&pcf8525->wdd);
-
-[Severity: High]
-Does the watchdog continue running during system suspend?
-
-The driver lacks dev_pm_ops suspend/resume callbacks to manually stop or
-pause the watchdog. Since the PCF8525 is an external RTC that continues
-ticking independently from the host CPU, could the hardware watchdog count
-down and assert a reset signal (via the reset-source property) while the
-system is asleep, causing an unintended hard reset?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824065531.6937=
-01-1-shivprakash.gupta@nxp.com?part=3D3
