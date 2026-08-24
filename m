@@ -1,27 +1,27 @@
 Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B14C25B099;
-	Mon, 24 Aug 2026 06:55:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC0193E7179;
+	Mon, 24 Aug 2026 06:55:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787554529; cv=none; b=hdsoySqLiW+sw2F2S2V597hJWUiWBRxucotvJcrOqYi+Ltn5UQrDmXSsBO+bzrn1oY+NlGFyyZdVv+Wpme1EZO1arjYj/x/ui1qRrIN9Ms7oSXEsA/s6Jtd2ek3AeS/0/fZNXzgfzO/Kdxsp3to6Ue2Yhp+cTQyCK12i8iULZiw=
+	t=1787554541; cv=none; b=j6Cb9337sWYYniSAzuIF/I6Oji+5nNpCwAf+3FmO84cWuY9dVQCaPl9mMTWBnOcAGanDdZg1fOAcNP1VQUIpm78WF3Wy0ipbQgJ1PyloTBTESc0KE/khs11xkdjHH4GwELF6rbFQSARCl7JJ2MJ7q6d+czrea5KOLKZIYKI96f8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787554529; c=relaxed/simple;
+	s=arc-20240116; t=1787554541; c=relaxed/simple;
 	bh=CrSd4vQsDBsfapTgoZ+7Rx7OBf13qzd0b6oDvme5D0A=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=d5fMBVGPViFu/GzY1Q8sR4rJXJNuJEAZ6u8/tTw3NBw+KvKSWFicimJsusTwClxM+9kXzbqg/0wyme5SP4PJEw8AgyZDh9ffWwGXeprWFFyWtcsubxNkGS5zX4Ei0O+rHQ5YEiG0qxskZgWl9ZAGUoUi9bqyLWnnc+VXg+OkP3w=
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ksW2SSPZC8lwSJVLck+wNh0ZhxkXaElRLkv7ly64icfVf5Kb4CiZ1qdx4kzMni5vG2UUTE28Z0hmuKr8lX9XQDilXL1DUYCTBjUrqb5hvMpXC1w8i3UFIXWNUeFZPi4mHajNwOOmSJz5sbqakY9YudQjGJVs36TIyJ6827bUwFA=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 8FFA11A0071;
-	Mon, 24 Aug 2026 08:55:21 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 3469B1A0099;
+	Mon, 24 Aug 2026 08:55:37 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 59C7F1A0053;
-	Mon, 24 Aug 2026 08:55:21 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 068DF1A0094;
+	Mon, 24 Aug 2026 08:55:37 +0200 (CEST)
 Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 2804C18000B6;
-	Mon, 24 Aug 2026 14:55:18 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id CBC111800068;
+	Mon, 24 Aug 2026 14:55:33 +0800 (+08)
 From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 To: linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
@@ -39,8 +39,8 @@ Cc: vikash.bansal@nxp.com,
 	lakshay.piplani@nxp.com,
 	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 Subject: [PATCH v2 0/4] Add driver for NXP PCF8525 RTC
-Date: Mon, 24 Aug 2026 12:25:08 +0530
-Message-Id: <20260824065512.693377-1-shivprakash.gupta@nxp.com>
+Date: Mon, 24 Aug 2026 12:25:27 +0530
+Message-Id: <20260824065531.693701-1-shivprakash.gupta@nxp.com>
 X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
