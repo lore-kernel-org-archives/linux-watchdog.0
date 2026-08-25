@@ -1,71 +1,72 @@
-Received: from mail-vk1-f169.google.com (mail-vk1-f169.google.com [209.85.221.169])
+Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6BB2426D0C
-	for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 12:26:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620C142D77B
+	for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 12:27:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787660821; cv=none; b=XxFn/0LukKbRiZf5xbOEOeBAvv+6XtDUjuwIgXGSWoa3AR3LeYR0SroQmJeQF7JvZWx7YtjmUoIVnmHNTL86CWALgaHVEd9FUm+kkSXcko0lh6d93iBIVCVSrgmiCKovP8/S94HHBEEnROO0EXlygdbmNCcaY4aW4/mk6Wz82KM=
+	t=1787660854; cv=none; b=Ks7k5bpubCIHduVJtnN0mVhJj03Ii8hbOURvR03nf3WFWkx0H1MLlNilC4fgjfJrJMQJqfOxiegLgev4mhP2FzceruP/r5HedIvrRtO//FAZHnKr1XHwmpBZr3xefc/EtQmhXyseA01yUSMm4tIVJJMI2ttBjVXVK+bxh5pgVYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787660821; c=relaxed/simple;
-	bh=gxH8SjRD1UIdTzPbcf/H8o8DZ5xZ4KITTBXh+NTJ9ms=;
+	s=arc-20240116; t=1787660854; c=relaxed/simple;
+	bh=4nRcMnRQV+AnDLfqURNbts14rQ+nBGEFB4Rm66x9S30=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RI9I4v7tKAJKPEjqAZmG4zxFlsvTLIB/nypQwCAvD1jqsvvtgGV1zmNQXlibZLeeMlUw2tkYsjLHErKsEP+idgyP/TbnGW89SS2JmXHDX8+7MwSOSsbcRAQ1oozrWXRGm3SaWflA8fZ+R1UgqMfl4SraVGPZKknsk9AY7oGpKRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.169
+	 To:Cc:Content-Type; b=FlihBu81XxOoTcXYrN7U11WwOEX2yyJrq82RIAEShBqYQ2OuCv18ogUGfv0LzAcS7TN429srtwvCzWDtLDZKIZWdhiailX856EAF31xxrfH2oJq6SeGmWzcSQSAlBkFABnG1DMtuHCCLKFu5ReHnxv1uo6jOtDRKzHsHOm79nh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f169.google.com with SMTP id 71dfb90a1353d-5c375a9e76cso3321621e0c.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:26:59 -0700 (PDT)
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-754acc61e10so2088556137.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:27:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787660819; x=1788265619;
+        d=1e100.net; s=20251104; t=1787660851; x=1788265651;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=3bNYZKHP963OmdqbLfjn2seFzOgtwyksbPN0UTH7ftQ=;
-        b=XYv8k7YHBdceWSeukztGp82rSA1DutWUOzF609WEA6oR7EcKqMqHpHfqCh1Kg+QXA+
-         113MtJhmI9aX+WA4Utvi719EG9QLzlwMHlZRwJRHZQDQv9lfER9vQoMw5OITCmxS1z7l
-         1+maZKAaj4JAF/KIDs5DvuPD67vxM9FUCrAzICQx2lOJkHv6f7kvBKMOBPTEKEuu1Jy7
-         wLeFxAKFWqPYmv0TSOLa4K/LqaEga6eHYSVArh4U4e3CcgfrlMYJfIkkBsSzSOxkeft+
-         8j/mcD+rd2TOgPnq3OOegosiJPSTNUUs80+R1MIPIuk1KgZPFAFbNw8TF1dVjTqkuGRv
-         cRiA==
-X-Forwarded-Encrypted: i=1; AHgh+RqGUA3MsnxXKfXM/FRbtLb4ExAfB13WGR+s+/CRmz9rg7VA4dwlpfZYr1EE5jyJOr2v2PyluOBwWvmrJk8aHg==@vger.kernel.org
-X-Gm-Message-State: AFuF++mOGIFNkkEdZ0yqsHCAqajdt/V1HWk7lR74CBTT8ira8ssBXe8t
-	tjo7BNJuc+y/aW99B1Z5ysRvGTYpDiq0RffnF1uts/iMJBh0RR1xKXsdQ0gi2riRUYg=
-X-Gm-Gg: AR+sD10zDKALF/hhEyTjtNfFxOlPD9Tu3Y2dpXYZZOI58oSQoFjEhAppq3qgnbshq7X
-	/g9bZAI6PequBxIyxuzbVVw1/WMkktywbyGjSY0IjX+MSFoJnHUF0bJRlFtt67wjYAa0rF4Ais8
-	2KapbghR7YsxfsVdFXrqHJUAV9QZAIMjoHUOdC0qnPFL+qn4nDppVChKkwJkJFfZcWurhsz2XYk
-	K7x8ZdOo1T7LPQLYZYdKctg9FUO1UBWy93v0YIYdRgVPz58GZXHreOT7j9XsNa8WraDGjXBQGDM
-	Snw3jj6ZBPUjMifXF8JIoqaobq4ewUnCNFPJbM9dSxi+b5Vs/fuygSHe7RucCJeXiissVT4sqcR
-	yw2KTXfsPez4iXu4KK2cpHJcLf3k0e3myQOLWDzML3RwGZtlI4X//Hxgr9GGJVZpoNedhglbncA
-	mfC4OyN8bTEruWFtfteZBL7UzHnms/tRbjjJuuGeM0k5BuKv0B/PKeAvxTMsxjo0yVTrfzZkQ9P
-	T22YEaKzUZ+Jvc4P8tCMaXUOw==
-X-Received: by 2002:a05:6122:8c8a:b0:5bd:9c71:11e with SMTP id 71dfb90a1353d-5c642dd3d89mr2571844e0c.4.1787660818655;
-        Tue, 25 Aug 2026 05:26:58 -0700 (PDT)
-Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com. [209.85.217.45])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c623f1c717sm5890213e0c.16.2026.08.25.05.26.57
+        bh=9/HktJJBeHHkHA6w8idbfeQ0ukYM1XFsMvOe4prisg8=;
+        b=TvewB366om7t/1GgTZgcnhqZjirHsmipbH6G4pD4qNVbzusyg4BUp2SLGIeGxZr15j
+         B8x95Rf7lhcjUhaUDJXWO3mXSI5OHilYOrysHmqMhjD9yPQljmngFgmQzcTy3NFqc5FT
+         xT0O1upzRyRpemHDVA9/XnYumay5u+6YhHttJ7IMfRLI4r2kwQZPabu2R1mTbFZw8PkN
+         cQ1XUkhptL/C/4zp0pPusztJyKBkSyxOKQEHt7RQEzFZS4nKJIMyljrGgJ+VWgImf0CT
+         HnafX/2dYgm+RrIszPBBXqrV243Z1/hADCyV6L6xlYQYHJKT3PtAhOrsmVdkW1fxXrmS
+         6u0Q==
+X-Forwarded-Encrypted: i=1; AHgh+Ro3HKeEt1svFVYWhC24A56p8FcDvHKQ6ySDG1Xb+OZpM86rZDGdaV7xrrDkVacIOpaLGbfSIx+u6zSBrpEnHA==@vger.kernel.org
+X-Gm-Message-State: AFuF++l/qoen2zjsfnc4516pGPRTxvl8dnWEssxbkeb/sQ3rEk1FjLH6
+	bbgGF3ehyWiKk3f8b22SyyPfQRB96oZ2j5Q8rit1zjRhpgyPOlSnVfchNqbwNcp1byM=
+X-Gm-Gg: AR+sD12QDFgPnAIsNpli2j2eJe02EZdcBJ2EKfhlJ+MlHxMyBry+GSI+oHNhW5kVfsG
+	vTP4BGaMFdr0IAQE8HNqLDw345cWO5yt1GQnMfoc3ZsfqtBIUWDBoFJ2CXchO3nMU6GfVbJfDRQ
+	c4fea2++HWlLlkzK0+K7KojCdpcehw7y1T7/luQXt1O3Ltyjs0OYM4x70mfS8g05bqKvNU/Tlse
+	OBLsS5F48fPq+lwpC02jVhs/Y2mGDRV8hCPk07YfzZhMsp/zWXYzzBnmMVDlmmShRJOfDKega9m
+	1bq9GVFOpQTjS/uyIQ/QYoYPHp4jp9ybLgVwqZdanVBms8o6QJyZQXFN48H4cKotipBDmQMgV3v
+	RgmWas9aUh4EzVEI9srgTE3Jm1neeqgr3unnkBhpWA41V4WtBdyPAm+wFolliI3vAMe5E8yiGjl
+	Dm+mq1erEve7Z++culHufZ/8X/C+Wdg50XysddAhd7oXLGhAAKeYFb86dxlOgHJiIlHCVg5TRv3
+	T1wq5ah8N7R1CS90FSJK1VF3g==
+X-Received: by 2002:a05:6102:290f:b0:77b:ae7:1bba with SMTP id ada2fe7eead31-77fe779aa8fmr2197179137.3.1787660851189;
+        Tue, 25 Aug 2026 05:27:31 -0700 (PDT)
+Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com. [209.85.217.46])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7804c715dfesm1021800137.3.2026.08.25.05.27.26
         for <linux-watchdog@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Aug 2026 05:26:57 -0700 (PDT)
-Received: by mail-vs1-f45.google.com with SMTP id ada2fe7eead31-74d55dac06eso2679813137.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:26:57 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RrS7cBFFC+nIHnORLEzXfnzBzutrL9e16AQpMUyif2OeOw9BkEcb6gULHDrEe4tSlvxwamNaeIKVfqE1Dopgg==@vger.kernel.org
-X-Received: by 2002:a05:6102:e14:b0:77d:a23d:ae70 with SMTP id
- ada2fe7eead31-77fe9814c27mr2237403137.14.1787660817048; Tue, 25 Aug 2026
- 05:26:57 -0700 (PDT)
+        Tue, 25 Aug 2026 05:27:29 -0700 (PDT)
+Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-73a442f7cd3so2460750137.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:27:26 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rr6xHhkiTIX57raQ/jsrlZrj8PCNbDouQPENRCZr+zuImoSOh8NQHCAbWwyo2RPQ9w/+Mhhe+G84xg7vJQZBA==@vger.kernel.org
+X-Received: by 2002:a05:6102:f0a:b0:779:aedc:88c6 with SMTP id
+ ada2fe7eead31-77fe357cf7dmr2091702137.0.1787660845781; Tue, 25 Aug 2026
+ 05:27:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260817192540.423994-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260817192540.423994-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <20260817192540.423994-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20260817192540.423994-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260817192540.423994-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20260817192540.423994-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 25 Aug 2026 14:26:45 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUtApMoHKg7v2CqNTQy4EF0sEzmSfQimGySgTcYjMwXEQ@mail.gmail.com>
-X-Gm-Features: AcwNN1U4dCP-EqOtN5skyICgGBt3GttjfY4cB3WPPEIKKuOj9_pFM74mnwgkrag
-Message-ID: <CAMuHMdUtApMoHKg7v2CqNTQy4EF0sEzmSfQimGySgTcYjMwXEQ@mail.gmail.com>
-Subject: Re: [PATCH v4 1/7] clk: renesas: r9a09g077: Register SYSC regmap
+Date: Tue, 25 Aug 2026 14:27:14 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUxeZ7gQiqE6VzDEF6NqgQyqO9bSnGkyyOxmT8zg62QqA@mail.gmail.com>
+X-Gm-Features: AcwNN1WRL_UGP8kr-vdoVNnxkPPKW_sCIe6xHhiuRgRsERD9dSDy4YtRIX0EpTw
+Message-ID: <CAMuHMdUxeZ7gQiqE6VzDEF6NqgQyqO9bSnGkyyOxmT8zg62QqA@mail.gmail.com>
+Subject: Re: [PATCH v4 2/7] arm64: dts: renesas: r9a09g077: Adjust CPG
+ register region sizes
 To: Prabhakar <prabhakar.csengg@gmail.com>
 Cc: Magnus Damm <magnus.damm@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
 	Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>, 
@@ -82,34 +83,15 @@ Content-Type: text/plain; charset="UTF-8"
 On Mon, 17 Aug 2026 at 21:26, Prabhakar <prabhakar.csengg@gmail.com> wrote:
 > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> Register a syscon regmap for the System Controller (SYSC) integrated into
-> the RZ/T2H and RZ/N2H CPG block.
+> Increase the size of both CPG register regions from 64 KiB to 128 KiB.
 >
-> Unlike traditional Renesas CPG/MSSR implementations, the RZ/T2H and RZ/N2H
-> CPG block also integrates the SYSC, which provides low-power management,
-> clock monitoring, write protection and peripheral configuration registers
-> shared by multiple drivers.
->
-> Implement the RZ/T2H-specific .post_init() callback to create and register
-> a syscon regmap covering the SYSC register space using the CPG device node.
-> For backward compatibility, return without registering the regmap when the
-> mapped resources correspond to older Device Trees that expose only the
-> legacy 64 KiB CPG register window.
+> On the RZ/T2H SoC, the CPG/MSSR block is a multi-function block where,
+> apart from clock and reset handling, it supports other features including
+> clock monitoring, write protection, and peripheral configuration registers.
+> Expand the mapped register regions to cover the entire register space of
+> this block so these additional features can be utilized.
 >
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> ---
-> v3->v4:
-> - Dropped RZT2H_SYSC_BASE macro
-> - Added array of base pointers to the r9a09g077_sysc_reg struct to
->   support multiple SYSC regions
-> - Merged r9a09g077_writeable_readable_sysc0 and
->   r9a09g077_writeable_readable_sysc1 into a single function
->   that checks the SYSC block and offset to determine if the register is
->   readable/writable.
-> - Added RZT2H_CPG_REG_SIZE macro
-> - Updated r9a09g077_post_init() to call of_address_to_resource() to check
->   the size of the mapped CPG register regions
-> - Dropped changes from cpg_mssr_common_init
 
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
