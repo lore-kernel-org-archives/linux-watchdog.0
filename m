@@ -1,197 +1,168 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E483536194A
-	for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2026 21:07:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787605660; cv=none; b=M7s+BK5xAiUt6OzXlRxu9rOy/tzmWrZ+3ZhHFy1EOg3FruPkkHQD2j6gZygYrYe9T7XMkf6RAEeNZAP86bJS27iHC9jDjELXadt8asGyL6H8q4VJLqhEqOqFl+xBttVCQVqGcWutTL/JfZiM+9ZShe2L+yDapRO7rdXd8TBUTxk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787605660; c=relaxed/simple;
-	bh=G4QCHkvPYFQxPIR7b5Jxv0jzKstFl5gCHL+MwewpkYA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=FWU+5npWFv3e18DUSs9JuRniL/pbwmXl7LCGWXTTjCzJaVmvuy+yS9jRBMJc/ciQlyyoqxw63DgwtuSPpgyIe8ruJEiTkZVpRiSUNT9NNulVeswMysCrCP1mVWlznoaD4DoY4J0kHebM8kWqiy2xDojCAj8RsnhLddBrJ3C+3qw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hibAlTRk; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 902BF1F427C
+	for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 00:00:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787616026; cv=pass; b=onmgXvOTmBiUUPKcgvvn4ZB1AxOwJmWrTLdFS7026gwoTdY5NC7lPwJ5Caf/hfnOzGpdGitNdeTgIZe57AiKXHmfXK0sfW8Ls7lZEr/0FB2MFfLju/TlN7bdoiwbD3wOSGEur0PS1PGxC/FE7JjuHvsGUGt8zXz6pWyOLLXwHXU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787616026; c=relaxed/simple;
+	bh=X/++xbGOvFtAQu2cxzysP+RHmG4xZ4+fn90ZP8dGcFU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=me/Zc/oEFjh1HAmpUt4ic3PDbyBATDEX9g2fWGZbwCwjEX303tBVA9TiYwV9yZbLUu2Q89r+tJ36maXn1+iPwXmIMHoIYeU0bHtXE7cuHyNKsEfUTD5+C+A2MV+LKBo3KgMACuY6X9uAlZAo7x3I2vZfWZKteF6Fo/zoxnyofUQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DzFFWujc; arc=pass smtp.client-ip=209.85.210.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hibAlTRk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 742541F000E9;
-	Mon, 24 Aug 2026 21:07:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787605658;
-	bh=ht/dRBObdy3h64eBf2oPCwxRvRHBqiWJj3/roXZGwQo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hibAlTRkvRZRG6ded7jUv7m95iJ+2l75Qc9OaddOA0v8j6t8Iu9Pl4XcRnyT3QDdV
-	 /puS9gKLF4kIe2qzr0WiEgG6Osttv1mzonK0csrTaYWTBCDrqPjAjNjCzEGrh69bsz
-	 bjsKLlQ/Gl8unbuFWZJR63H98MVWoHcmlcW9VtIjzNCcYFyqX1EXUujJBiMrKQL6Bb
-	 1xVATHNP92QziIg9GDSMlj0tSUINnUHENE8DnmhIi/oUqZFViX67LIDxy9/uS/NXl/
-	 WW5Wrjv2LgKF3u1aE35bAU4N6bx658EHmlyy+Gb1YqvEBSfvW5xin0nEKJI7Au0nRK
-	 DbZK69KVahmzA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Differentiate scenarios when watchdog is closed
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Charles Haithcock" <chaithco@redhat.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260824205051.4117285-2-chaithco@redhat.com>
-References: <20260824205051.4117285-2-chaithco@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 21:07:38 +0000
-Message-Id: <20260824210738.742541F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DzFFWujc"
+Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-7e6b5737bb2so5985347a34.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2026 17:00:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787616023; cv=none;
+        d=google.com; s=arc-20260327;
+        b=eKt2XUCLGukMqOqVZuUbC0vFFRPX21zEEdQK3Y8Jez6BF1mHWZ5CN9BQy7cz0/4J3h
+         TN+Ye3BRzraPy3xzqHkBsyD1uYQnn5ZCaKW/4OiqCriHbtYz60hU8VY7CLD2rQnI5Nc3
+         kBMxC77PSdWJcNPGaQG/K70RocsxZ4/YA9YU2WgIArk9AnW0W/Dhplwpkisr8rH8EwJA
+         W062Ir7+1xmYVLU3MlLIQOK9QKRLyPRLoV2kpoaNhL97znSVcxXQ5j+2XOAg3VvY6LjT
+         rZz0d9mR+PmIgBzbPsXy8ndliearfRYgZG63JxuP68EAtiLtOayg2vKWLbvEmTZAEcdJ
+         eP8w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=X/++xbGOvFtAQu2cxzysP+RHmG4xZ4+fn90ZP8dGcFU=;
+        fh=iJoh8/VVVDFC45IEktnS3qYBfcg8L5RGHTIZVQVY0ac=;
+        b=TLrtK8r2fiVdtCcU3WiejkcVPRTnDDkPm6Pl9BgZAXQfcPWVh3pRvPbZoOOal+KZ3C
+         hMuECPQNSn2KaWk7XgzrsAGrIvua2Qnlik4FBeUOGmKRC/UQs3hlm3pUkBlJRLbPa2lN
+         sygUNm2SELsYy//38AHQJ9t1UL0NjrTlCR6wbErmcUEWB6/kEn7RUTK84MfWob1U3dHV
+         QMX0I9nymvRxYUO3JOviIaABHxjOxKubt8mzrgN7w2TrmclTT33Sr28wQihlm1hv3qh8
+         PtV24h1rmA926JnJoVpW5jvfpRasuhInsCC/DYzsARDzqz1rHxd8O2gUfzRAR5xcYEyq
+         v2GQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1787616023; x=1788220823; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=X/++xbGOvFtAQu2cxzysP+RHmG4xZ4+fn90ZP8dGcFU=;
+        b=DzFFWujc3Mo0f6kDgbLnzoVMJHN0UMZ0XjVJlWq/aFHU8xM8qWyUOe/iguId7dIK32
+         Pcm2txEaTnFKK4MbeYVpkrlP8WvtDBIU/eFcuxL2xcq+ViBEQph8o7XoEeS1VVxrCg/q
+         hYjEZFkMXgiSgGgi630hUQYFABJIHWHLMGLu/e8gbZIT0bdaAmI3TSAQKWk28UyfSAks
+         6f9zlbAkekULEkEIOje9OSjvacw0wyaTaqIdAf0fVC/4Y1Ei3EEb31mtczpA9fm2Jr+w
+         LVxydUzD1KEBbC2atGVL23h2Ur/xz66ZugOrTqMGD7yfPwgqw/6Btzsng4aL7WALbTPh
+         eZZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787616023; x=1788220823;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=X/++xbGOvFtAQu2cxzysP+RHmG4xZ4+fn90ZP8dGcFU=;
+        b=C4dIrX15TwACFr/AdJc2ZqrURthd9vR58i1UYgtSapbsF55MRgq6T6dhhXoiMmZ6ih
+         R0iohKoPBvMWQpTJg6iFpamaMxIQwRdPvlTI8LHaBCluVSnEpfED4iyLB9sCyMOT+o6h
+         AfXI3CEzlckEAmR8UDGoIgYJMtNm3ImcMyPfAB30e0B8YUiUgi6Zw3ibGXWMoBpopBBs
+         VV/9Lc+G/yZj9VfvmHXhvcs4rdcPV+SCPjxOXRupyZuMNZioR0DAjQ8N59zaIT0+JbVs
+         d5AC4ju69fdmX4b5bKewf7e/Vutn/ygpabP1xb5tU2DP7L+pEHeTbYSatvJG+nsB0RYU
+         h+mw==
+X-Forwarded-Encrypted: i=1; AHgh+RouEmkVRbppj/naRy9lRNfHfQgUBRoDyQKpA6YnlJkLPxu/9XWCwchQ4xwNZiNRMpdZFZ0uuTLBwG3BIqNhEQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++nM77I9P5zzCU3wJu0q5xvnDK5NOQW6Jq11XrwiChOov4xasQbi
+	Sky9Yf28JEay2KRnpyJQoRp1IMj4h0G9nRDk+/7GqIa5gayze1n8ONcvrLlRl1kn32f4I2HyX5q
+	P0YKYmbrl6r37ZCAg09LO0xVRYfnRlE7LlRVW1lSI
+X-Gm-Gg: AR+sD10QAWqZskcn+2MhDSnGl+ybU1NVxa4S/YbR8RGoBQJuuVmssq8+qU+dRUca9Gd
+	S+tOzyu8LgUf3m56voSaragZo39nNNx1rfb14NCkTyrb4sMs81pqAEwnwLjlbHQiUeLkqMwBbmR
+	v1C8Gz7b4ShfzuzKpPpOO4qsjXkbzutIMEeJ39MYd7W1xBxNYtMlTglqqLQRNzXXCRJ4H81Bf7Q
+	uXR2WdyhKO0eFv9d4Bqgk8aUfHMcYjUCrimZ9Z5LIqqM9BDM/VcWp+gMcLVWuZwgaE3cbSpq2ZJ
+	FsvRHurLDuN8E4oSdbR/1RHiJj7WkKnfGvF2umFyQAkmz2aD1AaZvBPgrAEg0AK3bEjoWumgXTl
+	0Tg==
+X-Received: by 2002:a05:6830:83a5:b0:7e9:c72e:e5d6 with SMTP id
+ 46e09a7af769-7f4619f7498mr33999953a34.14.1787616022882; Mon, 24 Aug 2026
+ 17:00:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260730-qcom-wdt-nmi-series-v1-0-3aa86d162914@google.com>
+ <20260730-qcom-wdt-nmi-series-v1-2-3aa86d162914@google.com>
+ <CAD=FV=V+nrmtK6FJ2G+LGnvxkLEWMR+2A253-gQ2smxf9LoEWg@mail.gmail.com>
+ <eddc90dc-3223-4356-9e9b-350af904b144@roeck-us.net> <CAD=FV=XuCHdOv8kct63JzmbgjxJMxL7fc75KtAQL0hbJc7_v0w@mail.gmail.com>
+ <87h5l5ex9r.ffs@fw13>
+In-Reply-To: <87h5l5ex9r.ffs@fw13>
+From: Mayank Rungta <mrungta@google.com>
+Date: Mon, 24 Aug 2026 17:00:11 -0700
+X-Gm-Features: AcwNN1U5QkUUpN8cD3tqaTu98qlmKgL7-oQjdvPiyLexse4QcoQ423aVgpBBw18
+Message-ID: <CABz7rdCKHcXx6U5qo83HaiR_b17CsoQoVVEiZ=03c+h2FUFHpA@mail.gmail.com>
+Subject: Re: [PATCH 2/3] genirq: Export NMI APIs
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: Doug Anderson <dianders@chromium.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	"Kirill A. Shutemov" <kas@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+On Fri, Aug 7, 2026 at 9:00=E2=80=AFAM Thomas Gleixner <tglx@kernel.org> wr=
+ote:
+>
+> On Fri, Jul 31 2026 at 16:18, Doug Anderson wrote:
+> > On Thu, Jul 30, 2026 at 3:55=E2=80=AFPM Guenter Roeck <linux@roeck-us.n=
+et> wrote:
+> >> > This seems reasonable to me. One thought I had was that we could
+> >> > possibly get by with fewer exported symbols by changing
+> >> > disable_nmi_nosync() and enable_nmi() to "static inline" functions i=
+n
+> >> > the header file. That being said, what Mayank has here feels slightl=
+y
+> >> > better to me.
+> >> >
+> >>
+> >> I don't claim to understand the NMI APIs used, but Sashiko's feedback
+> >> seems real to me. Someone who knows that code will need to confirm tha=
+t
+> >> there are no unexpected pitfalls.
+> >
+> > Since Sashiko doesn't reply-to all, here's a link to its feedback:
+> >
+> > https://lore.kernel.org/all/20260730214758.DBD5E1F000E9@smtp.kernel.org=
+/
+> >
+> > Indeed, it does look like legitimate feedback. While the problems are
+> > pre-existing, it is true that exporting as a module could widen the
+> > exposure because the code backing the NMI handler could now be
+> > unloaded.
+> >
+> > I did a little bit of AI analysis of the problem myself. As far as I
+> > can tell, it would be relatively safe to implement a synchronous
+> > "disable_nmi" by just calling "disable_irq", much like is done for
+> > other NMI functions. The caveat here is that it would only be safe on
+> > IRQ controllers that provided irq_get_irqchip_state(). This is because
+> > on NMI we don't set IRQD_IRQ_INPROGRESS and thus
+> > __synchronize_hardirq() will fall back to calling
+> > __irq_get_irqchip_state(). If any controllers supported NMI but
+> > _didn't_ support irq_get_irqchip_state(), we'd silently skip waiting
+> > for NMI completion. Maybe we could simply make it illegal for a
+> > controller to support NMI without irq_get_irqchip_state()?
+> >
+> > I guess maybe we need Thomas Gleixner to weigh in on this? Thomas:
+> > should this issue block Mayank's patch? Would you expect him to
+> > propose fixes as part of his series, or is this something you'd prefer
+> > to post patches for yourself?
+>
+> Sorry, I did not pay attention as I was AFK and busy with bugs. I'll
+> have a look once the dust settles on my side (hopefully soonish).
+>
 
-New issues:
-- [High] The patch inadvertently omits the keepalive ping when a watchdog d=
-evice is closed without the magic close character, altering expected timeou=
-t behavior.
+Hi Thomas,
 
-Pre-existing issues:
-- [High] If the hardware stop operation fails, the `WDOG_HW_RUNNING` bit is=
- incorrectly left cleared, leading to a premature module reference release =
-and a subsequent Use-After-Free kernel panic.
-- [High] Unbalanced module_put() in the error path of watchdog_open() if th=
-e hardware is already running, which can lead to a Use-After-Free.
-- [High] watchdog_open() calls watchdog_start() without holding wd_data->lo=
-ck, creating a data race with the background ping worker.
---
+Friendly ping on this thread!
 
---- Patch [1]: [PATCH] Differentiate scenarios when watchdog is closed ---
-commit a2b7eb1d1568deccc7f35e939965c301a7ed7c1c
-Author: Charles Haithcock <chaithco@redhat.com>
+I completely understand maintainer schedules are very busy. If you
+haven't had a chance to look at this by the end of the week, I'm happy
+to take a stab at implementing the NMI teardown synchronization in v2
+myself for your review.
 
-Differentiate scenarios when watchdog is closed
+Please let me know if you have any thoughts or guidance on the approach.
 
-This commit updates the watchdog closing logic to print a specific message
-when the watchdog is closed unexpectedly while still running. It separates
-this scenario from the failure to stop when nowayout is set or when the
-device fails to stop in the hardware driver.
-
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_=
-dev.c
-> index 9a5e544b886bf..72f687aee067a 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -955,14 +955,17 @@ static int watchdog_release(struct inode *inode, st=
-ruct file *file)
->  	if (!watchdog_active(wdd))
->  		err =3D 0;
->  	else if (test_and_clear_bit(_WDOG_ALLOW_RELEASE, &wd_data->status) ||
-> -		 !(wdd->info->options & WDIOF_MAGICCLOSE))
-> +		 !(wdd->info->options & WDIOF_MAGICCLOSE)) {
->  		err =3D watchdog_stop(wdd);
-> =20
-> -	/* If the watchdog was not stopped, send a keepalive ping */
-> -	if (err < 0) {
-> -		pr_crit("watchdog%d: watchdog did not stop!\n", wdd->id);
-> -		watchdog_ping(wdd);
-> +		/* If the watchdog was not stopped, send a keepalive ping */
-> +		if (err < 0) {
-> +			pr_crit("watchdog%d: watchdog did not stop!\n", wdd->id);
-> +			watchdog_ping(wdd);
-> +		}
->  	}
-> +	else
-> +		pr_info("watchdog%d: closing while running!\n", wdd->id);
-
-[Severity: High]
-By nesting the keepalive ping logic inside the else-if block, does this skip
-sending the keepalive ping when the watchdog is closed unexpectedly (without
-the magic character)?
-
-This seems to remove the watchdog's ability to reset its hardware timer on =
-an
-unexpected close, which could cause the system to reboot based on the last
-explicit ping time rather than providing a full timeout window for recovery.
-
-> =20
->  	watchdog_update_worker(wdd);
-> =20
-
-[Severity: High]
-This is a pre-existing issue, but if the hardware stop operation fails, is
-the WDOG_HW_RUNNING bit incorrectly left cleared?
-
-Looking at watchdog_stop():
-
-drivers/watchdog/watchdog_dev.c:watchdog_stop() {
-	if (wdd->ops->stop) {
-		clear_bit(WDOG_HW_RUNNING, &wdd->status);
-		err =3D wdd->ops->stop(wdd);
-		trace_watchdog_stop(wdd, err);
-	} else {
-...
-}
-
-If wdd->ops->stop() fails, err is returned but WDOG_HW_RUNNING is never
-restored.
-
-Later in watchdog_release():
-
-drivers/watchdog/watchdog_dev.c:watchdog_release() {
-...
-	running =3D wdd && watchdog_hw_running(wdd);
-	mutex_unlock(&wd_data->lock);
-
-	if (!running) {
-		module_put(wd_data->cdev.owner);
-		put_device(&wd_data->dev);
-	}
-...
-}
-
-Would this cause the module reference to be dropped erroneously, allowing t=
-he
-module to be unloaded while the hardware is still running, and potentially
-leading to a use-after-free when the background worker fires?
-
-[Severity: High]
-This is a pre-existing issue, but is there an unbalanced module_put() in the
-error path of watchdog_open() if the hardware is already running?
-
-drivers/watchdog/watchdog_dev.c:watchdog_open() {
-	hw_running =3D watchdog_hw_running(wdd);
-	if (!hw_running && !try_module_get(wdd->ops->owner)) {
-		err =3D -EBUSY;
-		goto out_clear;
-	}
-
-	err =3D watchdog_start(wdd);
-	if (err < 0)
-		goto out_mod;
-...
-out_mod:
-	module_put(wd_data->wdd->ops->owner);
-}
-
-If hw_running is true, try_module_get() is skipped. If watchdog_start() then
-fails, execution jumps to out_mod and calls module_put(). Could this drop a
-module reference that was never acquired, leading to a premature unload and=
- a
-use-after-free?
-
-[Severity: High]
-This is a pre-existing issue, but does watchdog_open() call watchdog_start()
-without holding wd_data->lock?
-
-drivers/watchdog/watchdog_dev.c:watchdog_open() {
-...
-	err =3D watchdog_start(wdd);
-	if (err < 0)
-		goto out_mod;
-...
-}
-
-If the watchdog hardware is running before being opened, the background ping
-worker may execute concurrently. Does this lack of synchronization allow da=
-ta
-races with the worker that can corrupt internal states?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824205051.4117=
-285-2-chaithco@redhat.com?part=3D1
+Thanks,
+Mayank
