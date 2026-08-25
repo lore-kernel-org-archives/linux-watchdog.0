@@ -1,72 +1,72 @@
-Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
+Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620C142D77B
-	for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 12:27:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818033F211A
+	for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 12:30:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787660854; cv=none; b=Ks7k5bpubCIHduVJtnN0mVhJj03Ii8hbOURvR03nf3WFWkx0H1MLlNilC4fgjfJrJMQJqfOxiegLgev4mhP2FzceruP/r5HedIvrRtO//FAZHnKr1XHwmpBZr3xefc/EtQmhXyseA01yUSMm4tIVJJMI2ttBjVXVK+bxh5pgVYA=
+	t=1787661061; cv=none; b=gMhXAV0NTWC6SAVXpL7rR7R4IiE4E0SnL8CHF6yD/18W5rTn5aMYE3JU0acogJqXoXwhHAcgDO9zyqjBniQMqNDndIqLLADudmnx2rIlCa0J+ISTkzd/+VPwRmmtJFsSGEz6yh+RE74P2qs26l0pT5JU2MA3l4cnwJMfrhFOiYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787660854; c=relaxed/simple;
-	bh=4nRcMnRQV+AnDLfqURNbts14rQ+nBGEFB4Rm66x9S30=;
+	s=arc-20240116; t=1787661061; c=relaxed/simple;
+	bh=XVZs/xqSmR+34+BrwmpxC0cd+dGU1Zxb/J9zlN0cTU8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FlihBu81XxOoTcXYrN7U11WwOEX2yyJrq82RIAEShBqYQ2OuCv18ogUGfv0LzAcS7TN429srtwvCzWDtLDZKIZWdhiailX856EAF31xxrfH2oJq6SeGmWzcSQSAlBkFABnG1DMtuHCCLKFu5ReHnxv1uo6jOtDRKzHsHOm79nh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.53
+	 To:Cc:Content-Type; b=ChFklvleClSaiRhy0DDQtTPnEdsnF7Xez9Qn51M7zqATl+u3vjbv/SQDZmJBhAF0efpaK+IZp1HjKNo9a19uoXFpb8531FGerbfrSYUI9iuR5G34ncDEdXMRUUPF8ainFTxMBUtw05gPT9/MqmL4Mg4ulqdzhv8UpcyqktNKZDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-754acc61e10so2088556137.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:27:32 -0700 (PDT)
+Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-74aa416ebb1so1384569137.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:30:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787660851; x=1788265651;
+        d=1e100.net; s=20251104; t=1787661053; x=1788265853;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=9/HktJJBeHHkHA6w8idbfeQ0ukYM1XFsMvOe4prisg8=;
-        b=TvewB366om7t/1GgTZgcnhqZjirHsmipbH6G4pD4qNVbzusyg4BUp2SLGIeGxZr15j
-         B8x95Rf7lhcjUhaUDJXWO3mXSI5OHilYOrysHmqMhjD9yPQljmngFgmQzcTy3NFqc5FT
-         xT0O1upzRyRpemHDVA9/XnYumay5u+6YhHttJ7IMfRLI4r2kwQZPabu2R1mTbFZw8PkN
-         cQ1XUkhptL/C/4zp0pPusztJyKBkSyxOKQEHt7RQEzFZS4nKJIMyljrGgJ+VWgImf0CT
-         HnafX/2dYgm+RrIszPBBXqrV243Z1/hADCyV6L6xlYQYHJKT3PtAhOrsmVdkW1fxXrmS
-         6u0Q==
-X-Forwarded-Encrypted: i=1; AHgh+Ro3HKeEt1svFVYWhC24A56p8FcDvHKQ6ySDG1Xb+OZpM86rZDGdaV7xrrDkVacIOpaLGbfSIx+u6zSBrpEnHA==@vger.kernel.org
-X-Gm-Message-State: AFuF++l/qoen2zjsfnc4516pGPRTxvl8dnWEssxbkeb/sQ3rEk1FjLH6
-	bbgGF3ehyWiKk3f8b22SyyPfQRB96oZ2j5Q8rit1zjRhpgyPOlSnVfchNqbwNcp1byM=
-X-Gm-Gg: AR+sD12QDFgPnAIsNpli2j2eJe02EZdcBJ2EKfhlJ+MlHxMyBry+GSI+oHNhW5kVfsG
-	vTP4BGaMFdr0IAQE8HNqLDw345cWO5yt1GQnMfoc3ZsfqtBIUWDBoFJ2CXchO3nMU6GfVbJfDRQ
-	c4fea2++HWlLlkzK0+K7KojCdpcehw7y1T7/luQXt1O3Ltyjs0OYM4x70mfS8g05bqKvNU/Tlse
-	OBLsS5F48fPq+lwpC02jVhs/Y2mGDRV8hCPk07YfzZhMsp/zWXYzzBnmMVDlmmShRJOfDKega9m
-	1bq9GVFOpQTjS/uyIQ/QYoYPHp4jp9ybLgVwqZdanVBms8o6QJyZQXFN48H4cKotipBDmQMgV3v
-	RgmWas9aUh4EzVEI9srgTE3Jm1neeqgr3unnkBhpWA41V4WtBdyPAm+wFolliI3vAMe5E8yiGjl
-	Dm+mq1erEve7Z++culHufZ/8X/C+Wdg50XysddAhd7oXLGhAAKeYFb86dxlOgHJiIlHCVg5TRv3
-	T1wq5ah8N7R1CS90FSJK1VF3g==
-X-Received: by 2002:a05:6102:290f:b0:77b:ae7:1bba with SMTP id ada2fe7eead31-77fe779aa8fmr2197179137.3.1787660851189;
-        Tue, 25 Aug 2026 05:27:31 -0700 (PDT)
-Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com. [209.85.217.46])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7804c715dfesm1021800137.3.2026.08.25.05.27.26
+        bh=ILP07iJKBmCL4umuQJDRJxi/o8MvR2u5/1eDo+tc9XU=;
+        b=P2E47emqOnZvK9kae8LdDDjvTQPKUMzeiisO09aqmLtfcYzX3jzBr+FzdrisEEouig
+         9D/mT1g5QkLkDx3IPI05ZO4ze43cA4FQF5KoAjyPjC9sKGGIq0jcOhvj8BEzc/0lbYHF
+         JLJjfzTTx2vb+U5RyvVMWOOfQqq4sBpUTDahOoYAh+7A/7Z0IOApxgLeot3oOkUX6SAC
+         fsKiY1YhJmn1aqnmD/335xo2nj7cWZfH3uoWDwrhpHg0vpw9P0WNRyqLa6SXETyMuSHD
+         I9kj9oUZZix/hFh43VNly5CjMxiunuSKnuV7H6dVV8wItb/lin7DcKqFBAs0TNXDJ8Cl
+         4suQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rq1ipyzZEm06BlcQMzG16TVIdw3+LCb7aYRLdW+gv//ipEHAmE6RKOESfmFyogkN0gs5/OexPrAXefqBORpMQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++l6GdVPEHdlhoBi2bxCvcAG+t9gYaAo6d270fWN2w9OKzuU0T3t
+	suzuZU358/TlM/NAv9H9diA8TG4BdzwLbdIjhdpllv5y7JewIU1h1dQJqTaE7CTQTOA=
+X-Gm-Gg: AR+sD13KDU3jYsXqFhSIj2EBV5vkl+/buBjZKQ+C4T9Z+urSwi4P8/MSRlRsxDbu7cB
+	1eBJd6IqqcI+xImgi1notl2/LZQYGI9FaqK//Rz+oxYM6T9okhhYZz/7GCg5WgjM6y0hFlSzLG8
+	Af0QmDJCnxj3gnFUUVqyd2l4/vIn2bJ2FgZwLK2jW0DIlHpNLcgGJeTcoEJjuuqF1vw7ufZHPUe
+	cVH9I05edsO8CQk8yzDYZAP1awU8HBB2QBW+jUO54pO9Ig6ksUYugfZAuPo+zfcqZX61J8g4N8Q
+	R0S8f9SB7M6pgqBiXo2gXUMsjNz3S6O+D3Bf3VjGPwe5xeyILOfd3wcb2GPij7Ie5oeiWEv5YV+
+	LVBsr2iDsqdxdLDGCy2gJZFjT6OWRLovAOaXRJcsoSObg3mOTBi9dt9CBgFIX0J3aj+RDMUIZBO
+	6QlwY4KUaLS/uJHACzvXbfcymDLprjEDb2DP4Zg/M8dbhFGAdr6rp6/9BVpp/LxmgVnCosQcTK8
+	nV5jVtgZ26nBJDuTrQzuvOVjA==
+X-Received: by 2002:a05:6102:5809:b0:76f:eaa2:6fa7 with SMTP id ada2fe7eead31-77a623259d3mr8804965137.2.1787661052790;
+        Tue, 25 Aug 2026 05:30:52 -0700 (PDT)
+Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com. [209.85.217.48])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-77d85bedbe0sm5375794137.11.2026.08.25.05.30.51
         for <linux-watchdog@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Aug 2026 05:27:29 -0700 (PDT)
-Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-73a442f7cd3so2460750137.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:27:26 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rr6xHhkiTIX57raQ/jsrlZrj8PCNbDouQPENRCZr+zuImoSOh8NQHCAbWwyo2RPQ9w/+Mhhe+G84xg7vJQZBA==@vger.kernel.org
-X-Received: by 2002:a05:6102:f0a:b0:779:aedc:88c6 with SMTP id
- ada2fe7eead31-77fe357cf7dmr2091702137.0.1787660845781; Tue, 25 Aug 2026
- 05:27:25 -0700 (PDT)
+        Tue, 25 Aug 2026 05:30:52 -0700 (PDT)
+Received: by mail-vs1-f48.google.com with SMTP id ada2fe7eead31-74aa416ebb1so1384559137.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Aug 2026 05:30:51 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rr7oTRwx3gQFvVbj6pBPBEr118OWwRkcvtNzn8PM5tEiqpT9aItk8btJ0+D86v+vCZcszgRdBMONXwtNMtt3g==@vger.kernel.org
+X-Received: by 2002:a05:6102:5107:b0:778:4c28:6725 with SMTP id
+ ada2fe7eead31-77a6434bfc4mr9788298137.10.1787661050975; Tue, 25 Aug 2026
+ 05:30:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260817192540.423994-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260817192540.423994-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <20260817192540.423994-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20260817192540.423994-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260817192540.423994-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20260817192540.423994-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 25 Aug 2026 14:27:14 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUxeZ7gQiqE6VzDEF6NqgQyqO9bSnGkyyOxmT8zg62QqA@mail.gmail.com>
-X-Gm-Features: AcwNN1WRL_UGP8kr-vdoVNnxkPPKW_sCIe6xHhiuRgRsERD9dSDy4YtRIX0EpTw
-Message-ID: <CAMuHMdUxeZ7gQiqE6VzDEF6NqgQyqO9bSnGkyyOxmT8zg62QqA@mail.gmail.com>
-Subject: Re: [PATCH v4 2/7] arm64: dts: renesas: r9a09g077: Adjust CPG
- register region sizes
+Date: Tue, 25 Aug 2026 14:30:39 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWO8ARCZtT7m+bndN5szyzRxPwQmZ-GKQ+ho+yLgTH0bw@mail.gmail.com>
+X-Gm-Features: AcwNN1XXro5QQ7iyl-KmnWQpVLzoicJmI0T4QyJFnTkTZ2UbLlORJ3tn7mvhDjA
+Message-ID: <CAMuHMdWO8ARCZtT7m+bndN5szyzRxPwQmZ-GKQ+ho+yLgTH0bw@mail.gmail.com>
+Subject: Re: [PATCH v4 7/7] arm64: dts: renesas: r9a09g087: Use CPG/MSSR
+ syscon for WDTDCR access
 To: Prabhakar <prabhakar.csengg@gmail.com>
 Cc: Magnus Damm <magnus.damm@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
 	Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>, 
@@ -83,13 +83,13 @@ Content-Type: text/plain; charset="UTF-8"
 On Mon, 17 Aug 2026 at 21:26, Prabhakar <prabhakar.csengg@gmail.com> wrote:
 > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> Increase the size of both CPG register regions from 64 KiB to 128 KiB.
+> The WDTDCR registers for wdt0-wdt5 reside in the second register region of
+> the CPG/MSSR block. This multi-function block is now exposed via a unified
+> syscon regmap interface.
 >
-> On the RZ/T2H SoC, the CPG/MSSR block is a multi-function block where,
-> apart from clock and reset handling, it supports other features including
-> clock monitoring, write protection, and peripheral configuration registers.
-> Expand the mapped register regions to cover the entire register space of
-> this block so these additional features can be utilized.
+> Replace the direct mapping of the individual WDTDCR registers with the
+> new "renesas,sysc" phandle property pointing to the CPG/MSSR block syscon
+> node.
 >
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
