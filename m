@@ -1,107 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAA5938DC52;
-	Thu, 27 Aug 2026 04:47:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72D32346E43;
+	Thu, 27 Aug 2026 04:53:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787806047; cv=none; b=ZiAcoX4xKRjsh4Zrjd4z/ZmqgbHER4sfNuUq6HWan/2pkGpEbfjLYrMaErLbxYJ81Ti3DrJZWueor7jmZYF64ptxa6gnfp/AlEohxUxM6r5NpvUOH+Ez4M8If4DpBmKjzKUPS7QAa8/NZqRGuNWf7PLG0CE8O7m1Nr4csjnaraA=
+	t=1787806404; cv=none; b=ZSVAgM8kt8BGKSyJS3ljEDnRwrZ9VTkmu8Q/NorQCq512Tq5g/nm7cnUUYs/nlbxaMlMOrV92AFOYpXpdLmGqXPNAwaySZBeYfxjoSFHL2N2SB2oWvTGcYCPIBv3fUBQkQKB5NAdiqUMFF7jcwVRTbSMCgSUOfklN7IMvt7OkVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787806047; c=relaxed/simple;
-	bh=YIq0A3H1Rx+R07KjnIDHUsNAPYrxI4Sya970F6JTj/0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ayk8r3jfZNWqcSv8o9k65bzycU1lwa4/tNIcoA/Gy2msHHwuFH/aUe8StYwo5zwy9OcPAwsbKFXugD+Bj4qVQn+3tnjlgSoayrexzpMAWre6r+aidrR6n89MI29cA5HMZ9Ae0C6iLssI6Y7RPvBKcJ01KAFxj+wIPG13QyLCXAs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OCtM7uiU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787806404; c=relaxed/simple;
+	bh=gTJqrXUDmPmlOhXdaDmayZiPEvr1bAU//RPSvEs0fak=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VNocGmmAXeNlDiOhfAwmErqlopXKEuNHmlZH7DuWjDQlp5hi8vssk71CG5lHnQjMb+1ctuK+t1oMh0/JouekUZTJW7VPYe9OpS8oZS/eXzLcH12Yw9hWXYwY/yckFiELJnRek8ZyplDE6NgelqUhofp5M2pT2GVw6o78pD4qn0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vnm8mpeR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OCtM7uiU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 803771F00A3D;
-	Thu, 27 Aug 2026 04:47:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vnm8mpeR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A7B1F000E9;
+	Thu, 27 Aug 2026 04:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787806045;
-	bh=GF+KYMagwTkH8RT0L2sU4K1+JQZkbIqgAcf1GwXQKmg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=OCtM7uiUPKBWxZ4V8gIzTe3rRHVrY2gdLO5x4BavxDM3zGdEnfEsyy2yrFf/Yp3Gy
-	 GJjovMh2l83P4B72WXDjmjPT/RwdAimlpuoTKFRipQz5KWkwM5PKXuUObqY6XCkf0A
-	 olEZAYAhp8Sh/YhXMRLldIojkyaPNp7jnP2MTp1n7jD2tXcFbDwC0N205VWx2RDmPq
-	 UqREEv2MZ+Hh+uPhA7ZmrHx2lEfSDt1SRDvWuE36NkKN4HbQdY44zhPOmNNAG/62YI
-	 ZMa+cK8Z3GY9geDNHX/ouSGAUVOE6ZC/Exfk4wG7s0N0n5eNvjLbQoWHHJYcLksKVm
-	 s0/69ai0ZEiDQ==
+	s=k20260515; t=1787806403;
+	bh=TNxTJXH87MyrN/p2FhZSULngNC/hfZtET3XVBjM++5w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Vnm8mpeR6C3y3Ng1qPUocItKQZdiLqwo5wtco1Lus/v0+K89GEaHo3ROopl7/rCw1
+	 0/UHE+5w36aE4ZgiRWzA0nynd20VBNtHiu660Efi+a/tUCq4RYKngC6Axt34vj76lQ
+	 LXzueOuK3ZM1mtv5DEC4PZfA80VR03ELd7U5t8RlS/alNHUSs5bfYOVzEWaoxz6aCe
+	 J826Ok2Ae7OYJrkADpS4lZBkY0BJn5kW8k4BO7FOjSiey2nHTiW3xGOPN7fWZpx9vP
+	 Ezweo2ub4Kq15GmLMfpRshKYiHqEF7Y+8SbtKau1SsC6veKHVgTRSJhClw007lqw2A
+	 BXSJyM+Tuo2Cg==
+Date: Thu, 27 Aug 2026 04:53:20 +0000
 From: Tzung-Bi Shih <tzungbi@kernel.org>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Daniel Palmer <daniel@thingy.jp>,
-	Romain Perier <romain.perier@gmail.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	tzungbi@kernel.org
-Subject: [PATCH 2/2] watchdog: msc313e: Enable clock before accessing hardware registers
-Date: Thu, 27 Aug 2026 04:47:00 +0000
-Message-ID: <20260827044700.554333-3-tzungbi@kernel.org>
-X-Mailer: git-send-email 2.55.0.887.g758fc8c411-goog
-In-Reply-To: <20260827044700.554333-1-tzungbi@kernel.org>
-References: <20260827044700.554333-1-tzungbi@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: Triet Hoang <triet.hoang.dev@gmail.com>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 4/8] watchdog: msc313e_wdt: Convert to
+ DEFINE_SIMPLE_DEV_PM_OPS()
+Message-ID: <ao_CwKrBhJzA8NHH@google.com>
+References: <20260826060839.203297-1-triet.hoang.dev@gmail.com>
+ <20260826060839.203297-5-triet.hoang.dev@gmail.com>
+ <20260826062035.7645D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260826062035.7645D1F000E9@smtp.kernel.org>
 
-msc313e_wdt_probe() reads from hardware registers without ensuring the
-required clock is enabled.  Furthermore, if the bootloader leaves the
-watchdog running, msc313e_wdt_probe() sets WDOG_HW_RUNNING without
-increasing the clock's reference count.
+On Wed, Aug 26, 2026 at 06:20:35AM +0000, sashiko-bot@kernel.org wrote:
+> Pre-existing issues:
+> - [High] Missing platform_set_drvdata() or dev_set_drvdata() in the probe function leads to a guaranteed NULL pointer dereference during suspend/resume operations.
+> - [High] The driver accesses hardware registers without ensuring the required clock is enabled, which can lead to a synchronous bus fault.
 
-While the clock is currently supplied as a fixed clock by the device
-tree (`xtal_div2` in arch/arm/boot/dts/sigmastar/mstar-v7.dtsi) which
-masks the physical issue, this still violates the API usage.
+They are real issues.  Sent [1] for fixing if they are still relevant.
 
-Call clk_prepare_enable() before reading WDT registers.  If the WDT is
-running, leave the clock enabled so the CCF reference counter is
-balanced.
+[1] https://lore.kernel.org/linux-watchdog/20260827044700.554333-1-tzungbi@kernel.org
 
-Fixes: ffd264bd152c ("watchdog: msc313e: Check if the WDT was running at boot")
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
----
- drivers/watchdog/msc313e_wdt.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+> > -static int __maybe_unused msc313e_wdt_suspend(struct device *dev)
+> > +static int msc313e_wdt_suspend(struct device *dev)
+> >  {
+> >  	struct msc313e_wdt_priv *priv = dev_get_drvdata(dev);
+> 
+> [Severity: High]
+> This isn't a bug introduced by this patch, but does this result in a NULL
+> pointer dereference when the system suspends?
+> 
+> The PM core invokes msc313e_wdt_suspend() and passes the platform device as the
+> dev parameter. However, msc313e_wdt_probe() never calls platform_set_drvdata()
+> or dev_set_drvdata() for the platform device:
+> 
+> drivers/watchdog/msc313e_wdt.c:msc313e_wdt_probe() {
+>     ...
+> 	watchdog_set_drvdata(&priv->wdev, priv);
+> 
+> 	watchdog_init_timeout(&priv->wdev, timeout, dev);
+> 	watchdog_stop_on_reboot(&priv->wdev);
+> 	watchdog_stop_on_unregister(&priv->wdev);
+> 
+> 	return devm_watchdog_register_device(dev, &priv->wdev);
+> }
+> 
+> Because the driver data is uninitialized, dev_get_drvdata(dev) evaluates to
+> NULL. The callback then computes an offset into this NULL pointer via
+> &priv->wdev and passes it to watchdog_active(), which unconditionally
+> dereferences it via test_bit(WDOG_ACTIVE, &wdd->status), causing a fatal
+> page fault.
+> 
+> The identical NULL pointer dereference logic also executes on the resume path
+> in msc313e_wdt_resume().
 
-diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wdt.c
-index f69d66971c41..b279ef645430 100644
---- a/drivers/watchdog/msc313e_wdt.c
-+++ b/drivers/watchdog/msc313e_wdt.c
-@@ -97,6 +97,7 @@ static int msc313e_wdt_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct msc313e_wdt_priv *priv;
-+	int ret;
- 
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
-@@ -119,9 +120,21 @@ static int msc313e_wdt_probe(struct platform_device *pdev)
- 	priv->wdev.max_timeout = U32_MAX / clk_get_rate(priv->clk);
- 	priv->wdev.timeout = MSC313E_WDT_DEFAULT_TIMEOUT;
- 
-+	ret = clk_prepare_enable(priv->clk);
-+	if (ret)
-+		return ret;
-+
- 	/* If the period is non-zero the WDT is running */
--	if (readw(priv->base + REG_WDT_MAX_PRD_L) | (readw(priv->base + REG_WDT_MAX_PRD_H) << 16))
-+	if (readw(priv->base + REG_WDT_MAX_PRD_L) | (readw(priv->base + REG_WDT_MAX_PRD_H) << 16)) {
- 		set_bit(WDOG_HW_RUNNING, &priv->wdev.status);
-+		/*
-+		 * Keep the clock enabled. The watchdog core will skip the next
-+		 * start() and a future stop() will balance the CCF reference
-+		 * count.
-+		 */
-+	} else {
-+		clk_disable_unprepare(priv->clk);
-+	}
- 
- 	watchdog_set_drvdata(&priv->wdev, priv);
- 	platform_set_drvdata(pdev, priv);
--- 
-2.55.0.887.g758fc8c411-goog
+https://lore.kernel.org/linux-watchdog/20260827044700.554333-2-tzungbi@kernel.org
 
+> [Severity: High]
+> This is also a pre-existing issue, but does this driver access hardware
+> registers without ensuring the required clock is enabled?
+> 
+> The probe function reads from hardware registers without first calling
+> clk_prepare_enable(), which can crash if the clock is disabled by the
+> bootloader:
+> 
+> drivers/watchdog/msc313e_wdt.c:msc313e_wdt_probe() {
+>     ...
+> 	/* If the period is non-zero the WDT is running */
+> 	if (readw(priv->base + REG_WDT_MAX_PRD_L) | (readw(priv->base + REG_WDT_MAX_PRD_H) << 16))
+> 		set_bit(WDOG_HW_RUNNING, &priv->wdev.status);
+>     ...
+> }
+> 
+> Additionally, because the clock is never enabled in the probe function, when
+> the Common Clock Framework's late_initcall executes, it physically disables
+> the unreferenced clock. If the watchdog is already running at boot time, the
+> watchdog core will periodically call the background ping callback:
+> 
+> drivers/watchdog/msc313e_wdt.c:msc313e_wdt_ping() {
+>     ...
+> 	writew(1, priv->base + REG_WDT_CLR);
+>     ...
+> }
+> 
+> Writing to these unclocked watchdog registers will trigger a synchronous
+> bus fault.
+
+https://lore.kernel.org/linux-watchdog/20260827044700.554333-3-tzungbi@kernel.org
