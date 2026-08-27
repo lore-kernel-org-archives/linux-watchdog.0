@@ -1,131 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C276F4399E0;
-	Thu, 27 Aug 2026 09:38:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DAE43CE45;
+	Thu, 27 Aug 2026 09:45:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787823485; cv=none; b=Og32YQDoGkt+KfNcg6FKFHa0t0LGSe22U102dmEKAAKQ04SEkvOTldSVZ1cZvrvpXZu4rvjQIEU8fY7edubbmR9crp6X/h9lUu2cx9mG6ZHc4ic3RhRiuLI4jqq4MRCbLyMyxW9a011C8Hgii6V+LB5BixGuzjKZUvQeBNvmKgU=
+	t=1787823957; cv=none; b=T+sHaIWQZgpXPJphl1pYWI+hOabljoVf2/9v44GhZHiReYMByearrrtigvYUo+hZa8GYPE85NO42LiA2I6u+euibMvv5mI7KIQhxu+TcygkJggW3cZG3DWOhWgfAXqdPF354I2ZqqBoMUMLMI3Xx3uNmvAhPFcGeUT2XGzhJF74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787823485; c=relaxed/simple;
-	bh=CH1SGJVPSE5UXzYAy4RjkOk7GjiRK45TQ6DP7IwFhl4=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Bn/t4+OhgciQ3st4S1X4ttSXW77JlW43Olp/mG2ksI1NR6RqSWqoKbqmdP6f3XfLFDZrjiol7T8sRUnbb3ab69JgN9K4z3jkLoxAzTNYIEkPL/ghS8lrMuYMX20aX5jKlllcVKHPlWpSBnGkw68By/GIfnRJiXLPv7Jf27jLCy0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J0QhkLdH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787823957; c=relaxed/simple;
+	bh=+jTm3OKJ0tz0Ytt60lrG9vDPD8rlbV/F8CWtpIzZa7E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jkKZ8S/s8+rpgwJQhgIDF9hxHu2R+t1wCQB1S4khJi/iMmQpDLu3j7bnSd3iGaBVYGwMAjm7ukBOIC/eRZusvuPaVyJUVq4o0w+DEJSVD8KrB+H0uTMq6v3v1eqFLR5qlPnS8cRJV4UOhvRXL2nYdNR/8e08+UO4Rvs/+zZk9Aw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KvTlC2Op; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J0QhkLdH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 584531F000E9;
-	Thu, 27 Aug 2026 09:37:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KvTlC2Op"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A004A1F00A3F;
+	Thu, 27 Aug 2026 09:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787823478;
-	bh=kY9rdvBsO9uw6/8YaHM8vYu2zSCSBKCDyPP+3dDwwko=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=J0QhkLdHjlTOnt0Qp2hG3h+HCoFMYIiLSoW+I5lxSZVC1atDFYF/36mZq5G2iDvVC
-	 WNAbwyyncDgceSEndvaF9DiuEU/325axAGQfwrcPXSMAvyWT4P6Ud7bX9tB1r8GkIr
-	 ULKkSj4AyYTlhyNlsEuu4mQY8v/EEeCQzEgBYIFQxIlJwI/tqMTfy1qth1PdF8ideK
-	 m0zRzj15K/N5Aa3yKLX84G/dVp1cOnwK2ei4bGMKS2c/TSz5orNf4o8/sANKODtxT8
-	 TmVnvg+Msqq0nvcCP53T/ZaiQ7i1+zqq2TQ1+I71BQfEooVlD0IbcWRB3Sm8LtZPPJ
-	 AtrQ36cuGFw+A==
-Message-ID: <409e398b-eb8f-48eb-a0d3-ed8fa811328f@kernel.org>
-Date: Thu, 27 Aug 2026 11:37:51 +0200
+	s=k20260515; t=1787823955;
+	bh=kVSoIlcrtimXOF4wgHNdqqDm7b4TiCLUottbj+bvSMY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KvTlC2Opb/LACvVIEtcVukSOcNkF5fgddnik77sTC1P/A7MGls0ANUE0zgHW6Wdpc
+	 LI82HoNNZdqJ3hJyvHSVcyScMhTe1VLTUdi+6nd1cDSdJPMZigWsTGvHvyPs/28CUB
+	 58s0FVNh7X0ykZ9Kgs6ORKrxGku087Q6cpSf1Y0Blg/RUY09SiT+GCyP+1kFz/JOKM
+	 IWkaCTk6EbSns/GmAJFYAHS2f3UgamJ6y3bjs0Ph8FkI34U3LyykuNss1NV9IfgIV3
+	 REhfB98M8F0+Yz/ztb5KFm/eNhiMCYi5mQ4p8qpc4eH8kvo2o11e1YsVUNAxXkjEkp
+	 1eCsJfBTgteNQ==
+Date: Thu, 27 Aug 2026 11:45:51 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>, 
+	Pengutronix Kernel Team <kernel@pengutronix.de>, Sebastian Reichel <sre@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+	Srinivas Kandagatla <srini@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+	Lukasz Luba <lukasz.luba@arm.com>, =?utf-8?B?U8O4cmVu?= Andersen <san@skov.dk>, 
+	Guenter Roeck <groeck@chromium.org>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	Ahmad Fatoum <a.fatoum@pengutronix.de>, Andrew Morton <akpm@linux-foundation.org>, 
+	avaneesh.dwivedi@oss.qualcomm.com, Umang Chheda <umang.chheda@oss.qualcomm.com>
+Subject: Re: [PATCH v2 1/4] dt-bindings: power: reset: add PSCRR NVMEM
+ recorder binding
+Message-ID: <20260827-spiffy-effective-hare-c05f53@quoll>
+References: <20260819-pscrr-provider-v2-0-9072383e0f4d@oss.qualcomm.com>
+ <20260819-pscrr-provider-v2-1-9072383e0f4d@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/8] dt-bindings: reset: Add mt6589 toprgu reset IDs
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Philipp Zabel <p.zabel@pengutronix.de>, linux-watchdog@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-References: <20260809160643.33991-1-l.scorcia@gmail.com>
- <20260809160643.33991-2-l.scorcia@gmail.com>
- <20260811-amethyst-seriema-of-gallantry-ca9c7f@quoll>
- <CAORyz2KXJf4gU46649w1ncb7TAOErdoGmfOMzwKr8b+eGdAgVA@mail.gmail.com>
- <20260812-smooth-artichoke-kittiwake-f6e85e@quoll>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20260812-smooth-artichoke-kittiwake-f6e85e@quoll>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260819-pscrr-provider-v2-1-9072383e0f4d@oss.qualcomm.com>
 
-On 12/08/2026 12:35, Krzysztof Kozlowski wrote:
-> On Tue, Aug 11, 2026 at 04:20:11PM +0200, Luca Leonardo Scorcia wrote:
->>
->>> We do not take bits, but identifiers of resets.
->>
->> Currently the existing mtk_wdt.c driver does not use a reset table
->> that binds identifiers to bits for any of the existing devices. There
->> are a bunch of mediatek,mt*.h files under dt-bindings/reset [3] that
->> point directly to reset bits instead of being indexes.
-> 
-> Many got accepted unnoticed, many times we did not care, but the point
-> is still valid - pure hardware numbers do not belong to the bindings,
-> because they do not bind any pieces of code. The proper binding header
-> constants bind DTS with SW implementation, so two pieces of code. Not
-> applicable here.
-> 
->> I can introduce a reset table in the driver, but it would break
->> existing devices as those bits are referred in device trees and they
->> are often non-contiguous (e.g. [4]). As before, it could be done by
-> 
-> Then these bits stay as is in DTS but bindings header is not needed. You
-> can have of course DTS header, as we did in the past multiple times for
-> such hardware constants.
+On Wed, Aug 19, 2026 at 10:50:43PM +0530, Faruque Ansari wrote:
+> Add binding for the PSCRR NVMEM recorder. Records the power state
+> change reason into a small NVMEM cell, such as a PMIC SDAM byte or
+> RTC scratch register =E2=80=94 so the cause survives a power cycle and ca=
+n be
+> read back on the next boot.
 
-So I wrote above this to myself and can be ignored completely? Then why
-would we not ignore your patches?
+A nit, subject: drop second/last, redundant "binding". The
+"dt-bindings" prefix is already stating that these are bindings.
+See also:
+https://elixir.bootlin.com/linux/v7.1-rc7/source/Documentation/devicetree/b=
+indings/submitting-patches.rst#L23
+
+>=20
+> Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+> ---
+>  .../bindings/power/reset/pscrr-nvmem.yaml          | 59 ++++++++++++++++=
+++++++
+>  MAINTAINERS                                        |  1 +
+>  2 files changed, 60 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/power/reset/pscrr-nvmem.ya=
+ml b/Documentation/devicetree/bindings/power/reset/pscrr-nvmem.yaml
+> new file mode 100644
+> index 000000000000..5334c923d644
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/power/reset/pscrr-nvmem.yaml
+> @@ -0,0 +1,59 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/power/reset/pscrr-nvmem.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: NVMEM Power State Change Reason recorder
+> +
+> +maintainers:
+> +  - Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+> +  - Oleksij Rempel <o.rempel@pengutronix.de>
+> +
+> +description:
+> +  An NVMEM-backed recorder for Power State Change Reasons (PSCRR). Persi=
+sts
+> +  the reboot or shutdown cause into a small NVMEM cell, such as an RTC
+> +  scratch register, a PMIC SDAM (Scratch Data Access Memory) byte, or an
+> +  EEPROM =E2=80=94 so the reason survives a power cycle and can be read =
+back on the
+> +  next boot. The cell is referenced via the standard nvmem-cells consumer
+> +  binding.
+
+I do not see how this should be a separate device. This should be rather pa=
+rt
+of PSCRR, reboot handler or just the nvmem. Otherwise it is just device
+node for instantiating driver.
 
 Best regards,
 Krzysztof
+
