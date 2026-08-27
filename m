@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D27FE361657;
-	Thu, 27 Aug 2026 12:12:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25D0941D620;
+	Thu, 27 Aug 2026 12:12:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787832731; cv=none; b=Aj60eIBp7VeiB2v6JAUVLKK2ztwqMr1LGstoq8S7RHyDtfDPWArTXH2vieGb2sEnKSzHxw0aFx1pSsuIISyzatmZW40n73gJaZ8/IN2UKJt00CMKHjjW2uM9Vm/igPGL1pIRN7dwRQ6oUi+VUlvdhMHMfiE4LqqW9BCxZZB/Fh4=
+	t=1787832756; cv=none; b=nH6o7gLlLT+LaLwijUiqi6A3wEkygnpwFcB1FPAplMNSK7Q7vVmdkBqrh8N1TS4hSwQ0pMLVmwYR9kbkkWKqq9pp0M699C3cGp5d7aKtU3IgjhF0nTQnoAEzDLB/udORDE/2hMLpQ4e7AUv6Q92eX0kpnlIXd//MV4WkrkAmcRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787832731; c=relaxed/simple;
-	bh=78iFWf3uJYsoNXePtoPujdh3aRXqlKF1tSTtK7jnYoA=;
+	s=arc-20240116; t=1787832756; c=relaxed/simple;
+	bh=w0SQfwZUSuGH5Ew1gOFHwu/0bxEkKTLnRMcF5LLyfUo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PD2e7s1VTD6u4k2xHK9Rtj25p71zAlQFstoaVhHYzBTWx/t/uH0aIidtaSgt62Xlp9zs2QoyrXJznv2ogcrDy7W6z1SW3keJaSvbbMNBYliAK1Uk5CvdSJ8exHiiiiKkdxZo9CUnu1fhst89Qbjcb/nocL4j1EWbnxwzvZMtRoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LU+h2O0i; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=C2YAeTisCn/mu+0UoSBYZyVRQVJqZpU6yHkgZRJ+MkmpSEUOrlwvB+MMOBXGwdD6BXb9NhRiGvRerSWkFU/ZKP/vsbP/BNvS1ixnKKalPKsEKoOM349Gw+mwsB7puC1t2unURQ6xJz4aeP9JfxNbFuHAf6H9P3QqRuie9u9MzOg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HXcgLl0P; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LU+h2O0i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA0301F000E9;
-	Thu, 27 Aug 2026 12:12:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HXcgLl0P"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B391F000E9;
+	Thu, 27 Aug 2026 12:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787832729;
-	bh=dc3jY7P9zE1tJZ9onpOYOdmKX6vk4OXUfdwbcLqkpwc=;
+	s=k20260515; t=1787832754;
+	bh=oN1uBNEZB9zCmyVRxDlBtR7tHE5jA4bpzOHI8/B57Gw=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LU+h2O0iP62CpY9efKy5hlR/te82Ux3do6ydw1u2D2GZjjYZ9kV1DVb5+qOTvmMvo
-	 zuC+y3dfE7zppjCEpAWbl00nc3QiTxnW3U16cu6GlOyl05Y9hksSYvfYtqti7soS6N
-	 QLJC8ZEjTYZyN06JvCsXBmBAKc1fEpw/acpkvaou4kJncKS+j/K4ZcpRmuhdoZYtRm
-	 0EBrMcN0/6EF84vLKNVcAPt5WuybQRo15vGqIjSCkgKECPcaIieE/u5JCDCXBPDuqr
-	 sMl2eQVIB95lxUuUsFE0LR5qDzcB+7zDEruEg7wSbIykZyENcj3q/xatC6Z1k7U8GP
-	 wniRMeEeU9rzw==
-Date: Thu, 27 Aug 2026 14:12:05 +0200
+	b=HXcgLl0PLqP5ixOEzoOZ638HhU1mGkyHmnZoq/qZDaBBA/zQGfmcV3r+3u7k4VoJF
+	 7P+7c4BxJVN63wedE5ZHFzUNXjBASY2z8g2zYUjtxy+5isxC2mRIcIKreyWoh8Vls7
+	 h9KJkhXWfCJUgXcXqd8YoHcizZzozp+dTvW/V224LV89OjEMwgL2Uz7xhvXKYEBc0i
+	 0lFixYKHToNC6CC5rA5a4YZ6+AZaq3gxNXkpkNA7QPTI65kxx/B0/FHTkB/JavZvh/
+	 UsJvHfQzToJqGKOcxDxOmSA1F04ie9+sHn83u5MR0nJrPVl8aMqi00cGT7DxjnGEZ1
+	 V+cabfdJ3oH0Q==
+Date: Thu, 27 Aug 2026 14:12:31 +0200
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Aiden Isik <aidenisik@member.fsf.org>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
@@ -35,11 +35,11 @@ Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] dt-bindings: watchdog: samsung-wdt: Add
- exynos5515-wdt compatible
-Message-ID: <20260827-precise-fresh-coot-b0d17b@quoll>
+Subject: Re: [PATCH v4 2/2] watchdog: s3c2410_wdt: Add exynos5515-wdt
+ compatible data
+Message-ID: <20260827-energetic-nifty-anaconda-6de11a@quoll>
 References: <20260821-for-next-lucky7-watchdog-v4-0-d070cee5009f@member.fsf.org>
- <20260821-for-next-lucky7-watchdog-v4-1-d070cee5009f@member.fsf.org>
+ <20260821-for-next-lucky7-watchdog-v4-2-d070cee5009f@member.fsf.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -48,19 +48,18 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260821-for-next-lucky7-watchdog-v4-1-d070cee5009f@member.fsf.org>
+In-Reply-To: <20260821-for-next-lucky7-watchdog-v4-2-d070cee5009f@member.fsf.org>
 
-On Fri, Aug 21, 2026 at 04:14:49PM +0100, Aiden Isik wrote:
-> Add a dt-binding compatible for the Exynos5515 watchdog timer.
+On Fri, Aug 21, 2026 at 04:14:50PM +0100, Aiden Isik wrote:
+> Add driver data for the Exynos5515 SoC's watchdog timer.
 > 
-> This watchdog requires a syscon phandle, and the cluster index should
-> *not* be specified, as that does not make sense on the Exynos5515 SoC
-> (due to it only having a single core cluster).
+> Unlike similar SoCs such as GS101 or Exynos990, Exynos5515's PMU does
+> not require explicit counter enablement for the watchdog to tick.
 > 
 > Signed-off-by: Aiden Isik <aidenisik@member.fsf.org>
 > ---
->  .../devicetree/bindings/watchdog/samsung-wdt.yaml  | 23 +++++++++++++++++++++-
->  1 file changed, 22 insertions(+), 1 deletion(-)
+>  drivers/watchdog/s3c2410_wdt.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
