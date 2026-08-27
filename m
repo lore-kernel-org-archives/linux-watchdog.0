@@ -1,81 +1,131 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3BBF191F94;
-	Thu, 27 Aug 2026 09:36:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C276F4399E0;
+	Thu, 27 Aug 2026 09:38:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787823421; cv=none; b=P1LZ4YMua7PNqYRCsfcfsSQXHJnhjSBTtt4MLZzfRKqvJOFKskutslEs+2/vrsMm0vFjY6KpLI9tKzvCaGQQpdwnx8iLGLyknYdhwR9WgW6vVpskGJpnkmd5O82mBsdN/yLsv8Dd8AFrd7+YC32Ybi8Ws+zIgMaSzCagx1mIacM=
+	t=1787823485; cv=none; b=Og32YQDoGkt+KfNcg6FKFHa0t0LGSe22U102dmEKAAKQ04SEkvOTldSVZ1cZvrvpXZu4rvjQIEU8fY7edubbmR9crp6X/h9lUu2cx9mG6ZHc4ic3RhRiuLI4jqq4MRCbLyMyxW9a011C8Hgii6V+LB5BixGuzjKZUvQeBNvmKgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787823421; c=relaxed/simple;
-	bh=+bVq8o2eSObX+wEpXGAxQICUmhmHFxrbqqxyQ9He4bM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uEbVP0Vwo48nIbLW9KyK2pIlygwxvArhj7TFZOWuxaoxquKGwLs4oZB18kDPnqKBJJmqXmVOEu04mIYxk09sHPn5ji6YB8ecOM5mMEw1b2iRlEqesPgPmxAxqQjVALv38Yk3wuXews2VlBT/yjz9KAE152CuzxrrXcVWg9mO+Vc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RFl7Tl3/; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787823485; c=relaxed/simple;
+	bh=CH1SGJVPSE5UXzYAy4RjkOk7GjiRK45TQ6DP7IwFhl4=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Bn/t4+OhgciQ3st4S1X4ttSXW77JlW43Olp/mG2ksI1NR6RqSWqoKbqmdP6f3XfLFDZrjiol7T8sRUnbb3ab69JgN9K4z3jkLoxAzTNYIEkPL/ghS8lrMuYMX20aX5jKlllcVKHPlWpSBnGkw68By/GIfnRJiXLPv7Jf27jLCy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J0QhkLdH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RFl7Tl3/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E4901F000E9;
-	Thu, 27 Aug 2026 09:36:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J0QhkLdH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 584531F000E9;
+	Thu, 27 Aug 2026 09:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787823418;
-	bh=ftRbte7T4ElO9W9tRcYR3ZcEJ5DoXrSeyHGUb8+QPCs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RFl7Tl3/yLatV9LE6qXyJRB4RbWbl98BsaqdGi3+7RSoUCCVi2A1aq7LiEqVYeaT/
-	 +HDT/YgyH0nFRNIbMGzsbzwDfmE1q31c7ddzzAJ6VzSFcmrp/LQYERA4aJQcyFooJX
-	 oFSMNAqOrTKlfYlONjuY0bRIYOCzhWdBbVL6AiDaS3B0KVB2ivK/wLcSzf+FUw5jjh
-	 iz9e8AODCkrNu4/cfyhICSw1MvtDRVsfHurmuC8X3jS9WyvVMCPNw82iKw3EhL7pZh
-	 VIlJvjOKtHnBLFU/cfFvDkq/khg4YObj3B6iJRdixGUZ+GBPnr4TPcWntoNwaUHRj2
-	 UkdC0gXpyK9rA==
-Date: Thu, 27 Aug 2026 11:36:54 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 2/7] watchdog: mediatek: Add wdt/toprgu resets for
- mt6589
-Message-ID: <20260827-clever-cherry-zebu-6a98f1@quoll>
-References: <20260819101853.44681-1-l.scorcia@gmail.com>
- <20260819101853.44681-3-l.scorcia@gmail.com>
+	s=k20260515; t=1787823478;
+	bh=kY9rdvBsO9uw6/8YaHM8vYu2zSCSBKCDyPP+3dDwwko=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To;
+	b=J0QhkLdHjlTOnt0Qp2hG3h+HCoFMYIiLSoW+I5lxSZVC1atDFYF/36mZq5G2iDvVC
+	 WNAbwyyncDgceSEndvaF9DiuEU/325axAGQfwrcPXSMAvyWT4P6Ud7bX9tB1r8GkIr
+	 ULKkSj4AyYTlhyNlsEuu4mQY8v/EEeCQzEgBYIFQxIlJwI/tqMTfy1qth1PdF8ideK
+	 m0zRzj15K/N5Aa3yKLX84G/dVp1cOnwK2ei4bGMKS2c/TSz5orNf4o8/sANKODtxT8
+	 TmVnvg+Msqq0nvcCP53T/ZaiQ7i1+zqq2TQ1+I71BQfEooVlD0IbcWRB3Sm8LtZPPJ
+	 AtrQ36cuGFw+A==
+Message-ID: <409e398b-eb8f-48eb-a0d3-ed8fa811328f@kernel.org>
+Date: Thu, 27 Aug 2026 11:37:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260819101853.44681-3-l.scorcia@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/8] dt-bindings: reset: Add mt6589 toprgu reset IDs
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Philipp Zabel <p.zabel@pengutronix.de>, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org
+References: <20260809160643.33991-1-l.scorcia@gmail.com>
+ <20260809160643.33991-2-l.scorcia@gmail.com>
+ <20260811-amethyst-seriema-of-gallantry-ca9c7f@quoll>
+ <CAORyz2KXJf4gU46649w1ncb7TAOErdoGmfOMzwKr8b+eGdAgVA@mail.gmail.com>
+ <20260812-smooth-artichoke-kittiwake-f6e85e@quoll>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20260812-smooth-artichoke-kittiwake-f6e85e@quoll>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Aug 19, 2026 at 12:16:23PM +0200, Luca Leonardo Scorcia wrote:
-> According to Android sources, mt6589 has 12 reset bits in the
-> WDT_SWSYSRST register. Populate toprgu_sw_rst_num to allow toprgu resets
-> in device trees of the many compatible devices.
+On 12/08/2026 12:35, Krzysztof Kozlowski wrote:
+> On Tue, Aug 11, 2026 at 04:20:11PM +0200, Luca Leonardo Scorcia wrote:
+>>
+>>> We do not take bits, but identifiers of resets.
+>>
+>> Currently the existing mtk_wdt.c driver does not use a reset table
+>> that binds identifiers to bits for any of the existing devices. There
+>> are a bunch of mediatek,mt*.h files under dt-bindings/reset [3] that
+>> point directly to reset bits instead of being indexes.
 > 
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> ---
->  drivers/watchdog/mtk_wdt.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+> Many got accepted unnoticed, many times we did not care, but the point
+> is still valid - pure hardware numbers do not belong to the bindings,
+> because they do not bind any pieces of code. The proper binding header
+> constants bind DTS with SW implementation, so two pieces of code. Not
+> applicable here.
 > 
-> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-> index 91d110646e16..f8208fb0f723 100644
-> --- a/drivers/watchdog/mtk_wdt.c
-> +++ b/drivers/watchdog/mtk_wdt.c
-> @@ -10,6 +10,7 @@
->   */
->  
->  #include <dt-bindings/reset/mt2712-resets.h>
-> +#include <dt-bindings/reset/mediatek,mt6589-wdt.h>
+>> I can introduce a reset table in the driver, but it would break
+>> existing devices as those bits are referred in device trees and they
+>> are often non-contiguous (e.g. [4]). As before, it could be done by
+> 
+> Then these bits stay as is in DTS but bindings header is not needed. You
+> can have of course DTS header, as we did in the past multiple times for
+> such hardware constants.
 
-I do not see how you use the bindings here, so my previous comments
-stay. You just ignored it and never replied. In such case:
-
-NAK
+So I wrote above this to myself and can be ignored completely? Then why
+would we not ignore your patches?
 
 Best regards,
 Krzysztof
-
