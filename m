@@ -1,30 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C95B237DEA9;
-	Fri, 28 Aug 2026 16:14:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62CE537E5F5;
+	Fri, 28 Aug 2026 16:14:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787933644; cv=none; b=kockEgtRL1uocSDpa61csNG/nt2Qp5VQAdF6/NUXmpgcIK0V1P+r4lcnYkffkvrZqKwLiYcSa/vEBpbeyntj05J8E4sMjURKBhze5aGzfrfGpLvSnNLtwf6zw6Vfwv7bCBD96hvJRJTaVRcDoA8JidduNKuIGdfYji8m8mAQJgo=
+	t=1787933646; cv=none; b=CxBcIGvscAQFt6J++vxaKm+sthWjfhcHm+6vmYxuYM1uBg1u5b2vvZbdzBvuuXdKcoKAw90AUK21PuQ5tadTwg4ExfyE5DJoAE6rWl/4VrQA+kBWGiavilnh7cee7iMK5bJnrllGBzjzEV9X+yVwg6PX+zxJuO+D+I0Jew4qPxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787933644; c=relaxed/simple;
-	bh=VYBsEpF/jbhuMDomV5YSAYWPyJbxFD7HUxyl+pkBYOg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rN0AsWEc/5wrLLA6WmfZhvDIUvSptBTdxAb3ME0YtWcDx6l3AuT4PPzc0dWYWqm2ORQDb/H2bzLcRO61+2Tj5LQizAC8WKi5g7DOO68UMgtiVY777rH7EmMu3Y2i0uYO8maTJnk3m/aSDyFjsfTpb0wnAcUngJnA3QQvCDIoidM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JyTLesNm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787933646; c=relaxed/simple;
+	bh=58gMZiQdo9xgQTc+9CgMaP90LgU1OrYjGTf28AJgEG8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=P51hnWqZIkmmVNYG8dX4cjzdxEYBHZ0E1AuMg5sL3sbYcYBqs+MztUxNIUFVwMQzZsAbagNJ5WQtkqbUZ7cb6bH2STJqDiAoSlMFYFtRH7qZ05SDzQVE1G+jIr5Fsg71rdOiKidljkaAYaO4dfh/c5gpHNGpeHirht7majGZGak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJszZP+5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JyTLesNm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA921F000E9;
-	Fri, 28 Aug 2026 16:14:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJszZP+5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 613211F00A3D;
+	Fri, 28 Aug 2026 16:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787933643;
-	bh=w3ZYLoTVwcaPhoiVuhVp1wPlXMdYO1Q30pN+IlI48as=;
-	h=From:To:Cc:Subject:Date;
-	b=JyTLesNmyEbCwDx3il/b3n+u0GYa0mzqK8Tn9sfhInQcsbfDR8JhfhxD0KFGEHXBv
-	 kpqdDKEkIX3YKkaIycEppA42vooSwdbjddqAGr9Eff6POljHLzkEzB4SjKjDVJ34B1
-	 zSZIq3K8QcpxTWTGQHODHOFzEtpzXglG2rJSyq9gwqyBg2y0Q4eRnwFkNTNdCrqVtu
-	 ghYPsDGjy+E/FfXdI5wjBWRhqRF6CJPYYXszefNaTolnUwgUQa/C3RtVs3hk35CGUu
-	 clkir76t/q4ShHDD6pEepQF+IFs+a1gHn3gR/cEvOCwRWbexjR/3Q+QohpcnpDAIFs
-	 3doIqfztAztAw==
+	s=k20260515; t=1787933645;
+	bh=A+7kA2H8Mxmbnq2nhnANIpMB0DXOUGYwR1/+QLmtRcU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=DJszZP+5ghB40KPyQss0sib17WWFlB931rPFEmN7ZbJcLID1kXq/p8IXCdy7sudjl
+	 X34mlP4JdqoBniLgfBu3XtBjtK0FBui7sf57yccMjbNIUiLhpn2yyQLebxHRfb6cOS
+	 73G44TFD0R6cmeTBdyQNAqRkvYQPlM7tXb/I+lNObXx9Zjli4YwBbaZ6AkGIduGq72
+	 wxFVO33pDdgC72OMP1O8Kp866UwqvK8wT0/rVrBlph1PfXQj63/i/KhCaUFypJ0KN1
+	 GPFaX/jgWGR+H8uUToqzn04/TmO6ypXISf5HNkvHUEppkW2DxRwNpaE/93YIYwGFAh
+	 BTydJfbpOARoQ==
 From: Tzung-Bi Shih <tzungbi@kernel.org>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>
@@ -33,10 +34,12 @@ Cc: Daniel Palmer <daniel@thingy.jp>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	tzungbi@kernel.org
-Subject: [PATCH v2 0/9] watchdog: msc313e: Fix issues Sashiko reported
-Date: Sat, 29 Aug 2026 00:13:39 +0800
-Message-ID: <20260828161348.13212-1-tzungbi@kernel.org>
+Subject: [PATCH v2 1/9] watchdog: msc313e: Fix NULL pointer dereference in PM callbacks
+Date: Sat, 29 Aug 2026 00:13:40 +0800
+Message-ID: <20260828161348.13212-2-tzungbi@kernel.org>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260828161348.13212-1-tzungbi@kernel.org>
+References: <20260828161348.13212-1-tzungbi@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -45,78 +48,36 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The series mainly fixes issues reported by Sashiko in [1][2][3].
+msc313e_wdt_probe() doesn't set the driver data for the platform device.
+As a result, dev_get_drvdata() in msc313e_wdt_suspend() and
+msc313e_wdt_resume() will return NULL, leading to a NULL pointer
+dereference afterward.
 
-Patch 1 fixes a report in [1]:
-- "[High] Missing platform_set_drvdata() or dev_set_drvdata() in the
-  probe function leads to a guaranteed NULL pointer dereference during
-  suspend/resume operations."
+Set the platform device driver data in msc313e_wdt_probe().
 
-Patch 2 fixes reports in both [2][3]:
-- "[High] Potential division by zero during `max_timeout` calculation."
-- "[High] Potential division by zero if clk_get_rate() returns 0."
-
-Patch 3 fixes reports in both [2][3]:
-- "Clock reference count leak and unintended hardware activation in
-  `msc313e_wdt_settimeout`."
-- "[High] Repeatedly setting the watchdog timeout leaks clock prepare
-  and enable references, potentially leading to refcount overflow."
-
-Patch 4 fixes a report in [1]:
-- "[High] The driver accesses hardware registers without ensuring the
-  required clock is enabled, which can lead to a synchronous bus fault."
-It also fixes a further report in [3]:
-- "[Medium] Clock reference count is leaked on the probe error path if
-  watchdog registration fails."
-
-Patch 5 fixes reports in both [2][3]:
-- "[High] Hardware watchdog is not properly stopped during system
-  suspend if it was started by the bootloader but not opened by
-  userspace."
-- "[High] System will unexpectedly reset during suspend if the hardware
-  watchdog is running but was never opened by userspace."
-
-Patch 6 fixes an undefined behavior while I was reviewing the code.
-
-Patch 7 fixes a report from a local AI tool.  If WDT was running at
-boot, the timeout value could be inconsistent with what the driver has.
-Sync the value.
-
-Patch 8 fixes a report in [2]:
-- "[High] The resume callback ignores the return value of
-  msc313e_wdt_start()."
-
-Patch 9 fixes a report in [2]:
-- "[Low] Struct initialization uses commas instead of semicolons."
-
-[1] https://lore.kernel.org/all/20260826062035.7645D1F000E9@smtp.kernel.org/
-[2] https://lore.kernel.org/all/20260827045746.C79091F000E9@smtp.kernel.org/
-[3] https://lore.kernel.org/all/20260827050107.9AD441F000E9@smtp.kernel.org/
----
-Patch 1 seems to be applied[4].  But the tree isn't available yet.  The
-series still bases on current watchdog-next branch.
-
-[4] https://lore.kernel.org/all/666397f1-ac63-4644-9de1-9f675d2a7f3a@roeck-us.net
+Fixes: e9800b799464 ("watchdog: Add Mstar MSC313e WDT driver")
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 ---
 v2:
-- Add some more fixes to the series.
+- No changes.
 
-v1: https://lore.kernel.org/r/20260827044700.554333-1-tzungbi@kernel.org
+v1: https://lore.kernel.org/all/20260827044700.554333-2-tzungbi@kernel.org
+---
+ drivers/watchdog/msc313e_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Tzung-Bi Shih (9):
-  watchdog: msc313e: Fix NULL pointer dereference in PM callbacks
-  watchdog: msc313e: Avoid division by zero
-  watchdog: msc313e: Fix clock leak and spurious timer in settimeout()
-  watchdog: msc313e: Enable clock before accessing hardware registers
-  watchdog: msc313e: Fix spurious reset on suspend
-  watchdog: msc313e: Fix undefined behavior
-  watchdog: msc313e: Sync timeout value if WDT was running at boot
-  watchdog: msc313e: Propagate error code in resume()
-  watchdog: msc313e: Replace commas with semicolons in probe()
-
- drivers/watchdog/msc313e_wdt.c | 90 +++++++++++++++++++++++++++-------
- 1 file changed, 72 insertions(+), 18 deletions(-)
-
+diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wdt.c
+index d962589e2c55..f69d66971c41 100644
+--- a/drivers/watchdog/msc313e_wdt.c
++++ b/drivers/watchdog/msc313e_wdt.c
+@@ -124,6 +124,7 @@ static int msc313e_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &priv->wdev.status);
+ 
+ 	watchdog_set_drvdata(&priv->wdev, priv);
++	platform_set_drvdata(pdev, priv);
+ 
+ 	watchdog_init_timeout(&priv->wdev, timeout, dev);
+ 	watchdog_stop_on_reboot(&priv->wdev);
 -- 
 2.53.0
 
