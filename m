@@ -1,143 +1,192 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8FB2224B05
-	for <linux-watchdog@vger.kernel.org>; Sat, 29 Aug 2026 01:14:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 731DB1397
+	for <linux-watchdog@vger.kernel.org>; Sat, 29 Aug 2026 01:15:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787966090; cv=none; b=uwwkV9tN9szbeKmOwyGYq0Fo8pQdtn9WdJ7hW9YWArO5RJvt5K95h7xkSVztEoXJWlT+CkziFeNSk9HChdQK5orLX+uBgHXFOEnazf8RHpXpVg0BG9kuydR3ds93DxDwPdpMJF6srgMgpKMxx1/lX68YIm1clZpRQCD1T8A/NBs=
+	t=1787966146; cv=none; b=F/S8TRVAHp+zk5k+imxvXuhfU+QcknnroRm+bfXPX7UgdjKT6+iP3MDUcqbpIsFMHel2+Ubah2/af5qV5MmaTZ3Dv0uracl0I3kcsSWCtjfdjhv7xyaVC6gAviWWk3UBsHa9NAQSZTD+SGcIyoZoeHw/bySl8TsRMp6k+wbBpy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787966090; c=relaxed/simple;
-	bh=/2OBXN9BDmaMRJ5h/XGX6749Pax99eLzxkr2N6+PSpg=;
+	s=arc-20240116; t=1787966146; c=relaxed/simple;
+	bh=ooWGfuAXj+snnkbHQI+PL4KuNk/GjckxWnvE9mTyWOk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TISpYPZ1AbNmqy9io6lCz80Ymj18FKybMcsMw36OUms2ll644AlFMDop0GK7UiwYDbWCFo9MYJzvfqCpDvgTNgana4VPM4xzCUxJIOMR0LTLpHJw2ZPwtGPUNTWkSiY5PmkVuNnafPstTTkDmGFR0Jr2GYRE8vJMlkNrPnf6/Pc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iNLYvWdx; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=JqsaMcyJP1A98coFc0r0yl7hevAR01SLJ+2S6zsLu4zNC7jaHMtmk7bVzm/6dC+1ecyEes6xgJ4OFotKs5oi584CFS8DC0HFN7KRO41gXEywr2W/lq8rKiCHYO5oawghlAWEsqKbV38dijy004vYn1EjSJ5aPei17DhmVGpA/HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W9KZE1HO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iNLYvWdx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87AF11F000E9;
-	Sat, 29 Aug 2026 01:14:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W9KZE1HO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3873A1F000E9;
+	Sat, 29 Aug 2026 01:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787966089;
-	bh=evjyY1bkf02XjtJTFcRkZxyaGpEMBvgihhDiHKTuT+k=;
+	s=k20260515; t=1787966145;
+	bh=5Xqm6NLqNda+bd5PIziEXBflch65zZ2nq6HPfsP/ukU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iNLYvWdxNuNEBuHCVxFL/6COev2bMBBtLW0TGyC6RaGYUGKejiCwSP8S+Z9ejcS92
-	 TEpWlGbepigN10hkD/8U10SYYsC1t1vBT9lTYHPW+PhHYs3fRMiKurs6VJLiwjRgnt
-	 iyPDN1Z/LUsQTa7NFanN90KybBrdUMPlDozwpjFUWeDa+Wl+CWJZ2qbuJR0ftQC8JM
-	 B64VMI+ea6nk0YbnYFxLVJWn7xEiZ4ti71aak6JYp5owk6E3BffnrmD2NzkoDeLLYN
-	 KP5TAVgmZfifBc6fYN+3aRfMJdr4JYdXsqF7HDQ0tzPbHHgnoNLloP3gyrxcNFX/Qf
-	 ZitDlxFXY4/WA==
+	b=W9KZE1HOHqFXsuEczOw0zDpiiZZrjbzB4ITPVK01z4riOPDaYcrSW3qcgH2eEUcb9
+	 y/bAMCaN0nA9bLX5YLs150q7Gg/f0T+xYfh+8tunfxOIKjRSLB193frljiqDU+B2Fl
+	 bX8dvPPtjP/8gbyJsN/UoBaiBagm0Jucc5XG75kW4WBXtUETBIXUAVkbTYsKckV9YJ
+	 mfvEagQ02oJwhiWNtTnQqt8+Z4mnqnwc4DYHawY+ose+SCEQemkV1XENq+zKHRecYG
+	 uNFXRve2OFlvl1rQ73eoECKaRepBe1na9kRHDsNbi5zV++3Zo8x2LVeSqn6ZXQT1i0
+	 WLnrBMglbmLXw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/5] genirq: Synchronize in-flight handlers during
- NMI teardown
+Subject: Re: [PATCH v2 5/5] watchdog: qcom: Register pretimeout interrupt as
+ NMI
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mayank Rungta" <mrungta@google.com>
 Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260828-qcom-wdt-nmi-series-v2-1-363979fe6b6b@google.com>
+In-Reply-To: <20260828-qcom-wdt-nmi-series-v2-5-363979fe6b6b@google.com>
 References: <20260828-qcom-wdt-nmi-series-v2-0-363979fe6b6b@google.com>
- <20260828-qcom-wdt-nmi-series-v2-1-363979fe6b6b@google.com>
+ <20260828-qcom-wdt-nmi-series-v2-5-363979fe6b6b@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 29 Aug 2026 01:14:49 +0000
-Message-Id: <20260829011449.87AF11F000E9@smtp.kernel.org>
+Date: Sat, 29 Aug 2026 01:15:44 +0000
+Message-Id: <20260829011545.3873A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 New issues:
-- [High] Splitting the atomic NMI teardown in `__cleanup_nmi()` without hol=
-ding `desc->request_mutex` introduces a critical race condition with concur=
-rent `request_nmi()` calls.
+- [Medium] Calling WDIOC_SETTIMEOUT or WDIOC_SETPRETIMEOUT on an active wat=
+chdog triggers an 'Unbalanced enable for IRQ' kernel warning.
+- [Medium] Unbinding the driver or encountering a probe failure when the ha=
+rdware watchdog is already running from the bootloader triggers a WARN_ON i=
+n free_nmi().
 
 Pre-existing issues:
-- [Critical] Setting `desc->action =3D NULL` before synchronizing in-flight=
- NMIs creates a fatal race window where concurrent NMIs dereference a NULL =
-pointer.
+- [High] This problem wasn't introduced by this patch, but setting the time=
+out or pretimeout on a stopped watchdog unconditionally starts the hardware=
+ watchdog without updating the core state, eventually leading to an unexpec=
+ted system reboot.
 --
 
-commit c7c9e712a226c1915918d074d948b4cf1845990f
+commit 90c184f58c3a63ad67e01452209c8185a52db049
 Author: Mayank Rungta <mrungta@google.com>
 
-genirq: Synchronize in-flight handlers during NMI teardown
+watchdog: qcom: Register pretimeout interrupt as NMI
 
-This patch modifies __cleanup_nmi() to wait for in-flight handlers using
-__synchronize_hardirq() before tearing down the NMI configuration and
-deactivating the domain. It also enforces that interrupt controllers claimi=
-ng
-NMI support must implement ->irq_get_irqchip_state().
+When a system is completely unresponsive due to an interrupt storm or
+deadlocked CPU cores with standard interrupts disabled, a standard
+watchdog pretimeout bark interrupt will fail to execute, preventing the
+pretimeout governor from capturing CPU backtraces before the hardware
+reset bite.
 
-> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-> index 2fbff2618a1e2..61384925b921a 100644
-> --- a/kernel/irq/manage.c
-> +++ b/kernel/irq/manage.c
+This commit updates the driver to attempt requesting the pretimeout
+interrupt as an NMI. It adds cleanup actions and handles enabling and
+disabling the NMI during start and stop.
+
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index 4eb1bf9790125..82eaf8786426f 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -52,6 +52,8 @@ struct qcom_wdt {
+>  	unsigned long		rate;
+>  	void __iomem		*base;
+>  	const u32		*layout;
+> +	int			irq;
+> +	bool			is_nmi;
+>  };
+> =20
+>  static void __iomem *wdt_addr(struct qcom_wdt *wdt, enum wdt_reg reg)
 
 [ ... ]
 
-> @@ -2047,11 +2051,20 @@ static const void *__cleanup_nmi(unsigned int irq=
-, struct irq_desc *desc)
->  		desc->action =3D NULL;
+> @@ -74,6 +76,28 @@ static irqreturn_t qcom_wdt_isr(int irq, void *arg)
+>  	return IRQ_HANDLED;
+>  }
 > =20
->  		irq_settings_clr_disable_unlazy(desc);
-> -		irq_shutdown_and_deactivate(desc);
-> +		irq_shutdown(desc);
->  	}
-> =20
->  	irq_proc_update_valid(desc);
-> =20
-> +	/* Ensure all in-flight NMI handlers on other CPUs complete before free=
-ing action */
-> +	__synchronize_hardirq(desc, true);
+> +static void qcom_wdt_enable_irq(struct qcom_wdt *wdt)
+> +{
+> +	if (wdt->is_nmi && wdt->irq > 0)
+> +		enable_nmi(wdt->irq);
+> +}
+> +
+> +static void qcom_wdt_disable_irq(struct qcom_wdt *wdt)
+> +{
+> +	if (wdt->is_nmi && wdt->irq > 0)
+> +		disable_nmi(wdt->irq);
+> +}
+> +
+> +static void qcom_wdt_free_nmi(void *arg)
+> +{
+> +	struct qcom_wdt *wdt =3D arg;
+> +
+> +	if (watchdog_active(&wdt->wdd))
+> +		qcom_wdt_disable_irq(wdt);
+> +
+> +	free_nmi(wdt->irq, &wdt->wdd);
+> +}
 
-[Severity: Critical]
-This is a pre-existing issue, but does setting desc->action to NULL before
-synchronizing in-flight NMIs expose a fatal race window?
+[Severity: Medium]
+Will this fail to disable the NMI if the watchdog was started by the
+bootloader?
 
-If an NMI is delivered to a CPU after desc->action is set to NULL, but befo=
-re
-the hardware line is disabled (or if an NMI is already in flight), the NMI
-handler could unconditionally dereference the nullified action pointer.
+If the hardware watchdog is already running from the bootloader,
+qcom_wdt_probe() calls qcom_wdt_start(), which enables the NMI and sets the
+WDOG_HW_RUNNING flag, but the WDOG_ACTIVE flag remains unset:
 
-Unlike normal IRQ handlers, handle_fasteoi_nmi() assumes the action is
-always valid:
-
-kernel/irq/chip.c:handle_fasteoi_nmi() {
+drivers/watchdog/qcom-wdt.c:qcom_wdt_probe() {
     ...
-    /*
-     * NMIs cannot be shared, there is only one action.
-     */
-    res =3D action->handler(irq, action->dev_id);
+    if (qcom_wdt_is_running(&wdt->wdd)) {
+        qcom_wdt_start(&wdt->wdd);
+        set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+    }
     ...
 }
 
-The attempt to fix the use-after-free via __synchronize_hardirq() appears
-ineffective here because the pointer is nullified before the synchronization
-barrier.
+If the driver is later unbound or fails probe, qcom_wdt_free_nmi() only
+checks watchdog_active(), which evaluates WDOG_ACTIVE.
 
+Because the disable step is skipped, will free_nmi() be called while the NMI
+is still enabled, resulting in a WARN_ON stack trace during cleanup?
+
+>  static int qcom_wdt_start(struct watchdog_device *wdd)
+>  {
+>  	struct qcom_wdt *wdt =3D to_qcom_wdt(wdd);
+> @@ -84,6 +108,8 @@ static int qcom_wdt_start(struct watchdog_device *wdd)
+>  	writel(bark * wdt->rate, wdt_addr(wdt, WDT_BARK_TIME));
+>  	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BITE_TIME));
+>  	writel(QCOM_WDT_ENABLE, wdt_addr(wdt, WDT_EN));
 > +
-> +	scoped_guard(raw_spinlock_irqsave, &desc->lock) {
-> +		irq_nmi_teardown(desc);
-> +		desc->istate &=3D ~IRQS_NMI;
-> +		irq_domain_deactivate_irq(&desc->irq_data);
-> +	}
+> +	qcom_wdt_enable_irq(wdt);
+>  	return 0;
+>  }
+
+[Severity: Medium]
+Does this code trigger an unbalanced enable warning when the timeout is cha=
+nged?
+
+When a user application changes the timeout via ioctl(WDIOC_SETTIMEOUT), the
+core watchdog subsystem invokes qcom_wdt_set_timeout(), which unconditional=
+ly
+calls qcom_wdt_start():
+
+drivers/watchdog/qcom-wdt.c:qcom_wdt_set_timeout() {
+    ...
+    wdd->timeout =3D timeout;
+    return qcom_wdt_start(wdd);
+}
+
+Because qcom_wdt_start() then blindly calls qcom_wdt_enable_irq() without
+checking if the NMI is already enabled, will this trigger an 'Unbalanced
+enable for IRQ' warning from the core IRQ subsystem?
 
 [Severity: High]
-Does splitting the atomic NMI teardown without holding desc->request_mutex
-introduce a race condition with concurrent request_nmi() calls?
+This is a pre-existing issue, but does calling qcom_wdt_start() here
+unconditionally start the hardware even if it was stopped by the user?
 
-Since the lock is yielded to wait in __synchronize_hardirq(), a concurrent
-request_nmi() could execute. Unlike free_irq(), __cleanup_nmi() does not ho=
-ld
-desc->request_mutex. This means request_nmi() could acquire the mutex,
-configure the new NMI, and attach the action.
+If a user application stops the watchdog and then sets the timeout,
+qcom_wdt_set_timeout() blindly invokes qcom_wdt_start() as shown above.
 
-When __cleanup_nmi() resumes in this block, would it blindly execute
-irq_nmi_teardown() and irq_domain_deactivate_irq(), inadvertently destroying
-the newly requested hardware state and leaving the new NMI broken?
+This physically starts the hardware countdown without updating the core sta=
+te.
+
+Because the core state remains disabled, subsequent keepalive pings are
+silently ignored by the core. Will this lead to an un-pinged hardware
+watchdog that eventually unexpectedly reboots the system?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828-qcom-wdt-n=
-mi-series-v2-0-363979fe6b6b@google.com?part=3D1
+mi-series-v2-0-363979fe6b6b@google.com?part=3D5
