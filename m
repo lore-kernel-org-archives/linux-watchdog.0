@@ -1,84 +1,84 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C19A346DFE8
-	for <linux-watchdog@vger.kernel.org>; Mon, 31 Aug 2026 18:17:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D76AD46C4C5
+	for <linux-watchdog@vger.kernel.org>; Mon, 31 Aug 2026 18:17:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788200230; cv=none; b=ElfFmDYaf3rNqS2noMx2YINMf1UtzySSV9ylCEUpJJHj4Zt7m+F1wnbRmY2KK4sLBhFTO7XFElDpAu60cJ6SpXMeFOaYqdujINER7wtXzgmjDTLi4/SrbJ6J7nsGdZxzJRn6i0G8PMsQWEA+Fwt6hzgetc2Rb8nZEmEvE5808Ok=
+	t=1788200243; cv=none; b=f5vtmuiaxStQOjMpcR+/J4J+CkhTneJuavCvxV0XJ0bk8nEqgnp0CIn8C1ayzAjyOMzHc/gVLXJF5iozTIcHyFKTAFrbKI3zkL03UfbHQefC65lojqrMZ6aroshVdNMsjf42ksmHomgumsRZYOd6gIJ2fkg8m+WNBzKGHPCIKkE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788200230; c=relaxed/simple;
-	bh=uuSQFEl0f5Xgmd+uvHvfUuQ50DstW+2uE4t8uSGFq5k=;
+	s=arc-20240116; t=1788200243; c=relaxed/simple;
+	bh=3mzJyxDJT2mp+IdJIQ9y9rYao24CZqxfqF2rh8sEaCw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fUi3bBfTl0IECZpMZTp97oeJ8dsOcg7TxWOvQKm5ZciXVdrmtrb7DtI1IUDZyPVTmCZ5XIUKX8FmbkbBW62Al41zYTG92F/JCIlhpWyOpPFaRBYWRhlK6g9o9biERRDl1a7wLaCJ0ylON19JnXqwtH4s7DoX7O9Rip/GHCMZXtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=TDfnxHy+; arc=none smtp.client-ip=209.85.218.47
+	 To:Cc:Content-Type; b=S379FhIacgSQh3skHzP5UHoxLIqWrdXpw4yQrr+G834Q+XcZ1gmDkY6YjtRhVPiXvNwCe7QBYJ0yAJUGbANV52koKLdFF4jlm+wvp4arNby1a17WmE66M9m/Xav2KyzLqo2q23RF1yI7mqkPowrRxppUOU6dlNd5sNpqTWUvU4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=aLI6+deT; arc=none smtp.client-ip=209.85.218.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="TDfnxHy+"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c2531f453eeso592261866b.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 31 Aug 2026 11:17:08 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="aLI6+deT"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c160420289bso500024266b.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 31 Aug 2026 11:17:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1788200227; x=1788805027; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1788200240; x=1788805040; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=0HEz6oOVo7hlt3+Pf50YPJ4GWCG1Y+vkc7cVq7puJWI=;
-        b=TDfnxHy+pC1lDiJixMMspQIxNfKaeT9o46zrCn/uSPEC5xV4w7u0mQ+Wsm230or72/
-         vQ3ib7wkWojYS9e/HA9E548DWfIhYy0jvAx25pklUMxGBXcS+Q1F3bsP8XnXZW4A8WWj
-         BoAvBTOcYiWsiS4iK4Bw4XkzTlQQBVr3VwHEk=
+        bh=UH4ANZUDTinUoNy1nGt6KAwdPIsDwQv9pXQSAcw0TmU=;
+        b=aLI6+deT9yxbMcxOsbPtko8Ds5NYDYzRclavdabOpXeIwSqnZuH5q6z6kiA2YIY6PK
+         VMdtUJTAYBSJe1gcRo4WhRCm3AkqRoQ6EcTOlFh8d++WYMK/pO4LaZvCUxw8OjyKYiDL
+         hGU1U5a65kl7JUE7RucvzlYNMZbiuvWAjSDss=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788200227; x=1788805027;
+        d=1e100.net; s=20251104; t=1788200240; x=1788805040;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=0HEz6oOVo7hlt3+Pf50YPJ4GWCG1Y+vkc7cVq7puJWI=;
-        b=azJKJi8Wk65dHssc5Sgo7g+p146mirD+s8qPY5FEgzGQuU4IUd5l/1rhJdvlNMz5hu
-         KmCwXmwUBUqaklk+1PgHSYSw2FknEsfuXiKeEzcpI6GzX5icn2mEqlL/PNZTFZrQqi7C
-         d041puyNU8ksc0+xFQUJ7syLhKpIoRxlIgZilAt/EbttLNaYJh8ZfGxKYY1GizFK/WUn
-         BsBtIg7kIOYsPhHW5rJ2IOlRCvY6i9cE8AFRhEKG0CFOjgSUqJm95fOvRQnPdIcOZk6I
-         O7it2DybmpFFBRePC7QhufxW5I3uXV5EjsMiplKMIm4pdYVINTWypBHMxWEF6+i4iCzo
-         wyyg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr6n1TQjpRpybyxmVP3kuNHhDX7tjuYfsg7LmDypFXe+dZdHYHD3VVfb+xygo4gwW0qdumb26kKFducZPw/uQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++lcQYR77zgqwmIVXts44NUQxjDLdHnvGHJ+kiBa4SNi3LqIHOvz
-	8ryXu+w8v+n5ShlxwcxqP9ZgcGQ27De5POfLnRUQBqxFeaEok4TukpHj0xr47Ju/Ho5xDTM5aWZ
-	ymOJe9NcH
-X-Gm-Gg: AR+sD13h+lzoonmP3dP2LuPGmfSLur8BUE6VOGjGk8AffWVInTbL8y/yvSAgKwEwmr3
-	omCjj/+0xNY+jqfHPkqodI+jlkBEtUYWlPGtSdCVYtPc5SkjF/g4kx0gl12qmeipk9gXXnkJ9F5
-	3UoSHYq2zGDv2AaR6uX1onPiokFEetzrueGRXsU+/dj1KZc+/RZHjjdxs359wI9BP7e1ucpOjkc
-	AwGz/r2mKR9ouKMo6GSzvW2Pwy+B/0fk+Nql3PVezhvfPF3YDNVWU4Ty+faoKiPNBZ334PSBKqa
-	2pAS0f7KL7YWEWyOEIXmD4/Rm//OL+l8phsV1icYMQOmqDQukmFnSKLvCJkmwOyPi41VxS3Ltt9
-	o/3J0JOtK+kijzUtzPcnvMd4ZYyVKQIPWrLbo80F3L31UJgQPYyaD9aWde55gepXm4d41/D+so4
-	Ps2xjqgDlsd/3MN1etB/qjN98Ze+v6jdWNOFMVrLr0o+LxypQpAP49EjtKSv6uR99bsPPArTckA
-	VGbi2pE1bYapSi3V31dz28nw6IgSLxlwBgoJw==
-X-Received: by 2002:a17:907:843:b0:c16:84dc:9607 with SMTP id a640c23a62f3a-c25b3d791f1mr142244866b.19.1788200226582;
-        Mon, 31 Aug 2026 11:17:06 -0700 (PDT)
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com. [209.85.221.53])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c255ee2851csm479428866b.14.2026.08.31.11.17.04
+        bh=UH4ANZUDTinUoNy1nGt6KAwdPIsDwQv9pXQSAcw0TmU=;
+        b=oDz0gwSVcW+M7+BidBg5V9foxT2D0B71oSiJMhodePs3wwBUIL+u+Kr1LUB000qgP9
+         gWXyUdh2xQqQztKLqs3Dr6f7ara4/pxnFaaHTMiYy1mZCP0Qb1J3uJ7DQ0L/LYjCF5Px
+         TdJRAZrWyzYcyqFu1qzHRM8Jevlev6roCIzJ2EyE7eH0IIkD1lSM4WpyhDRZ6PgPNfad
+         zdtfXiB8Yn1Fl/FmgOhIp9Bp8Rpj3t4V7cNUCSmLeRKX4GNCs0c8V2Z9cPUVmj46nMKT
+         RLXWLNkSWly6o/gR90J47aCLL1Aja/uHqaDe6ONHnFsnrPm6BbuB52gctr2GCwvjzEAp
+         3bqw==
+X-Forwarded-Encrypted: i=1; AHgh+RorYG46MUAiUtJXXTSm+lbwoFS5ZvHFLyX0URAGb+plqbZQSvvIfHKkAodvviJ85AY2T057PDqx3M7c2AyDxg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mLhIi/F1b9Xk0drDZ1K0CVQDvHwsirM3KSLUwYzmVviF7BQr4t
+	WmrORsJ0SHgPWZVvBpxCpNLhofYtVhZJI8izMHroqzp5qkBobicp14g1rw87Y/rF64nOLVEIyo1
+	ZbdtGyi76
+X-Gm-Gg: AYBFou35O2L98LrBnWCHUk9oyBIMMOlhy/1u4Bqh9h3D2P5uxj6S87BoPH7NmnSiwld
+	a7mLLDTOtejb0jFJFHZvD9dlRpj9ZLFSmn1ay49AfSM+E3CrwOSA7OLGNkDuBAGtBXMzbOQHtd+
+	aBMeqfgUy0ToiEt39+Iu/6/POBXNv/Ylq2Q/6XoBOah/E795YkGqSy1iQ5PHOMgCcEiHY0Ebuzj
+	zs2ZHhVWdhgus5u0EG/Ys/WYKq1PJhO+6JpFEx5JCp8g/9ld0zRNwGWAm6WYV/uRk5s3/LZ8DD1
+	xJeTKhgUnm3UdSF2eidra3uVu85gZx+0a0A5xTv+AivQBOZRJBkq+L4oikSzv7Kck7ffSjftPGb
+	ApSN47GQ8pW7AkPjWyAIC6CCwP9X46/HxSpZpMoj88jX54BYpJAJQE5Wk8KOXkspg6CjMhj7X0g
+	Xwlzbke2R88tg4omzN4CTSYQqzco+t/77w7UMAAgsH9daEKUmB7BNZshxLTzpWNA6vUJa/z4w5p
+	WlEHxE4C+LSvWr4shp2gRRczVY=
+X-Received: by 2002:a17:907:3d56:b0:c25:47a4:fedc with SMTP id a640c23a62f3a-c25b3bb9089mr148621266b.2.1788200239958;
+        Mon, 31 Aug 2026 11:17:19 -0700 (PDT)
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com. [209.85.221.50])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c255f1b2049sm487476366b.36.2026.08.31.11.17.19
         for <linux-watchdog@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Aug 2026 11:17:04 -0700 (PDT)
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-484362f5c4aso1591272f8f.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 31 Aug 2026 11:17:04 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBzUpxxnYmWdOHxyI0BvdLW54boimPpFNsG6LxGuSKWmvd2Am8MtYacxlEBb2GYfyOTC9FOdse4XsFdAEH4CRQ==@vger.kernel.org
-X-Received: by 2002:a5d:43c8:0:b0:484:40e1:8c40 with SMTP id
- ffacd0b85a97d-48440fcda91mr3934528f8f.5.1788200223514; Mon, 31 Aug 2026
- 11:17:03 -0700 (PDT)
+        Mon, 31 Aug 2026 11:17:19 -0700 (PDT)
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-484362f5c4aso1591532f8f.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 31 Aug 2026 11:17:19 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxRkWOcJd8TlZxncuEk3dqaIuWucaadU95c4IHeRN85B6+jHYJUqlo5jEGXEvKU6me90ZceoBmty0jr1Uso8g==@vger.kernel.org
+X-Received: by 2002:a5d:4d09:0:b0:482:a9d7:7ced with SMTP id
+ ffacd0b85a97d-48441011572mr4215421f8f.14.1788200238138; Mon, 31 Aug 2026
+ 11:17:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260828-qcom-wdt-nmi-series-v2-0-363979fe6b6b@google.com> <20260828-qcom-wdt-nmi-series-v2-2-363979fe6b6b@google.com>
-In-Reply-To: <20260828-qcom-wdt-nmi-series-v2-2-363979fe6b6b@google.com>
+References: <20260828-qcom-wdt-nmi-series-v2-0-363979fe6b6b@google.com> <20260828-qcom-wdt-nmi-series-v2-3-363979fe6b6b@google.com>
+In-Reply-To: <20260828-qcom-wdt-nmi-series-v2-3-363979fe6b6b@google.com>
 From: Doug Anderson <dianders@chromium.org>
-Date: Mon, 31 Aug 2026 11:16:51 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=Xgq2aJ1wPFggFBT5x810xZr33GOtyJDvhYf74CmuPUKQ@mail.gmail.com>
-X-Gm-Features: AcwNN1VE0AERlOw15wusqCepTJcCXi7KNdMxoGrnxAOTT_pd3WQ9VGal9zL8yXg
-Message-ID: <CAD=FV=Xgq2aJ1wPFggFBT5x810xZr33GOtyJDvhYf74CmuPUKQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/5] genirq: Implement synchronous disable_nmi()
+Date: Mon, 31 Aug 2026 11:17:05 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=X4NB7nBqtfVQeoubc7wjS0n2nkfez+Yyby53yO39Kz-Q@mail.gmail.com>
+X-Gm-Features: AcwNN1U3FPvHmoemFs05LjwC8xqc8xl7PGyosbmesgJCRaLsNeUN_OaM3dBYevE
+Message-ID: <CAD=FV=X4NB7nBqtfVQeoubc7wjS0n2nkfez+Yyby53yO39Kz-Q@mail.gmail.com>
+Subject: Re: [PATCH v2 3/5] genirq: Export NMI APIs
 To: Mayank Rungta <mrungta@google.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
 	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
@@ -92,29 +92,29 @@ Hi,
 On Fri, Aug 28, 2026 at 6:00=E2=80=AFPM Mayank Rungta <mrungta@google.com> =
 wrote:
 >
-> Currently, disable_nmi_nosync() is the only interface to disable an NMI
-> line. Drivers stopping their devices in process context need a synchronou=
-s
-> variant that guarantees any running instance of the NMI handler has
-> completed on other CPUs before returning.
+> Currently, request_nmi(), free_nmi(), enable_nmi(), disable_nmi_nosync(),
+> and disable_nmi() are restricted to built-in kernel code because they are
+> not exported.
 >
-> Implement disable_nmi() by wrapping disable_irq().
+> Export these symbols with EXPORT_SYMBOL_GPL so loadable kernel modules ca=
+n
+> register and manage NMIs.
 >
 > Assisted-by: Antigravity:gemini
 > Signed-off-by: Mayank Rungta <mrungta@google.com>
 > ---
->  include/linux/interrupt.h |  1 +
->  kernel/irq/manage.c       | 15 +++++++++++++++
->  2 files changed, 16 insertions(+)
+>  kernel/irq/manage.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 
-This looks right to me.
+This is no different than v1, so you probably should have carried my
+Reviewed-by tag:
 
 Reviewed-by: Douglas Anderson <dianders@chromium.org>
 
-Sashiko had feedback [1] where it was worried about tightly looping
-doing HW polling. To me, that doesn't seem like a big deal since there
-shouldn't be many NMI users and NMIs shouldn't be freed often. Perhaps
-Thomas has different thoughts.
+Sashiko has feedback [1], but it seems to be mostly regugitating the
+same feedback it had on patch #1. It also mentions that "`free_nmi()`
+ignores the provided `dev_id` parameter", but (to me) that doesn't
+seem like a big deal and is certainly not new.
 
-[1] https://lore.kernel.org/all/20260829011853.0B9A41F000E9@smtp.kernel.org=
+[1] https://lore.kernel.org/all/20260829011550.ECF091F000E9@smtp.kernel.org=
 /
