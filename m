@@ -1,132 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 081B6335555
-	for <linux-watchdog@vger.kernel.org>; Tue,  1 Sep 2026 21:52:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCD2A32C8B
+	for <linux-watchdog@vger.kernel.org>; Tue,  1 Sep 2026 23:02:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788299537; cv=none; b=E4f+1sX9ogXl/faUd7/CtMes8Y4/nyqIEZTlZjTk2eNfsjB9SPm+u3yDLDXXeLgB0TsSxQqvq21zkZzEJ6LP+dtacKlltDbSowah8huzUBMEuuinot1icUnidq09Xma1943O0bcQ/u7Ehas/InbOnEmCdwRkO8b6m6rmOwMZkCc=
+	t=1788303753; cv=none; b=nNIYMO9eMbKFSx9pYRKBRjYdshj5lYcFVEPpaH9FS9+CMCx1MrsZvBp/n2RCErk1dk4O5nr2kPlmnoT3ki1dhztjqqjKVc0uqraEHzLk/Y7f9gwSpQ+2b0s37uSJP85BCg6uiH6Rx4mWCYaVS3q64mnBiCeQ98fDibkFCyhSNbQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788299537; c=relaxed/simple;
-	bh=c7GDTd4TUajJu0Qsp/H5JWKhiY+3D/iXenfG8x3wpLQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rTTCeSuW4Arctfw1ZbR9aV+AIhpxDFXZk1MgIM7cG2jMP20s1biBqzwp8VpYgtwhQfgkhayOlS5IdssRRAfMQkU2F+exYh4hyWo/vr6jqnbVF366tCzuS2VzZobqC8KwjZEVylOdfoChykmW/kSw2/UVVbuWXGLpAKrAAHY5Zq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mul6qn3s; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788303753; c=relaxed/simple;
+	bh=+gQNNbFnTumXT0iR+hM/RV71lEvWRVZyc2oX0tZOSvQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hZjKBJk+AyGBAnVd5g/NogCKDEI3zH0fcJGMa4lnmW6TUq2ISDOkN0gWfW7ZOWN46ZMyGVXo/GjXPHN0CbYpCNX3XnZVJ7PpsC0yv2GtvbHzH5XeUVktIrjGf/m3/MiHJV/eYlOaDHKMSdQABa0vae80dgIZ8ytvvz9pQy2G2vg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J7ftEzpO; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mul6qn3s"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4E81F000E9;
-	Tue,  1 Sep 2026 21:52:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788299535;
-	bh=7Ge3iDM824Eg9C+8nsWEuEbgJv6PfPNqMjgiNmQA7U8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mul6qn3spgs+km9hRcxwVARQjy4CHa1ubUgP75/uQrACcvHrd5/ZYEjtG9bzNAgRX
-	 RtjLG8+bOOSUtNz+rFOxwwwhd/I0f/HaX3HJxPJchkzog/05Y3ktyZ8lhH2sLdCcQk
-	 KZh8vlty199vl7y0d1N2u+qpohKkkwk689OzVRwf9XtH7FZGkX3el49vOh1+jcnxxk
-	 KsBzdl27xgvng/Lq3QRxXsuZbh5mPzVV16upJMySzDVmpzqyMn4m344SyXnQ62ohoJ
-	 Cc22/S7vMD7WPBqqrJ/zyM0T9l55pnkfVnQo3vxcvMf8CN+tJdsjK8ABigpCI6CTbP
-	 wUtFQRlJEjTaQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: Differentiate scenarios when watchdog is
- closed
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Charles Haithcock" <chaithco@redhat.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260901214251.760184-1-chaithco@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J7ftEzpO"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-398a5aad413so365710a91.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 01 Sep 2026 16:02:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788303751; x=1788908551; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=5lRubRw4r4a1yQYYdGqmoQ15QOh3yiGEv0tXtGD7fyY=;
+        b=J7ftEzpOPG1HgpevbZNLDEqyoCOUWbIxUnBT+8jlgepqe19I3HTfPFb/ibyekrzvbR
+         Vbx96CCkKBMjXtSy6/bDzYLjtge4pkTp1JDZoLnhpnfJ+Awcso8q39dZUzjDBAQAo/fq
+         3eu8KrfHy0xNgMROd9cpjJsVL2lX+IfcqSOlqjElkJoUZup9BETgT+zwpadCuvcGFB3x
+         OcH4GJU8idrUyB4thB2AUt9lGU4PK3ZIZTKCF0vdoL9AbfcotJatayN6ONCfTyMkKvfA
+         PMcfA6hF9kdzmowsCD1rGskQSxtQFIKdd37oQbPaCMRrSlWBRsPiDqpiOC4K8D+6V1Ud
+         604Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788303751; x=1788908551;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=5lRubRw4r4a1yQYYdGqmoQ15QOh3yiGEv0tXtGD7fyY=;
+        b=lrH9ovSzelUPWRmyS8TCUYvHYk46oTh8o+a3SWQHtADdoOmEFGcukuJGWiW5h7ZpVd
+         yqd/wJ8Bv8mmz4Wa+8E5KAtUhkrHKieHqEbX8/3jMqHyAokLKFdAJTafx12rLp6QAy57
+         nCHFloFkt4X4FSmE7l9bnEDUaDQAJR1k06nSLNcrBVXm6dtE9PNOXuBYJErFRKIi5gx+
+         dy0rXgrX+qCXmRWcYDsl+c3gNr/8wJJu1i4nFpBzeh1wgMm68OttTTMqdhpXVTS7NoYz
+         DqpVfsoUs2N+bxNyCwv5h8/x1KC21t3g2+phdCgHw7EPpjRqFJUf8BEfxWY/BYWvFKYI
+         5XZg==
+X-Forwarded-Encrypted: i=1; AKwUvBytXge66SvoXeJClaYrHJbxGLKeSnYiuTHZpMqgYEwbDq37gyUioiCrECUMmIoLlAMD87QbTJEokXr+S/6rkg==@vger.kernel.org
+X-Gm-Message-State: AFuF++l2kIEquOTJ/eF+uyD8CBADiUSiF6+OCXETu5urshvRtuYhjGI4
+	seseb7eaydApK9MqXWfDrFFuQeeDZ05gYh0zXrOc3kioKn/f4WHs5AywEyidxg==
+X-Gm-Gg: AYBFou2CiC06y0Y0jjOWqtQgSfymkynYLUeHyvFFhu4/6NFqrmf0YuHWv8HKwHGuK51
+	eXONOIjJ2NkfJ9yVjSL1o4TAvET4HE0FMKyvxepKjBrghvS7lRyyqHiSH/5mNfQE1c2ElGgUntp
+	DRoh32S+9e54DMMq8TfATHSApeTm076/pVtnDn/SDXqFSMCL0GH9WwZNzPy2Y9wkNgdpRPvCLen
+	NS88Q4u3ND/147yJkIE3fFqUKh91ivg/zsd66gppx9dAuG0zgGbfXxCv/dWkA+Z90812Sw3j8tF
+	4Ii5XjOcLvPby8Mge3RPkmH0h1Zd8WVtvEm4NkRquZpmbzuZMTcaZln6yW9pYgeYkR3GUHouZZV
+	Lv9GXUBI3gUGm7JrXInvGiBJT4LDHThWjPv/4u09OFfRg4R4e7R7mruBgnOZEBtEUIfTsgQQy/k
+	ANBz0vTxvBvyXRRCVcDXFxMhYV5pWrA704FJU+o7qbXcmQ5/pZagOj635jsDKVYsTL8pRNleIkE
+	/YitQuS9Sle
+X-Received: by 2002:a17:90b:384f:b0:398:9bd1:3210 with SMTP id 98e67ed59e1d1-39aee0e6a17mr422028a91.17.1788303751072;
+        Tue, 01 Sep 2026 16:02:31 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32f07b7bd00sm1050895eec.14.2026.09.01.16.02.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2026 16:02:30 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Tue, 1 Sep 2026 16:02:29 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Charles Haithcock <chaithco@redhat.com>
+Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: Differentiate scenarios when watchdog is closed
+Message-ID: <1c15e728-cafc-43c3-87d8-981a2682d441@roeck-us.net>
 References: <20260901214251.760184-1-chaithco@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 01 Sep 2026 21:52:15 +0000
-Message-Id: <20260901215215.7D4E81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260901214251.760184-1-chaithco@redhat.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Tue, Sep 01, 2026 at 03:42:49PM -0600, Charles Haithcock wrote:
+> Presently, when a watchdog device is closed, we print "watchdog did not
+> stop" in a few different scenarios;
+> 
+> 1. When nowayout is set
+> 2. When the watchdog is able to close, has received the magic character
+>    to stop, but fails to close in device-specific code paths
+> 3. When userspace deliberately closes it without stopping it
+> 
+> For 1, we explicitly print we can not close because of nowayout. Nothing
+> differentiates the other two however.
+> 
+> This change adds a print to indicate the watchdog was closed while still
+> running.
+> 
+> Suggested-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Charles Haithcock <chaithco@redhat.com>
 
-Pre-existing issues:
-- [High] If `wdd->ops->stop()` fails, `WDOG_HW_RUNNING` is never restored, =
-bypassing module unload protections and breaking fallback keepalive pings, =
-leading to a Use-After-Free.
---
+Applied, but please version your patches in the future.
 
-commit aaf821e8a7620610688b1a164fc083439874422c
-Author: Charles Haithcock <chaithco@redhat.com>
+Thanks,
+Guenter
 
-watchdog: Differentiate scenarios when watchdog is closed
-
-This patch adds an error message when the watchdog device fails to stop in
-the device-specific code paths. This helps differentiate between scenarios
-where the watchdog was intentionally left running (such as when nowayout is
-set) versus when it simply failed to close.
-
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_=
-dev.c
-> index 9a5e544b886bf..6e3e437b7851f 100644
+> ---
+> 
+> v1. Introduce change and modify logic to differentiate
+> v2. Simplify but still differentiate
+> 
+>  drivers/watchdog/watchdog_dev.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index d7895009a2..937bdd4c92 100644
 > --- a/drivers/watchdog/watchdog_dev.c
 > +++ b/drivers/watchdog/watchdog_dev.c
 > @@ -305,6 +305,10 @@ static int watchdog_stop(struct watchdog_device *wdd)
 >  	if (wdd->ops->stop) {
 >  		clear_bit(WDOG_HW_RUNNING, &wdd->status);
->  		err =3D wdd->ops->stop(wdd);
+>  		err = wdd->ops->stop(wdd);
 > +		if (err < 0) {
-
-[Severity: High]
-This is a pre-existing issue, but if wdd->ops->stop() returns an error, is
-WDOG_HW_RUNNING left incorrectly cleared?
-
-It appears clear_bit(WDOG_HW_RUNNING, &wdd->status) is called before
-wdd->ops->stop(). If the stop callback fails (e.g., an I2C failure in
-drivers like ziirave), WDOG_HW_RUNNING remains cleared while WDOG_ACTIVE
-remains set.
-
-Could this bypass module unload protections and lead to a Use-After-Free?
-
-If userspace closes the device and watchdog_stop() fails,
-watchdog_release() will execute:
-
-drivers/watchdog/watchdog_dev.c:watchdog_release() {
-        ...
-        if (err < 0) {
-                pr_crit("watchdog%d: watchdog did not stop!\n", wdd->id);
-                watchdog_ping(wdd);
-        }
-        ...
-}
-
-Because WDOG_HW_RUNNING is cleared, watchdog_hw_running() evaluates to
-false and the keepalive watchdog_ping() becomes a no-op.
-
-Later in watchdog_release(), it evaluates:
-
-drivers/watchdog/watchdog_dev.c:watchdog_release() {
-        ...
-        running =3D wdd && watchdog_hw_running(wdd);
-        mutex_unlock(&wd_data->lock);
-
-        if (!running) {
-                module_put(wd_data->cdev.owner);
-                put_device(&wd_data->dev);
-        }
-        ...
-}
-
-Since running is false, it drops module references. This permits the
-module to be unloaded and watchdog_core_data to be freed, but the
-background worker watchdog_update_worker() remains active because
-WDOG_ACTIVE is still set. Will this cause a kernel panic when the hrtimer
-expires and accesses the freed struct or unloaded module?
-
 > +			pr_err("watchdog%d: Failed to stop watchdog: %pe\n", wdd->id,
 > +				ERR_PTR(err));
 > +		}
 >  		trace_watchdog_stop(wdd, err);
 >  	} else {
 >  		set_bit(WDOG_HW_RUNNING, &wdd->status);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260901214251.7601=
-84-1-chaithco@redhat.com?part=3D1
