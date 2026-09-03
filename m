@@ -1,166 +1,123 @@
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C57D9331EC0
-	for <linux-watchdog@vger.kernel.org>; Thu,  3 Sep 2026 01:54:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68005211A14
+	for <linux-watchdog@vger.kernel.org>; Thu,  3 Sep 2026 02:06:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788400485; cv=none; b=ct+GUASWoLg3leb06rs7WqQs//SFQovhVg4LEf3G6bIG+P3D998lOUtEJGXEHannmjKIv/EouduvXkcFLbZW4QTJz/Nt+MKoV/46C45cRUSeiW/mP38KgMMVSqZbPjC0uWJx0gRfcfPfDG3oDuwYpnzt7/vo3U4zSeHYsrwc2iU=
+	t=1788401202; cv=none; b=BsKI+EXvkLWUfPOOnA2lbRimCUuBl0Dzc9Wu5G888u4h7Hz0lRQvGJpxnB2Jf6IdpVI85emxJLN4vqlyDen+vyRXNTmDOtiQ1GEVptMJJow7oGFu2CJIXr3Pmnu2HFxAQrE67GYRkdt6WD+y3M5+Bg0tbMWNiVcvlUuxLjTwGu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788400485; c=relaxed/simple;
-	bh=0ZGR/YgV7OEk+X+iRefjExBb64jGwBcbx5DVUTJVoAg=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=XBUzLEAE1EZFLdBl1+tceVcTcc8nkOH6DVkV36/Oz2aTOfSiOBBRJgkPbzMQIduA+GCB2qEt2E5JDZsoDYHHxNm0vUCCg5tIEMTflJa+gjk9um2DP1cCKsdG99Zfu/p6Oq5uaSexUYAiJRC84+dSIMjBwotEj9+fFVLgaSIq+FE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--mrungta.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BvUCi7X0; arc=none smtp.client-ip=209.85.215.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--mrungta.bounces.google.com
+	s=arc-20240116; t=1788401202; c=relaxed/simple;
+	bh=zYnJGVxD0t2tRR/MIh0RrOKS0TpDRwHet/8p6pOMU4I=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WM6gL4GWwbqrskdGm9fVqEscHJ9MuENtz3h/4T8cnddGB91GzcU+ThyT84bF6Lt5/txI5iY1OmoqH4OmRkYUXbPEnPxtV1qSWg32Cen+RZ2XCiEk+VJI3YKsH/2u8JODEm2w3tk103M5i25OIqTvZOOTUYGT4UarYOvsQbHoJ6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JUd8mNQw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BvUCi7X0"
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cbe77d6864dso2817727a12.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 02 Sep 2026 18:54:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1788400483; x=1789005283; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xBi3aelOOZxRnPRZaGfB7u7SxHHBTXTNxhOMaECeb/c=;
-        b=BvUCi7X0qY9cbcJ/T/U191iVoL2ri7i4pZcdjAey4HBT8Fq1VBfnUoKrSsT7gOTODx
-         LGu9qifYqZuOOzADKrAPxDuZh3Ree6D2DDnYzko32Ts5oWdYUoHZChdemNpehL+NoqxW
-         4mwVTcsx03/VdXNeCtMkhugjov3avIEIWJLro8NyfEFkU0YgplY6fNRRquQA0MXcQQV1
-         SUkEktpQDH/67nt/XtihA3MBOZpjEu9FwOwRKD34M7N3e7TCjIxFXvHpgcqWPlwjuhVE
-         yWa62+ddOmc9vrxqbubzKs0aQ/AQo9jFpcQZXcC6uJ4fhklJN4hteWhIhPTrNg2VoqqA
-         u7FA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788400483; x=1789005283;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=xBi3aelOOZxRnPRZaGfB7u7SxHHBTXTNxhOMaECeb/c=;
-        b=ZOig80nxKROvUDH+GXIcesgMuOhLEWXR/KhiYhXKPNslTdS1G0N8Ro5O0+wJy/ucRT
-         x6nVQ9hwDzjMgQ3eljvYD++zfrFG9KIWjuca+/JELByZ4M3KezYlG2Cs/XEId+UyjUfu
-         vyuOQkfig6KbAHs0kci+m34Km4VvTvgG7Y8cg20HcnqmyYbaNq1h4qNsADG2IS/2DfDH
-         NpJh3kpLXZ9uGr4hTczfhdwWY3K8+JtfyS3hpzFf51KkqjVBnO85MZQyso+7no6ZJrBw
-         rO/qaOVyNlBm6M6bl8h7mPaFEwsWU6ap8XPLD5cLATzDocHYFO3tznE1TxRa8+Q8927p
-         gOxA==
-X-Gm-Message-State: AFuF++lpSV+tSKLtEeXo+eglN++kH61BdWDlRoV9k9w+xj6NyaELzbRz
-	Escae/Bss/hLbEr8By1DGDcoy5cu2W/oi1Mf7WYKu2XoCDKcawhGiEH/63webu2UvyYJmbfBoNQ
-	ib+XwurzLiA==
-X-Received: from dyff15.prod.google.com ([2002:a05:693c:804f:b0:30f:45f6:de06])
- (user=mrungta job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3b81:b0:398:9be5:b41d
- with SMTP id 98e67ed59e1d1-39aee2650cdmr12947171a91.24.1788400482836; Wed, 02
- Sep 2026 18:54:42 -0700 (PDT)
-Date: Wed, 02 Sep 2026 18:54:22 -0700
-In-Reply-To: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JUd8mNQw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1901F000E9;
+	Thu,  3 Sep 2026 02:06:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788401200;
+	bh=ivWa+0NVeOpT+d91mZ0brX0xCriN17x2Yy/YYNp/ZWY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JUd8mNQwq2iJTElp/Xc0S+wAjF+IZ87sFGpoWTfzrYP+puUdanDf9JliF7RJGiiZj
+	 a4i+RSB6rfl3MN7Vw0ccwqNtmVrDhb4bz0gfUD6FCEeyu7vwnqqtEtOYB+GZChhLYl
+	 bhtObN/JetDpqZHpWWN8rswDmbb06W0y3vKzaVoCq0SLKJdrdXvWlooj84zOzg1KvS
+	 WWzdmtACs/dm7nR2XeEgVvLCherkGflkYuvGSLbUjAe7rN7rnc5oEBLRdPG1CzrXfD
+	 cYK1W/dxs7QaQ4/MavVn7tXZgp77998tGjpVTjwvMh2DjksUHhpOjj0spH0F8s5Wiq
+	 dOBaGO+o5uX2w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 1/5] genirq: Synchronize in-flight handlers during
+ NMI teardown
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mayank Rungta" <mrungta@google.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
+References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
+ <20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 03 Sep 2026 02:06:40 +0000
+Message-Id: <20260903020640.AA1901F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
-X-Developer-Key: i=mrungta@google.com; a=ed25519; pk=2Bjwbv/ibL10QnyvK9G7DoKpffXy7z6+M4NawEYgYDI=
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788400471; l=2864;
- i=mrungta@google.com; s=20260212; h=from:subject:message-id;
- bh=0ZGR/YgV7OEk+X+iRefjExBb64jGwBcbx5DVUTJVoAg=; b=DHstgDkJJZM05Winbe+XcggvVy1V0AGDZoQau5xfIK5izXTlRkTxUuLq2iH0U8nNF3DHv1suD
- HHeuTBel5EDCPA0CSgXCAqfdW5OVt39YtZ3wj9a3m1LbnLoNFQNAMdg
-X-Mailer: b4 0.14.3
-Message-ID: <20260902-qcom-wdt-nmi-series-v3-5-f3999362a9ea@google.com>
-Subject: [PATCH v3 5/5] watchdog: qcom: Register pretimeout interrupt as NMI
-From: Mayank Rungta <mrungta@google.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, "Kirill A. Shutemov" <kas@kernel.org>, 
-	Douglas Anderson <dianders@chromium.org>, Mayank Rungta <mrungta@google.com>
-Content-Type: text/plain; charset="utf-8"
 
-When a system is completely unresponsive due to an interrupt storm or
-deadlocked CPU cores with standard interrupts disabled, a standard
-watchdog pretimeout bark interrupt will fail to execute, preventing the
-pretimeout governor from capturing CPU backtraces before the hardware
-reset bite.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Attempt to request the Qualcomm watchdog pretimeout bark interrupt as an
-NMI (or pseudo-NMI) using request_nmi(). If NMI registration is not
-supported on the platform (e.g. pseudo-NMIs are disabled), gracefully
-fall back to a standard interrupt via devm_request_irq().
+Pre-existing issues:
+- [High] Pending NMIs can cause a NULL pointer dereference in lockless NMI =
+handlers after desc->action is cleared.
+- [High] __cleanup_nmi() does not abort when desc->action is NULL, leading =
+to double-free of resources and refcount underflows if invoked on an alread=
+y freed NMI.
+--
 
-When NMI is used, enable the NMI during probe to balance IRQF_NO_AUTOEN
-and register a devres cleanup action to disable and free the NMI upon
-driver unbind.
+commit cba735e452b4b54ed5512df243c59c9e7de9a13b
+Author: Mayank Rungta <mrungta@google.com>
 
-Assisted-by: Antigravity:gemini
-Signed-off-by: Mayank Rungta <mrungta@google.com>
----
- drivers/watchdog/qcom-wdt.c | 33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+genirq: Synchronize in-flight handlers during NMI teardown
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index 4eb1bf979012..2849dcb1f717 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -52,6 +52,7 @@ struct qcom_wdt {
- 	unsigned long		rate;
- 	void __iomem		*base;
- 	const u32		*layout;
-+	int			irq;
- };
- 
- static void __iomem *wdt_addr(struct qcom_wdt *wdt, enum wdt_reg reg)
-@@ -74,6 +75,14 @@ static irqreturn_t qcom_wdt_isr(int irq, void *arg)
- 	return IRQ_HANDLED;
- }
- 
-+static void qcom_wdt_free_nmi(void *arg)
-+{
-+	struct qcom_wdt *wdt = arg;
-+
-+	disable_nmi(wdt->irq);
-+	free_nmi(wdt->irq, &wdt->wdd);
-+}
-+
- static int qcom_wdt_start(struct watchdog_device *wdd)
- {
- 	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
-@@ -256,6 +265,7 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 	u32 percpu_offset;
- 	int irq, ret;
- 	struct clk *clk;
-+	unsigned long irq_flags;
- 
- 	data = of_device_get_match_data(dev);
- 	if (!data) {
-@@ -311,10 +321,25 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 		if (irq < 0 && irq != -ENXIO)
- 			return irq;
- 		if (irq > 0) {
--			ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
--					       "wdt_bark", &wdt->wdd);
--			if (ret)
--				return ret;
-+			wdt->irq = irq;
-+			irq_flags = IRQF_PERCPU | IRQF_NOBALANCING |
-+				    IRQF_NO_AUTOEN | IRQF_NO_THREAD;
-+
-+			ret = request_nmi(irq, qcom_wdt_isr, irq_flags,
-+					  "wdt_bark", &wdt->wdd);
-+			if (ret) {
-+				/* Fallback to normal interrupt if NMI not supported */
-+				ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
-+						       "wdt_bark", &wdt->wdd);
-+				if (ret)
-+					return ret;
-+			} else {
-+				enable_nmi(irq);
-+				ret = devm_add_action_or_reset(dev, qcom_wdt_free_nmi,
-+							       wdt);
-+				if (ret)
-+					return ret;
-+			}
- 
- 			wdt->wdd.info = &qcom_wdt_pt_info;
- 			wdt->wdd.pretimeout = 1;
+This patch modifies __cleanup_nmi() to synchronize in-flight handlers on
+other CPUs before tearing down the NMI. It serializes teardown, shuts down
+the line, and queries the hardware state using __irq_get_irqchip_state().
 
--- 
-2.55.0.970.g62bdec98f9-goog
+> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> index 2fbff2618a1e2..a9973b61163ae 100644
+> --- a/kernel/irq/manage.c
+> +++ b/kernel/irq/manage.c
+[ ... ]
+> @@ -2034,11 +2042,20 @@ static const void *__cleanup_nmi(unsigned int irq=
+, struct irq_desc *desc)
+[ ... ]
+> +	/*
+> +	 * Ensure all in-flight NMI handlers on other CPUs complete before
+> +	 * clearing desc->action or tearing down NMI state.
+> +	 */
+> +	__synchronize_hardirq(desc, true);
+> =20
+> +	scoped_guard(raw_spinlock_irqsave, &desc->lock) {
+>  		if (!WARN_ON(desc->action =3D=3D NULL)) {
+>  			action =3D desc->action;
+>  			irq_pm_remove_action(desc, action);
+>  			devname =3D action->name;
+>  		}
 
+[Severity: High]
+This isn't a bug introduced by this patch, but does this function fail to
+abort when it detects that the NMI was already cleaned up?
+
+If a race condition occurs where desc->action is already NULL, this block
+issues a warning but proceeds with the rest of the teardown unconditionally.
+Could this lead to double-freeing irqchip resources, unbalanced PM usage, a=
+nd
+module refcount underflows if invoked on an already freed NMI?
+
+>  		desc->action =3D NULL;
+
+[Severity: High]
+This is a pre-existing issue, but does this synchronization step fail to wa=
+it
+for pending interrupts?
+
+If an NMI is asserted by the hardware but the CPU has not yet taken the
+exception, __synchronize_hardirq() queries IRQCHIP_STATE_ACTIVE and will
+return immediately. The teardown path then clears desc->action to NULL.
+
+Could the CPU taking the pending NMI exception then cause handle_fasteoi_nm=
+i()
+in kernel/irq/chip.c to locklessly dereference action->handler, resulting i=
+n a
+NULL pointer dereference?
+
+> -		irq_settings_clr_disable_unlazy(desc);
+> -		irq_shutdown_and_deactivate(desc);
+> +		irq_nmi_teardown(desc);
+> +		desc->istate &=3D ~IRQS_NMI;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902-qcom-wdt-n=
+mi-series-v3-0-f3999362a9ea@google.com?part=3D1
