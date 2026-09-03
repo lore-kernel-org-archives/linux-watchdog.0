@@ -1,134 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f172.google.com (mail-oi1-f172.google.com [209.85.167.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81CF8370D57
-	for <linux-watchdog@vger.kernel.org>; Thu,  3 Sep 2026 18:36:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788460574; cv=none; b=cQc2vYTwcTl8JVTV5s2tE6dyKyiztORMgupv0Gi0JAcljmZ+yjsRst6QjYbOqdeswjhiv8Edt6pckNLe+UvKn3GpwCOYFuWRWUs7w1mlzfTDrp2gwxPGv8S01LoF+NXMAeFD23JfCNALWNM57kxBC1POFYEapDmgh6Az3Q/kj7I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788460574; c=relaxed/simple;
-	bh=49gT8yjMT+SZmrUkhGd4wU7h1/sDlO08YdILflxINSQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=j+iwbjXeJNZbxnOJiN/Kvp4yjOl8ySZjfEnUfvRp0bHmpnKc6RIiRgqIxhCmTmdaOgL3b08zonEG6DmIyhs96Qvn4TpM5/lIseHnrYFZes+9jXjxBBkpHgkaYzY93ty2ObTqFj5dZeT77wwn8yYGyuMTVxFpTw+dnNwEC5An3/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A8yKJWI6; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10609509F15
+	for <linux-watchdog@vger.kernel.org>; Thu,  3 Sep 2026 20:58:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788469112; cv=pass; b=K7AMhTjL9hQ5OAlEIAgc+7lpx17lZbv9RQ0iDnnyVRGKkBIdc8IYcVk9l6V/y/4LXi92Cx2uNdAGL8zf7MKfDWFpp12P4Kd9ftD2Gjx6RqXzqtXV44dAnuL9EQ5V+HlbCAYwD5WbJr/ZPOG/t1mSr/PoitqPttEFzPJxl4TfLIw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788469112; c=relaxed/simple;
+	bh=IzJt2StCxj6QlvTFqzNu7kT6yZRtUyvQ+pq8S6TGhxE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ms7b6KY8HxwJCKEXQqHEzuvz2VRTIgLHUBjnS8UB/VbVgjrmluzyogr6OpqV8yO31ny0YASdw3xbJWETwlujjK1Tla4qDq/wayx/00gOJCBABMhjPjSXRkl07fZQfcrCsoTkaP9/8BVl1sFErMECzvWjjBx0tDaI7uU5QcepWrE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QEzjo7Q0; arc=pass smtp.client-ip=209.85.167.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A8yKJWI6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8DB1F000E9;
-	Thu,  3 Sep 2026 18:36:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788460572;
-	bh=UZCN/nTx2iLx0Y+cWKMLwbsVqziLlRXV7RlGALrSaRA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=A8yKJWI6AUwe0STIMU2JgGpWoDMAYAJsGhvN15RaIAvywUuS8kR/ZrLUv72MgfcTl
-	 MA51sZDXbbrIB6Un/ddjVxe44aGBmFGsMQePqI1dEqnzRYNYZvUWrJzxDOX5aiBTGa
-	 vTgsGInG+Wmu5kQE6aQJrk1SmQyuhUlrIgHkdIBleYroTL2a1903fe8Rf9rFjddnqC
-	 xN6F130c9Sv6/aZcQdne+hUTnVYKxbMDDjwBxznaaNnQln+hEUlBIL5lEQuF9Wb5cZ
-	 mPjeRlrWGi9j1U9PbttmeT6CCRkypFWHm1kALdF8l+wGXqnbsWaYw7kBYbDIfnTAgf
-	 /Zxr15VYQQzyw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: fix hrtimer start when pretimeout is zero
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "David Arcari" <darcari@redhat.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260903182029.936030-1-darcari@redhat.com>
-References: <20260903182029.936030-1-darcari@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 03 Sep 2026 18:36:11 +0000
-Message-Id: <20260903183611.DD8DB1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QEzjo7Q0"
+Received: by mail-oi1-f172.google.com with SMTP id 5614622812f47-4ab8cb2a6e4so247372b6e.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 03 Sep 2026 13:58:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788469103; cv=none;
+        d=google.com; s=arc-20260327;
+        b=pNUZfVv4pANjhMDqseYBaICuadPIqD+Xhi86sUVYklTmmFh/RZnrGwc9TERhg/tcMT
+         d8rru53e9L+8MLUttLApqp0zQWls0rX0OxzW2XvVCZoMrpn/R9vo2K5AHTmux1p+FWcf
+         3dAFyTEHwMsWGazTiK9MBk0TtjCs7U4VHnhEDb+tREsE/mxWDBV5rjauVg97nAaiRnqn
+         oj7XAJeL7Hx3V90p0d37H27xKDXwVqe5eAPBRac+st9pP4qNvMythg2TWj+bYbxYhHZ5
+         6nf9wi2qK5/upmw6hKmzWQfb1T4UxCFA+Nd6dsYLRh1VPc2ETHiaGjG0MRACLeYqOlTz
+         zImw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=Kbk7DKrDKm1y0joI7y1zmZ6F6FvHdjLhRqiyG6EvJgI=;
+        fh=RL2B6Yy9phBkucdE/yiuCs9QQCWUVXYcS00A3JhoYAA=;
+        b=n5EfHs3bbyq7ZARy4x8vcbx65SrGedARMcyCJ9863OXX1X4uqDbcmpQMMoUBjsNw2i
+         ZBON0eebhE5/edEMvbzK0FFi0dN0iPbNG9PcE364iYKTO4EL/ELKTHIjfSjAS/pVJ3vB
+         KCcN22v9XqJtwfnPnRI32Iyi4dsEDLG/HFmbkm0fWBmNAh0iNejsM65Gyxxu7Ot4xX8s
+         qZ9kdV+MBZbRzSXdyon6e2b1Sy7m/0pGWauaq0kcyb2qEI4K8Tt5a+GLmZm9scp48oSf
+         38AvmG/fPL5HSeqPRIEAcScJ7WIlZwXcBLv9XxHiWpJ8zD/6ajOsQENL91hJ5SnRbfHg
+         6tkw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1788469103; x=1789073903; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Kbk7DKrDKm1y0joI7y1zmZ6F6FvHdjLhRqiyG6EvJgI=;
+        b=QEzjo7Q0AhP7JYdhrIHgLrTvkel/W7Q0FBtz6OzDPQmwAPESyHY30UdT1y2jgVAlie
+         onwxoJk35kL66Vd0Y8kMDhomV3FzC9Tg2WinCImkIlznjnv6LicaqJulA1B1nlfdZDsM
+         3W+bGK8DFZdx3LayCmhHGUA3G88l+rC6SYuG4sVRb57rE8jFR8H4IiOvLDbzliJs499Q
+         eHp8LOqjaeQl3WLGpZI6waJQlkecu4mI33BtLTdXs1zLALXD1TGXGvlQhEIKRk2sdIAb
+         aOA+7tkePxRuQEmeiex1iCaLwgmrhfq8zel2qtFpf7WCk5al1yEFyBpi8IKnkxkWqHlF
+         EGRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788469103; x=1789073903;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=Kbk7DKrDKm1y0joI7y1zmZ6F6FvHdjLhRqiyG6EvJgI=;
+        b=JOpzAsxJHdLVqjwjFAgWX6Fp1XJYI8z8tc2f00tY2mW+y9vRA3pyHGuKQS0ZVVS/Iy
+         8zkDha/ZS+RaJ/GzRgtcTwxwTqNHFtf0ygqFUL3UpFrf68xBanfQWh27qeCS5ClpV+rk
+         IuqV8GycDAdiAVIKtZeLuDA0NRUx4YBaHWgoUe7XUJQQaFQ89CuOknbTS3nO9e/5T5OF
+         KzT9yM/sMnhdT6C93iVX7Iu+zWpXxMbqO0ZiXMUsH+yvdb5XBwYmmq+9eVaO+vqcX4Uy
+         8lShJWykSL0/h36gaOHtp4EP8A8UUKBtKwPDHs707jPREUDlkK1Wfk0/ITBE7dzq9Ovj
+         VBVQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzo3F8yip3m+O85RW4Ga3/Y92ZONHdCoiBeJXmjRkS6ftqV2q0mudk+5lzFKlO70p7aLMxrtZ/kWZnS511vNA==@vger.kernel.org
+X-Gm-Message-State: AFuF++l+V3rA/dEswb+ha2sjjoAGwRDOjE34IZEN02CIcIWAaGTG+NBg
+	fK18q2A5hoXHvLRgVwUvwsnX06OhgjsA2DtgAJ/Qp/+U8BXLgN8/uo3j0nKLCS3S6UI6aYPHRpN
+	NdHjUTMC3yqiANXwEY95gFfp0GQaFTd8A8IFBX9fFqsA5U9oZxqT5mZcam2owjg==
+X-Gm-Gg: AYBFou1MjlpjrWm1P5BzOy3GG1K/ys0kF3oADVBLz5z+sksIQ1qwcY4sqqVykvBYCDQ
+	IjJNnZNLmPjraJ0Rt86/fY1j0iQHBkH9XAypSKph+pItvdiYL6/SvTJPuMPNwnaforXnw2MT5iB
+	QGZjFw5MFHy59JRGwJBNULIg8gtlRKxSVjms6OutlxOpgsFibSt3ttp3spaAPVSupU6JzV0Is8V
+	tHMotytpjkH9X0G9GP/6C2Vsv209gKb9ROCpqaQaHwN9vUX2E2mnxwlLsN7OWgPLuIgo0ke5+mm
+	D66WYmXHbKeqgdxmMU6muErLLkR+A3RcZ02ICXrsCzU4yVTJbycupFELkKBiyzf1v4s9IVcN7Cc
+	=
+X-Received: by 2002:a05:6820:179b:b0:6b3:5475:4930 with SMTP id
+ 006d021491bc7-6b6fc9d05e0mr1462817eaf.21.1788469102528; Thu, 03 Sep 2026
+ 13:58:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
+ <20260902-qcom-wdt-nmi-series-v3-5-f3999362a9ea@google.com> <3de593de-6851-4a53-8309-a6bf13e9a8f7@oss.qualcomm.com>
+In-Reply-To: <3de593de-6851-4a53-8309-a6bf13e9a8f7@oss.qualcomm.com>
+From: Mayank Rungta <mrungta@google.com>
+Date: Thu, 3 Sep 2026 13:58:10 -0700
+X-Gm-Features: AcwNN1Wh4m9a6562DkcKps1tteFgxiKlf9013OvI175-psCFacunCQ9tfiMPwL4
+Message-ID: <CABz7rdBv74pZe6jDRifTKRAKzGZB6L08n81_0gCqF0g=s+FEcw@mail.gmail.com>
+Subject: Re: [PATCH v3 5/5] watchdog: qcom: Register pretimeout interrupt as NMI
+To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	"Kirill A. Shutemov" <kas@kernel.org>, Douglas Anderson <dianders@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Hi,
 
-Pre-existing issues:
-- [Critical] A race condition during watchdog device unregistration (`watch=
-dog_cdev_unregister`) allows the pretimeout timer to be concurrently re-arm=
-ed after it is stopped, leading to a Use-After-Free or NULL pointer derefer=
-ence.
-- [High] Missing lock acquisition during teardown causes data races with ba=
-ckground operations, potentially leading to hardware corruption.
---
+> > When a system is completely unresponsive due to an interrupt storm or
+> > deadlocked CPU cores with standard interrupts disabled, a standard
+> > watchdog pretimeout bark interrupt will fail to execute, preventing the
+> > pretimeout governor from capturing CPU backtraces before the hardware
+> > reset bite.
+>
+> [...]
+>
+> > -                     ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
+> > -                                            "wdt_bark", &wdt->wdd);
+> > -                     if (ret)
+> > -                             return ret;
+> > +                     wdt->irq = irq;
+> > +                     irq_flags = IRQF_PERCPU | IRQF_NOBALANCING |
+> > +                                 IRQF_NO_AUTOEN | IRQF_NO_THREAD;
+> > +
+> > +                     ret = request_nmi(irq, qcom_wdt_isr, irq_flags,
+> > +                                       "wdt_bark", &wdt->wdd);
+> > +                     if (ret) {
+> > +                             /* Fallback to normal interrupt if NMI not supported */
+> > +                             ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
+> > +                                                    "wdt_bark", &wdt->wdd);
+>
+> GPT noticed this IRQ is requested but never enabled (NO_AUTOEN)
 
-commit 04d7e6cb40777d8a3872c4dac3b1dddfdfe115f8
-Author: David Arcari <darcari@redhat.com>
+For the NMI path: request_nmi() requires IRQF_NO_AUTOEN. To balance
+this, enable_nmi(irq) is called immediately upon successful
+registration in the probe function:
 
-watchdog: fix hrtimer start when pretimeout is zero
+For the IRQ fallback: devm_request_irq() passes 0 (not irq_flags). In
+__setup_irq(), when IRQF_NO_AUTOEN is absent, the core calls
+irq_startup(), automatically enabling the interrupt line as it has
+always done in mainline.
 
-Per the watchdog API, a pretimeout value of 0 disables the feature.
-However, watchdog_hrtimer_pretimeout_start() fails to verify if the
-pretimeout is non-zero before arming the timer.
+Both paths are therefore enabled upon probe.
 
-This omission inadvertently starts the software pretimeout timer,
-which could result in the pretimeout handler executing incorrectly
-when the watchdog timeout is reached.
-
-Fix this by adding a check for wdd->pretimeout before calling
-hrtimer_start(), ensuring the disabled state is respected.
-
-Fixes: 7b7d2fdc8c3e ("watchdog: Add hrtimer-based pretimeout feature")
-Signed-off-by: David Arcari <darcari@redhat.com>
-
-> diff --git a/drivers/watchdog/watchdog_hrtimer_pretimeout.c b/drivers/wat=
-chdog/watchdog_hrtimer_pretimeout.c
-> index fbc7eecd8b203..49a05ea60c979 100644
-> --- a/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-> +++ b/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-> @@ -30,6 +30,7 @@ void watchdog_hrtimer_pretimeout_init(struct watchdog_d=
-evice *wdd)
->  void watchdog_hrtimer_pretimeout_start(struct watchdog_device *wdd)
->  {
->  	if (!(wdd->info->options & WDIOF_PRETIMEOUT) &&
-> +	    wdd->pretimeout &&
->  	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout))
->  		hrtimer_start(&wdd->wd_data->pretimeout_timer,
->  			      ktime_set(wdd->timeout - wdd->pretimeout, 0),
-
-[Severity: Critical]
-This is a pre-existing issue, but since this function is used to arm the
-hrtimer, can a concurrent device unregistration race with a ping to cause a
-null pointer dereference?
-
-Looking at drivers/watchdog/watchdog_dev.c:watchdog_cdev_unregister(), the
-timer is canceled before acquiring wd_data->lock:
-
-    watchdog_hrtimer_pretimeout_stop(wdd);
-
-    mutex_lock(&wd_data->lock);
-    wd_data->wdd =3D NULL;
-    wdd->wd_data =3D NULL;
-    mutex_unlock(&wd_data->lock);
-
-If a background ping worker or a concurrent userspace write operation
-acquires the lock before unregistration sets wd_data->wdd to NULL, couldn't
-it observe a valid wdd and call __watchdog_ping()?
-
-This would result in watchdog_hrtimer_pretimeout_start() being called to
-re-arm the timer asynchronously. Since the unregister path never checks or
-cancels the timer again, when the timer fires, its callback will execute
-watchdog_notify_pretimeout(wd_data->wdd) with a null or freed wdd pointer.
-Does this lead to a crash?
-
-[Severity: High]
-This is a pre-existing issue, but I also noticed a potential locking problem
-just above the timer stop in drivers/watchdog/watchdog_dev.c
-in the watchdog_cdev_unregister() function:
-
-    if (watchdog_active(wdd) &&
-        test_bit(WDOG_STOP_ON_UNREGISTER, &wdd->status)) {
-        watchdog_stop(wdd);
-    }
-
-Does calling watchdog_stop() without holding wd_data->lock risk data races
-and hardware corruption? If background ping workers or ioctl paths
-concurrently issue pings and modify state flags while this runs unprotected,
-could it lead to inconsistent hardware states?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260903182029.9360=
-30-1-darcari@redhat.com?part=3D1
+Thanks,
+Mayank
