@@ -1,131 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D3A3481650;
-	Fri,  4 Sep 2026 13:38:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF444A2A55;
+	Fri,  4 Sep 2026 13:58:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788529100; cv=none; b=kzzPSAarbLsWkCzg5ETHSRPb7yJX843Jxazj1A2LNR/eUGCIFEFSMGoJYgFLT9Yt8NXA9BVyE0MnjMkh90zL/WrSQHJfy984xWrC80Y+mlJ1gIScZrUnjeb//DEAViac5OgHWBUUZa+uSkOsT9ERe27LoAVk0PdctvPGV2kspys=
+	t=1788530312; cv=none; b=rNXwxV1X3FEmVeVoefrhpOQQ6JlaSsIrXnnWUh0cqroHYrq6nDOyFRpC/tFCHJ5ztF2Y7I6Oy1/X60Y+23C03KEQ0csFQi64p7VQux9lhzWFjXvUYceIxclIWNV7A326f6RWTzi0w+baql3VioHHHuwbgRqCvWM32CvPAfoYo8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788529100; c=relaxed/simple;
-	bh=S8m151s5d1xnf5HLA4fOnXWVZvWn3GVZ8dF3521nopA=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZSI+NqYMwuDvyTZRqWXYQcRdwUv8TikH1XYEA/0XUhR9vb2FTtfYWOzUOCvaLJmLRQh1DezPjdiBTFaMXmCelwAsNCVCQmntVsgpkBf3BmMMPGiFJ2ZCxdPis6XFh5HXeG2VykwkQ0OKROc3paMx+8W4MGhrH1zc3kjJWg/73as=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bxUcu7dw; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788530312; c=relaxed/simple;
+	bh=eOnkZMDH6WB1+VollyOzPBD787fFgTURa9j/jhC32EA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dRkoX9hxMc9tZV+d7aBMMbCIxd4LjsMar6l7SZjtT61og6rh2970cjBCUeQ+SuFQkNPfrQw1EPvE8lG9leHDi93pClzCmWB20DoIWAft20MkBEu896JdYvReC5tOixK6XfAB1L2o1vYYcQOzpLfI3C+/PbaKwRagteO2srvw4ZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KtXIzRPB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bxUcu7dw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B791F00A3D;
-	Fri,  4 Sep 2026 13:38:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KtXIzRPB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D081F00A3D;
+	Fri,  4 Sep 2026 13:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788529098;
-	bh=Bruh2vl+R4oOMZk7fJd+aHtzf3TUbalFwgoHSNuqAwc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=bxUcu7dwF8RFPTmk5viCVWbKFUiVjWW5ZMvD09sDEFKcO9+C/kc0q48S72Iw0hTPt
-	 qYejGUfLuhsuk4/uC5PaJ7OkbsykbgxGuB51YBQBx2QB7yVJWc4GEMOkEhMKRRivMo
-	 gaA7lE10TAUdmvy0cfnb8G188AgudVFm0ksYyCbMQlTDaJomSB4sYfGWLfxPe60n2t
-	 gxa+AIczvSelGe01IMBDG8ceNbveaN+yWw+sieIMhsSlR606Mky+VrAXfTqknPQgFb
-	 tnePVJfI+38DrcuujJPodJI2FTU50wDav9XXVRiLYiXP0Mp1LeTea2NvYBDz/K0LJu
-	 J6L+khA/Htqqg==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1x2U7U-00000004sGq-1lgr;
-	Fri, 04 Sep 2026 13:38:16 +0000
-Date: Fri, 04 Sep 2026 14:40:50 +0100
-Message-ID: <87wlt13zj1.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: Mayank Rungta <mrungta@google.com>,
-	Wim Van Sebroeck
- <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Radu Rendec
- <radu@rendec.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	"Kirill A. Shutemov" <kas@kernel.org>,
-	Douglas Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v3 1/5] genirq: Synchronize in-flight handlers during NMI teardown
-In-Reply-To: <87fqzp8jex.ffs@fw13>
-References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
-	<20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
-	<87fqzp8jex.ffs@fw13>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	s=k20260515; t=1788530311;
+	bh=I0kX9+PdQJJyGam7brukkKosFXiiD3H3QIPIZ6Gsaew=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=KtXIzRPBwSheizIaccbFJVmLmGQcP1SMs7wYEV5xoNaJ8XqX+icUvBar/dMq2FUMG
+	 4HH3mO+noIYrw3RrzmU/zv2A3B8c/f+QWefiQfXkgjFiw+IrH82H5dbaHGcJJl8K2y
+	 S9H0iLFi/2sa8D/V17s+TFU0YkHpGG7/56FzXepdTNhBTyy288bmM8c0Z8hVz5wG4f
+	 zo2XBL0mj8ULi2vplEGHM52WUFHYJKYmO3kQCNkO64wUWVSkn0MG1zkwGe21NuYBg9
+	 BQiFkgesLnhfjLFmv9hQxWLvyhdlh+Cj6MuwFKqi7lcRvsSPsF1E1XuAIvlihu3Nx+
+	 RwngWMtQqzU9g==
+Message-ID: <fbd0484d-cb9b-41c7-9ec9-ef9795a61232@kernel.org>
+Date: Fri, 4 Sep 2026 15:58:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: tglx@kernel.org, mrungta@google.com, wim@linux-watchdog.org, linux@roeck-us.net, radu@rendec.net, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, kas@kernel.org, dianders@chromium.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/2] dt-bindings: watchdog: samsung-wdt: Add
+ exynos5515-wdt compatible
+To: aidenisik@member.fsf.org, Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Peter Griffin <peter.griffin@linaro.org>,
+ Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org
+References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
+ <20260818-for-next-lucky7-watchdog-v3-1-2912bd122c57@member.fsf.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20260818-for-next-lucky7-watchdog-v3-1-2912bd122c57@member.fsf.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, 04 Sep 2026 10:17:42 +0100,
-Thomas Gleixner <tglx@kernel.org> wrote:
+On 18/08/2026 20:03, Aiden Isik via B4 Relay wrote:
+> From: Aiden Isik <aidenisik@member.fsf.org>
 > 
-> On Wed, Sep 02 2026 at 18:54, Mayank Rungta wrote:
-> > diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-> > index 2fbff2618a1e..a9973b61163a 100644
-> > --- a/kernel/irq/manage.c
-> > +++ b/kernel/irq/manage.c
-> > @@ -1379,6 +1379,14 @@ static bool irq_supports_nmi(struct irq_desc *desc)
-> >  	if (d->chip->irq_bus_lock || d->chip->irq_bus_sync_unlock)
-> >  		return false;
-> >  
-> > +	/*
-> > +	 * NMIs cannot set IRQD_IRQ_INPROGRESS because they cannot acquire
-> > +	 * spinlocks. Synchronous disable and teardown require querying the
-> > +	 * hardware state via ->irq_get_irqchip_state().
-> > +	 */
-> > +	if (!d->chip->irq_get_irqchip_state)
-> > +		return false;
-> > +
-> >  	return d->chip->flags & IRQCHIP_SUPPORTS_NMI;
-> >  }
-> >  
-> > @@ -2034,11 +2042,20 @@ static const void *__cleanup_nmi(unsigned int irq, struct irq_desc *desc)
-> >  	struct irqaction *action = NULL;
-> >  	const char *devname = NULL;
-> >  
-> > +	guard(mutex)(&desc->request_mutex);
-> > +
-> >  	scoped_guard(raw_spinlock_irqsave, &desc->lock) {
-> > -		irq_nmi_teardown(desc);
-> > +		irq_settings_clr_disable_unlazy(desc);
-> > +		irq_shutdown(desc);
-> > +	}
-> >  
-> > -		desc->istate &= ~IRQS_NMI;
-> > +	/*
-> > +	 * Ensure all in-flight NMI handlers on other CPUs complete before
-> > +	 * clearing desc->action or tearing down NMI state.
-> > +	 */
-> > +	__synchronize_hardirq(desc, true);
+> Add a dt-binding compatible for the Exynos5515 watchdog timer.
 > 
-> NMIs are strictly per CPU interrupts. So how is this supposed to work
-> correctly when looking at irqchip_state(ACTIVE) ?
+> This watchdog requires a syscon phandle, and the cluster index should
+> *not* be specified, as that does not make sense on the Exynos5515 SoC
+> (due to it only having a single core cluster).
 > 
-> Marc?
+> Signed-off-by: Aiden Isik <aidenisik@member.fsf.org>
 
-I have no idea what this is trying to achieve.
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-This can only work for a global interrupt, not for a CPU-private
-interrupt, since in general you can't observe the state of the
-interrupt on another CPU.
-
-My guess is that the OP is trying to trigger an NMI using a global
-interrupt, which we never intended to be supported. That's not to say
-that it cannot be supported, but this patch seems to be breaking the
-core use case...
-
-	M.
-
--- 
-Jazz isn't dead. It just smells funny.
+Best regards,
+Krzysztof
