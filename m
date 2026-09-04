@@ -1,113 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF444A2A55;
-	Fri,  4 Sep 2026 13:58:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C00364A2638
+	for <linux-watchdog@vger.kernel.org>; Fri,  4 Sep 2026 14:07:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788530312; cv=none; b=rNXwxV1X3FEmVeVoefrhpOQQ6JlaSsIrXnnWUh0cqroHYrq6nDOyFRpC/tFCHJ5ztF2Y7I6Oy1/X60Y+23C03KEQ0csFQi64p7VQux9lhzWFjXvUYceIxclIWNV7A326f6RWTzi0w+baql3VioHHHuwbgRqCvWM32CvPAfoYo8A=
+	t=1788530870; cv=none; b=tuVbZiMObCeBpxrLa9IkV2AhKYpa+5hrOqVkGPOlpf9CHyq9bg6yz2oke6Thv/RBNJWcrnCenQUMuBhI5kP9NvXHI1o8BoGPv1StJY7IRFL96bLXHHs0+yGPz1zT0cNwII5YocIrbAGrmlaQ4iQ2zfPwgNIaeYTIkX9oD+4+GvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788530312; c=relaxed/simple;
-	bh=eOnkZMDH6WB1+VollyOzPBD787fFgTURa9j/jhC32EA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dRkoX9hxMc9tZV+d7aBMMbCIxd4LjsMar6l7SZjtT61og6rh2970cjBCUeQ+SuFQkNPfrQw1EPvE8lG9leHDi93pClzCmWB20DoIWAft20MkBEu896JdYvReC5tOixK6XfAB1L2o1vYYcQOzpLfI3C+/PbaKwRagteO2srvw4ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KtXIzRPB; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788530870; c=relaxed/simple;
+	bh=UR+ZEsUUsBBDR6H3J4SrQikXuAGz4zSkD4hPrqvWIrE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=p9+g1uR+dZ1UquRyARcymhs6X2QbGWh4TuCqv2QFuXECtdHtNcINbzL2r9nTb8j/mbHU22XlWLXb1fNOisMmIB0gombWovzUTfY0eZyfEx3TryeRTfdDA7x/UKvVIjYveVYkzj/NY9odsPYQvrGy6PV5HHb5Sny1xuSH0kj5M/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=hD9lAW2u; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KtXIzRPB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D081F00A3D;
-	Fri,  4 Sep 2026 13:58:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788530311;
-	bh=I0kX9+PdQJJyGam7brukkKosFXiiD3H3QIPIZ6Gsaew=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=KtXIzRPBwSheizIaccbFJVmLmGQcP1SMs7wYEV5xoNaJ8XqX+icUvBar/dMq2FUMG
-	 4HH3mO+noIYrw3RrzmU/zv2A3B8c/f+QWefiQfXkgjFiw+IrH82H5dbaHGcJJl8K2y
-	 S9H0iLFi/2sa8D/V17s+TFU0YkHpGG7/56FzXepdTNhBTyy288bmM8c0Z8hVz5wG4f
-	 zo2XBL0mj8ULi2vplEGHM52WUFHYJKYmO3kQCNkO64wUWVSkn0MG1zkwGe21NuYBg9
-	 BQiFkgesLnhfjLFmv9hQxWLvyhdlh+Cj6MuwFKqi7lcRvsSPsF1E1XuAIvlihu3Nx+
-	 RwngWMtQqzU9g==
-Message-ID: <fbd0484d-cb9b-41c7-9ec9-ef9795a61232@kernel.org>
-Date: Fri, 4 Sep 2026 15:58:25 +0200
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="hD9lAW2u"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5b4af4be667so1034266e87.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:07:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1788530867; x=1789135667; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=UR+ZEsUUsBBDR6H3J4SrQikXuAGz4zSkD4hPrqvWIrE=;
+        b=hD9lAW2uliS8ZYgkW/JRHsLR24qEYgVwN4mFoV6dLkfcaJsvr58yS61Z3PcJ1epoTX
+         nB4a5wShjpUTWQR5by0oD1XL4VorpgJ5cNelH/44QcSXOhBviD7c8ssvqN/d7zjFJf5e
+         v++CVtFDYSSBw2R7BLPpkyLEupK0X+YOdNCug=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788530867; x=1789135667;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=UR+ZEsUUsBBDR6H3J4SrQikXuAGz4zSkD4hPrqvWIrE=;
+        b=hwKOa8VjKCUcq57gXxSquetEvpPAy9zxkMD9ClAHby86E3ozbrCSrH1/SwEDvqaehU
+         yhqam2kVPg8WHxCl6Ju2NJL3mt8+HWlQf1tC4a4Xj0EZgeYzpOP+IxTYIunEZ0IjA3u8
+         Jc7ITDwOZ8HNwBWbloZNXi6YyV8BO1mcTHZFJF1VyAUVispNKTKypkqVStQwhPCjSoEP
+         IWMP5fqmTKKDXoTwC+i8TX+BITsTP0YeeB8sUWpJiALLRACYW1Kxa78R444h5HdDz+ar
+         mGgpZr1WdCHiCSqZd3cUQVN6hCLDahzlIleHligDspZXk0wwISnhYs58q3EYRZC06zYp
+         EqMA==
+X-Forwarded-Encrypted: i=1; AKwUvBwuofaUh7q26nrV06i8G91eEZtHaJp/71pyh5aua1Q1eNDt1yfmyzOPtAwWyywA/CpuE5olsVbufl6E43ArOA==@vger.kernel.org
+X-Gm-Message-State: AFuF++mnANkAntKL2p/ZirUVN7kRnCql8iX4WM3VsrhSyo/y/vsAEUtb
+	1OKGoeTk2xtSCelxzKYIq5ORgTcYg3CrbidCPUrNbxV3m23t+jTtTnI9hnIKEYK76Cfa3+Y6ova
+	YPAY=
+X-Gm-Gg: AYBFou2jUWIoYswttdXMD0LOldIK/j4SQxT9lsUQi35d0bpVZTWynKtuTUKhuk/6vfS
+	yLnjaHXv5NKrBF0Q+iWwOmL5sds6WweXu2v1iKMf3LRkYAv1BjhngEviVhh9/g9tJRs5C87/ebN
+	Sv1teVY9oe3SBXxBQpV7pEj3c/CedMUn5vY0GoDBW4teUW3FJnezUYDKYLzrumCJm195VGRq5nO
+	siaZ1cRgEh4cu1oxHrUZbwnVwcAqU+tysYTEl9XJnKxb3dSIDrNdu38zWuEqhKXwSaV/xfJGs9W
+	g8d+VcAA0s0cOguW23r5TjueDAkdA4lcL1FPykDXp52nUbIH+3BjCpxvNHUAqZUOoybjXRs5WP7
+	sx2RKTGtZ5mpEonWFtwsiqDQ7mdmLxHKPqlfgoTHHAemtB0bAicszWg75eDZw3pcuxvfcno327p
+	HFLppMtDywpDVzW7GiOnWWU/V/t10Pv/JJe/Q1AdHQ3LXLaDKZiS/HPSUI1WyhqGpwUwSRN6QW1
+	iA8UVwVyHZUnjN4glwyY6Fde6U=
+X-Received: by 2002:a05:6512:a352:b0:5b6:183c:5ca2 with SMTP id 2adb3069b0e04-5b6183c5e28mr611534e87.64.1788530866688;
+        Fri, 04 Sep 2026 07:07:46 -0700 (PDT)
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com. [209.85.221.49])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b619820db9sm389007e87.54.2026.09.04.07.07.45
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Sep 2026 07:07:46 -0700 (PDT)
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48584dc164fso995006f8f.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:07:45 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvByL/Htp3ZOSQJtsKpPk/fiDTzjJcdcRZ4uxndPjQrPmRr/Qjdp+fYe8+B5wO5GkaCy6pSTJoK9jJTYDmbsXqA==@vger.kernel.org
+X-Received: by 2002:a05:6000:25e7:b0:485:8920:cada with SMTP id
+ ffacd0b85a97d-4858920cb46mr5715992f8f.18.1788530863620; Fri, 04 Sep 2026
+ 07:07:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/2] dt-bindings: watchdog: samsung-wdt: Add
- exynos5515-wdt compatible
-To: aidenisik@member.fsf.org, Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Peter Griffin <peter.griffin@linaro.org>,
- Alim Akhtar <alim.akhtar@samsung.com>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org
-References: <20260818-for-next-lucky7-watchdog-v3-0-2912bd122c57@member.fsf.org>
- <20260818-for-next-lucky7-watchdog-v3-1-2912bd122c57@member.fsf.org>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20260818-for-next-lucky7-watchdog-v3-1-2912bd122c57@member.fsf.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
+ <20260902-qcom-wdt-nmi-series-v3-3-f3999362a9ea@google.com> <87ecf98ivn.ffs@fw13>
+In-Reply-To: <87ecf98ivn.ffs@fw13>
+From: Doug Anderson <dianders@chromium.org>
+Date: Fri, 4 Sep 2026 07:07:31 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=VMExH-K68aDfNsFBnQRSaYSNwbHo7hLhpzhpWN+r+Fsw@mail.gmail.com>
+X-Gm-Features: AcwNN1XtHwZHgy5raT8AjWbFs0kW9c54GiCuQWnPlGop-re52BRNMJq1xExF-CI
+Message-ID: <CAD=FV=VMExH-K68aDfNsFBnQRSaYSNwbHo7hLhpzhpWN+r+Fsw@mail.gmail.com>
+Subject: Re: [PATCH v3 3/5] genirq: Export NMI APIs
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: Mayank Rungta <mrungta@google.com>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	"Kirill A. Shutemov" <kas@kernel.org>, Marc Zyngier <maz@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 18/08/2026 20:03, Aiden Isik via B4 Relay wrote:
-> From: Aiden Isik <aidenisik@member.fsf.org>
-> 
-> Add a dt-binding compatible for the Exynos5515 watchdog timer.
-> 
-> This watchdog requires a syscon phandle, and the cluster index should
-> *not* be specified, as that does not make sense on the Exynos5515 SoC
-> (due to it only having a single core cluster).
-> 
-> Signed-off-by: Aiden Isik <aidenisik@member.fsf.org>
+Hi,
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+On Fri, Sep 4, 2026 at 2:29=E2=80=AFAM Thomas Gleixner <tglx@kernel.org> wr=
+ote:
+>
+> On Wed, Sep 02 2026 at 18:54, Mayank Rungta wrote:
+> > Currently, request_nmi(), free_nmi(), enable_nmi(), disable_nmi_nosync(=
+),
+> > and disable_nmi() are restricted to built-in kernel code because they a=
+re
+> > not exported.
+> >
+> > Export these symbols with EXPORT_SYMBOL_GPL so loadable kernel modules =
+can
+> > register and manage NMIs.
+>
+> I'm not really fond of that.
 
-Best regards,
-Krzysztof
+Is this to be taken a NAK on the whole idea, then?
+
+The last patch in the series [1] wants to promote a HW watchdog bark
+interrupt to NMI. This seems like a pretty useful thing to do and an
+appropriate use of NMI, but the HW watchdog driver is a kernel module.
+Do you have another suggestion for solving that?
+
+[1] https://lore.kernel.org/all/20260902-qcom-wdt-nmi-series-v3-5-f3999362a=
+9ea@google.com/
+
+
+> Funny enough there is already a driver which claims it can be built as
+> module which uses these interfaces. Oh well...
+>
+> > Assisted-by: Antigravity:gemini
+>
+> I'm impressed that AI is required to add four EXPORT_SYMBOL_GPL()
+> instances.
+
+Hmm, I guess it's hard to figure out the guidance here. I think Mayank
+is only adding this tag to try match what's documented in
+`coding-assistants.rst`. If you've got an AI helping you with a
+series, it's pretty much touching all the patches. I guess you're
+suggesting that, even if AI touched it, trivial patches should remove
+the tag?
