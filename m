@@ -1,153 +1,144 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC46394493
-	for <linux-watchdog@vger.kernel.org>; Fri,  4 Sep 2026 14:38:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E26C0393DF1;
+	Fri,  4 Sep 2026 14:54:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788532693; cv=none; b=UJDZFjx5KNfofn5aiZyaJfdsfLiMmtaHYjXkXDDWtjLcWju7B/LYJWU7QWxMmNQVuuSlyt6iMslLxu5xI+dwTYRmtaA4Y9SSVBwdMjw7Ccpm/CMaY6haXlzABkx/RiGva2RqT1MjZ66zZiktmPil32rAKmmPbIKJHObZISJeck4=
+	t=1788533682; cv=none; b=Hty5Btyg9oFM2NsaiH4+NblTYKW4/T0BAHE9wmxBRlJpQr/RYoPVbvbd79yZtNzmhnNbEYHG3+InVwObHDB7k+kRA6vwudZinrWYfytTsUEyOvzebqTZL0mqfmB1yC90b9/i6WwlA3xj5LiZkQteX9UD49lrezdFF9teVN9E+uY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788532693; c=relaxed/simple;
-	bh=JH7KvzgDb3hj1YazwEjzQhCEGqKDsL5tuzoEKmOZ7Kc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Bc6Ajj0D0vxBOsCHM8ECcSBnWN6RMkal9NKc8lXQVT97K9hsoht9kBgBCckJPkjYGxIFYnEU8gDKWVYlaqpnrwcLfDdS1y6TaaXEYAuEDSiHEPAzWsrYRQtp6U62dOj+SLlB5JY10Rsc/NGBxbpPJDV9CjNCNRpTn0EPNPJa8Dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oF4Qok5p; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1788533682; c=relaxed/simple;
+	bh=Q+JDnlRSCW0BDvMmKpcvy7dgiXBS7TsdLb3fKiuLZow=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=qGA84cQ7FaOQe2Ndky2A2JIpACA+fUcemzIn3hVAPJZ9gZeIIV0JUpFgW1cPHOoXQ2R1B7Qshq869VA7U33nptUSjZAz28G6CO3bGBFLwYx341SzHNYJCEmp/FxgrZb1D0tCaSmP40rLvQjvwx3PrGRLXUJJgO8e0MLLEh1sSgk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U2s7Ycjf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oF4Qok5p"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a623987d32so1614752a12.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:38:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1788532690; x=1789137490; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=17oI+rSj+VUBq1gOiNZqYe2TLy7jpSRVJ40pUTx77t8=;
-        b=oF4Qok5pjgnBOfFC0D38//kmSrl5iV8MHKBhnx/eiP5vKb2QcEFdtJN4M7+mK7el66
-         36O7HGC3UAV6IsmfNepVlnbhoyiDBS7Rr+4HaP75Fa1QsoJRC0C7YYPHQcFKet25Hxzg
-         gkMjD5c3hEZZQtj1dMxoGsMpLcIbjkZgdlSjk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788532690; x=1789137490;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=17oI+rSj+VUBq1gOiNZqYe2TLy7jpSRVJ40pUTx77t8=;
-        b=iYxfDY1axPePapxRMRMkwp4C0ouE3Uocy65YxGFm4PXQgN1FRnbXzAEiVEcGReec4k
-         TXwyPUtZCy2FVEL81mx2BQQ/9sQXEPV5NpeZn0wkj6vPD5cvwP5VdenWT8hpJEw+k62q
-         MDSxdrXjOG6jpa3gC1lxp61SuvZh7B5T0SnD59L5aQNdXv8rlyqDzuPFJxdM/eghqtsA
-         h3ggKK9WMPMC1kZiGuicyVq+zybeGa8Hg5idXkeCIcFyC3vWf8jje4RB1+F5xoFGxAY0
-         NtVALV67U5qVxk59l91i/Y3bPfpzcz5OBwI2Z0SUSBEcMEFOHPiQK7ZG/2WMROpF8dnM
-         D5pA==
-X-Forwarded-Encrypted: i=1; AKwUvBw0n03FOvA3MDW+MFOVyjjz0lZDnqS77KtDdl4ObPnI7vZeL2FZucw9ip+B0M3U974WMVabSq+j8MgR0tDyRg==@vger.kernel.org
-X-Gm-Message-State: AFuF++nd5voy7aBEH9XmKrR5tLtsYlMdU6cbMHy6fyHGaqbXSLrx893b
-	M6XERB1kCq6EY+ucJb6ruq9Cp8QDZM85c2JxAmJwIh3IEqJ+HBvCtjVKCJiNTjXucwNxjfSTI8c
-	0lPI=
-X-Gm-Gg: AYBFou0X8K5TVW078NY1+jbhRHvAxxNi+0DUj+VwR25QqvKxT13cpppyPG9JYgwbdDb
-	S1F9TnD3L0vfdRx7tMiv7cNvFvqSytrTFs1aS2iFZxhL8kHjgM7UPyq+7CtQsGdk1o57xm3rGMX
-	Qpi0idI6RnOx5GP/45+Jah8MAE7H38KjCYdg3fYuC+yt0ioJILO7YFBks4BeqAsXoBc9wWuyPEC
-	RHwgZOeaLohSZv2tbBB7NfseRK2tnFOgaQlifZ73P7XgtWy2Z7IHJoqDro02m89LK1e7AWCmcGJ
-	piRgjZ9bkeIC0YVFSP5epzSQJY+KHQ5YRM/dM1ryf2OUPVyBDJGR7SzCuycG1edk0smm/+g401r
-	1tO9cXkGRTebkcjgNIjn9Yx8Vay41EdbNaqcHMh2pfve6Yvuw77exFmc/ob+S6ABD52jXCqcYLl
-	M+xWGk0D+36p8hYZFrSUEqi1zuFjsWjlRoabikijTGedgFTpXJnvw7aoiwmHpYoB6mEJPNWB2Se
-	OTr69KKWsquHMvc3O7iylV24jI=
-X-Received: by 2002:a05:6402:13cc:b0:6a0:a4ce:1b8e with SMTP id 4fb4d7f45d1cf-6a7e85e4b59mr2193597a12.0.1788532689566;
-        Fri, 04 Sep 2026 07:38:09 -0700 (PDT)
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com. [209.85.221.52])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a7e68e8c77sm1202613a12.17.2026.09.04.07.38.08
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Sep 2026 07:38:09 -0700 (PDT)
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4858303de5dso1347537f8f.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:38:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvByj2T8rwRWGndKE6Rd9PLGwYj7T5sIYkSiCAJWZ2Fu+rbheI6qjcR2V4TpUz7lyL0yFAVrpxXff2UDa/W3sag==@vger.kernel.org
-X-Received: by 2002:a05:6000:4a0b:b0:485:8c16:a32e with SMTP id
- ffacd0b85a97d-4858c16a585mr3711212f8f.35.1788532686831; Fri, 04 Sep 2026
- 07:38:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U2s7Ycjf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264BC1F00A3D;
+	Fri,  4 Sep 2026 14:54:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788533679;
+	bh=jWj3uM89dGfcaIeOwT5pkyubX8JmIb1Dz9DYUSqygQo=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=U2s7Ycjf+yMmOw6OYlIb2odTik+RSEfcf5loRPcFZ6Av1OeuuAar2RcnDm809qkyL
+	 ItL9iYMNOp+ZDDt0EwHcVYhO2VwowaACExuztAl7cIP0r46/FFIim3IfZMq5vkdhp7
+	 Fu3q7zclqvYBbk1KsQ99nWei31ydMjgl0EgjXxIXec2PWrDgqDsGdlZXgpIERR9bud
+	 HtrcnSezcf8GRO0cFCeEsmcy5l3zW0W9qC2qBmOpT6Cs6R3hcSnUiPSfNjuL2ihJz1
+	 KjMpWYCHDDa2/9y9DjvlOb4ENEcnWygZ2u5cZRx9xtMITIo9UV4XPYN2TWY0fz7H9n
+	 7oFZnH81XQ8LA==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1x2VJN-00000004uLv-137C;
+	Fri, 04 Sep 2026 14:54:37 +0000
+Date: Fri, 04 Sep 2026 15:57:11 +0100
+Message-ID: <87se3p3vzs.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Doug Anderson <dianders@chromium.org>
+Cc: Thomas Gleixner <tglx@kernel.org>,
+	Mayank Rungta <mrungta@google.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Radu Rendec <radu@rendec.net>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	"Kirill A. Shutemov" <kas@kernel.org>
+Subject: Re: [PATCH v3 1/5] genirq: Synchronize in-flight handlers during NMI teardown
+In-Reply-To: <CAD=FV=ULeHqEZE-a9vV9F6vVMLVBPDTeXTgnmU_Bqui8sc1ZZA@mail.gmail.com>
+References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
+	<20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
+	<87fqzp8jex.ffs@fw13>
+	<87wlt13zj1.wl-maz@kernel.org>
+	<CAD=FV=ULeHqEZE-a9vV9F6vVMLVBPDTeXTgnmU_Bqui8sc1ZZA@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
- <20260902-qcom-wdt-nmi-series-v3-5-f3999362a9ea@google.com>
- <3de593de-6851-4a53-8309-a6bf13e9a8f7@oss.qualcomm.com> <CABz7rdBv74pZe6jDRifTKRAKzGZB6L08n81_0gCqF0g=s+FEcw@mail.gmail.com>
-In-Reply-To: <CABz7rdBv74pZe6jDRifTKRAKzGZB6L08n81_0gCqF0g=s+FEcw@mail.gmail.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Fri, 4 Sep 2026 07:37:55 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=VUyQ4F-HC=cmD9Ay-JHcWJCVDc5BSWRax7a6FRJ_v0bQ@mail.gmail.com>
-X-Gm-Features: AcwNN1Wo5IR-SJM2QYyqYIK33CmEpWmvlDIs54NEnTFP7obdj1kaNXFucZN0GAE
-Message-ID: <CAD=FV=VUyQ4F-HC=cmD9Ay-JHcWJCVDc5BSWRax7a6FRJ_v0bQ@mail.gmail.com>
-Subject: Re: [PATCH v3 5/5] watchdog: qcom: Register pretimeout interrupt as NMI
-To: Mayank Rungta <mrungta@google.com>
-Cc: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	"Kirill A. Shutemov" <kas@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: dianders@chromium.org, tglx@kernel.org, mrungta@google.com, wim@linux-watchdog.org, linux@roeck-us.net, radu@rendec.net, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, kas@kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Hi,
+Hey Doug,
 
-On Thu, Sep 3, 2026 at 1:58=E2=80=AFPM Mayank Rungta <mrungta@google.com> w=
-rote:
->
+On Fri, 04 Sep 2026 15:34:12 +0100,
+Doug Anderson <dianders@chromium.org> wrote:
+>=20
 > Hi,
->
-> > > When a system is completely unresponsive due to an interrupt storm or
-> > > deadlocked CPU cores with standard interrupts disabled, a standard
-> > > watchdog pretimeout bark interrupt will fail to execute, preventing t=
-he
-> > > pretimeout governor from capturing CPU backtraces before the hardware
-> > > reset bite.
+>=20
+> On Fri, Sep 4, 2026 at 6:38=E2=80=AFAM Marc Zyngier <maz@kernel.org> wrot=
+e:
 > >
-> > [...]
+> > On Fri, 04 Sep 2026 10:17:42 +0100,
+> > Thomas Gleixner <tglx@kernel.org> wrote:
+> > >
+> > > NMIs are strictly per CPU interrupts. So how is this supposed to work
+> > > correctly when looking at irqchip_state(ACTIVE) ?
+> > >
+> > > Marc?
 > >
-> > > -                     ret =3D devm_request_irq(dev, irq, qcom_wdt_isr=
-, 0,
-> > > -                                            "wdt_bark", &wdt->wdd);
-> > > -                     if (ret)
-> > > -                             return ret;
-> > > +                     wdt->irq =3D irq;
-> > > +                     irq_flags =3D IRQF_PERCPU | IRQF_NOBALANCING |
-> > > +                                 IRQF_NO_AUTOEN | IRQF_NO_THREAD;
-> > > +
-> > > +                     ret =3D request_nmi(irq, qcom_wdt_isr, irq_flag=
-s,
-> > > +                                       "wdt_bark", &wdt->wdd);
-> > > +                     if (ret) {
-> > > +                             /* Fallback to normal interrupt if NMI =
-not supported */
-> > > +                             ret =3D devm_request_irq(dev, irq, qcom=
-_wdt_isr, 0,
-> > > +                                                    "wdt_bark", &wdt=
-->wdd);
+> > I have no idea what this is trying to achieve.
 > >
-> > GPT noticed this IRQ is requested but never enabled (NO_AUTOEN)
+> > This can only work for a global interrupt, not for a CPU-private
+> > interrupt, since in general you can't observe the state of the
+> > interrupt on another CPU.
+> >
+> > My guess is that the OP is trying to trigger an NMI using a global
+> > interrupt, which we never intended to be supported. That's not to say
+> > that it cannot be supported, but this patch seems to be breaking the
+> > core use case...
+>=20
+> The overall goal is to take the watchdog bark interrupt (which is a
+> GIC Shared Peripheral Interrupt) and promote it to NMI. An example of
+> that interrupt in the device tree for one Qualcomm board:
+>=20
+> interrupts =3D <GIC_SPI 0 IRQ_TYPE_EDGE_RISING>;
+>=20
+> The patches in this series seem to accomplish that. With the current
+> arm64 pseudo-NMI implemnttion, requesting as NMI just bumps up the
+> priority of an interrupt to "NMI" level and that works fine on SPIs as
+> well. On arm64/GIC interrupts are routed to a single CPU anyway, so
+> requesting it with `IRQF_PERCPU | IRQF_NOBALANCING` didn't seem
+> absurd.
+
+Not absurd, but the implementation as suggested has the potential to
+break per-CPU NMIs if you check for the active state on the wrong CPU.
+
+Also, checking for that state doesn't mean the kernel is free of
+reference on this interrupt, as you look at the HW state, not the
+kernel's.
+
+> The biggest problem we had was properly cleaning up the NMI at module
+> "unload" time. To make that work, we needed a way to synchronize the
+> NMIs to ensure they were quiescent before the module was unloaded.
+> That's what this patch is attempting, and is mostly attempting to
+> respond to Sashiko feedback on earlier patches.
 >
-> For the NMI path: request_nmi() requires IRQF_NO_AUTOEN. To balance
-> this, enable_nmi(irq) is called immediately upon successful
-> registration in the probe function:
->
-> For the IRQ fallback: devm_request_irq() passes 0 (not irq_flags). In
-> __setup_irq(), when IRQF_NO_AUTOEN is absent, the core calls
-> irq_startup(), automatically enabling the interrupt line as it has
-> always done in mainline.
->
-> Both paths are therefore enabled upon probe.
+> I don't think Mayank is tied to any particular implementation and the
+> overall goal here is to allow the watchdog bark interrupt to run at an
+> elevated level so it can produce good backtraces even if all the CPUs
+> in the system are locked up and the buddy lockup detector doesn't
+> fire. Is this something you think should be doable? If so, what's the
+> best way for Mayank to go about doing it?
 
-I wonder if it would make sense to either:
+The only thing I can think of right now is some equivalent to
+IRQD_IRQ_INPROGRESS done in a lockless manner. It doesn't have to be
+atomic if you can guarantee that it is checked on the target CPU only,
+after having disabled the interrupt.
 
-1. Rename the variable to 'nmi_flags'?
+But this is rather ugly, and I'm pretty sure Thomas will haete this
+just as much.
 
-2. Get rid of the variable and just directly pass the flags to the request_=
-nmi()
+	M.
 
-That would avoid the confusion. While I agree that your code now is
-correct, I can understand why GPT (and humans) would get confused...
-
-
--Doug
+--=20
+Jazz isn't dead. It just smells funny.
