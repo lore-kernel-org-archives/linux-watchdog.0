@@ -1,70 +1,70 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504DF38AC9A
-	for <linux-watchdog@vger.kernel.org>; Fri,  4 Sep 2026 14:34:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC46394493
+	for <linux-watchdog@vger.kernel.org>; Fri,  4 Sep 2026 14:38:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788532475; cv=none; b=BRPvJEMwqNiWKAqBYSnDTlZZc/u3S+Ccopp0mzadlPDxyiN/g12jUgkE6Yjt9lK4tiIvg2UZfeaBJxcc4xIpqz38mT735wzN0PwA9xMVpBBMt8rDlw6zFucJ/E43jtlkWkbrpFQfu81e9J4yWoYMZLnYp2hw46qX0PbAWs0W1iE=
+	t=1788532693; cv=none; b=UJDZFjx5KNfofn5aiZyaJfdsfLiMmtaHYjXkXDDWtjLcWju7B/LYJWU7QWxMmNQVuuSlyt6iMslLxu5xI+dwTYRmtaA4Y9SSVBwdMjw7Ccpm/CMaY6haXlzABkx/RiGva2RqT1MjZ66zZiktmPil32rAKmmPbIKJHObZISJeck4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788532475; c=relaxed/simple;
-	bh=iwANdAqzga+zM/yuSu0exzs6VE5a7yEytpMIJzjLBcQ=;
+	s=arc-20240116; t=1788532693; c=relaxed/simple;
+	bh=JH7KvzgDb3hj1YazwEjzQhCEGqKDsL5tuzoEKmOZ7Kc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HIhKWUfd9IELKZrFYO+5T3iDO5l9sr1bDnH4J1vmelLIPdauk3uVbWhQ08eElhrV2tCs1AYrkSWEIxWGQ15i7e6/T0NYjVTaZJzdaJ/XaHWQRxnlADCrV+YUxfqWIKRHlHQfd8bQDlzisANZT0UGr8PNAJWghI50Lnw0YCmUc8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oXRqdZEO; arc=none smtp.client-ip=209.85.218.49
+	 To:Cc:Content-Type; b=Bc6Ajj0D0vxBOsCHM8ECcSBnWN6RMkal9NKc8lXQVT97K9hsoht9kBgBCckJPkjYGxIFYnEU8gDKWVYlaqpnrwcLfDdS1y6TaaXEYAuEDSiHEPAzWsrYRQtp6U62dOj+SLlB5JY10Rsc/NGBxbpPJDV9CjNCNRpTn0EPNPJa8Dc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oF4Qok5p; arc=none smtp.client-ip=209.85.208.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oXRqdZEO"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c2531f453eeso142179566b.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:34:33 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oF4Qok5p"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a623987d32so1614752a12.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:38:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1788532471; x=1789137271; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1788532690; x=1789137490; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=1ck7BSWkkXwWvroZN1jbW0sU0ReXY/y4Y6ENpLqokqE=;
-        b=oXRqdZEOfYyYPi2iKjTa4er9gO4ge2Og0W6LYjns9thRKGBFYkSxp2fYL0ns239gAc
-         URPTTb0FIuR08wioB4QUj6AfVZlUqUHpN6A2P6VxWT9Gk+c7FEK3+I/2mExILpYGz12h
-         v1iGZh6aD6pQHjMo5xe3u2bhLSQS8mXPW/YXE=
+        bh=17oI+rSj+VUBq1gOiNZqYe2TLy7jpSRVJ40pUTx77t8=;
+        b=oF4Qok5pjgnBOfFC0D38//kmSrl5iV8MHKBhnx/eiP5vKb2QcEFdtJN4M7+mK7el66
+         36O7HGC3UAV6IsmfNepVlnbhoyiDBS7Rr+4HaP75Fa1QsoJRC0C7YYPHQcFKet25Hxzg
+         gkMjD5c3hEZZQtj1dMxoGsMpLcIbjkZgdlSjk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788532471; x=1789137271;
+        d=1e100.net; s=20251104; t=1788532690; x=1789137490;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=1ck7BSWkkXwWvroZN1jbW0sU0ReXY/y4Y6ENpLqokqE=;
-        b=a6v6H/bSYM3+51l0Moz484fkihToHBqpKwARUQdZlBzfyUaX3P4tr9ov/pSl7cWJsy
-         VKDjMv7LgaP7ziXL0Jxoy0hVLrAfPGVKrpjGahdkfkUw9PaLmvxcyqS1+z+IShs/mUvP
-         C9SfzGR8QJOv6F8MsA6IgptP9gpTqtfhK44dwh9IJ/ZllZZfso5AedR8PUkz996fExNL
-         I2byKVawp5wGLsGsJcfKrkWdVkz/5xdBhVO+LZrTTkXkvCJvkAyYsuHSQjyhvvwN75ta
-         OmgxXsiqH01DHeT89bjkXqeB52ksQbyw4zzc/ApHzZl2cTDtvcLvaDC2FLINa1m4j4Ek
-         J0bQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzNkjlLJP6CRor1i29Gu05DT2OrQex3GOT/N9PuMbZbJAmX/Ksq3FSeTy3jqq00hXbk7PFqyKNYqwCm+4wR4Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++l80Wk570hs+T2GGW/MH5vrNPwg41M5Gu5pmMNbYZ0lEHZNXiFX
-	o7tMkRTNUhyo+5+0NLx5EUO5E3jtH7ryCf201No8+x5h8taTsLgNdp/Tp72Ek9IhcoLgpB7Jg8P
-	uhxI=
-X-Gm-Gg: AYBFou3/EAWtfaLn75NBgSq1+CyiZwjYSDI4r0ylNtyTebo+hMzsDazLUzCXhSdkwv1
-	7BE/qoputUCJpgp+pCF7kQPk0QeHX9IAlQhTDbOLlmS4n1pibSqOdEQUs5SYM6SgHKgGZ6Ye3Qu
-	+KHslueTQ+AYMu1FLR9OUqf18dkV45+WFNoUcHdVk+Nl7fChh/M3L2xY/Dpan/1C4mMFEc6nmVO
-	kEoHPQ4f/pcGc3aTJCsGhcnxxicbz1Xl6qshJMemEpYQTDCCEnFbPFejbNLD0Dd+vLo+dot3n3y
-	06XX4q9s5zIWmz5OZ7dUdwatEhYQGiFJaPq2Y3bHIHxwO4VDZ4GZLp+ljj2K9PQIj5cEmxeK96a
-	OReIQHt+ExA7DqJxL6bAx9KWnd51CT+WWlsr2ZxZNs5m7ADGxoZlMX5dfBsBXMuObkNF9M9jMgX
-	K74QOXi4LfM5aFiWZG01X4LQjhN7JcHLFcWVnhYKMfDjt87Q8dVPaU4I4D43GmkhO6PsCT8s9+F
-	2po1tpGl++hh85cUxnXp7iKQUU=
-X-Received: by 2002:a17:906:c116:b0:c24:b11a:470f with SMTP id a640c23a62f3a-c260c4494f2mr399798466b.0.1788532471342;
-        Fri, 04 Sep 2026 07:34:31 -0700 (PDT)
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com. [209.85.128.50])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c261f673000sm39910766b.24.2026.09.04.07.34.29
+        bh=17oI+rSj+VUBq1gOiNZqYe2TLy7jpSRVJ40pUTx77t8=;
+        b=iYxfDY1axPePapxRMRMkwp4C0ouE3Uocy65YxGFm4PXQgN1FRnbXzAEiVEcGReec4k
+         TXwyPUtZCy2FVEL81mx2BQQ/9sQXEPV5NpeZn0wkj6vPD5cvwP5VdenWT8hpJEw+k62q
+         MDSxdrXjOG6jpa3gC1lxp61SuvZh7B5T0SnD59L5aQNdXv8rlyqDzuPFJxdM/eghqtsA
+         h3ggKK9WMPMC1kZiGuicyVq+zybeGa8Hg5idXkeCIcFyC3vWf8jje4RB1+F5xoFGxAY0
+         NtVALV67U5qVxk59l91i/Y3bPfpzcz5OBwI2Z0SUSBEcMEFOHPiQK7ZG/2WMROpF8dnM
+         D5pA==
+X-Forwarded-Encrypted: i=1; AKwUvBw0n03FOvA3MDW+MFOVyjjz0lZDnqS77KtDdl4ObPnI7vZeL2FZucw9ip+B0M3U974WMVabSq+j8MgR0tDyRg==@vger.kernel.org
+X-Gm-Message-State: AFuF++nd5voy7aBEH9XmKrR5tLtsYlMdU6cbMHy6fyHGaqbXSLrx893b
+	M6XERB1kCq6EY+ucJb6ruq9Cp8QDZM85c2JxAmJwIh3IEqJ+HBvCtjVKCJiNTjXucwNxjfSTI8c
+	0lPI=
+X-Gm-Gg: AYBFou0X8K5TVW078NY1+jbhRHvAxxNi+0DUj+VwR25QqvKxT13cpppyPG9JYgwbdDb
+	S1F9TnD3L0vfdRx7tMiv7cNvFvqSytrTFs1aS2iFZxhL8kHjgM7UPyq+7CtQsGdk1o57xm3rGMX
+	Qpi0idI6RnOx5GP/45+Jah8MAE7H38KjCYdg3fYuC+yt0ioJILO7YFBks4BeqAsXoBc9wWuyPEC
+	RHwgZOeaLohSZv2tbBB7NfseRK2tnFOgaQlifZ73P7XgtWy2Z7IHJoqDro02m89LK1e7AWCmcGJ
+	piRgjZ9bkeIC0YVFSP5epzSQJY+KHQ5YRM/dM1ryf2OUPVyBDJGR7SzCuycG1edk0smm/+g401r
+	1tO9cXkGRTebkcjgNIjn9Yx8Vay41EdbNaqcHMh2pfve6Yvuw77exFmc/ob+S6ABD52jXCqcYLl
+	M+xWGk0D+36p8hYZFrSUEqi1zuFjsWjlRoabikijTGedgFTpXJnvw7aoiwmHpYoB6mEJPNWB2Se
+	OTr69KKWsquHMvc3O7iylV24jI=
+X-Received: by 2002:a05:6402:13cc:b0:6a0:a4ce:1b8e with SMTP id 4fb4d7f45d1cf-6a7e85e4b59mr2193597a12.0.1788532689566;
+        Fri, 04 Sep 2026 07:38:09 -0700 (PDT)
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com. [209.85.221.52])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a7e68e8c77sm1202613a12.17.2026.09.04.07.38.08
         for <linux-watchdog@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Sep 2026 07:34:30 -0700 (PDT)
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49cdc81f40eso7452055e9.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:34:29 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBwaRTs1LR5RW6K13+jTeBg7/v5Jr5KxODGlOoaQlcQgzNdKtA6O3fyCuIp8ZuDvGB73O5Qra8q8PJdbIUCO2Q==@vger.kernel.org
-X-Received: by 2002:a05:600c:6087:b0:49c:d52e:d0ea with SMTP id
- 5b1f17b1804b1-49cf81e3454mr116251535e9.4.1788532464702; Fri, 04 Sep 2026
- 07:34:24 -0700 (PDT)
+        Fri, 04 Sep 2026 07:38:09 -0700 (PDT)
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4858303de5dso1347537f8f.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 07:38:08 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvByj2T8rwRWGndKE6Rd9PLGwYj7T5sIYkSiCAJWZ2Fu+rbheI6qjcR2V4TpUz7lyL0yFAVrpxXff2UDa/W3sag==@vger.kernel.org
+X-Received: by 2002:a05:6000:4a0b:b0:485:8c16:a32e with SMTP id
+ ffacd0b85a97d-4858c16a585mr3711212f8f.35.1788532686831; Fri, 04 Sep 2026
+ 07:38:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -72,19 +72,19 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
- <20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
- <87fqzp8jex.ffs@fw13> <87wlt13zj1.wl-maz@kernel.org>
-In-Reply-To: <87wlt13zj1.wl-maz@kernel.org>
+ <20260902-qcom-wdt-nmi-series-v3-5-f3999362a9ea@google.com>
+ <3de593de-6851-4a53-8309-a6bf13e9a8f7@oss.qualcomm.com> <CABz7rdBv74pZe6jDRifTKRAKzGZB6L08n81_0gCqF0g=s+FEcw@mail.gmail.com>
+In-Reply-To: <CABz7rdBv74pZe6jDRifTKRAKzGZB6L08n81_0gCqF0g=s+FEcw@mail.gmail.com>
 From: Doug Anderson <dianders@chromium.org>
-Date: Fri, 4 Sep 2026 07:34:12 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=ULeHqEZE-a9vV9F6vVMLVBPDTeXTgnmU_Bqui8sc1ZZA@mail.gmail.com>
-X-Gm-Features: AcwNN1VrCYtMK0FuxIEwY-YB8TuqCWsz3J5Ntif2-4hFkWwShLrXdtkOdhxnO4s
-Message-ID: <CAD=FV=ULeHqEZE-a9vV9F6vVMLVBPDTeXTgnmU_Bqui8sc1ZZA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/5] genirq: Synchronize in-flight handlers during NMI teardown
-To: Marc Zyngier <maz@kernel.org>
-Cc: Thomas Gleixner <tglx@kernel.org>, Mayank Rungta <mrungta@google.com>, 
+Date: Fri, 4 Sep 2026 07:37:55 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=VUyQ4F-HC=cmD9Ay-JHcWJCVDc5BSWRax7a6FRJ_v0bQ@mail.gmail.com>
+X-Gm-Features: AcwNN1Wo5IR-SJM2QYyqYIK33CmEpWmvlDIs54NEnTFP7obdj1kaNXFucZN0GAE
+Message-ID: <CAD=FV=VUyQ4F-HC=cmD9Ay-JHcWJCVDc5BSWRax7a6FRJ_v0bQ@mail.gmail.com>
+Subject: Re: [PATCH v3 5/5] watchdog: qcom: Register pretimeout interrupt as NMI
+To: Mayank Rungta <mrungta@google.com>
+Cc: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
 	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
+	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
 	"Kirill A. Shutemov" <kas@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -92,96 +92,62 @@ Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Fri, Sep 4, 2026 at 6:38=E2=80=AFAM Marc Zyngier <maz@kernel.org> wrote:
+On Thu, Sep 3, 2026 at 1:58=E2=80=AFPM Mayank Rungta <mrungta@google.com> w=
+rote:
 >
-> On Fri, 04 Sep 2026 10:17:42 +0100,
-> Thomas Gleixner <tglx@kernel.org> wrote:
-> >
-> > On Wed, Sep 02 2026 at 18:54, Mayank Rungta wrote:
-> > > diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-> > > index 2fbff2618a1e..a9973b61163a 100644
-> > > --- a/kernel/irq/manage.c
-> > > +++ b/kernel/irq/manage.c
-> > > @@ -1379,6 +1379,14 @@ static bool irq_supports_nmi(struct irq_desc *=
-desc)
-> > >     if (d->chip->irq_bus_lock || d->chip->irq_bus_sync_unlock)
-> > >             return false;
-> > >
-> > > +   /*
-> > > +    * NMIs cannot set IRQD_IRQ_INPROGRESS because they cannot acquir=
-e
-> > > +    * spinlocks. Synchronous disable and teardown require querying t=
+> Hi,
+>
+> > > When a system is completely unresponsive due to an interrupt storm or
+> > > deadlocked CPU cores with standard interrupts disabled, a standard
+> > > watchdog pretimeout bark interrupt will fail to execute, preventing t=
 he
-> > > +    * hardware state via ->irq_get_irqchip_state().
-> > > +    */
-> > > +   if (!d->chip->irq_get_irqchip_state)
-> > > +           return false;
-> > > +
-> > >     return d->chip->flags & IRQCHIP_SUPPORTS_NMI;
-> > >  }
-> > >
-> > > @@ -2034,11 +2042,20 @@ static const void *__cleanup_nmi(unsigned int=
- irq, struct irq_desc *desc)
-> > >     struct irqaction *action =3D NULL;
-> > >     const char *devname =3D NULL;
-> > >
-> > > +   guard(mutex)(&desc->request_mutex);
-> > > +
-> > >     scoped_guard(raw_spinlock_irqsave, &desc->lock) {
-> > > -           irq_nmi_teardown(desc);
-> > > +           irq_settings_clr_disable_unlazy(desc);
-> > > +           irq_shutdown(desc);
-> > > +   }
-> > >
-> > > -           desc->istate &=3D ~IRQS_NMI;
-> > > +   /*
-> > > +    * Ensure all in-flight NMI handlers on other CPUs complete befor=
-e
-> > > +    * clearing desc->action or tearing down NMI state.
-> > > +    */
-> > > +   __synchronize_hardirq(desc, true);
+> > > pretimeout governor from capturing CPU backtraces before the hardware
+> > > reset bite.
 > >
-> > NMIs are strictly per CPU interrupts. So how is this supposed to work
-> > correctly when looking at irqchip_state(ACTIVE) ?
+> > [...]
 > >
-> > Marc?
+> > > -                     ret =3D devm_request_irq(dev, irq, qcom_wdt_isr=
+, 0,
+> > > -                                            "wdt_bark", &wdt->wdd);
+> > > -                     if (ret)
+> > > -                             return ret;
+> > > +                     wdt->irq =3D irq;
+> > > +                     irq_flags =3D IRQF_PERCPU | IRQF_NOBALANCING |
+> > > +                                 IRQF_NO_AUTOEN | IRQF_NO_THREAD;
+> > > +
+> > > +                     ret =3D request_nmi(irq, qcom_wdt_isr, irq_flag=
+s,
+> > > +                                       "wdt_bark", &wdt->wdd);
+> > > +                     if (ret) {
+> > > +                             /* Fallback to normal interrupt if NMI =
+not supported */
+> > > +                             ret =3D devm_request_irq(dev, irq, qcom=
+_wdt_isr, 0,
+> > > +                                                    "wdt_bark", &wdt=
+->wdd);
+> >
+> > GPT noticed this IRQ is requested but never enabled (NO_AUTOEN)
 >
-> I have no idea what this is trying to achieve.
+> For the NMI path: request_nmi() requires IRQF_NO_AUTOEN. To balance
+> this, enable_nmi(irq) is called immediately upon successful
+> registration in the probe function:
 >
-> This can only work for a global interrupt, not for a CPU-private
-> interrupt, since in general you can't observe the state of the
-> interrupt on another CPU.
+> For the IRQ fallback: devm_request_irq() passes 0 (not irq_flags). In
+> __setup_irq(), when IRQF_NO_AUTOEN is absent, the core calls
+> irq_startup(), automatically enabling the interrupt line as it has
+> always done in mainline.
 >
-> My guess is that the OP is trying to trigger an NMI using a global
-> interrupt, which we never intended to be supported. That's not to say
-> that it cannot be supported, but this patch seems to be breaking the
-> core use case...
+> Both paths are therefore enabled upon probe.
 
-The overall goal is to take the watchdog bark interrupt (which is a
-GIC Shared Peripheral Interrupt) and promote it to NMI. An example of
-that interrupt in the device tree for one Qualcomm board:
+I wonder if it would make sense to either:
 
-interrupts =3D <GIC_SPI 0 IRQ_TYPE_EDGE_RISING>;
+1. Rename the variable to 'nmi_flags'?
 
-The patches in this series seem to accomplish that. With the current
-arm64 pseudo-NMI implemnttion, requesting as NMI just bumps up the
-priority of an interrupt to "NMI" level and that works fine on SPIs as
-well. On arm64/GIC interrupts are routed to a single CPU anyway, so
-requesting it with `IRQF_PERCPU | IRQF_NOBALANCING` didn't seem
-absurd.
+2. Get rid of the variable and just directly pass the flags to the request_=
+nmi()
 
-The biggest problem we had was properly cleaning up the NMI at module
-"unload" time. To make that work, we needed a way to synchronize the
-NMIs to ensure they were quiescent before the module was unloaded.
-That's what this patch is attempting, and is mostly attempting to
-respond to Sashiko feedback on earlier patches.
-
-I don't think Mayank is tied to any particular implementation and the
-overall goal here is to allow the watchdog bark interrupt to run at an
-elevated level so it can produce good backtraces even if all the CPUs
-in the system are locked up and the buddy lockup detector doesn't
-fire. Is this something you think should be doable? If so, what's the
-best way for Mayank to go about doing it?
+That would avoid the confusion. While I agree that your code now is
+correct, I can understand why GPT (and humans) would get confused...
 
 
 -Doug
