@@ -1,175 +1,123 @@
-Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD6FA33D512
-	for <linux-watchdog@vger.kernel.org>; Sat,  5 Sep 2026 01:53:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788573187; cv=pass; b=RTMbu2dxFzDZjOG/1GLjTrtIOWHaSvuODE7dSAIKsLCJU3BWPqNrKSytnKpxthWpWJ/rdzs17VnMp5hlK1NyhzC01PQHVV1KjRh/NFwoyhZNHwIyHIToOK5ev9Rrfj6zFMmi+ewuHdufzOGcJWhfJQCUxvT81GvdO3+9LOj4j+c=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788573187; c=relaxed/simple;
-	bh=Wpt7DuNPNgIESG4CCHysgiXD1WUySeU8KIWxMrrs66w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gu2L/7cnmqW1yeW3mTrAbg0cJge+P+vlDXtTsNJImlXwRelZuN1K6U39FtzWgkBH7+ZraaSYNGWGc2b1LWK6QshJMpdpjw22uRNz9IcZJX2FEHJzKdzAjETiyOlkJFzqYMks//Dw1ttf7s6tPgojBr9NKz1XMG3JwrCuzoooqik=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=u2w1n9Rd; arc=pass smtp.client-ip=209.85.160.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B24D44C510
+	for <linux-watchdog@vger.kernel.org>; Sat,  5 Sep 2026 08:25:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788596750; cv=none; b=Rv2GFj2ZTcgHbhmKNH2RazmRKL4mCl2jtKg74JDpQHgMFOr0DPBmjTk42Tv/E83i3P4UERKo6dIFjMm0XpbsAJfQBdwK6EOhSoMVFkudtCbykyQLxq/rkmc6YtsjNXMXWE9Q5hxrRMsIpQnErtrD1wiPMbRsfV5gH8YRKcmjjLg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788596750; c=relaxed/simple;
+	bh=OviR5kaHs976PRzULV1vC0IpWTkvgJa0y9VkRRzLNZ0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=H+uUc07FXlBYqbZeQrFz5Z3ogTj616b5ajAs9TC04nnZSX8VDCcnEr4Sc1rZMDsOv8yMA8TNipmm0sKXSY+xOt+ByDTLZFLBlAsmn5EydwZpuNpDCOCvOjQbPwdbeG5qYlq+HST4IQA7nK5Q19vyE2/1yDWBvPJ8EnQW0bDCAhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cUzs1Vjh; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="u2w1n9Rd"
-Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-46556b9e02cso1276292fac.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 04 Sep 2026 18:53:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788573185; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Oj0BcAIUJs/J9nD6emTDN6hMTfjk6YICl/cMM5+3gYTv6ZfqUs2pUxiIf3SQNTcWAe
-         id4Du6A62BY6jDr3+jrJQLgK0jVAbcwadx2HO8IEuv6HglTi+JTeBIW30CXhzlFNYWNh
-         du8bGJ9VDMiJHgnOfwz/D6MnnZcesQXkpNba13INybz3uOtX3AdYaerb4ZG3PaALB/52
-         ApBe8v5tEs3Ws+s9nM87/SHAz4Xl8S+dSUL+xpwjljSwNkJiwVRoP2JVM7hd2bcSyAxB
-         CEt2GiNXizoA7eLE3u97etmfxqiaiz3hXJHNyijjx/vq8Yi7mp3vdzCaxDfmtBkjFOGI
-         nVIg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Wpt7DuNPNgIESG4CCHysgiXD1WUySeU8KIWxMrrs66w=;
-        fh=lg6zyOtVS+1s/vOkTcNKLAAs4qy06cLn3dQzTrkgnZk=;
-        b=Z7uSZ9bmpRcf03STWsPvZyKz4iidKqqlbgm8mgjw/PUcMH6G+S+wc2Vj5CenwsodvD
-         wdgZZGzJt7ywAhU8FfXi8KQej3AyKNP3SjPZjCTyWTVk0O6kHmixg19TL0SyQGWrnTEN
-         Izz1bs4eZyW1P+8pEjTawoxSWTOL+PfAlwmTT42u4fsQSW6WCGM9//cVJifY8p3Z7d64
-         C4d4hmGZZ1CShxhPOZFALyYNTf5bL+IjIFFO7W6iVpcQebhI69JOHkNB6XA1KXhXtXmY
-         c8ZMYpZqjzab1pew+q7o/vZ5leKBMCH0NCtNyj2SkS8uiXzsB+A+MuBujr+Y9ifllY2F
-         Lpqw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cUzs1Vjh"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-39b35105ba4so1198989a91.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 05 Sep 2026 01:25:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1788573185; x=1789177985; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Wpt7DuNPNgIESG4CCHysgiXD1WUySeU8KIWxMrrs66w=;
-        b=u2w1n9Rdm/fi/caIGnIJx1DRzbOe7hXOBTsRChqCiUM63Hmn2SmGx7ld53tl0Pk8iD
-         msb4f0eIhRBoLiWGCC6z/CmdAy4aEnAjj2ND+soRG8eA/8ESb68wlMVTp2FVJr735X8p
-         hgAv3r3adoX3U3EIxoFOOsL6T7miwgPpTW2GyiRZ7d6XghS/qHattMuFvANXCUUy7T0O
-         fMFhFnt/RwAuqSiQMtMHlqdj9ItJKrXjvvyzK0ae6t5AUK0q4dAVdkhcfpLrNB2b+ee3
-         cJbzEM0ZOPEIOdV6avlXpfpZZ6I2b17oxZhubFX1BuYeVr/MqP5KJDodaL7tv6gd7JFi
-         A8DA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788573185; x=1789177985;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1788596743; x=1789201543; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Wpt7DuNPNgIESG4CCHysgiXD1WUySeU8KIWxMrrs66w=;
-        b=kOJIe5cyN/HCouN3hEFXO68pIXrjeix9Fqzn4E7Vwg7EREvodywvdrwLK62bdoOBMB
-         qRLDx8jcbBvafgZ+7jPm9YDVPE5lSPTHelJojwkDkSYfnvr6V6TyI8oqtMYyxlilU1dx
-         J4IVAOzIAAtvUitBNkcyjOSAfVgpkOs8vA1k+eCP3y1BXRugTvAENIMcTF6QcTPkGQet
-         cIJuLUsD4nU7nqQfZs4y+MpuLF4J+xh47NQQwDgxAr0v3VuIXE/FgHC3R9LCJQVvkcc7
-         EMEqqJQlO/X72Yj/OLmTpTICWBSxsLlJUbVxNSVNUJqev+B17TVEAfcHCzTkhrEmp6Ki
-         yvvQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxQmr5NPsr19JZ4b3AyayOcJ7D1nUrVfMiNEx868MTWlzGaNLYiFmsoO7I8LxDwsS+q/d6xetmmJ9PWIneUAA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nrD0GVSNsyMMjH+MUE32oSQsWf1pn9DPie1FEmN1bInmMCl0gZ
-	ZMtZuz3jvyq5Jmj+Fi/SGrlm0tAGuFPwbweFtr95rqNHKGou/XUO7H8CH0/ehLa7bRLl5i+WB+K
-	O3FocnyuZJdYV3J0UjBJpTUvX/ZYkjJAweO7+zaWLds3fg6agvoJYVK+gMfLwXw==
-X-Gm-Gg: AYBFou2qDmFtdzjcn3rXPYasEuAU2ooyjg2QHy8VVVY34NZINshYzkYRHxbBthUbzR0
-	VynsmEipQ28NacX5fefH4DJXXICD91LLYJjp70qa7ceNWm/OdJ3H9JRb3lNALgUi9/XBpzitU2F
-	nIDwaJiyaBMajS319vmD7Kz0zjs+PYaUL9jn5+mprhbXwllaTjqOnkZAw88b2w+PenjNHQhJJ5U
-	wRWs9fGjXuEPaXeiC1wUtdNDPydod5nzlQFIvRSuUcsAy/giaod0cGn4/UZv6KAcZMGqbNPStx7
-	LncyA8nkS45tYJazto8DYy95DQwIxLYpD17KZXihS6czcjTSyQE5Fm/XhqiSXCrXm+MRGoOo84S
-	7uw==
-X-Received: by 2002:a05:6871:552:b0:470:e97e:8f89 with SMTP id
- 586e51a60fabf-470e98e3742mr5556974fac.25.1788573184127; Fri, 04 Sep 2026
- 18:53:04 -0700 (PDT)
+        bh=w4JWIpadkBBtpyHMGkKKLMv6w38PE5gnqdnr/RtDlQw=;
+        b=cUzs1VjhW0s0igUPqsohFtn2jCWJ+jc187XwO03Ztix4UldNcRd5jQ10HbIHlsVe1I
+         XrvkpTD2nBZ8UTwKwBYjEU73PCZD4LesdY/nFcdW2SsW09m7l7M3gzneZs8YiSI7VvfN
+         RCM2CV5Tl0cQlU8GV0/2Vl9nszyE9BPFaad4zF5Qkg9Z+Ysqfhv81hqFHJ9TeATzLbUO
+         Wq1f7V0i1VD9pZFOvn0Az2M45PAXfDrb45pnMVx5e/fv3RiN/JR9yQLhG6qC8vtRXwvk
+         +abBPoEjSDz6dCGi5BJCwLje1twBF5epG6T6W43tmP4IRWC0bIjlEg982rRiUxjMrNrm
+         yRvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788596743; x=1789201543;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=w4JWIpadkBBtpyHMGkKKLMv6w38PE5gnqdnr/RtDlQw=;
+        b=gM4BlZfeFOGSjgfShFgPOVfAMOclyKJFPxn3bsnmsuq6uxcdWKt6C3xdkONLOeZolg
+         WazQb555FhH7hBmoLI99uJxetzmRyjwAQDpv0pVG5Veq0AETXNU48hVSnhTYE9yClW8z
+         kaeKPAjLXylJa4HPApDJC+0YgzgnJJVqrko9WAk3IipskDH1SZoyiHVK7uQmW/8T8swo
+         A9eWms5exql72JQQKPm8CyUEdDOI664Lb4hOT9agMHXNMC12RFI9kW+iYVeq15y3z8uU
+         aiWYyPJV4Zn/mLGV3ihA/ms9fB4PQHY0U9lM2P1NXXaKp8RvQOzcF8bCxuhm+MEvCkWZ
+         rbhA==
+X-Forwarded-Encrypted: i=1; AKwUvBziZ0/cJ3BncbDkEC52LMOyJEz8nOBIRyyTxG+hPTzntMirlaFAyhdJSKHlP9X6Ls6HZmISTLUA8gvxuA7Nrw==@vger.kernel.org
+X-Gm-Message-State: AFuF++ll1l7vhh90ClKma+oUBdZ7tMoZDzj06GIZM6T13Bd96y7rA/LM
+	EtpEnoVIZiTQB+yT6OtAc1MKmpI1SlLrdjMEgsyYfqZsS+TMiqTGsuBt
+X-Gm-Gg: AYBFou1oei6MG0OEGees/d48QBI3o80pz014gAVI9irBkAx5wvISNJZyVqL5ySeJzU1
+	FfztiZlj9Svophtn+/Q8Xbs5CV0LsOoDS1z6h9bylZqN9m4CgrfbrkSrAcfV4zGO8CBNK9jxCpz
+	QQWLH++6t+StsQxvoiP5SDFniPMVHhkT1pgTKdef0HGoegMdmZXyezXEKzWUqXA/zQjw3leWEBy
+	8/rlXzT1kIWpT0h5aaSWOOGm4OvAFivEBwjyYJ9i0Al/TV82IbG9bhWy/5OobNRgHhFTw2omzWP
+	Vvp6lb08GdZhpRdZiHIkewQoA/tNxGYQXXn+Cr88sofj4HrNAQEK0N7c2rdEXgWdiWgAcIWH8MZ
+	UNQEzmFQJZinzZ9xkoJXdj7hoQdtbicElSHm0+WTugRlJqFz/d0MTAKHtXPh7DZ8xxJVyz0woem
+	rgRCZIuY8ePPM6Z/eZ36crxej9tN3AoeR++HV6Etnsb4GJ1+4EbjRpregaSuHmi63pM0X9LRb1X
+	elwhA==
+X-Received: by 2002:a17:90b:17d0:b0:398:9bd4:d18 with SMTP id 98e67ed59e1d1-39b26298ba1mr15383737a91.23.1788596743161;
+        Sat, 05 Sep 2026 01:25:43 -0700 (PDT)
+Received: from [192.168.1.107] ([223.122.38.120])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339885ca07sm14262328eec.1.2026.09.05.01.25.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 05 Sep 2026 01:25:42 -0700 (PDT)
+Message-ID: <4e65ef39-cf1b-49d4-a899-da36acb442c2@gmail.com>
+Date: Sat, 5 Sep 2026 16:25:36 +0800
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
- <20260902-qcom-wdt-nmi-series-v3-3-f3999362a9ea@google.com>
- <87ecf98ivn.ffs@fw13> <CAD=FV=VMExH-K68aDfNsFBnQRSaYSNwbHo7hLhpzhpWN+r+Fsw@mail.gmail.com>
- <87y0dh6oqe.ffs@fw13>
-In-Reply-To: <87y0dh6oqe.ffs@fw13>
-From: Mayank Rungta <mrungta@google.com>
-Date: Fri, 4 Sep 2026 18:52:53 -0700
-X-Gm-Features: AcwNN1VPx2heUjeMS3C93bR1ek6ti7FrnovSxIJqv1HXxVhsBQVkdAztmW7cHPQ
-Message-ID: <CABz7rdABFgW-cQ3qJC_=Q2uJZvc-JxJmUhokBztF82RUdJk7vA@mail.gmail.com>
-Subject: Re: [PATCH v3 3/5] genirq: Export NMI APIs
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: Doug Anderson <dianders@chromium.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	"Kirill A. Shutemov" <kas@kernel.org>, Marc Zyngier <maz@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/6] dt-bindings: interrupt-controller: apple,aic2: Add
+ apple,t8140 compatible
+To: Yureka Lilian <yureka@cyberchaos.dev>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>,
+ Neal Gompa <neal@gompa.dev>, Hector Martin <marcan@marcan.st>,
+ Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-watchdog@vger.kernel.org
+References: <20260904-apple-a18-pro-initial-devicetrees-v1-0-0c25401d165d@cyberchaos.dev>
+ <20260904-apple-a18-pro-initial-devicetrees-v1-4-0c25401d165d@cyberchaos.dev>
+Content-Language: en-US
+From: Nick Chan <towinchenmi@gmail.com>
+In-Reply-To: <20260904-apple-a18-pro-initial-devicetrees-v1-4-0c25401d165d@cyberchaos.dev>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 4, 2026 at 8:05=E2=80=AFAM Thomas Gleixner <tglx@kernel.org> wr=
-ote:
->
-> On Fri, Sep 04 2026 at 07:07, Doug Anderson wrote:
-> > On Fri, Sep 4, 2026 at 2:29=E2=80=AFAM Thomas Gleixner <tglx@kernel.org=
-> wrote:
-> >> On Wed, Sep 02 2026 at 18:54, Mayank Rungta wrote:
-> >> > Currently, request_nmi(), free_nmi(), enable_nmi(), disable_nmi_nosy=
-nc(),
-> >> > and disable_nmi() are restricted to built-in kernel code because the=
-y are
-> >> > not exported.
-> >> >
-> >> > Export these symbols with EXPORT_SYMBOL_GPL so loadable kernel modul=
-es can
-> >> > register and manage NMIs.
-> >>
-> >> I'm not really fond of that.
-> >
-> > Is this to be taken a NAK on the whole idea, then?
-> >
-> > The last patch in the series [1] wants to promote a HW watchdog bark
-> > interrupt to NMI. This seems like a pretty useful thing to do and an
-> > appropriate use of NMI, but the HW watchdog driver is a kernel module.
-> > Do you have another suggestion for solving that?
->
-> I understand the intent and why it might be a good idea, but letting
-> random modules convert interrupts into NMIs is a scary thought.
->
-> We can export it in a restricted way though to limit the exposure and
-> force people to go through a thorough review of these use cases.
->
-> That could be a subsystem restricted export or an explicit restriction
-> via EXPORT..FOR_MODULES().
->
 
-That makes sense. Do you have a preference between
-`EXPORT_SYMBOL_NS_GPL(..., WATCHDOG)` and
-`EXPORT_SYMBOL_FOR_MODULES(..., "qcom_wdt")`? Happy to go with
-whichever you prefer for v4 (which I'll hold off on sending until we
-reach an agreement on the NMI teardown discussion in patch 1).
-
-> >> Funny enough there is already a driver which claims it can be built as
-> >> module which uses these interfaces. Oh well...
-> >>
-> >> > Assisted-by: Antigravity:gemini
-> >>
-> >> I'm impressed that AI is required to add four EXPORT_SYMBOL_GPL()
-> >> instances.
-> >
-> > Hmm, I guess it's hard to figure out the guidance here. I think Mayank
-> > is only adding this tag to try match what's documented in
-> > `coding-assistants.rst`. If you've got an AI helping you with a
-> > series, it's pretty much touching all the patches. I guess you're
-> > suggesting that, even if AI touched it, trivial patches should remove
-> > the tag?
+Yureka Lilian 於 2026/9/5 凌晨3:49 寫道:
+> The Apple t8140 (A18 Pro) SoC uses an AIC3 as interrupt controller, same as
+> the M1-M4 SoCs.
 >
-> I really have no strong opinion about it. But it just amused me and I
-> couldn't help my self from commenting.
+> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+> ---
+>  Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml | 1 +
+>  1 file changed, 1 insertion(+)
 >
+> diff --git a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
+> index 1cb886785173..e3cadc5ad39d 100644
+> --- a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
+> +++ b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
+> @@ -46,6 +46,7 @@ properties:
+>                - apple,t6030-aic3
+>                - apple,t6031-aic3
+>                - apple,t8132-aic3
+> +              - apple,t8140-aic3
 
-Actually, I was able to add the first 4 exports by myself, it was the
-5th one I really needed help with! :)
+the title should be "... Add t8140 compatible" describing the hardware corresponding
+to the added compatible since the compatible being added is not "apple,t8140".
 
-Jokes aside, since the whole series went through AI review and
-different maintainers have different expectations around AI
-attribution right now, I conservatively added the tag across all
-patches. I'll drop `Assisted-by:` from trivial patches like this in
-the next revision.
+(Alternatively, if you mention the compatible in title, say "...Add apple,t8140-aic3" as
+"compatible" is already implied)
 
-Thanks,
-Mayank
+
+>            - const: apple,t8122-aic3
+>        - const: apple,t8122-aic3
+>  
+>
