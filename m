@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F2FF3644A6;
-	Tue,  8 Sep 2026 17:56:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD4C05111A8;
+	Tue,  8 Sep 2026 17:58:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788890175; cv=none; b=DuZ7QFqIip6x3rhQmCwj/sGaF7rsCKCRJVPzskEPBU3rHgDUU6egUkhsCHBDi8b0YDRE+M29HswPTMFM1P27g4L3IMHcN84wnuIbfYFKS12NXwnuU8FV2clpazlIEEI//xrj1tSdjQOYGPKVu/OXm8qIVTriY5HBx2Y8GHCN0Bc=
+	t=1788890333; cv=none; b=mVG8oSHzT9bFTc53Gk8T1llAQrnlRE8ZVscgGQWwoH9yPdwZsd3JnRXsRzv1FJKFMHvDcSgUrTaD2z84nEZXSLOl0j7f0VI9HUg5hlNQJz5jPSPm4an91joLDBNlHtrvSYgqCSdRsRvkOSc+naedsqy2aEg7wfiuw5lfItz1K8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788890175; c=relaxed/simple;
-	bh=7CpfYdD6wSkzSISnVDK4ugnzxr9yteaP9YUMT4SB68o=;
+	s=arc-20240116; t=1788890333; c=relaxed/simple;
+	bh=fI7oVrJGmODkETK21KExKt5SM6XwZY5nsoSFNHo7lvY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tFek3iyCinSB+wCAscByOBD/fhwpNGkoLC6afkRSTCDAltUmqpcpgLNfgDOOcuUY9fx+c3I/g5CUOc0JlqugMOGvIiVCu9ymx9O1cwwD8uPm0F7yfMskX0HZEd2Uu052uUzsl/bPx9fNOIBbfKxvDmKb+TAhiIFmmKW9ndC9EJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IPIgml/i; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=czmVH4Hv9svvKOLH15869t1TF+xuDp7MycEnY/ygVSUJ+yel0C/Ue1AvpMgH9V4k7co7w5CUiMgPaeNz51TeillKBvwDmCo9BNMrF2e+Da7jj5FkvTe5T7ujFCM0IdID+UMVOaCUw++XRRzzG5RvXnYxKlAw8PhMQnqJKQ8le7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AoqHgkTT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IPIgml/i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8B01F00A3A;
-	Tue,  8 Sep 2026 17:56:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AoqHgkTT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE5C1F00A3A;
+	Tue,  8 Sep 2026 17:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788890174;
-	bh=fHW4NUKCl+SxZlSjchtGF48BdtW4437v4vLO4jGvVEk=;
+	s=k20260515; t=1788890331;
+	bh=Nd9vL7366quzXSzytNP0ezSXovdi1blO+h9i8j1gkmc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IPIgml/i4QQ/V81JmfB4MPt8uxAfrxjiHI+D1tiDSYXNkHP5sxey7vpBwpP/KIL3P
-	 se+S74oGjHUI6Uglsbx8MHnIGR4DC71goY7jueIXO8+JgPz6z4QC/Ay5Nvy+xeYj1Z
-	 4zeHGoq1iU25bKBsgGE/GkRUAYKXF5sZ9O2iXXulXqHOFsbQ7sJ0M2dyyd103ZqCeC
-	 hy5oFcpBCrsry9YybcsTm+6wiExFqwtf1nwrSTo2+J94NnBEnMF5q/UMfziBpTXeAj
-	 Ci0Cm9BF0YUdNwWYbvfW3GdJDGzLrkeYHeUy2BqhtuvnPRrR474145x5guB/Ty9Koh
-	 yJLcFigZKEAZw==
+	b=AoqHgkTTBSHbIYMYbCeEx73x7pMToPdK+JYc0+zG/hbTO5Dg2iyXHRdrE43wTnwLu
+	 C3u4lijzcfMhH4fcLH+4sHcq5YwOncs6go57K+pF7RgTbmMkyWuXxXcvpTqdphOEmi
+	 sC5hwiSFxnk4o91NppKuIc3KeNftKwZZsgJ97Ba6GOUCTeVSJK++TF/jhkBVV4UXt8
+	 xLfCmxfInHTD8886plvyNOnv1wDarlT1cVm2QmTT8CKMguDO4VYIeqEv9fknU0yVhO
+	 sX5tTjumNo03lOXjRmTUaB+TkrSnFcO7twAWYN6U4+SiYc9ZDpZ5r43+ynDeNDh594
+	 gy5q5s10L/vJw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 4/8] watchdog: mediatek: Add support for mt8167
- toprgu/watchdog
+Subject: Re: [PATCH v5 6/8] dt-bindings: reset: Add mmsys reset ids for
+ mt8167
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260908174259.9009-5-l.scorcia@gmail.com>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260908174259.9009-7-l.scorcia@gmail.com>
 References: <20260908174259.9009-1-l.scorcia@gmail.com>
- <20260908174259.9009-5-l.scorcia@gmail.com>
+ <20260908174259.9009-7-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 17:56:13 +0000
-Message-Id: <20260908175613.DC8B01F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 17:58:50 +0000
+Message-Id: <20260908175851.5BE5C1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,91 +47,54 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] The watchdog character device is registered and exposed to userspa=
-ce before its configuration properties are parsed from the Device Tree, cre=
-ating a time-of-check to time-of-use race condition. This problem wasn't in=
-troduced by this patch, but it remains unfixed.
+- [Medium] The mt8167-mmsys reset provider capability is introduced without=
+ updating the YAML binding to require #reset-cells.
 --
 
-commit 636d28c87d7152b3a57c046cb13f6a93c3f5aaef
+commit 58d3f60477024bb27299c071d1ec1f38c92deeac
 Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Subject: dt-bindings: reset: Add mmsys reset ids for mt8167
 
-watchdog: mediatek: Add support for mt8167 toprgu/watchdog
+According to the SoC data sheet, the mt8167 has 28 mmsys resets. This commit
+adds the corresponding IDs that can be used in device trees to identify
+subsystem resets.
 
-Add support for the Top Reset Generation Unit/Watchdog Timer found on mt816=
-7.
-Since according to its data sheet mt8167 toprgu reset bits are not contiguo=
-us,
-add support for a reset table to the driver. Also address a preexisting Sas=
-hiko
-finding regarding has_swsysrst_en configuration.
+> diff --git a/include/dt-bindings/reset/mediatek,mt8167-mmsys.h b/include/=
+dt-bindings/reset/mediatek,mt8167-mmsys.h
+> new file mode 100644
+> index 0000000000000..b21f67b3b55c7
+> --- /dev/null
+> +++ b/include/dt-bindings/reset/mediatek,mt8167-mmsys.h
+> @@ -0,0 +1,35 @@
+> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+> +#ifndef _DT_BINDINGS_RESET_MEDIATEK_MT8167_MMSYS_H_
+> +#define _DT_BINDINGS_RESET_MEDIATEK_MT8167_MMSYS_H_
+> +
+> +/* MMSYS reset IDs */
+> +#define MT8167_MMSYS_SW0_RST_B_SMI_COMMON	0
 
-> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-> index d609f0fa35e32..abe58ed6a5045 100644
-> --- a/drivers/watchdog/mtk_wdt.c
-> +++ b/drivers/watchdog/mtk_wdt.c
+[Severity: Medium]
+This commit introduces a new reset provider capability by adding reset IDs
+for mt8167-mmsys, but should the corresponding YAML binding be updated as
+well?
+
+Looking at Documentation/devicetree/bindings/arm/mediatek/mediatek,mmsys.ya=
+ml,
+when hardware gains new provider capabilities like resets, the standard
+properties such as #reset-cells must be added to the required list or a
+compatible string-specific conditional block.
+
+Without this update, a device tree node using mediatek,mt8167-mmsys could
+omit the #reset-cells property and still pass dtbs_check schema validation.
+
+This allows incomplete device trees to slip through, potentially causing
+runtime failures for reset consumers.
+
+Should the mediatek,mmsys.yaml binding be updated to enforce #reset-cells
+for this compatible string?
 
 [ ... ]
 
-> @@ -457,12 +493,14 @@ static int mtk_wdt_probe(struct platform_device *pd=
-ev)
-> =20
->  	wdt_data =3D of_device_get_match_data(dev);
->  	if (wdt_data) {
-> +		mtk_wdt->toprgu_sw_rst_num =3D wdt_data->toprgu_sw_rst_num;
-> +		mtk_wdt->toprgu_sw_rst_tb =3D wdt_data->toprgu_sw_rst_tb;
-> +		mtk_wdt->has_swsysrst_en =3D wdt_data->has_swsysrst_en;
-> +
->  		err =3D toprgu_register_reset_controller(pdev,
->  						       wdt_data->toprgu_sw_rst_num);
->  		if (err)
->  			return err;
-> -
-> -		mtk_wdt->has_swsysrst_en =3D wdt_data->has_swsysrst_en;
->  	}
-> =20
->  	mtk_wdt->disable_wdt_extrst =3D
-
-[Severity: High]
-This is a pre-existing issue, but it looks like the watchdog device is
-exposed to userspace before its configuration properties are fully parsed
-from the Device Tree.
-
-In mtk_wdt_probe() in drivers/watchdog/mtk_wdt.c, the device is registered
-earlier:
-
-	err =3D devm_watchdog_register_device(dev, &mtk_wdt->wdt_dev);
-	if (unlikely(err))
-		return err;
-
-This registration immediately fires a KOBJ_ADD uevent. If a process opens
-/dev/watchdog during boot while the probe thread is blocked (for example,
-if there is mutex contention in toprgu_register_reset_controller()),
-watchdog_open() will call mtk_wdt_start().
-
-However, mtk_wdt_start() relies on properties that are parsed after the
-registration:
-
-	if (mtk_wdt->disable_wdt_extrst)
-		reg &=3D ~WDT_MODE_EXRST_EN;
-	else
-		reg |=3D WDT_MODE_EXRST_EN;
-
-	if (mtk_wdt->reset_by_toprgu)
-		reg |=3D WDT_MODE_CNT_SEL;
-	else
-		reg &=3D ~WDT_MODE_CNT_SEL;
-
-Since mtk_wdt->disable_wdt_extrst and mtk_wdt->reset_by_toprgu are still
-uninitialized (false) when this race occurs, could mtk_wdt_start() configure
-the hardware incorrectly, potentially causing a system hang instead of a
-reboot when a watchdog timeout triggers?
-
-Would it be safer to move the property parsing before the call to
-devm_watchdog_register_device()?
-
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908174259.9009=
--1-l.scorcia@gmail.com?part=3D4
+-1-l.scorcia@gmail.com?part=3D6
