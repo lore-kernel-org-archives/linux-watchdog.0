@@ -1,169 +1,109 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9071E399D0D;
-	Tue,  8 Sep 2026 07:21:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 694D2345CDA
+	for <linux-watchdog@vger.kernel.org>; Tue,  8 Sep 2026 10:49:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788852098; cv=none; b=miKQLaLdkT93Kd95oNSHGwAkmhPBjzVRaGIbymA2FO96ZE8zKDtJ6Y6eX7ZU2PlrwmwLCkBHx2H8JswDSsxds6MAaNQsOxmi2TnlazsMiMw7meesB4WMz0Uv2TFe8FBuSweEn0XlVyj0QJVTlCSSOZmccrtF9xGHs5ZJzkrTRhA=
+	t=1788864586; cv=none; b=UN5SCEm7kZUSkCc/G/Q8j6x67XmwuQE3bvNDRtiWfCbczCHhHsIgnJ4Zo12l38uSMX2qLl8XpfHDhHHmS6eayfXiWZF2QsG0xPXVofkcOCSybLvN+zr7coPzTA8ciO494NOGHhGhHYf3Bv4XSDW6vZMXMZCkYdQ1YqQSXCTsj/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788852098; c=relaxed/simple;
-	bh=Ejj9lDKow6BoDPwaeCRKyoIRIyv7qHMru8OuXaf1m6E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=J8U4z18a82gNSWcT4462inXMEXgGXsRxwJHuerpad5Hm1Bec5IVySAB9FwzLzefHL2tOQEwfOj83ZHJhc9AazUd85zmjvLZQstHGlRg0hPzeM5cpjBmM+wxlCY0z0ji+vENoktyDOYD4RwMXG4+4gyYLkz7pHUVJDZV3gTucubA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=mdKc3LSu; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="mdKc3LSu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1788852094;
-	bh=Ejj9lDKow6BoDPwaeCRKyoIRIyv7qHMru8OuXaf1m6E=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=mdKc3LSueEuRSSZnCyELhmEbWDjgCFtdahz02KU9TcdVWJBXHecEy0QoyzFHwvn6M
-	 IT6JwQUuvTtQqAkm8auFqKTIld23QnX6J8p+ocgo/6h/zxNH2w1IQ5le1mA5riD75b
-	 E1lBxGbWv8VUxVkRay+M8esCeGf/Hm+ET3M4B4jMPbwQBPJ8pHoqef/sjiiUbnA/0t
-	 qvKMCuOSae7YPIRh4EskGoRGCX5f9D9I+qhP030SeA/LedoTuYo0Yyd9MTS/SYE26b
-	 H0RUBw9nUEkC4kWdX7l0fvEQdNdOtuH6dP+wOogVzJQcN7Fl+wgNtANTXR3V08yt6D
-	 Vz1hB6SH7/gNA==
-Received: from [100.64.1.21] (unknown [100.64.1.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 344C617E06DB;
-	Tue, 08 Sep 2026 09:21:34 +0200 (CEST)
-Message-ID: <6b22a762-106c-4a22-aa72-30495ab95852@collabora.com>
-Date: Tue, 8 Sep 2026 09:21:33 +0200
+	s=arc-20240116; t=1788864586; c=relaxed/simple;
+	bh=95MFNV55uVXLS0pz+2yyZ+xEYQiH14O78IXTeSQxJGQ=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version; b=C8q884oGMOvlfjBKPFy0WXtZNiCYyJFs/osJuJ5BCl8vXZ/wo4FhLvmaMl5e1cGxf2/hmKgq8jRTc1MLiozKQV7gkOlbpGsFhmkhc/OUvM8OuloO04jAUTAmANY1PYW2eqTXDr6PGKTj/3ZKxmvubseCyChcJiz2nFOOFKcNHlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: f9dc4802ab7211f19a56ed5b684f684d-20260908
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:ba48e428-c000-4261-9284-f4a788127b6a,IP:0,U
+	RL:0,TC:0,Content:-25,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+	ON:release,TS:0
+X-CID-META: VersionHash:7db8b62,CLOUDID:665170020d881700b3fce97fd975e8fc,BulkI
+	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50|99,EDM:5,IP
+	:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,
+	LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: f9dc4802ab7211f19a56ed5b684f684d-20260908
+X-User: lijun01@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <lijun01@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1224120366; Tue, 08 Sep 2026 18:49:33 +0800
+From: Li Jun <lijun01@kylinos.cn>
+To: lijun01@kylinos.cn,
+	wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: sp805: Replace SIMPLE_DEV_PM_OPS with DEFINE_SIMPLE_DEV_PM_OPS
+Date: Tue,  8 Sep 2026 18:49:05 +0800
+Message-Id: <20260908104905.3388262-1-lijun01@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/7] dt-bindings: watchdog: Add compatible for MediaTek
- mt8167
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
- linux-mediatek@lists.infradead.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Philipp Zabel <p.zabel@pengutronix.de>, linux-watchdog@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-References: <20260819101853.44681-1-l.scorcia@gmail.com>
- <20260819101853.44681-5-l.scorcia@gmail.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20260819101853.44681-5-l.scorcia@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 8/19/26 12:16, Luca Leonardo Scorcia wrote:
-> Currently mt8167 inherits its watchdog from the included mt8516 dtsi,
-> which in turn falls back on mt6589-wdt. However according to the data
-> sheet mt8167 toprgu is not actually compatible with mt6589: the latter
-> has 12 contiguous toprgu reset bits while the former has 14 non-contiguous
-> toprgu reset bits.
-> 
-> Update the mtk-wdt binding to add a dedicated compatible for mt8167 and
-> add the IDs that can be used in device trees to identify toprgu and mmsys
-> subsystem resets.
-> 
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> ---
->   .../bindings/watchdog/mediatek,mtk-wdt.yaml   |  1 +
->   .../dt-bindings/reset/mediatek,mt8167-mmsys.h | 35 +++++++++++++++++++
->   .../dt-bindings/reset/mediatek,mt8167-wdt.h   | 21 +++++++++++
->   3 files changed, 57 insertions(+)
->   create mode 100644 include/dt-bindings/reset/mediatek,mt8167-mmsys.h
->   create mode 100644 include/dt-bindings/reset/mediatek,mt8167-wdt.h
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> index 953629cb9558..f514be8a5851 100644
-> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-> @@ -26,6 +26,7 @@ properties:
->             - mediatek,mt6795-wdt
->             - mediatek,mt7986-wdt
->             - mediatek,mt7988-wdt
-> +          - mediatek,mt8167-wdt
->             - mediatek,mt8183-wdt
->             - mediatek,mt8186-wdt
->             - mediatek,mt8188-wdt
-> diff --git a/include/dt-bindings/reset/mediatek,mt8167-mmsys.h b/include/dt-bindings/reset/mediatek,mt8167-mmsys.h
-> new file mode 100644
-> index 000000000000..b21f67b3b55c
-> --- /dev/null
-> +++ b/include/dt-bindings/reset/mediatek,mt8167-mmsys.h
+Replace the deprecated SIMPLE_DEV_PM_OPS with DEFINE_SIMPLE_DEV_PM_OPS.
+This also drops the __maybe_unused annotations on the suspend/resume
+callbacks, since pm_sleep_ptr() inside the new macro already handles
+the case where CONFIG_PM_SLEEP is disabled.
 
-The MMSYS resets don't belong to this commit: please split, after which:
+Additionally, wrap the &sp805_wdt_dev_pm_ops assignment with
+pm_sleep_ptr() so the entire dev_pm_ops structure is dropped when
+CONFIG_PM_SLEEP is disabled, instead of leaving it as a dead struct
+with NULL callbacks.
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Li Jun <lijun01@kylinos.cn>
+---
+ drivers/watchdog/sp805_wdt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> @@ -0,0 +1,35 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
-> +#ifndef _DT_BINDINGS_RESET_MEDIATEK_MT8167_MMSYS_H_
-> +#define _DT_BINDINGS_RESET_MEDIATEK_MT8167_MMSYS_H_
-> +
-> +/* MMSYS reset IDs */
-> +#define MT8167_MMSYS_SW0_RST_B_SMI_COMMON	0
-> +#define MT8167_MMSYS_SW0_RST_B_SMI_LARB0	1
-> +#define MT8167_MMSYS_SW0_RST_B_CAM_MDP		2
-> +#define MT8167_MMSYS_SW0_RST_B_MDP_RDMA0	3
-> +#define MT8167_MMSYS_SW0_RST_B_MDP_RSZ0		4
-> +#define MT8167_MMSYS_SW0_RST_B_MDP_RSZ1		5
-> +#define MT8167_MMSYS_SW0_RST_B_MDP_TDSHP0	6
-> +#define MT8167_MMSYS_SW0_RST_B_MDP_WDMA		7
-> +#define MT8167_MMSYS_SW0_RST_B_MDP_WROT0	8
-> +#define MT8167_MMSYS_SW0_RST_B_FAKE_ENG		9
-> +#define MT8167_MMSYS_SW0_RST_B_MUTEX		10
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_OVL0	11
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_RDMA0	12
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_RDMA1	13
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_WDMA0	14
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_COLOR	15
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_CCORR	16
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_AAL		17
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_GAMMA	18
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_DITHER	19
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_UFOE	20
-> +#define MT8167_MMSYS_SW0_RST_B_DISP_PWM		21
-> +#define MT8167_MMSYS_SW0_RST_B_DSI0		22
-> +#define MT8167_MMSYS_SW0_RST_B_DPI0		23
-> +#define MT8167_MMSYS_SW0_RST_B_MIPI_TX_CONFIG	24
-> +#define MT8167_MMSYS_SW1_RST_B_LVDS_ENCODER	25
-> +#define MT8167_MMSYS_SW1_RST_B_DPI1		26
-> +#define MT8167_MMSYS_SW1_RST_B_HDMI		27
-> +
-> +#endif  /* _DT_BINDINGS_RESET_MEDIATEK_MT8167_MMSYS_H_ */
-> diff --git a/include/dt-bindings/reset/mediatek,mt8167-wdt.h b/include/dt-bindings/reset/mediatek,mt8167-wdt.h
-> new file mode 100644
-> index 000000000000..1a24bfe079ca
-> --- /dev/null
-> +++ b/include/dt-bindings/reset/mediatek,mt8167-wdt.h
-> @@ -0,0 +1,21 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
-> +#ifndef _DT_BINDINGS_RESET_MEDIATEK_MT8167_WDT_H_
-> +#define _DT_BINDINGS_RESET_MEDIATEK_MT8167_WDT_H_
-> +
-> +/* TOPRGU reset IDs */
-> +#define MT8167_TOPRGU_DDRPHY_FLASH_RST		0
-> +#define MT8167_TOPRGU_AUD_PAD_RST		1
-> +#define MT8167_TOPRGU_MM_RST			2
-> +#define MT8167_TOPRGU_MFG_RST			3
-> +#define MT8167_TOPRGU_MDSYS_RST			4
-> +#define MT8167_TOPRGU_CONN_RST			5
-> +#define MT8167_TOPRGU_PAD2CAM_DIG_MIPI_RX_RST	6
-> +#define MT8167_TOPRGU_DIG_MIPI_TX_RST		7
-> +#define MT8167_TOPRGU_SPI_PAD_MACRO_RST		8
-> +#define MT8167_TOPRGU_APMIXED_RST		9
-> +#define MT8167_TOPRGU_VDEC_RST			10
-> +#define MT8167_TOPRGU_CONN_MCU_RST		11
-> +#define MT8167_TOPRGU_EFUSE_RST			12
-> +#define MT8167_TOPRGU_PWRAP_SPICTL_RST		13
-> +
-> +#endif  /* _DT_BINDINGS_RESET_MEDIATEK_MT8167_WDT_H_ */
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index c2125f204a13..7b01011a5bc8 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -321,7 +321,7 @@ static void sp805_wdt_remove(struct amba_device *adev)
+ 	watchdog_set_drvdata(&wdt->wdd, NULL);
+ }
+ 
+-static int __maybe_unused sp805_wdt_suspend(struct device *dev)
++static int sp805_wdt_suspend(struct device *dev)
+ {
+ 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
+ 
+@@ -331,7 +331,7 @@ static int __maybe_unused sp805_wdt_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused sp805_wdt_resume(struct device *dev)
++static int sp805_wdt_resume(struct device *dev)
+ {
+ 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
+ 
+@@ -341,7 +341,7 @@ static int __maybe_unused sp805_wdt_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(sp805_wdt_dev_pm_ops, sp805_wdt_suspend,
++static DEFINE_SIMPLE_DEV_PM_OPS(sp805_wdt_dev_pm_ops, sp805_wdt_suspend,
+ 		sp805_wdt_resume);
+ 
+ static const struct amba_id sp805_wdt_ids[] = {
+@@ -361,7 +361,7 @@ MODULE_DEVICE_TABLE(amba, sp805_wdt_ids);
+ static struct amba_driver sp805_wdt_driver = {
+ 	.drv = {
+ 		.name	= MODULE_NAME,
+-		.pm	= &sp805_wdt_dev_pm_ops,
++		.pm	= pm_sleep_ptr(&sp805_wdt_dev_pm_ops),
+ 	},
+ 	.id_table	= sp805_wdt_ids,
+ 	.probe		= sp805_wdt_probe,
+-- 
+2.25.1
 
