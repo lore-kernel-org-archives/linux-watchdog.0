@@ -1,109 +1,247 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 694D2345CDA
-	for <linux-watchdog@vger.kernel.org>; Tue,  8 Sep 2026 10:49:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788864586; cv=none; b=UN5SCEm7kZUSkCc/G/Q8j6x67XmwuQE3bvNDRtiWfCbczCHhHsIgnJ4Zo12l38uSMX2qLl8XpfHDhHHmS6eayfXiWZF2QsG0xPXVofkcOCSybLvN+zr7coPzTA8ciO494NOGHhGhHYf3Bv4XSDW6vZMXMZCkYdQ1YqQSXCTsj/Y=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788864586; c=relaxed/simple;
-	bh=95MFNV55uVXLS0pz+2yyZ+xEYQiH14O78IXTeSQxJGQ=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=C8q884oGMOvlfjBKPFy0WXtZNiCYyJFs/osJuJ5BCl8vXZ/wo4FhLvmaMl5e1cGxf2/hmKgq8jRTc1MLiozKQV7gkOlbpGsFhmkhc/OUvM8OuloO04jAUTAmANY1PYW2eqTXDr6PGKTj/3ZKxmvubseCyChcJiz2nFOOFKcNHlU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: f9dc4802ab7211f19a56ed5b684f684d-20260908
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:ba48e428-c000-4261-9284-f4a788127b6a,IP:0,U
-	RL:0,TC:0,Content:-25,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
-	ON:release,TS:0
-X-CID-META: VersionHash:7db8b62,CLOUDID:665170020d881700b3fce97fd975e8fc,BulkI
-	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50|99,EDM:5,IP
-	:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,
-	LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: f9dc4802ab7211f19a56ed5b684f684d-20260908
-X-User: lijun01@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <lijun01@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1224120366; Tue, 08 Sep 2026 18:49:33 +0800
-From: Li Jun <lijun01@kylinos.cn>
-To: lijun01@kylinos.cn,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: sp805: Replace SIMPLE_DEV_PM_OPS with DEFINE_SIMPLE_DEV_PM_OPS
-Date: Tue,  8 Sep 2026 18:49:05 +0800
-Message-Id: <20260908104905.3388262-1-lijun01@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881332F3621
+	for <linux-watchdog@vger.kernel.org>; Tue,  8 Sep 2026 12:23:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788870201; cv=pass; b=Wnt9jviWvDl92L11Nesb9hDApRIPEnzKZARxVRPGdGvXHrbTSgH6BQNiLZ7dzWg/HCea46RMGnrHlsaV0+DqcLPOpwLMmYUHPUcyosAvZ9UqJB0eXYHWDXlgxWf17C5gX3ssWfAH/mTEQepWW4Sg6mVgp1bamzxR54gohi92umQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788870201; c=relaxed/simple;
+	bh=7B//ywSPA31oLbLkiJWEnOV8UhYI9nR5ExoskFX6af8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=q/a/Z5Vob8unrsZPYgB+JpAKVoCjPMdqjHUKZxERIggvRtVPHXRHaptNBlOZIphrBAL/M6yaHBUmbcisYpnawadiFOTHfRcC//r7XFYjolCUyZ6M9bW1RDb+qC0EvL1oVyPzWg+BxWtlatu349FQ1vN6Q+sTdMR9GVdZY+HoLpw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ogDTH1SL; arc=pass smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ogDTH1SL"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6a18840e2abso6099421a12.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 08 Sep 2026 05:23:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788870198; cv=none;
+        d=google.com; s=arc-20260327;
+        b=tBURAWYw+t2CTocG+Qa3izHZq3eXN0qC8uii56bTvY4zXZdwg0pXlOkUVBjyxtqkod
+         3R6KE2oKGLQ6spRnFG0EEK4qBG1wnzRppOLtKZ6FT/6Q+qGxH9kfap/4fyI4J+7prdc/
+         0WfL1Ob9Bui944dbKepQQx+HCzEYnkzq3iL4aSxhZx1DRGsqfWK154Z9PuVLSKkjzpva
+         Bb0TR1uvgCQ92i1FThEEOjoyzwfFjYWvEH0t8c8W3DFuhH/DM5zZjUUcMuFVanCLvkOa
+         HyePllyF8aDaeJNLckbSKf3sDPqsS+OsQuaZkpfjhxlppi3qmbK0bu59QjrEXvC6N5Uw
+         qX0g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=kMTwhNu5pCcwPamJHqUSc+QqQ3bw/cfakmLflS8d1lI=;
+        fh=CDkpK01tEPZ5PdBcCgDRPjqaCTOKtqReiC00aRVoPM8=;
+        b=mHymK8qTlA4+X1ZIHcl5Ou2K4BgnclYiTyg9nA59LL3LPwwf24I7bd+z9yXTHGL7LA
+         EKZvp6hPV1emJZhrX0QeFzlzA4ox2WnfJw7GxAMgMP4M/YdRD4Ie2GTogwwYf++VhaoA
+         dccT9Fg2uokyMoay7LFasYOXUNJSbSlp9GMlZ+M17oYlCIsTmXFIqeJo7FvOlxMphKFc
+         l1fJJ7Lme1+cGopq6odkFhl5QmZaoQMNsA3mrtodXdeDxgFmspQ/XMYSvc7kQIsg9G6B
+         MvSSnq/OnjykPoJcAODqnVU8zrOTFHVSfDnNxEXMQAqDhY5XEJVm43qYmz1bjwd4W8z6
+         5tEw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788870198; x=1789474998; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=kMTwhNu5pCcwPamJHqUSc+QqQ3bw/cfakmLflS8d1lI=;
+        b=ogDTH1SL6iVEEOIo4qftnZzx4EQi2xxugvnXaQgSUZdsg7hmOV9wiEJp4LYfEt/imJ
+         tUGnVQXQszfH0uV7Ir1SpExPFcD46LOVLyhubRGso172+06R4EerD2rHELgTXwLwayhX
+         xeAuCAAT6J3VW1EAIVOBXe3tUjEroH4fAHyEbSGuptSmNa4dDHnJXV3ReM+6LzJrWibx
+         1ltdpW9BPhHZRqOH7gIBbPwAdFwk139SOf2PQGG5kttkGl3DjzpC3LcswvuQW8V0uTLZ
+         ZF94UfqEaUVpwF7bmV344HPxZLR1gj+zG9avQm2h0qNSPKvyKN07tCpdES74tSPnwlUz
+         1mNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788870198; x=1789474998;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kMTwhNu5pCcwPamJHqUSc+QqQ3bw/cfakmLflS8d1lI=;
+        b=PO+iAuA3H3fHpWyb7oXgjzh3JpYGbxFKTdyB9wJLVGpIlNd9Su8/xUFUS5wVHNZLss
+         xXQZbrksSRqSgek//s+ZCjH2PfnGXbeieMFQBBcFdlhzzFgBlzRzvQ3Vk01NLrK2zOQ0
+         Di2Wwanqstot9x1u47f+pUDp3jDzx/GbM8sOGwl+zn9wV+ugiiuVtzY7sh/eWjx1G1Y1
+         CajajDXuC987sOY+pYKWZ4RbBnvPNxJgr38g1egW7xG45o8zRJcy28y3cGvbfE53sDLN
+         QPgfoshUipPB4IV2C2GM/PFZSNUooJpBxyJx0s1RD5o3ZwjY5Kns5m8fzKWbCuLDQrxN
+         JESg==
+X-Forwarded-Encrypted: i=1; AKwUvBwAqrLLcqnZW6JRaNK9eDS3F5lrwgIxMhkH8wbTncLw3pnqkdlgIX+asi/+UN9Ds7fhgNDzZ/QBoKmFqOzddw==@vger.kernel.org
+X-Gm-Message-State: AFuF++mz3wJvz54pFILnvcuLfRdwFybpTLoIP1qnIDWJhnCDiqbDV/tZ
+	ByHZkoOJKcbLcBrev8aDnXHaqPowFatRXrjS+N9eFczXrxe/3fOPdwHgtDjSw5cwvGvexQ4B80V
+	wGA753GKS+MbF4tyYTYL/WxTHUzU+KtPdfXoOQe8=
+X-Gm-Gg: AYBFou30KUGYqbU4xdftyzEP1YXRoWc53vsFwUUmgYBT2ySDLF85xBtOmbAvb9qn+X3
+	ByPMwnnGor+uPr4DOfebjVx1lbV8owt4mJ0BXsQfrnqcOeGJf7EQx6XTFl/2xNL4OL0z8d7D2nk
+	APs0BSE98vMdE+qL2GjFkwT6sU+4zbF9TDidwfEiCHTxMFDjr3K3kLYE8rDq07m79640v7MR7m7
+	tXR6bUJOr+v+qoBhN2NUBwp7tJ4MogT6JgHO0cH8Uw2OW0s6GnUCitkCEt/mjH6H69Fp95ozMWB
+	DSTKJdTX082CbuxcUoInbbRwqTruRIdu07LBjQy5CFS6TaM+XiHBc1o9bnuHTQXoamhjxlZXHku
+	0jGWKpsb0f09VcW0INIK8G8lPNF1e+Q==
+X-Received: by 2002:a05:6402:3814:b0:6a3:87b7:b516 with SMTP id
+ 4fb4d7f45d1cf-6a7e8d67669mr9906512a12.6.1788870197348; Tue, 08 Sep 2026
+ 05:23:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260814191415.2110732-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260814191415.2110732-2-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260814192638.EA99A1F000E9@smtp.kernel.org>
+In-Reply-To: <20260814192638.EA99A1F000E9@smtp.kernel.org>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Tue, 8 Sep 2026 13:22:48 +0100
+X-Gm-Features: AcwNN1Wx4etsK429Q3Q8c3-LvEEz0E7ckOfxtJenny8EdfSwTa4Tjef1JG7X6dI
+Message-ID: <CA+V-a8u4_gziwgevLUWwPkhkm2TbQXJhwFMa9ug8MAss+aZcug@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] watchdog: rzv2h_wdt: Propagate WDTDCR access errors
+To: sashiko-reviews@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>
+Cc: wsa+renesas@sang-engineering.com, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Replace the deprecated SIMPLE_DEV_PM_OPS with DEFINE_SIMPLE_DEV_PM_OPS.
-This also drops the __maybe_unused annotations on the suspend/resume
-callbacks, since pm_sleep_ptr() inside the new macro already handles
-the case where CONFIG_PM_SLEEP is disabled.
+Hi Sashiko,
 
-Additionally, wrap the &sp805_wdt_dev_pm_ops assignment with
-pm_sleep_ptr() so the entire dev_pm_ops structure is dropped when
-CONFIG_PM_SLEEP is disabled, instead of leaving it as a dead struct
-with NULL callbacks.
+On Fri, Aug 14, 2026 at 8:26=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 3 potential issu=
+e(s) to consider:
+> - [High] Error path unwinding in `rzv2h_wdt_stop()` leaves the watchdog h=
+ardware unconfigured, causing an unintended immediate system reboot.
+> - [High] Aborting the `restart` handler upon register access failure prev=
+ents system reboot and hangs the system.
+> - [Medium] Using asynchronous `pm_runtime_put()` on the probe error path =
+leaves the device permanently powered on.
+> --
+>
+> --- Patch [1]: [PATCH v3 1/3] watchdog: rzv2h_wdt: Propagate WDTDCR acces=
+s errors ---
+> commit ffabc27a1b8e9074dcd4cdaba7bc802a6d661fcc
+> Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+>
+> watchdog: rzv2h_wdt: Propagate WDTDCR access errors
+>
+> The WDTDCR helpers currently access the register directly using readl()/w=
+ritel()
+> and therefore cannot report failures to their callers. Make the helpers r=
+eturn
+> an error so their callers can propagate failures.
+>
+> > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.=
+c
+> > index 3b6abb66a1da0..b770226f785ea 100644
+> > --- a/drivers/watchdog/rzv2h_wdt.c
+> > +++ b/drivers/watchdog/rzv2h_wdt.c
+>
+> [ ... ]
+>
+> > @@ -171,8 +181,13 @@ static int rzv2h_wdt_stop(struct watchdog_device *=
+wdev)
+> >       if (ret)
+> >               return ret;
+> >
+> > -     if (priv->of_data->wdtdcr)
+> > -             rzt2h_wdt_wdtdcr_count_stop(priv);
+> > +     if (priv->of_data->wdtdcr) {
+> > +             ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
+> > +             if (ret) {
+> > +                     reset_control_deassert(priv->rstc);
+> > +                     return ret;
+> > +             }
+> > +     }
+> >
+> >       pm_runtime_put(wdev->parent);
+>
+> [Severity: High]
+> If rzt2h_wdt_wdtdcr_count_stop() fails, this unwinding leaves the hardwar=
+e
+> out of reset but unconfigured.
+>
+> If the stop operation returns an error, the watchdog core assumes the
+> hardware is still running and immediately issues a fallback ping. Will th=
+is
+> ping against zeroed, unconfigured registers start a zero-length timeout a=
+nd
+> cause an unintended immediate system reboot?
+>
+Agreed, I will drop deasserting the reset and add a pr_warn() message.
 
-Signed-off-by: Li Jun <lijun01@kylinos.cn>
----
- drivers/watchdog/sp805_wdt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+> [ ... ]
+>
+> > @@ -234,8 +250,19 @@ static int rzv2h_wdt_restart(struct watchdog_devic=
+e *wdev,
+> >       rzv2h_wdt_setup(wdev, priv->of_data->cks_min | WDTCR_RPSS_25 |
+> >                       WDTCR_RPES_75 | WDTCR_TOPS_1024);
+> >
+> > -     if (priv->of_data->wdtdcr)
+> > -             rzt2h_wdt_wdtdcr_count_start(priv);
+> > +     if (priv->of_data->wdtdcr) {
+> > +             ret =3D rzt2h_wdt_wdtdcr_count_start(priv);
+> > +             if (ret) {
+> > +                     if (!active) {
+> > +                             reset_control_assert(priv->rstc);
+> > +                             clk_disable(priv->oscclk);
+> > +                             clk_disable(priv->pclk);
+> > +                     } else {
+> > +                             reset_control_reset(priv->rstc);
+> > +                     }
+> > +                     return ret;
+> > +             }
+> > +     }
+> >
+> >       rzv2h_wdt_ping(wdev);
+>
+> [Severity: High]
+> Does returning an error here prevent the system from resetting?
+>
+> The watchdog core's restart notifier wrapper translates an error return i=
+nto
+> NOTIFY_BAD. Since NOTIFY_BAD includes the NOTIFY_STOP_MASK bit, this abor=
+ts
+> the restart notifier chain entirely, skipping any fallback handlers and
+> causing the system to hang indefinitely.
+>
+> Should this restart handler make a best-effort attempt (perhaps ignoring =
+the
+> WDTDCR start failure) instead of returning an error?
+>
+Since the register writes aren't succeeding, it implies a serious
+failure with no recovery path, so returning an error makes sense.
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index c2125f204a13..7b01011a5bc8 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -321,7 +321,7 @@ static void sp805_wdt_remove(struct amba_device *adev)
- 	watchdog_set_drvdata(&wdt->wdd, NULL);
- }
- 
--static int __maybe_unused sp805_wdt_suspend(struct device *dev)
-+static int sp805_wdt_suspend(struct device *dev)
- {
- 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
- 
-@@ -331,7 +331,7 @@ static int __maybe_unused sp805_wdt_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused sp805_wdt_resume(struct device *dev)
-+static int sp805_wdt_resume(struct device *dev)
- {
- 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
- 
-@@ -341,7 +341,7 @@ static int __maybe_unused sp805_wdt_resume(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(sp805_wdt_dev_pm_ops, sp805_wdt_suspend,
-+static DEFINE_SIMPLE_DEV_PM_OPS(sp805_wdt_dev_pm_ops, sp805_wdt_suspend,
- 		sp805_wdt_resume);
- 
- static const struct amba_id sp805_wdt_ids[] = {
-@@ -361,7 +361,7 @@ MODULE_DEVICE_TABLE(amba, sp805_wdt_ids);
- static struct amba_driver sp805_wdt_driver = {
- 	.drv = {
- 		.name	= MODULE_NAME,
--		.pm	= &sp805_wdt_dev_pm_ops,
-+		.pm	= pm_sleep_ptr(&sp805_wdt_dev_pm_ops),
- 	},
- 	.id_table	= sp805_wdt_ids,
- 	.probe		= sp805_wdt_probe,
--- 
-2.25.1
+> [ ... ]
+>
+> > @@ -266,11 +293,11 @@ static int rzt2h_wdt_wdtdcr_init(struct platform_=
+device *pdev,
+> >       if (ret)
+> >               return ret;
+> >
+> > -     rzt2h_wdt_wdtdcr_count_stop(priv);
+> > +     ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
+> >
+> >       pm_runtime_put(&pdev->dev);
+> >
+> > -     return 0;
+> > +     return ret;
+> >  }
+>
+> [Severity: Medium]
+> When rzt2h_wdt_wdtdcr_count_stop() fails, this returns an error that fail=
+s
+> the probe function.
+>
+> Does using the asynchronous pm_runtime_put() here leave the device powere=
+d
+> on?
+>
+> Since probe failed, devres immediately calls pm_runtime_disable(), which
+> cancels any pending asynchronous power-management work. Should this be
+> pm_runtime_put_sync() instead, to ensure the device powers down before th=
+e
+> disable occurs?
+>
+I'll create a patch for this.
 
+Cheers,
+Prabhakar
+
+
+
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814191415.21=
+10732-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D1
