@@ -1,111 +1,99 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A9E659B681
-	for <linux-watchdog@vger.kernel.org>; Tue,  8 Sep 2026 17:44:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB685568FCD;
+	Tue,  8 Sep 2026 17:53:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788889486; cv=none; b=cmJNIfYrlHQqhnPFFD+uQWFZH8opW9lmKyR0cotlCTleg7buMSJKKc52erX7VD76SPfI16H/UXGWdpPfWY/xykm2r+QRHcXHJebnbTIxS1fNi5WDYJ2G61/L3dFlE2vm2JiU5/k8CCdZF5aj4bkAjfralMesjhMk35yJatIK03k=
+	t=1788890039; cv=none; b=c10PqDhlDtFYsM1bsdxTw6B2hLT3kQ+ZbH0ZnpoinSfr8Yw1Qp3vYcQlzYQqi98WeUu+E0hWCLVFXSsr9bkSo5vXD3FeNg1iGswXUda/pFSfdl9lsTcYZTDIZ7dEl3WOlCLHMDZJn6BSqmm7aD9HJs3PiRERaRwuZPiuwqtYQcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788889486; c=relaxed/simple;
-	bh=07ov/I/ldShm72hNuJQXaFMDAcMGOum0C8wl6iv0rIQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DWusBFu/aufV3/oJLYBNuEJQMIQv8fm3Fv1L0eCdf1UfdT76uEk9427EcEQ/ByT7T2LC6HqjDg7dCdATaRii9OuRNJdpTBg872vbqH+mAfyMid0tE9V6xVzXENaDvdcp6O3yqyIZo5/Fw2t/j74yJT+w1QtDZpRY/xfNroEBuw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kkuZ/MIH; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788890039; c=relaxed/simple;
+	bh=THyk43Os195QXhM6lmIGBTbk+u8i8mAeEpREyyeu5Bc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WOq/6P1tklOqaBFraLdLjkQN6D4xfy1qPM1y4wZkpdQeV9tIuY1EHPUXyQ1pWvpL7p63fqwvRkvFe3P0HU3Ur+hI16hz910byylg/3ht9L7/P//K/vX66WqojLTgDfEt5gVL5al2VCQ4JSUIoy1zETrWs5XfkGyZxI+Hb/CxMms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YrAnQQzo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kkuZ/MIH"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49cd77e0f95so39887455e9.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 08 Sep 2026 10:44:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788889482; x=1789494282; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=pzjiq1bNAWSar6CSSzfU0ZIGYB2L0BzVwz/Bd6duqAU=;
-        b=kkuZ/MIHSK5yRaH2AR1RuW3PyD/IMk39SEKUnzMwGMxHAUJnt/IRHp77162XmjScMS
-         6/W45zcdbLtF86HbUkyu1bJphc+BAbcVS0/FYMFcKjQavB+bgkT6gVwDp3Po0zbGxCGX
-         EV2Px7S2mAA/ES4u2qhCzOOWJPir7JQAPKwy1i0uCspnllX0DgPdw9De1+ig/e2csye/
-         AXuXj3fTrAGLSEcWFeVuTlogyxCp5CCxvFNtPAhlC9UAzSw1MrTsplZBh3hs12/dtWcq
-         MwQZiV+HxBClnuwGSv51B8uApIdOS9tvPsO4bvX6HaPA8H7L4xqsdXDCK2D7oAdyytE1
-         O+WQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788889482; x=1789494282;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=pzjiq1bNAWSar6CSSzfU0ZIGYB2L0BzVwz/Bd6duqAU=;
-        b=JyEMnhXD7px3L3ZZxMbL6SrE6hK6Du6xMBZRrud0Xc+/S043EE51ecNkj9c33yeN2B
-         m5aAFK+oehszy5epGVYPvwCqNTj7cRNvKtmgU0GdY6mo7fgq9txaf3s0D695rCuOJ92E
-         jGCZWWFKLGHGuLV+hovhmSjIqvhkHZ29IUn9+hYqMqXQ/xFH0kWcJChJMliUPG3UMtJb
-         IP7zIkYCv3IJ9perZPD/iumvCV/+OkDkL3ryBu1zEooLS4TfceI33lngM4heIo1w3KTC
-         oG0GH9LsF4j+WGj7pDjd6TRj807pUFAwinS01j5b6Ho8/cc4iGC7J1Q5HNzASPi6qiQk
-         7zvw==
-X-Forwarded-Encrypted: i=1; AKwUvBxMWWA4oCQiQ7OkHT7MS5KDDVGsPTvWmadbNjrDwLHOv9JlNaBziFiytWwfGa8GmUVFAE10TSOY/juwEv7DCg==@vger.kernel.org
-X-Gm-Message-State: AFuF++lWq8/tTvMWpGcoZW0oQLVuO8kO+npblCT0tJi4tNCMLPs22U8V
-	IWaa4DSOWTypQdvjQSo/aXUlseuTrT1pr3O11DA2bRfheX+lRBj0xqjH
-X-Gm-Gg: AYBFou06nNlOv5SYHmf1jKzvHvu0/wOxmBaQzDzFHQFfedwhS+TVX0RSRD1bFbG2jBp
-	HFNGBk3/QVGHniicILNak0X9MzqgLGKw4cI0P1QLXyDzKycwAYC61d4GhF50wEYG6cmPzGjWR7w
-	S6vBRphU7Um2nnuaA7qLRP/GO30QjQVGG/BkaeqZFchvZZK4V1Qh46U5LUFjkIXJ8smNN8IF/N+
-	z0dYldMJilevTS52I5K2NKMHpSehIUcdd6GEukmOCeN6R7QLxgslgxg/xBiIUJ7IEXcFSN3fa36
-	KdOl6pqvc4Qe2PirhlcWFwbvoVMcdfw56+cO1+2T68uZdsyxftAgdigRrXQfGg/ySo74whYku3+
-	0ytylw2bmO1r6RCfIu2cf2shsUHyhzmrinzQz4bZtMsWERooAe8iVoGhNohwxfQwWw+PYX5U5Ez
-	FfrnrkfMXV7G3Zrn9AKxp0VwyBCafDhJT2Ev6G8RN1UUs0JUZu1lHUITBC
-X-Received: by 2002:a05:600c:4fc5:b0:49c:fe18:6dd5 with SMTP id 5b1f17b1804b1-49cfe186dfemr274872685e9.29.1788889481519;
-        Tue, 08 Sep 2026 10:44:41 -0700 (PDT)
-Received: from luca-vm.lan ([154.61.61.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee80eda4sm487081105e9.15.2026.09.08.10.44.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 10:44:40 -0700 (PDT)
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-To: linux-mediatek@lists.infradead.org
-Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v5 8/8] arm64: dts: mt8167: Add support for mmsys resets
-Date: Tue,  8 Sep 2026 19:38:35 +0200
-Message-ID: <20260908174259.9009-9-l.scorcia@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260908174259.9009-1-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YrAnQQzo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FB1B1F00A3A;
+	Tue,  8 Sep 2026 17:53:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788890037;
+	bh=4QtM6Hbi4gcywrhhjCn+7LKCMCBN31he95Z6+BIsvL4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YrAnQQzoZjGEEQ1bEJlKZIPx3b72jxLZfmFCM3nnDJ3HfT1OxBULdS7r7CiaDvZr9
+	 NpaSni/55+zi2/LlHuz4PasyOgnGyskkt22IAHghc/QTMk8AQtFL2GDX5zp7JftiK1
+	 0I97MrP5/m5afAjFtO6V3RabaIKxT50pghezytVXzouxFWkbZE89B3dR7fVzZFeGdr
+	 h+ZRbpQpL9HSBQB4aegyLfrlIGx6QGiX1Hfn1QDqIQT7RPNHK7pduJVNz/G933QwUL
+	 OVBi6EAx27Xz8p/FcVmbqrLWh2kJIvEWBy8Ww5ZAsIemo2NNViYU8oPrstfQV8g1Al
+	 PafGxWSgOcs3A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 3/8] dt-bindings: watchdog: Add compatible for
+ MediaTek mt8167
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org
+In-Reply-To: <20260908174259.9009-4-l.scorcia@gmail.com>
 References: <20260908174259.9009-1-l.scorcia@gmail.com>
+ <20260908174259.9009-4-l.scorcia@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 17:53:56 +0000
+Message-Id: <20260908175357.3FB1B1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add support for mmsys resets by declaring the reset-cells property.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Missing required property constraint for new provider capabiliti=
+es
+--
 
-Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
----
- arch/arm64/boot/dts/mediatek/mt8167.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+commit 1623803f044eb5bb4bdac92465a186ae36fe6a1a
+Author: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8167.dtsi b/arch/arm64/boot/dts/mediatek/mt8167.dtsi
-index be215390730b..9eb24dc8715f 100644
---- a/arch/arm64/boot/dts/mediatek/mt8167.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8167.dtsi
-@@ -132,6 +132,7 @@ mmsys: syscon@14000000 {
- 			compatible = "mediatek,mt8167-mmsys", "syscon";
- 			reg = <0 0x14000000 0 0x1000>;
- 			#clock-cells = <1>;
-+			#reset-cells = <1>;
- 		};
- 
- 		larb0: larb@14016000 {
--- 
-2.43.0
+dt-bindings: watchdog: Add compatible for MediaTek mt8167
 
+Currently mt8167 inherits its watchdog from the included mt8516 dtsi,
+which in turn falls back on mt6589-wdt. However according to the data
+sheet mt8167 toprgu is not actually compatible with mt6589 (it has 14 sw
+resets instead of 12, and its reset bit map table is different from
+mt6589).
+
+Update the mtk-wdt binding to add a dedicated compatible for mt8167 and
+add the IDs that can be used in device trees to identify subsystem resets.
+
+> diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.=
+yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> index 953629cb9558b..f514be8a5851d 100644
+> --- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+> @@ -26,6 +26,7 @@ properties:
+>            - mediatek,mt6795-wdt
+>            - mediatek,mt7986-wdt
+>            - mediatek,mt7988-wdt
+> +          - mediatek,mt8167-wdt
+
+[Severity: Medium]
+Should #reset-cells be added as a conditionally required property for this
+new compatible?
+
+Since this patch adds reset provider capabilities to the hardware (defining
+reset IDs in include/dt-bindings/reset/mediatek,mt8167-wdt.h), the schema
+needs to ensure #reset-cells is conditionally required for this variant.
+
+Without adding #reset-cells to a required list for mediatek,mt8167-wdt
+under properties:compatible:oneOf or via an allOf block, a device tree
+node omitting it will silently pass dt_binding_check validation. This allows
+incomplete configurations that will fail at runtime when dependent nodes try
+to consume the resets.
+
+>            - mediatek,mt8183-wdt
+>            - mediatek,mt8186-wdt
+>            - mediatek,mt8188-wdt
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908174259.9009=
+-1-l.scorcia@gmail.com?part=3D3
