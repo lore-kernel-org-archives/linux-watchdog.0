@@ -1,229 +1,133 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20E18330328
-	for <linux-watchdog@vger.kernel.org>; Tue,  8 Sep 2026 16:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788883780; cv=pass; b=S6GO5C+TsYD9e2JPT8EAr/JDpwOd+a3FlJnK4e5j8b6XYZ2DjNrupVzVHvTKbdLUDJOpxT+wXrvyKnQOt0YlyVJCxqnuSR9/hYHLNg7MbrCfpEGe0mJuE2IPl/5u4GWDvey+4Z4rfYQN+w34zcFyumUqrSJap/g2QXFcLiqSGrE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788883780; c=relaxed/simple;
-	bh=WztWhHVc0H7CPyJLwxnwx6YXYXsrq7l98ZyMQp+1Ck4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DFKJ6rOb5GqXk8JCNFuDhXLo3UraSHixJCjy8Eb9cCTjK3fxIx+9EYOikkrPzcD9+srMBji0ZMroX2+pv8xBZyVLh3oS2wcS42R0CVsmPywoOQVTE45Cm+OEqYnTTO09Jbnihb1IjNuxRhsZo+bW+wd530VpGvHCLMqjt1sg62A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b9e2//Gt; arc=pass smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25CA3563FB7;
+	Tue,  8 Sep 2026 16:11:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788883888; cv=none; b=OGCoh9uQ3nlggzQ8KVgSa4Dpxs8KHLx5QjufANOkbrW2OUdLOPnwwPMxUTanWJYYNnsv0WONj5qir6vIYlmwHa9v1biLOcANBUX4sUAWq5kwwLqaF/mljUctY3Fd5nOgbGmS2Dh0v4VthpLcVzIP4sAx1mbm3m4vWBR+WPa032Q=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788883888; c=relaxed/simple;
+	bh=LCJB/bBSJ6Qr8C+a3E//aJEMDEm/ATsf1wj8b7Yqqlk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=lB9oYUVL83QkAttG7QLEZoMYYgEHJxoAcNsoPYcGAPTzFeUOOI9Q/h28JYLTe9g2vomQNeOQsevoGeFAj9AEKopBN1eD1kd1Ojt66uBHg8DjgMOl7/eyt/DbEVzNMuQHgD2NKaebeQFJ0f4HOE1+zmTZ3NYTEFFGyIb0NEdx2BU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KeQoNOP2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b9e2//Gt"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-482dd6ee390so5505333f8f.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 08 Sep 2026 09:09:37 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788883776; cv=none;
-        d=google.com; s=arc-20260327;
-        b=cxKD5B6o1YM38uAF3/vVHMltGzmL8fFSW64zBqPP2iuuMjrZDmksXJHM5vvc8xHpRN
-         khfXFmquy2y9UdfOfVQaKuFCtjcGHi9Td82/MbFmwwqUhpmJ1xkb9FR6u6angvIsTu3q
-         qv6e9E0JeI+QugLCaLk7kfxzByR81PgwR7ITXWd5AEh/cFTGih3KyRSbWlUmixzOamNk
-         8Yi/tYFz5zp6zV9v9huSNaLhlAHejsbPP8B9KeWIJzj/oGIQwsu5wfE4ggVPzZxTkvHS
-         5iBbRnaG6u00b496rxpa3CX0U3fTx9j0ChYnMyhL3StXQR9hY8iwthNFyorDEy4aBXhA
-         nZAA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=XTcRxNE+0QKPGmkvcXmGoBSJ3Svx4jopmL9a4dde9Bo=;
-        fh=i8K+g4n1qA/yXifweSq9emWZ2BzoC5yB85rbP5ILbUk=;
-        b=W1D8A0FrmK3KcBRQS3Pi9i/4WXdY/G8gS2uM3SwiWziZI29X+suRbyyHg20pS0kHI1
-         l/QwsmXpUY6a66YJHxUrqC/MVeQAjO+w2UZQZEw779BER6YoVH5up0j2tX1Ju0aSaWd1
-         ESuHtoWq23EbZVP53mvQRkxNMKfjY3SaREOE6myCG/S6WyNcLHxnsuLbjsNNz2wO5fdV
-         pZByRxyUcNe5pI5F3C8JUrkEIt/2/YpobrnPdxm/9gTGmA8m7gZuSei1cNp0XsvlpnLo
-         viHYpuUSfqcW0i76Vjjc3lrPaUFkUhpnnNGEAOQir3iTE3ERxG827NDnHMk1uqm/s4Ja
-         cYaw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788883776; x=1789488576; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=XTcRxNE+0QKPGmkvcXmGoBSJ3Svx4jopmL9a4dde9Bo=;
-        b=b9e2//GtmQdMVnjEuGHQaG9PZNCDxB8iLi0mZFdoKStT1QsRRP4qbhlzYJcJlRhad3
-         VhV5dAOGi2KGhhY//Cl/lCnpbQRgsITF5UcxpVpnPzaBUAtKoHoKXbx/gfP9pKJ+P9Ls
-         FUNJHihh6smNM8qrx2bYNW6eg6zWEfJaQtoIbjmCC9n7Z5066vZBWEc2Ybbm1KXyNG4u
-         dN9BHpDuKomD/zdN8XBdn9mVvyZmRO8mezRKMqfv7VH+maXSfDhuPlfsT9oG3zvkvEo7
-         b11/ZybbjNJ3xW16TBSmYJzaNX15Ye+ESCNOfFqLvbANRO21Q+GqbGxSZohMxL3X3UNJ
-         iOFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788883776; x=1789488576;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=XTcRxNE+0QKPGmkvcXmGoBSJ3Svx4jopmL9a4dde9Bo=;
-        b=RTJiI++v5WZk5liwXwf5mC/RzZgycyVCkB0HXBWzYmFQMNd8SbV56jsiKHL2w2qycM
-         9fxDRhRGh034TKPeGXjC0b2zz/GYGfU05D3JTYZaZPfUJV5+xCVwrxrrjfXB31y5cNCc
-         GqfMneKwvE0KsQIfxeqgFjwqa1p5d9pvVGJVD6fYLO+rdHV/c3tgu3iEYW3Aj7kQOn3o
-         4JMZII0vaPka3keuhkYAR+0q2hGxzottHJK/cA3GmgDxWVH7u/dWNriQ3q1bp7s7RNzm
-         nZY+87QzYpf1vCu3Nck2EQq6nUGlH6wJYsK9/T2JMLs2y0ngq8X4pZrWK68n4+wpF54F
-         Xh/A==
-X-Forwarded-Encrypted: i=1; AKwUvBx+g93jXXDIKHnROcN+TkarR9qJOo72ZonFh6j0gzspQFXSbtgw9u67CqYPW4yhJ+F8QYNk2DgtfSKhl5silA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lZhNEhJjD8sgVEBpIFearMJSMUcFQZc7xmuTiZ6pyB8W6sJqjE
-	oNukrhy1Hgygnk6NxEbYPKvO/rrm6QSUHvwscsAn6Sn+5O274D+no0pYa8xBlUNR1f26+9OzuLo
-	M5SkmPqWAvbphNBJJ54IAr+SGuK1F778=
-X-Gm-Gg: AYBFou1e/rrIdizsweVpMXFLoRptkBEn4E6ak4F+4fOn30cO1DHk5YvSFheYieojle1
-	e1cWDLKjFGL6wW807WD2CzQDTy+CRS56Xv3c1ve3F2sHRcZhbhRKEovkeNHUKkYq/EiBtweR81B
-	e+liz+iCve0BPiZltRtecZGN0AbiqF2UJ0OL4rwo7zUqiOFiVBou/u0vj0CPq0GEJaJUb8cXked
-	t2rqapRhlyYqEeH0fXuJ5LboNaIP3Ph1UCFkX3Z1SANDHWOxtsM85q8aBL7DTDklDTBekD25kEn
-	wlbgMY1HjuChgK1IwFDP8M/U7tNiDLTvtR6enqFJzTkDO9xCog1NP9vjoe0MvX2jvNsW0MP2SpY
-	DazawIFsRQWZIMWHfIl6PxSZj9+aWjw==
-X-Received: by 2002:a05:6000:4694:b0:47f:9266:9bde with SMTP id
- ffacd0b85a97d-4858703f92dmr25465606f8f.4.1788883775867; Tue, 08 Sep 2026
- 09:09:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KeQoNOP2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A331F00A3A;
+	Tue,  8 Sep 2026 16:11:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788883886;
+	bh=eQtOv7eD6H20m0zWo+xhl+DuKQqGCiyKfHcdLqZ0so4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=KeQoNOP2/AbBnkNeFbs6XXLyde3Oo327CnQL++APk9XwN5MCbaW/Qh1rTloh9A6Nt
+	 Gn3aUI8A7IY+4ooXj8sdx5yq1De/+RNBK8Bh/xScHsfxmAXI3x+Pr9nKNY6fZeG1nM
+	 f9eOjDMBhb36++NBYBApMj7BdNSEvS8vBHvQvdnri/FTP5U7pCqkJ4HRQpNzw701HN
+	 SaS4B7B4HirV+fPe1PbSpvmRPXMZtZNGzl5RPy4YnMtLgqryF/5zZ1NjBZS1T++Lgz
+	 HobDVTwXGEZPQCMQ2ykRxdBZpoE5EMlVIcLam5TkXxifdVGpxyO1dXWHmqy1ux6aLu
+	 yW+D8TQZT9EBw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 05/13] ARM: orion/dove/mv78xx0: remove all board files
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Arnd Bergmann" <arnd@kernel.org>
+Cc: linux-phy@lists.infradead.org, devicetree@vger.kernel.org, dlemoal@kernel.org, linux-rtc@vger.kernel.org, neil.armstrong@linaro.org, vkoul@kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, olteanv@gmail.com, Frank.Li@kernel.org, linux-pci@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, imx@lists.linux.dev, cassel@kernel.org, linux-ide@vger.kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <20260908152808.3928630-6-arnd@kernel.org>
+References: <20260908152808.3928630-1-arnd@kernel.org>
+ <20260908152808.3928630-6-arnd@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 16:11:25 +0000
+Message-Id: <20260908161125.E4A331F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260814191415.2110732-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260814191415.2110732-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260814192623.2A9251F000E9@smtp.kernel.org> <CA+V-a8sFKaoYe-5ETcoktTibaHZeJDQN+BGzsD2xFnVZRXxm0A@mail.gmail.com>
-In-Reply-To: <CA+V-a8sFKaoYe-5ETcoktTibaHZeJDQN+BGzsD2xFnVZRXxm0A@mail.gmail.com>
-From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Tue, 8 Sep 2026 17:09:09 +0100
-X-Gm-Features: AcwNN1UPrT-OBd75FMnOYw6-VBnoCdw_d03tw_YLhHOMh0wIOw46Gu0F0_TY1sM
-Message-ID: <CA+V-a8uDW1M6z2R_KBhKLn4Njp+3mVSTPDWYrjs+Xy2TPuoaCA@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] watchdog: rzv2h: Convert WDTDCR handling to regmap
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, sashiko-reviews@lists.linux.dev, 
-	linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi Guenter,
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Low] Orphaned MAINTAINERS entry for the TS-78xx platform.
+- [Low] Legacy IRQ, MPP, and GPIO implementations are now unreachable dead =
+code and unnecessarily compiled.
+--
 
-On Tue, Sep 8, 2026 at 5:02=E2=80=AFPM Lad, Prabhakar
-<prabhakar.csengg@gmail.com> wrote:
->
-> Hi sashiko,
->
-> On Fri, Aug 14, 2026 at 8:26=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
-> >
-> > Thank you for your contribution! Sashiko AI review found 3 potential is=
-sue(s) to consider:
-> >
-> > New issues:
-> > - [High] Using a regmap configured with `use_raw_spinlock =3D true` in =
-the watchdog restart handler introduces a deadlock if a panic occurs while =
-another CPU holds the regmap lock.
-> > - [High] The watchdog restart handler inappropriately aborts on regmap =
-errors, silently preventing system reboot.
-> >
-> > Pre-existing issues:
-> > - [High] Calling `clk_enable()` from `rzv2h_wdt_restart()` can cause de=
-adlocks if another CPU holds the corresponding framework spinlocks during a=
- panic.
-> > --
-> >
-> > --- Patch [2]: [PATCH v3 2/3] watchdog: rzv2h: Convert WDTDCR handling =
-to regmap ---
-> > commit 81d528488e87b317129eaa95c0076e2e770f3265
-> > Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> > Subject: watchdog: rzv2h: Convert WDTDCR handling to regmap
-> >
-> > This commit converts the WDTDCR register access from raw readl/writel
-> > variants over to the regmap framework using devm_regmap_init_mmio(). Th=
-is
-> > refactoring allows the driver to subsequently support syscon-based syst=
-em
-> > controllers natively.
-> >
-> > > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wd=
-t.c
-> > > index b770226f785ea..cf28caef31e8e 100644
-> > > --- a/drivers/watchdog/rzv2h_wdt.c
-> > > +++ b/drivers/watchdog/rzv2h_wdt.c
-> > [ ... ]
-> > > @@ -91,20 +92,12 @@ static int rzv2h_wdt_ping(struct watchdog_device =
-*wdev)
-> > >
-> > >  static int rzt2h_wdt_wdtdcr_count_stop(struct rzv2h_wdt_priv *priv)
-> > >  {
-> > > -     u32 reg =3D readl(priv->wdtdcr + WDTDCR);
-> > > -
-> > > -     writel(reg | WDTDCR_WDTSTOPCTRL, priv->wdtdcr + WDTDCR);
-> > > -
-> > > -     return 0;
-> > > +     return regmap_set_bits(priv->wdtdcr_regmap, WDTDCR, WDTDCR_WDTS=
-TOPCTRL);
-> > >  }
-> > >
-> > >  static int rzt2h_wdt_wdtdcr_count_start(struct rzv2h_wdt_priv *priv)
-> > >  {
-> > > -     u32 reg =3D readl(priv->wdtdcr + WDTDCR);
-> > > -
-> > > -     writel(reg & ~WDTDCR_WDTSTOPCTRL, priv->wdtdcr + WDTDCR);
-> > > -
-> > > -     return 0;
-> > > +     return regmap_clear_bits(priv->wdtdcr_regmap, WDTDCR, WDTDCR_WD=
-TSTOPCTRL);
-> > >  }
-> >
-> > [Severity: High]
-> > Since rzt2h_wdt_wdtdcr_count_start() is called by rzv2h_wdt_restart() d=
-uring
-> > a system panic, returning regmap_clear_bits() here means the restart ha=
-ndler
-> > can now fail if the regmap access fails.
-> >
-> > If rzt2h_wdt_wdtdcr_count_start() returns an error, the restart handler=
- aborts
-> > early:
-> >
-> >     rzv2h_wdt_restart()
-> >         if (priv->of_data->wdtdcr) {
-> >             ret =3D rzt2h_wdt_wdtdcr_count_start(priv);
-> >             if (ret) {
-> >                 ...
-> >                 return ret;
-> >             }
-> >         }
-> >         rzv2h_wdt_ping(wdev);
-> >
-> > Does this silently prevent the watchdog ping and hang the system indefi=
-nitely
-> > during a panic instead of rebooting? Should the restart handler ignore =
-the
-> > error to ensure the watchdog ping always occurs?
-> >
-> If the regmap clear/set fails, it means something really bad has
-> happened, and we cannot reboot the system. It's better to return an
-> error instead, as the reboot won't happen anyway if regmap read/writes
-> are failing.
->
-> > [Severity: High]
-> > This is a pre-existing issue, but I noticed the restart handler calls
-> > clk_enable() when the watchdog is not active:
-> >
-> >     rzv2h_wdt_restart()
-> >         if (!active) {
-> >             ret =3D clk_enable(priv->pclk);
-> >             if (ret)
-> >                 return ret;
-> >         }
-> >
-> > Since rzv2h_wdt_restart() is called in an atomic panic context where ot=
-her CPUs
-> > are halted via smp_send_stop(), can this cause a deadlock? If another C=
-PU is
-> > halted while holding the clock framework's global enable_lock spinlock,=
- the
-> > panicking CPU will spin indefinitely waiting for it.
-> >
-> There are no APIs available to enable clocks in an atomic panic
-> context. The other alternative would be to have the clocks ON all the
-> time in the probe.
->
-Please let me know if you want me to enable the clocks in the probe so
-that we dont have any locking issues.
+commit 67c50c71bc1677d3a7c7538373463163afb7b062
+Author: Arnd Bergmann <arnd@arndb.de>
+Subject: ARM: orion/dove/mv78xx0: remove all board files
 
-Cheers,
-Prabhakar
+This commit removes the legacy board files for the Orion, Dove, and MV78xx0=
+=20
+platforms. These files were retained in 2022 due to support in Debian/OpenW=
+RT,=20
+which is now gone.
+
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index fdd75b73bf293..2bb036e8ddcd9 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -3080,8 +3080,6 @@ F:	Documentation/devicetree/bindings/arm/marvell/ma=
+rvell,orion5x.yaml
+>  F:	Documentation/devicetree/bindings/soc/dove/
+>  F:	arch/arm/boot/dts/marvell/dove*
+>  F:	arch/arm/boot/dts/marvell/orion5x*
+> -F:	arch/arm/mach-dove/
+> -F:	arch/arm/mach-mv78xx0/
+>  F:	arch/arm/mach-orion5x/
+>  F:	arch/arm/plat-orion/
+>  F:	drivers/bus/mvebu-mbus.c
+
+[Severity: Low]
+Since all the board files like arch/arm/mach-orion5x/ts78xx-setup.c are
+removed in this patch, should the MAINTAINERS entry for the TS-78xx platform
+further down in this file also be removed?
+
+The pattern F: arch/arm/mach-orion5x/ts78xx-* now points to deleted files,
+which leaves an orphaned entry for Alexander Clouter.
+
+[ ... ]
+
+> diff --git a/arch/arm/mach-orion5x/Makefile b/arch/arm/mach-orion5x/Makef=
+ile
+> index 6f54d7fef27a7..7e9634e043185 100644
+> --- a/arch/arm/mach-orion5x/Makefile
+> +++ b/arch/arm/mach-orion5x/Makefile
+> @@ -2,15 +2,6 @@
+>  ccflags-y :=3D -I$(srctree)/arch/arm/plat-orion/include
+> =20
+>  obj-y				+=3D common.o pci.o irq.o mpp.o
+> -obj-$(CONFIG_MACH_KUROBOX_PRO)	+=3D kurobox_pro-setup.o
+> -obj-$(CONFIG_MACH_TERASTATION_PRO2)	+=3D terastation_pro2-setup.o
+
+[Severity: Low]
+Are irq.o and mpp.o now completely unreachable code?
+
+Since all the board files that called into these APIs have been removed,
+it appears these objects are now unnecessarily compiled into the kernel
+image. Should they be removed from obj-y here?
+
+[ ... ]
+
+> diff --git a/arch/arm/plat-orion/Makefile b/arch/arm/plat-orion/Makefile
+> index e8c7580df8caf..dfde39cdd992b 100644
+> --- a/arch/arm/plat-orion/Makefile
+> +++ b/arch/arm/plat-orion/Makefile
+> @@ -5,5 +5,5 @@
+>  ccflags-y :=3D -I$(src)/include
+> =20
+>  orion-gpio-$(CONFIG_GPIOLIB)      +=3D gpio.o
+> -obj-$(CONFIG_PLAT_ORION_LEGACY)   +=3D irq.o pcie.o time.o common.o mpp.o
+> +obj-$(CONFIG_PLAT_ORION_LEGACY)   +=3D irq.o pcie.o mpp.o
+>  obj-$(CONFIG_PLAT_ORION_LEGACY)   +=3D $(orion-gpio-y)
+
+[Severity: Low]
+Similarly, does this leave irq.o, mpp.o, and the orion-gpio-y objects as de=
+ad
+code as well?
+
+Since their corresponding entry points in the board files were deleted,
+could these also be removed from the build?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908152808.3928=
+630-1-arnd@kernel.org?part=3D5
