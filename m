@@ -1,101 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B2C255931F;
-	Tue,  8 Sep 2026 21:59:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE77748F017;
+	Tue,  8 Sep 2026 22:07:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788904774; cv=none; b=gGHDJCaBh9B5i+UwUJxOCDYSvhIpSSsfipy6NeiqRypTRnSKIOoUHc8qtX65hblGyn3qW7VjRVRclZ1u0dAtMq5ozmK9Y2EfokUjcmyHJkAI6THc5VGXsQ7lhh8uutTjIXI7AsG8joXXJ0EkKj5PN0E2pbIHVXud33pnn7AMPnw=
+	t=1788905252; cv=none; b=RNjm1c5XjiqankpZH9EamQI5l1ZR7nMy8bNRr8/5wF+sa/iH8VdY7GRjSBh510tiAXXsslLHQ1XFCoKNTJC++1BB9E2v2RU/cSXtjOiPVgcXOT1vqpOnQmgJHJlVGWrKLuPhmS83MQsfEBXl9OFx8a2+9jvCVHbaqKDEsNoY7GQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788904774; c=relaxed/simple;
-	bh=eVriJrMeYp3XHPG8ed08fiWSUJ0t9VB3iX+On7WM94M=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=PQcZzKFc1riex8ijAMnPZYR4RGyKM12L3jmwqEOuIRfjF0ETbo1N5b3247cw3+oNtHDm3ccH2zRgta/+HaBaTyRItT+vuYO3cQVlwIchypjXAMsY9j7t7hzf6JajcLqh4Us5h6qdkTozOXTBnFV/J50YHFmatAfOy/uUBdXVRaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TwY+C3Ad; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1788905252; c=relaxed/simple;
+	bh=uH5244xLkHh5tX3Dib7zbddMlpVeIRO6MVtfqaE05tg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=cYPme55tz6dUN7cF9k696FqmlEjdjLZIeTzqW4L1lgbNfpF3YvHZbf7+WjHSPSXTcFf48YHgQrFOnrSSzwjeYMqzsw4NJzEz0JL0BMdm/4P3ZrTD8Or23OWIA1CrOj2gWvsv8H8S+uwFm3UzAZHVjOXg14qXWgMaohxGefN5mMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CfBSgd3p; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TwY+C3Ad"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 38CB4C2BD01;
-	Tue,  8 Sep 2026 21:59:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1788904774;
-	bh=eVriJrMeYp3XHPG8ed08fiWSUJ0t9VB3iX+On7WM94M=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=TwY+C3AdgCDls57rUa/PozYUtsrtfKnz5mZYzYMH8Hb3KpCoat0TROhM4+bRGi56A
-	 tC+pLzvJDMiKHvaJYO3cy7LbAJ3caCL7rxDjiRHIlJsSCgs2vCdKsqgGEWkqZ42GgD
-	 5TxUEf8PxsCa35dvqpmnwbilsdL2keKR+rghecGW4WF7bGg+o1XG1djCPE2/hAFSVd
-	 WIXFh/xkFPwbzw2CMMk5eZ+B1gNOxIszqMCj7EYR21sSXtknea4Ox/tFtqSguqAk4t
-	 07BmMYvK3t+joilbGtcfCnQaSmLEXoC7t9ekyj3cpoFLEnJ8JBuiGyUtx84sjVZsPh
-	 VlqcD17f152hg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 251BAC79FAF;
-	Tue,  8 Sep 2026 21:59:34 +0000 (UTC)
-From: Zakariya Hadrami via B4 Relay <devnull+zkh.mailbox.org@kernel.org>
-Date: Tue, 08 Sep 2026 23:59:16 +0200
-Subject: [PATCH v3 3/4] ARM: dts: mediatek: mt8127: Add watchdog support
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CfBSgd3p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CF1E1F00A3A;
+	Tue,  8 Sep 2026 22:07:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788905251;
+	bh=ws1+Xls/DEAU0aHZG1BtMNrUT8GjPjqImlOpVAgnj/U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CfBSgd3pRdedFd1iSIASn8xbXTRS7pra0Rw5ga8G/yuT3u78tWb3OdWBUindLxyMt
+	 u/MTe/1hBx7CSZSNU7BuAtRQyXsmkvrK2gDiZm8gdlQiqHgNzNpHbFpoJYqlXK5j8d
+	 U5VrZj0bIcqfDGnEFkhcUo61HlkAAeiqa75px2c1KytR72i66KIxdEtOQ8O5wHi2+7
+	 7mkEI/VPDynr/a2YxBA2v+PIY8jegoQchfSpd1J48T4mgUU5Y+kjj7z/A6KLQ9g6k/
+	 qOn8lGslPEl2WpJxA/5KE0gLHndVFjVZRUPpoh/qJODmXF1GOATf5y5NhFG57QXO5G
+	 aNr36NcnyZf/g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 4/4] ARM: dts: mediatek: Add basic support for Amazon
+ ford board
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zakariya Hadrami" <zkh@mailbox.org>
+Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <20260908-mt8127-amazon-ford-basic-v3-4-fc46bf1b6cb2@mailbox.org>
+References: <20260908-mt8127-amazon-ford-basic-v3-0-fc46bf1b6cb2@mailbox.org>
+ <20260908-mt8127-amazon-ford-basic-v3-4-fc46bf1b6cb2@mailbox.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 22:07:30 +0000
+Message-Id: <20260908220731.0CF1E1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260908-mt8127-amazon-ford-basic-v3-3-fc46bf1b6cb2@mailbox.org>
-References: <20260908-mt8127-amazon-ford-basic-v3-0-fc46bf1b6cb2@mailbox.org>
-In-Reply-To: <20260908-mt8127-amazon-ford-basic-v3-0-fc46bf1b6cb2@mailbox.org>
-To: Matthias Brugger <matthias.bgg@gmail.com>, 
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Sean Wang <sean.wang@mediatek.com>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-watchdog@vger.kernel.org, zkh1@proton.me, 
- Zakariya Hadrami <zkh@mailbox.org>
-X-Mailer: b4 0.15.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788904772; l=862;
- i=zkh@mailbox.org; s=20260908; h=from:subject:message-id;
- bh=AX2u3pZcnaoS6OSYF7vpbl8cAzsMvrof+x8jgtKD7wE=;
- b=Opgq1eRNAB4cK7JQilkoPnwcoXZFYTGmYcBGlkjFC1OFvAMRP5q2EhPKrdxSrISHmf9msNqIX
- +e9tnhwKeAIBKXxb/aeZQFcTtOuzfWsroQR3pgkMPdnNC8tpBXyFjir
-X-Developer-Key: i=zkh@mailbox.org; a=ed25519;
- pk=up24Xn4ScFKugfT4EJru/UQAS7JOIN+DSQqro+a05T4=
-X-Endpoint-Received: by B4 Relay for zkh@mailbox.org/20260908 with
- auth_id=1015
-X-Original-From: Zakariya Hadrami <zkh@mailbox.org>
-Reply-To: zkh@mailbox.org
 
-From: Zakariya Hadrami <zkh@mailbox.org>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] Device Tree Compiler (DTC) warnings due to using a unit address wit=
+hout a 'reg' property in the simple-framebuffer node.
+--
 
-Add watchdog node and disable it by default as it was not present
-initially.
+commit 03486b0d7f26e5bd328d2d2b8f2a803bdf72c6b4
+Author: Zakariya Hadrami <zkh@mailbox.org>
 
-Signed-off-by: Zakariya Hadrami <zkh@mailbox.org>
----
- arch/arm/boot/dts/mediatek/mt8127.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ARM: dts: mediatek: Add basic support for Amazon ford board
 
-diff --git a/arch/arm/boot/dts/mediatek/mt8127.dtsi b/arch/arm/boot/dts/mediatek/mt8127.dtsi
-index bd61ec7e70c0..3e23673e7a9e 100644
---- a/arch/arm/boot/dts/mediatek/mt8127.dtsi
-+++ b/arch/arm/boot/dts/mediatek/mt8127.dtsi
-@@ -99,6 +99,13 @@ soc {
- 		compatible = "simple-bus";
- 		ranges;
- 
-+		watchdog: watchdog@10007000 {
-+			compatible = "mediatek,mt8127-wdt","mediatek,mt6589-wdt";
-+			reg = <0 0x10007000 0 0x100>;
-+			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_LOW>;
-+			status = "disabled";
-+		};
-+
- 		timer: timer@10008000 {
- 			compatible = "mediatek,mt8127-timer",
- 					"mediatek,mt6577-timer";
+This tablet uses a MediaTek MT8127 system-on-chip with 1GB of RAM.
+It can currently boot into initramfs with a working UART and
+Simple Framebuffer using already initialized panel by the bootloader.
 
--- 
-2.54.0
+> diff --git a/arch/arm/boot/dts/mediatek/mt8127-amazon-ford.dts b/arch/arm=
+/boot/dts/mediatek/mt8127-amazon-ford.dts
+> new file mode 100644
+> index 0000000000000..21bdab0e43f88
+> --- /dev/null
+> +++ b/arch/arm/boot/dts/mediatek/mt8127-amazon-ford.dts
 
+[ ... ]
 
+> +	chosen {
+> +		stdout-path =3D "serial0:921600n8";
+> +
+> +		framebuffer0: framebuffer@b7a00000 {
+
+[Severity: Low]
+Will this node name cause Device Tree Compiler warnings during make dtbs?
+
+Since the node is named with a unit address (@b7a00000) but only uses a
+memory-region property without a corresponding reg property, it seems this
+would trigger a unit_address_vs_reg warning.
+
+Additionally, it might trigger an avoid_default_addr_size warning because
+its parent (chosen) lacks #address-cells and #size-cells.
+
+Would it be better to omit the unit address here?
+
+> +			compatible =3D "simple-framebuffer";
+> +			memory-region =3D <&framebuffer_reserved>;
+> +			width =3D <1024>;
+> +			height =3D <600>;
+> +			stride =3D <(1024 * 2)>;
+> +			format =3D "r5g6b5";
+> +		};
+> +	};
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-mt8127-ama=
+zon-ford-basic-v3-0-fc46bf1b6cb2@mailbox.org?part=3D4
