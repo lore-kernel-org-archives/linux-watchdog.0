@@ -1,143 +1,145 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA3848E0E4;
-	Wed,  9 Sep 2026 13:48:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 385CE5616D4;
+	Wed,  9 Sep 2026 13:49:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788961705; cv=none; b=Nf76CZGQMbt6v4jK3EmKHp+aBRReEHwW7Y2MCm4RCOww2wWMMRsqK58TfsM00a62ss8cNNijdvpy64fHEhurVl/v/8a82D1xUcrX/x3spDbHTRcCxzI/ADgvfPmY6sD58t/Hjbm1SIjid2Dh9QoryDsKKMhAYqaw+mrf5I1mFik=
+	t=1788961752; cv=none; b=SWIB6h8sHTs5bW/9tzw9ugVvZ9AohlAHj/gtJj/vWRvGwiHXtCX/TqaoL5b4rHh0FJiVn4UNb7qsyxrlalBDm4/cksG2uNyn1LZtnNcyiRyap/qQVnGMEP2UxQHfR2zbCBr2p5FM+nC0AaQ9HAmoslT1j7tPU/iFd3Q6OANftNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788961705; c=relaxed/simple;
-	bh=k4G1/gPcr9IBn4QKb9RO3EMPF1pv6O/TibdRj47ZmFs=;
+	s=arc-20240116; t=1788961752; c=relaxed/simple;
+	bh=rGnXHRCo/EauHzhR09qNfILwi1LUyO0ATm01L7YveoY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PGXRjndQc41rvO2zDPPXZFZaq/z1yPYT/kGNepUCVSw9o+B84RfLC07DJcrx71k/ld/RmBLczr4Pj8i79ReQBN2Jn7Pbry3IOBBXulkYOOfd/bL5bRtHoGYzg32w7tHtbeOPGd4jHdLIZFj4ukbRvZ4Am8y5ZbHPRCm65X9lZt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YXPExu/8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=KX+6Dq+XtkKe3pOomktHasLuKg06Epa05GC6qlioS2FXeD3bQpSJvt7M+LG7p741yaaBCXtJ2uUAIdmF8aD+Crt5ElPsgUEgGZFjsbLgZDlDUYKBtcIpFreo+fL3UKFof+zfudfgXJATs/28Glyq0DM0Nl0aBL/XJfMJWmZH6/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eZWGVuzS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YXPExu/8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA3201F00A3D;
-	Wed,  9 Sep 2026 13:48:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eZWGVuzS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A1C1F00A3D;
+	Wed,  9 Sep 2026 13:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788961704;
-	bh=P0LCF/vM4GtMw0rLBxXxpnT4vsixmrxsX4Y53vmwMNo=;
+	s=k20260515; t=1788961751;
+	bh=hcgjalMECnLuMbthiuSDs90fSHJDbnvEcBIuT741nWU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YXPExu/87zyaAeqylfvDy60HhdX15xPYW8SdTcSIUxSiOtSPStbXYo9C3hwDNIjeG
-	 DJzl32EX3QKUz0XakM0cuf5rkze+2/jqH4JXgChC1dZ5lK5Gjt2xKOQM/F07qCdWRP
-	 xbXodNiX9cxzCl8wniH+TmFmeS7avMoWcCGA1EITmMTVvCHmV+KLifWiIEfXBhGq9o
-	 gEK3mNaAeyM6tWk37HEGC40qiT1akmvfMKEicD4/6uO0IypZ9vWadtzUKTtETm2Ddw
-	 4cGNpGVJytJ1rGMz9mIA6FICV9wEK8og4f7F+50fPMnfcnfaBhgSguf1CpGl77cEie
-	 G3Qiljl+C18RA==
+	b=eZWGVuzSPhslknQqCoR9lAStqAcZcrvV4O3xLFc5quRwUbL57naOMcok0Qmy7fZit
+	 lxc6K/MXp/mLdczlXp504jd9ih+1gKf3IjwArYuIfm01VJ0OowpDnmKmMBDL/PDQ0+
+	 7nCug01Qcp6nBKmF3aBpjwSLKFZsyVVk/rvAkipPDBfzUXiVrouf8pUdAlzSrm51ec
+	 jxS1cjKOqxVb869Q/NF1v5rhLIU8SQiaaymnd+HO51p1s1jZuJn3RbKCEVMNdOaJso
+	 KMTISRuD2zJ1DD9KsbB7wXuamNJsPX0e0LeEemtndfOx+4xhXB8fcNSbhgfdvfzhXd
+	 yAk4pQRP7j/xA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/14] mfd: remove unused mcp-sa11x0/ucb1x00 driver
+Subject: Re: [PATCH 13/14] mfd: remove unused menelaus driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, linux-hwmon@vger.kernel.org, lee@kernel.org, robh@kernel.org, dri-devel@lists.freedesktop.org, mfd@lists.linux.dev, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, media-ci@linuxtv.org, linux-leds@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260909132153.1596191-13-arnd@kernel.org>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, media-ci@linuxtv.org, linux-leds@vger.kernel.org, robh@kernel.org, lee@kernel.org, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, dmitry.torokhov@gmail.com, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org
+In-Reply-To: <20260909132153.1596191-14-arnd@kernel.org>
 References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-13-arnd@kernel.org>
+ <20260909132153.1596191-14-arnd@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 13:48:23 +0000
-Message-Id: <20260909134823.AA3201F00A3D@smtp.kernel.org>
+Date: Wed, 09 Sep 2026 13:49:09 +0000
+Message-Id: <20260909134910.33A1C1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] The commit deletes headers `<linux/platform_data/mfd-mcp-sa11x0.h>=
-` and `<linux/mfd/ucb1x00.h>`, but the SA1100 platform still exists and rel=
-ies on them, causing build errors.
-- [Medium] Referencing a removed Kconfig symbol `MCP_UCB1200` leaves the `c=
-ollie_battery` driver as orphaned dead code.
+- [Low] Removing `include/linux/mfd/menelaus.h` breaks the build for `arch/=
+arm/mach-omap2/` because the OMAP24xx platform and N8x0 board files were no=
+t actually removed from the kernel.
+- [Low] Selection of a non-existent Kconfig symbol (`MENELAUS`).
+- [Low] Dangling file reference in the MAINTAINERS file and orphaned defcon=
+fig entry.
 --
 
-commit 3e512215b27ee60439f00d2cbf7fccc06602c45a
+commit a734289fbadac21de1944b368a0a47eb10c6d46e
 Author: Arnd Bergmann <arnd@arndb.de>
-Subject: mfd: remove unused mcp-sa11x0/ucb1x00 driver
 
-This commit removes the MCP and UCB1x00 MFD drivers, along with their assoc=
-iated platform data headers and Kconfig entries. The removal is based on th=
-e premise that the sa1100 platform has been removed and these drivers are n=
-o longer used anywhere.
+mfd: remove unused menelaus driver
+   =20
+Menelaus was a companion chip for the omap24xx platform, which has
+been remvoed from the kernel, so now the menelaus driver is unused
+and can be removed.
 
-> mfd: remove unused mcp-sa11x0/ucb1x00 driver
->
-> The sa1100 platform has been removed, so these drivers are no longer
-> used anywhere.
+> Menelaus was a companion chip for the omap24xx platform, which has
+> been remvoed from the kernel, so now the menelaus driver is unused
+> and can be removed.
 
-[Severity: High]
-Is the sa1100 platform fully removed in this series? Looking at the tree,
-arch/arm/mach-sa1100/assabet.c and arch/arm/mach-sa1100/collie.c still
-exist and unconditionally include the headers deleted by this patch.
+[Severity: Low]
+Is the omap24xx platform completely removed?
 
-For example, arch/arm/mach-sa1100/assabet.c includes the headers and
-instantiates the platform data:
+It looks like arch/arm/mach-omap2/board-n8x0.c and=20
+arch/arm/mach-omap2/common-board-devices.h still exist and unconditionally
+include the deleted header, which breaks the build for OMAP2 configurations:
 
-#include <linux/platform_data/mfd-mcp-sa11x0.h>
-...
-static struct mcp_plat_data assabet_mcp_data =3D {
-...
+arch/arm/mach-omap2/board-n8x0.c:
+    #include <linux/mfd/menelaus.h>
 
-Since this commit deletes include/linux/mfd/ucb1x00.h and
-include/linux/platform_data/mfd-mcp-sa11x0.h, does this cause a build
-failure when compiling the assabet or collie boards?
+arch/arm/mach-omap2/common-board-devices.h:
+    #include <linux/mfd/menelaus.h>
+    extern struct menelaus_platform_data n8x0_menelaus_platform_data;
 
-[ ... ]
+This isn't a bug, but there's a typo (remvoed) in the commit message.
 
 > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 8a3bbb6286933..0395af7270f9e 100644
+> index 0395af7270f9e..02e52398fcd28 100644
 > --- a/drivers/mfd/Kconfig
 > +++ b/drivers/mfd/Kconfig
-> @@ -2258,30 +2258,6 @@ config MFD_QCOM_PM8008
->  	  under it in the device tree. Additional drivers must be enabled in
->  	  order to use the functionality of the device.
+> @@ -1893,16 +1893,6 @@ config TWL6040_CORE
+>  	  additional drivers must be enabled in order to use the
+>  	  functionality of the device (audio, vibra).
 > =20
-> -menu "Multimedia Capabilities Port drivers"
-> -	depends on ARCH_SA1100
-> -
-> -config MCP
-> -	tristate
-> -
-> -# Interface drivers
-> -config MCP_SA11X0
-> -	tristate "Support SA11x0 MCP interface"
-> -	depends on ARCH_SA1100
-> -	select MCP
-> -
-> -# Chip drivers
-> -config MCP_UCB1200
-> -	tristate "Support for UCB1200 / UCB1300"
-> -	depends on MCP_SA11X0
-> -	select MCP
-> -
-> -config MCP_UCB1200_TS
-> -	tristate "Touchscreen interface support"
-> -	depends on MCP_UCB1200 && INPUT
-> -
-> -endmenu
-> -
->  config MFD_VEXPRESS_SYSREG
->  	tristate "Versatile Express System Registers"
->  	depends on VEXPRESS_CONFIG && GPIOLIB
+> -config MENELAUS
+> -	bool "TI TWL92330/Menelaus PM chip"
 
-[Severity: Medium]
-Does removing the MCP_UCB1200 config symbol leave the collie_battery
-driver as orphaned dead code?
+[Severity: Low]
+Does removing this config break Kconfig dependencies?
 
-Looking at drivers/power/supply/Kconfig, BATTERY_COLLIE depends on
-SA1100_COLLIE && MCP_UCB1200. Furthermore,
-drivers/power/supply/collie_battery.c still includes the now-deleted
-include/linux/mfd/ucb1x00.h header.
+arch/arm/mach-omap2/Kconfig still selects this for ARCH_OMAP2PLUS_TYPICAL:
 
-If this Kconfig symbol is removed without cleaning up the power supply
-subsystem, it causes an unmet dependency warning and leaves the battery
-driver unselectable.
+arch/arm/mach-omap2/Kconfig:config ARCH_OMAP2PLUS_TYPICAL
+    select MENELAUS if ARCH_OMAP2
+
+Selecting a non-existent symbol triggers a Kconfig warning.
 
 [ ... ]
+
+> diff --git a/drivers/mfd/menelaus.c b/drivers/mfd/menelaus.c
+> deleted file mode 100644
+> index a125d40fa121b..0000000000000
+> --- a/drivers/mfd/menelaus.c
+> +++ /dev/null
+> @@ -1,1251 +0,0 @@
+
+[Severity: Low]
+Should the reference to this file in MAINTAINERS also be removed?
+
+MAINTAINERS:
+    F: drivers/mfd/menelaus.c
+
+[ ... ]
+
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index ec73533703f72..9dfe1ea08c250 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -570,15 +570,6 @@ config RTC_DRV_BQ32K
+>  	  This driver can also be built as a module. If so, the module
+>  	  will be called rtc-bq32k.
+> =20
+> -config RTC_DRV_TWL92330
+> -	bool "TI TWL92330/Menelaus"
+
+[Severity: Low]
+Does this leave an orphaned defconfig entry?
+
+arch/arm/configs/omap2plus_defconfig still references the removed config:
+
+arch/arm/configs/omap2plus_defconfig:
+    CONFIG_RTC_DRV_TWL92330=3Dy
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909132153.1596=
-191-1-arnd@kernel.org?part=3D12
+191-1-arnd@kernel.org?part=3D13
