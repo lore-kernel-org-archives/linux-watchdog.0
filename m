@@ -1,45 +1,67 @@
-Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE9F7572693;
-	Wed,  9 Sep 2026 15:48:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788968889; cv=pass; b=QDU9G+SBdCW2s6Opnq9l9G/KFKxYhbZEYKXSFzjyJeBtpBkXbn06J94ZbU2fRlMzzhpIoOyIUJSb8VLDFC7PBaBexTJUBQiR0w0NXvSicQssa7RSiPBMG1r9r8IoLD0CAWJAhs4jlKmrmambE5+Ea6NABbmS6SE+Ss0dEkyd5jY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788968889; c=relaxed/simple;
-	bh=1WHu6Hc9Jk1lAvAKxEchkOqNKezm6LoV4VOS1wDm8MQ=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB49367B96
+	for <linux-watchdog@vger.kernel.org>; Wed,  9 Sep 2026 17:27:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788974823; cv=none; b=mPTp5DRxbDjXojAI5wn2ZFjIuoc/+a8orgIZC6bZ3NwYFpmYEEqx680UNOaO0vzHvFu0YJQd+VGV0gzc89M2A/o6dHO0ZzZNMX1OuMc1o+liGE3owiRBEUenCL1rUIryHPRwpvk4x3RbcqPQwsV8XO9EMs5ZbAVivvv8G4XcZRE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788974823; c=relaxed/simple;
+	bh=SUxP5gT1ZaOy4mmgP6chw0Cr8VRY83cgnbGtN/GeIrM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N0WA3FDqHyHK316CRTjbQkpUYj7wkxN8tJDiJDNVo/PzwJ4A3Ia7SDD69dWSEZRXssfHSx/2Ls5VEH2jocz9HkGmi93Gnfyh8UhggawX+Un30HTqN85VOjBYC9r+L0BfG2FYAzwyUs45V8N9Gv/1PAihi+P8Bcb7tFmk+Yb+XnA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=sebastian.reichel@collabora.com header.b=QK9PzuPu; arc=pass smtp.client-ip=136.143.188.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Juba0PEXZLUnv5bkxUONe2kx0MkAELpdJM4IJ6oA4Ev5GeJdzMl39vhC5tJ7Qktne4uw8wdBnNE+rZObQrIfWrZFZW+kMl9M27PAV8HW66VIDTA4EGjuCpuEssc4D2Wb+anS8tHuazrpTkfGsKMWUSd+azwpmLFh2ynnACbgodo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jI6Ly9NO; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=sebastian.reichel@collabora.com header.b="QK9PzuPu"
-ARC-Seal: i=1; a=rsa-sha256; t=1788968850; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=LrNzaX7Q840JJMB22boDRMC4XbmiCXA37gNpa578E+fzZjLt4A+nukYAlA9Df2BaLC7CWgUf6+IU8BT9hMO9vRDfjnyo+MpHbnoB9zuaZX+EAxwsVGbr69mI66nXIuPXJXW59o7Ui0tvWRgxyc6sAlneJtqlRKaXBULfpIV7OUQ=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1788968850; h=Content-Type:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=pE7m7m2sBB5ewZCKug+UN71/5f27jp3fJnMB4dlTatU=; 
-	b=T3zLm6V/V1CyF92gtMOjqhUnvmbQ87vAAOjSDUGeov26rGLxk1jR9PkMDtqgz8zqCyNd9s4+X/ncqjedqXLVdJEh69MKUib4DNZFsztCRXhl0IgcKoCMSUssdjG+vjOdH3Q29LKW79Q6xcAUwZsx31gVfcz2hZV4Kt3HW2AuIhs=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=sebastian.reichel@collabora.com;
-	dmarc=pass header.from=<sebastian.reichel@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1788968850;
-	s=zohomail; d=collabora.com; i=sebastian.reichel@collabora.com;
-	h=Date:Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:MIME-Version:Content-Type:In-Reply-To:Message-Id:Reply-To;
-	bh=pE7m7m2sBB5ewZCKug+UN71/5f27jp3fJnMB4dlTatU=;
-	b=QK9PzuPuYguldW4zRPZuX/PxYYe7H5UaLIKA4Myro5mVihkb8oyjDNFtaSfo7bGc
-	+59RM1jk+7fc0gozUFD98ZXHehTgg7k9PdbQ61Ks5qY+OgcSc6EMo9uj99nNfvythuq
-	FICikCNYNnWe6xQ3Mw6nUy/LipiPEdmal8Cku4JU=
-Received: by mx.zohomail.com with SMTPS id 178896884950669.76921172500283;
-	Wed, 9 Sep 2026 08:47:29 -0700 (PDT)
-Received: by venus (Postfix, from userid 1000)
-	id 412E7183377; Wed, 09 Sep 2026 17:47:21 +0200 (CEST)
-Date: Wed, 9 Sep 2026 17:47:21 +0200
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jI6Ly9NO"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-cc149372c14so3225148a12.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 09 Sep 2026 10:27:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788974821; x=1789579621; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=BxkJmMQiuFGLIVhYvP7iekSRoJyyqxrT2LFSLJP0a4Q=;
+        b=jI6Ly9NOhS1CJVDcDoKjwgjST/iQVlVpolh/hifxBJGV2nz6t+8GlFWLZ4bzANtEHt
+         /Gubm7aHSBwsXnEHDwS28/J38FGObVki5RAT4+MKtWxDxCzdeulLhOlDre6S80gl/1TC
+         7EygHVvY8rB9EzbY4vuEGBvLIXgnThM7ofFVrmOOyUnxK3+Cw8/lUB1Qrw2zcQyD28sq
+         aOwfF4Jak4nLrwlBRcrBmxMV3zq77fRSSDlQwIxXNAn/g3MvLudGjEbIzxRGELLjSs75
+         zSMaaTiP34sWBjEuq0+gSjLhjHao2DyO1AI08J/NXT1fTMGf7TSzj1Dp3m+TJmQDgi3k
+         TF6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788974821; x=1789579621;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=BxkJmMQiuFGLIVhYvP7iekSRoJyyqxrT2LFSLJP0a4Q=;
+        b=HX6IpUUvjmA/6b7J+p34MiVODXL2PYIBcmTSkn5P5JwgqeuGciGJM/HJ8K99gJ1qZw
+         LRZZU9zdIEFJZ4SQSpRBo8gdF5Y/MtgJFeH174MzTLbTJJJ+W2Gl46uxmiyCcX+08NZ6
+         BusD9JWPJn0TRAV4Lnu/LNrUia93SBcpE+rEwDk7RHf+CWtwWkwWvsUi1T3yqAonebpp
+         qXrXXbSIyR2gMgztWrA89H1n/Cs19gaxiNp9caDA3IdmByyRkBhOB2EBT1Sx0Jgg5zFl
+         /80qXAlZkATn4SJEVUClnSrE0934HawIC5Q22ulzuZ+gei8yzMl42zxdFa19VHq8fnMb
+         ZzxQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzNcmaYSOp5tdPTa+5gWBgWkuVND/0pyL7l48g7gaZ+0LBC1dkMf0dNAVY6x/SNiBX4iOPXf5x5g//yxWOUfw==@vger.kernel.org
+X-Gm-Message-State: AFuF++nnGuzm6qfEEfUdJEOLztWQH5Mcvaa3nxMJv4HW/87HH1FiRDpJ
+	3oYzEMvM+XPx/KYtERiO75ACvYTHRiQx9lf/0nsTwT2nQMaBA2LJY7C/
+X-Gm-Gg: AYBFou29ZFqJrIPmgMcEJ2HkWG2H1VanX1kN2wDfR0V7yVhQn3y806FZ1rBaUpAltU5
+	Db4RvcENA0psg68Cm0vqFsTa0TtroyYDoimJ2wEL25dlz232kLtIKuHFkTPRps4H+XJu7JTKfMi
+	QHjl7lLvgyIPq4pRF5eLb0RV5CBw2Tp/eKC1Dq/hYWil+La56oJwoDna0NfdcvL10Kqn8LdVeRv
+	E45fWCQxOHb7YK/TiSVEe4EX94+yhjYmXrlIcYqTTsdh2mYW6TQKTrKfBoXO7xWtyFWWxThjlnl
+	iZMbP0uM583lkAcbmo8H/ACGMf8C9jJA3O+x0hF7JmdprFgo6m4QU6HBlOZiWU/K+wweXeqFFBV
+	jW4eUX+FGlMSn1d9Qve5o5sCChfktyyK110ENfQ2qs9p9/KBA+zc+q7bfmlwy2tqS6/KClA1mfP
+	IhsmExPypDLOzv6QoPhjnFWJYoRzbXV2onD4pdNaArMol5ctAhfiXrK9L4ASKvKu8iOvC5qtYnw
+	gUwmnIcxfoZl3hLB91ksnOHNI9QDT2JQPGvby9vbqJggc86Wrpw
+X-Received: by 2002:a05:6a21:9d84:b0:3d3:af85:eb98 with SMTP id adf61e73a8af0-3da3a16a579mr57975715637.26.1788974820346;
+        Wed, 09 Sep 2026 10:27:00 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:2d43:5153:5c50:643e])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339a534df1sm52422943eec.7.2026.09.09.10.26.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2026 10:26:59 -0700 (PDT)
+Date: Wed, 9 Sep 2026 10:26:55 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Arnd Bergmann <arnd@kernel.org>
 Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, 
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
@@ -49,8 +71,8 @@ Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
 	Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linusw@kernel.org>, 
 	Bartosz Golaszewski <brgl@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@kernel.org>, 
-	Michael Hennerich <michael.hennerich@analog.com>, Support Opensource <support.opensource@diasemi.com>, 
+	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
+	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
 	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, dri-devel@lists.freedesktop.org, 
 	linux-doc@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
 	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, linux-watchdog@vger.kernel.org, 
@@ -58,139 +80,51 @@ Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev,
 	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org, 
 	linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
 	llvm@lists.linux.dev
-Subject: Re: [PATCH 11/14] mfd: remove unused wm8350 driver
-Message-ID: <aqF_aeDd8oTZaiRR@venus>
+Subject: Re: [PATCH 00/14] mfd: unused driver purge
+Message-ID: <aqGWjAuGXq_JHvxk@google.com>
 References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-12-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="6jecggrki5ootgjo"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260909132153.1596191-12-arnd@kernel.org>
-X-Zoho-Virus-Status: 1
-X-Zoho-AV-Stamp: zmail-av-0.2.13.1.5.4/288.959.6
-X-ZohoMailClient: External
+In-Reply-To: <20260909132153.1596191-1-arnd@kernel.org>
 
-
---6jecggrki5ootgjo
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 11/14] mfd: remove unused wm8350 driver
-MIME-Version: 1.0
-
-Hi,
-
-On Wed, Sep 09, 2026 at 03:21:48PM +0200, Arnd Bergmann wrote:
+On Wed, Sep 09, 2026 at 03:21:37PM +0200, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
->=20
-> This driver was used on the i.MX31 ADS reference board from Freescale
-> and the smdk6410 reference board from Samsung. Both used platform_data
-> based driver probing and are now gone from the kernel.
->=20
-> Since probing with devicetree has never been supported by wm8350,
-> it is clear that nothing can use the driver on an upstream kernel,
-> and it is unlikely that anyone is still interested in a devicetree
-> conversion, so remove it.
->=20
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  Documentation/hwmon/index.rst                 |    1 -
->  Documentation/hwmon/wm8350.rst                |   30 -
->  .../watchdog/watchdog-parameters.rst          |    7 -
->  MAINTAINERS                                   |    1 -
->  drivers/gpio/Kconfig                          |    7 -
->  drivers/gpio/Makefile                         |    1 -
->  drivers/gpio/gpio-wm8350.c                    |  144 --
->  drivers/hwmon/Kconfig                         |   10 -
->  drivers/hwmon/Makefile                        |    1 -
->  drivers/hwmon/wm8350-hwmon.c                  |   92 -
->  drivers/leds/Kconfig                          |    8 -
->  drivers/leds/Makefile                         |    1 -
->  drivers/leds/leds-wm8350.c                    |  267 ---
->  drivers/mfd/Kconfig                           |   15 -
->  drivers/mfd/Makefile                          |    4 -
->  drivers/mfd/wm8350-core.c                     |  444 -----
->  drivers/mfd/wm8350-gpio.c                     |  217 ---
->  drivers/mfd/wm8350-i2c.c                      |   64 -
->  drivers/mfd/wm8350-irq.c                      |  542 ------
->  drivers/mfd/wm8350-regmap.c                   |  335 ----
->  drivers/power/supply/Kconfig                  |    7 -
->  drivers/power/supply/Makefile                 |    1 -
->  drivers/power/supply/wm8350_power.c           |  590 ------
->  drivers/regulator/Kconfig                     |    7 -
->  drivers/regulator/Makefile                    |    1 -
->  drivers/regulator/wm8350-regulator.c          | 1330 -------------
->  drivers/rtc/Kconfig                           |   10 -
->  drivers/rtc/Makefile                          |    1 -
->  drivers/rtc/rtc-wm8350.c                      |  474 -----
->  drivers/watchdog/Kconfig                      |    8 -
->  drivers/watchdog/Makefile                     |    1 -
->  drivers/watchdog/wm8350_wdt.c                 |  171 --
->  include/linux/mfd/wm8350/audio.h              |  620 -------
->  include/linux/mfd/wm8350/comparator.h         |  171 --
->  include/linux/mfd/wm8350/core.h               |  692 -------
->  include/linux/mfd/wm8350/gpio.h               |  356 ----
->  include/linux/mfd/wm8350/pmic.h               |  775 --------
->  include/linux/mfd/wm8350/rtc.h                |  265 ---
->  include/linux/mfd/wm8350/supply.h             |  129 --
->  include/linux/mfd/wm8350/wdt.h                |   24 -
->  sound/soc/codecs/Kconfig                      |    5 -
->  sound/soc/codecs/Makefile                     |    2 -
->  sound/soc/codecs/wm8350.c                     | 1638 -----------------
->  sound/soc/codecs/wm8350.h                     |   25 -
->  44 files changed, 9494 deletions(-)
->  delete mode 100644 Documentation/hwmon/wm8350.rst
->  delete mode 100644 drivers/gpio/gpio-wm8350.c
->  delete mode 100644 drivers/hwmon/wm8350-hwmon.c
->  delete mode 100644 drivers/leds/leds-wm8350.c
->  delete mode 100644 drivers/mfd/wm8350-core.c
->  delete mode 100644 drivers/mfd/wm8350-gpio.c
->  delete mode 100644 drivers/mfd/wm8350-i2c.c
->  delete mode 100644 drivers/mfd/wm8350-irq.c
->  delete mode 100644 drivers/mfd/wm8350-regmap.c
->  delete mode 100644 drivers/power/supply/wm8350_power.c
->  delete mode 100644 drivers/regulator/wm8350-regulator.c
->  delete mode 100644 drivers/rtc/rtc-wm8350.c
->  delete mode 100644 drivers/watchdog/wm8350_wdt.c
->  delete mode 100644 include/linux/mfd/wm8350/audio.h
->  delete mode 100644 include/linux/mfd/wm8350/comparator.h
->  delete mode 100644 include/linux/mfd/wm8350/core.h
->  delete mode 100644 include/linux/mfd/wm8350/gpio.h
->  delete mode 100644 include/linux/mfd/wm8350/pmic.h
->  delete mode 100644 include/linux/mfd/wm8350/rtc.h
->  delete mode 100644 include/linux/mfd/wm8350/supply.h
->  delete mode 100644 include/linux/mfd/wm8350/wdt.h
->  delete mode 100644 sound/soc/codecs/wm8350.c
->  delete mode 100644 sound/soc/codecs/wm8350.h
+> 
+> As part of my cleanup of old platforms, I had a look at all drivers that
+> may have become unused because the last platform_data or DT definition
+> was removed, or because of unmet Kconfig dependencies.
+> 
+> These are all the mfd drivers I found. The first ten in the list
+> actually turned out to have been unusable long before my series, and
+> I have added explanations on how I determined this in each patch. The
+> last four patches are still in use in linux-7.3 but become unused after
+> my series [1] that I hope to get merged for 7.4.
+> 
+> Somewhat unorthodox, I took a shortcut here and remove both the mfd drivers
+> and the corresponding subsystem drivers (gpio, hwmon, iio, input, led,
+> media, power, regulator, rtc, video, watchdog, asoc) in a combined patch,
+> to simplify the interdependencies: removing just the mfd driver would
+> leave unselectable or broken drivers in other subsystems.  I also have
+> additional patches for each of the other subsystems, currently a total
+> of 300 patches, many of which still need better testing or proper
+> changelog texts.
+> 
+> Please let me know if you all think this approach is ok, or if I should
+> explode this further and turn these 14 patches into 70 individual ones
+> by splitting them per subsystem.
 
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Sounds good to me, especially if Lee makes an immutable branch from this
+pull so we can all pull it in...
 
--- Sebastian
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
 
---6jecggrki5ootgjo
-Content-Type: application/pgp-signature; name="signature.asc"
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmqhf4gACgkQ2O7X88g7
-+prKqQ/+PXcHDDMXmArFWKzxhSxHAA3VwPIx07accUNhGecv9r7U8GAjiSQlBv5d
-gojcqTyZ5UKCZQ/g6DCGOzwb9lsRDx5njdMXtyZJUq2Z68YBxbCiKa8iGezkGRAp
-e/rO3HJlQdPs8dvggypfYz+HN/YpOMf/hF9JmgvQI4KR1TYt3RLXavSVQBsb/TMk
-7faKB1EKAYYbJQi+b5fc/iSfNIqxl/Rf+g8VEQtxjSmDafmeLGNJhgS+Amd/CF6i
-nKYmkKALE2Xq6riwBqtqbCazqplJsGsSxWK1qmhfDZs53Ws0+VgYi5N86Qard8Oy
-V8+cITjYwZlOVoRIwSs1roLjdGZFn87iPLEmTmGgBcXtjNMPh5uj4x2+vvhVwW+Y
-0K+Gx3s85iJURMTCZUYqPCI+3fhsU4KQ13g4nf3DAiab3GCtlS8FfH1P+RGHJU5n
-4SAZgJ+DIk7nS4CEYeq3EZJacM7/IAMAdjE/IOSkfmY7ZPui71QXNASTru/d0K23
-5HdYwbYghK1kj2Lb33geTv+TP5LXDsmvvWGDnMTlf5mna6YUdyAvMtgEtF0VDtUV
-CUWngQHAxaSKC2DRfTeqP6/vjUww9bj6oDpUicbnz8BrEags3kzaJWKtFqGUs7M9
-n0wbYmjflYmAe/mK+1CsH7p2TuMiqpvc9pc06lXO/85PySPEqNI=
-=bCBv
------END PGP SIGNATURE-----
-
---6jecggrki5ootgjo--
+-- 
+Dmitry
