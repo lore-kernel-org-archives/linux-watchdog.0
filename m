@@ -1,98 +1,100 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F7F0476697
-	for <linux-watchdog@vger.kernel.org>; Wed,  9 Sep 2026 20:48:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532A65908A8;
+	Wed,  9 Sep 2026 20:50:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788986923; cv=none; b=oITcx54Zk5XzJuOzoM9gRnQIcEjz69caxsEs3nmbOF3pD3R7g/2Pjzm6qXcSB+TMeS6g8I/WyBPfdVSwlgnmkxcjcF+BL585Ddp6L6+b9eHCxhHAPhxFHr8iTu/EHwEOTiB+Co/Kj+DPJrnewgA9zu5t5A7UJtnwqDA0wS58G9U=
+	t=1788987033; cv=none; b=Doe4FhwR9GdDTgTB1L2xsMvG3HlOByYeS4oRsCJZNlrsgstXHx53Qsvy3uN6CVVOezs1hvPLr8trt76NqfEw7eOUF0fgFTSUHyFbTMggp+rAIjfnZ6juzyghi6t4tQ6AM6tYg7oJaCRsxoasKt0qoVEqQpO2WNMWXmuZmZhQJBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788986923; c=relaxed/simple;
-	bh=07LNECGhqbxuDE3/ezerltiEZk0Jw6+qcbidkyFvKW0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L2KaKww30roT89/EPz9qD+YxJaeM4RfrShwZfNEbre2RRYD6kCAcEMVhRdg5NjMiiPplYiA1unZYnEVZ49y3bxc8IQsVKhU/qV8d4q1j6uC8moNBpmnWShunZYNbIhcerx+QUGZYHly1vObfYmMcHDmn22/s4SIAtlDWa+P+cK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jlkcEGHV; arc=none smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788987033; c=relaxed/simple;
+	bh=jMty4ajwnELhURTjsE6eNqa3g/f3bJYi9e2DCx52xvk=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=iKW5dtH38wFLgUVc0AQ53oDvo69qbVWHbPwUl+7ooMRxiObOiVB1op/8AsrIu+Xy9cU/Ziauqm6q4KHv004T4+e0PzGlbT9pzgPBMY8ZQkqEuD/3cCRQj5UbjObtJoZQglda6VTrQGjcpYyr+/onGEwgHHX2kB9RCYLcXXlrEac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ARwnGKjO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jlkcEGHV"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d747eb79f7so5325095ad.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 09 Sep 2026 13:48:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788986917; x=1789591717; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=SpjhIh9U8HeFCCBcijCvGjgHO/5RlcEHB0ZHWnx8FeQ=;
-        b=jlkcEGHVB/caDrCDSdXyi0NtNLuwsCF3DMKOcmHHWjcRkbYDBudShlUJ5UnO/BCH7r
-         U/G1woajW5L1pM5bA5NyBt7d1lhwCT0RWOAU0n3EGAH0B2g9FU68i3wb4KuDUrxL47Xb
-         ty7rNECZAdstUK/Dn06xkWBSXAEsBzws3TAGcYjkoOzIpy4S7yro8wXFMga9zu7Fr5Te
-         1iA3gWSSXjmVf9YOOzZ9Mvhzjlpqu7D3KjH096CfaFNYscT+quDYZELXdIp+/FgdLPVL
-         mwhD/dHjzU4cKd7OdZygLS9ytkkUE/88HLGvCMgW3z9KKZ8WWMUp+FGOnXeWkdSdBVd1
-         Aztg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788986917; x=1789591717;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=SpjhIh9U8HeFCCBcijCvGjgHO/5RlcEHB0ZHWnx8FeQ=;
-        b=e3vLD9KGWXD3/m7Yt4CqWKvrS6Z107d/jLMY8PRJ8H+s1+yGMNJsWc+n3ADEX/8mgt
-         7KpydVRU5s8QKPkPVUGiaEvjEV/9Jy4nTyN5ZAROBMbH8v1FwHSeoIpf+yXDETJNqYQm
-         ozIS3wW/KQFnbH0aJc4RNZqLZAJIuaayskxhhYvynir+kvDmXQ2OxsGXh65f/hqKP+U9
-         DjKYp1muLkyNEY/ESNrS9YpOzFO9rqEayOqrE8TsXv66Ejh5o4E5o0hb4Zzf5aGZ4ueQ
-         iQ1ETyPASao80WV8UQeNJ/Rb4D1VOf04ZaO6viE3d4pexrzNyy6oFsngI2lK/vYzzymK
-         yLYw==
-X-Forwarded-Encrypted: i=1; AKwUvByPx2yaK3JJvz6PnhNIjMj922uqhyhI8hHIIu7YmKVsTQNt7SeUFY7GzFzlKYLhhxm8juRLwn0+ttIRi4Rcyg==@vger.kernel.org
-X-Gm-Message-State: AFuF++lFB2dtjiSDkSl64H8sXZo//NHDuwnJqCktCKIzSefplein1zJC
-	jJybfxDRAUzx4A0NF6bLhcIzApl7FZTNy6KCPL3Hcl7dGQyQWP6srwZr
-X-Gm-Gg: AYBFou1Tvoqs9VXYJf4LX6krG2sAqWgeq2/UJAliYJjPg2YmAXMbymKBU4t/D2TCoBs
-	pCou+zUnRi2G9yf0p/CxVHzdUm8Bf9McWC9ZKgIqfX93aFhoDLbEJkrNGjwWTKCwy24m5CcdUsN
-	NncM59Qe11k4Ui18BvEapGuG22djdRguHD4Pc5l0imeDW/lINQ0xW1/7CV96YtkjUulJW4CDpsu
-	qrSUay3N1+fRxk/jN4wNggkqfAShfCuKIwMSuOg0Zw2mDNv2ENMPEpGFo6pAjf2Lk1CtFR1pLBx
-	bfboaQFjnki/d4yJUEiN+qSie9lUKwLJ5VM/OJOlN7ky6EGxpLtMNRUCcpb3LLmWcYGLB9bLcHN
-	cqM0l8zxNymqQihsibVgisEK0yFEao/5cvnP3pnE0oUz0QshFpAC3xL/B1Psc2rsOGvIhWYJGz4
-	z6/E5crXdK89ycOCkS4bLhD/9u3nz86kUnnPCsJwzwKFslYsgyh8YZqomaj8HoAUv6zL3cwtavg
-	rJZ7LIrC/uX
-X-Received: by 2002:a17:90b:1850:b0:38e:bbf1:de3f with SMTP id 98e67ed59e1d1-39d70b4a963mr4682260a91.12.1788986912527;
-        Wed, 09 Sep 2026 13:48:32 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d76997228sm1306299a91.0.2026.09.09.13.48.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 13:48:31 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 9 Sep 2026 13:48:31 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Li Jun <lijun01@kylinos.cn>
-Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sp805: Replace SIMPLE_DEV_PM_OPS with
- DEFINE_SIMPLE_DEV_PM_OPS
-Message-ID: <ff690e3b-a4ec-4787-a3e4-ccfa72a46672@roeck-us.net>
-References: <20260908104905.3388262-1-lijun01@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ARwnGKjO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82AE11F00898;
+	Wed,  9 Sep 2026 20:50:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788987013;
+	bh=sEYSNtkQsHWLYM3PXCQWIlCK3l7SMDlKCMnAzv0/c04=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=ARwnGKjORLXtTsAKnjds5kV2HLoLSp1F5GVJk01ufHJyYn6Ss2PkombhbgqKaciwu
+	 Qu7LI7sHvYMYRNelPEQBPrL0dS3++HTdTHnUnShFfK/Tsc+XjPXtxIAsSYVkBgppnb
+	 4UATeePDQCVCh8/TOJVtuOj3B9r2qz/YgrRLupMJfPIaQnB9xwlo6D2i5C3aNNMDd8
+	 qblDGCs1UeEKyg0PLp4pVlSWQ2Wrh/7CWEjQ2D3ZkvaF7VQ9ASnndyyCuIDAiqNFY3
+	 XsUrLfFZrErIiQ3VMKqeHTXtndU5zQVlK+2zo85LKCrgZFyLQrW7RGbrZUNQdMfseF
+	 ehwDtxPYGeXHQ==
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfauth.ams.internal (Postfix) with ESMTP id C2B03198003A;
+	Wed,  9 Sep 2026 16:50:10 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:50:10 -0400
+X-ME-Sender: <xms:gMahahDNLKkgf41aoJ7QltWnM6RjqnFpLfXsEojPI_9JWYuPk2iNog>
+    <xme:gMahaqWDng7vjgrXuNAJZtouBbnOu9dKHOb_H84YyQJQkj3qP0y8S-vvvD1z-CQ7u
+    tpVSYnCSUxwrq2nqgQjHhARBIoqOZDKM8W--cYdHTAmXZL6hXtrCpuW>
+X-ME-Proxy-Cause: dmFkZTG0uhuAwommTLNbPA5zod+Ry1qWg/m7XlAGS9AdDnt3HTzO0NGzxkWWcRme1Tw0h6
+    2oy+SYxgKztzRfyTjPJiM9vSe+eacDZh4DciJUPEIZV25DTKFUp824VkumpHvRrGOv/0uZ
+    ITnJQHUUoBa9V3Il4KqyRBk26etkkKEVTIsIjSYZfhjUr+jIr27VYJ4CUq9E6v0MqhyHHT
+    Pa0UQQrdGQNuqNG6ZLgVgfay6/rIuK7BT7LhjOY8wUuwIQoryxN6QuDg5BU2J/1X+OK6Ua
+    OrBdMMNlKJPGlQuVV1BHGhlCy9po7rYP0YrFEfYf4v1gpVIY+KoUh0HRsQhWy9Z1NcphWX
+    W8sG8Mtoj6S1OZxYPWVZPKkNHhvIs7VSSqEjX33Rj6p04iZ+bqaVzR/Xcb0c5IeJD0evQr
+    +eBpaz3wbej2T+yt4olZbvQCvZMP88jwwKNZFqZCdJC4uemKpuNXA9uqW0Xh3TyuuzQRMq
+    qmYBwykaCczZAe/Vls5T0E9LtGoPESTCNComwicK60COcZaapRYsW1HNZw0sdFhXKPPK/S
+    5wQD0N+O3DZpgl/p6Gg6ikRyWnFIKINIurficUB19XTpSUuiqo8cL0VbFqagd6oxH6kRLi
+    cm8qR4ZH1F1Y3jJ+GxSwPhDHaQvfeIom0Om/ZrEbgHhWGxbgAzdfgFyt0zqg
+X-ME-Proxy: <xmx:gsahagC8DuynwTStL5ScvWsLHE4Pod8CYU1jOS5DnTK-BttUxCdX9w>
+    <xmx:gsahau3Vr7wX7MCFw_jYXNrh6a-x0a8e6SQ0Zmt9VHhZY4VyWakx8g>
+    <xmx:gsahalOmgsfnZ8TiK2vbZqQHgFzdb5bOjWnkh5RJ2MWqpmVwb-td2Q>
+    <xmx:gsahaj4i2OtfLp4fLGOgmxvOaUJeQPp0JAqE7M3ADtmx_KbHPQpJaA>
+    <xmx:gsahaqbk07EfSSONzdTia82tGwneMbOHRyPdPWn7pCFmJT79vSYE6br9>
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 81AA132A007B; Wed,  9 Sep 2026 16:50:08 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260908104905.3388262-1-lijun01@kylinos.cn>
+X-ThreadId: Arw8dbDHChV7
+Date: Wed, 09 Sep 2026 22:49:48 +0200
+From: "Arnd Bergmann" <arnd@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: mfd@lists.linux.dev, "Lee Jones" <lee@kernel.org>,
+ linux-rtc@vger.kernel.org,
+ "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ linux-input@vger.kernel.org, media-ci@linuxtv.org,
+ "Conor Dooley" <conor+dt@kernel.org>, linux-hwmon@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ "Rob Herring" <robh@kernel.org>, linux-leds@vger.kernel.org,
+ dri-devel@lists.freedesktop.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Message-Id: <9cd2bbe1-6e0a-4387-b082-5ea4d70c7379@app.fastmail.com>
+In-Reply-To: <20260909133929.AB9A01F00A3D@smtp.kernel.org>
+References: <20260909132153.1596191-1-arnd@kernel.org>
+ <20260909132153.1596191-11-arnd@kernel.org>
+ <20260909133929.AB9A01F00A3D@smtp.kernel.org>
+Subject: Re: [PATCH 10/14] mfd: remove unused rc5t583 driver
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Tue, Sep 08, 2026 at 06:49:05PM +0800, Li Jun wrote:
-> Replace the deprecated SIMPLE_DEV_PM_OPS with DEFINE_SIMPLE_DEV_PM_OPS.
-> This also drops the __maybe_unused annotations on the suspend/resume
-> callbacks, since pm_sleep_ptr() inside the new macro already handles
-> the case where CONFIG_PM_SLEEP is disabled.
-> 
-> Additionally, wrap the &sp805_wdt_dev_pm_ops assignment with
-> pm_sleep_ptr() so the entire dev_pm_ops structure is dropped when
-> CONFIG_PM_SLEEP is disabled, instead of leaving it as a dead struct
-> with NULL callbacks.
-> 
-> Signed-off-by: Li Jun <lijun01@kylinos.cn>
+On Wed, Sep 9, 2026, at 15:39, sashiko-bot@kernel.org wrote:
 
-Applied.
+> [Severity: Low]
+> Does this removal break Kconfig consistency and leave dead code in the tree?
+>
+> The config GPIO_RC5T583 in drivers/gpio/Kconfig still depends on MFD_RC5T583,
+> which violates Kconfig rules since the target dependency is now missing.
+>
+> Additionally, drivers/gpio/gpio-rc5t583.c is left in the tree and still includes
+> the deleted <linux/mfd/rc5t583.h> header, making it unbuildable, and its entry
+> is still present in drivers/gpio/Makefile.
+>
+> Should the GPIO driver be removed in this patch as well?
 
-Thanks,
-Guenter
+Right, I had this as a separate patch but folded that in here now.
+
+      Arnd
