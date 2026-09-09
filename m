@@ -1,78 +1,78 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BD4E3C4565
-	for <linux-watchdog@vger.kernel.org>; Wed,  9 Sep 2026 21:10:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1725F3ACEE0
+	for <linux-watchdog@vger.kernel.org>; Wed,  9 Sep 2026 21:14:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788988253; cv=none; b=ie0KtBZAj5T6vyG5VwcZEwKIqNZ/wGYjdkxHPbZWroImyiO9XasWuOZJFoXDeITV3VRY4o/TnaIQjzD5IAzCB3QWvE303rJQRgtkuHR22KFLnSCb2khONSwT9QSC3NvCR73m1ifAS74hMJGHc0+7RJfiaRhrIREhpQc+XJxjy/g=
+	t=1788988492; cv=none; b=rcV3g9PmZH/cpYZ40RORV8WxMvxkAJx/1qnqQiD9KPhuAeJyIBFwLnIvCgkTycwSBGJkkomLC3dVqQh2WTtFglEt8DwJ94SHOTz7V1cc+QT68LAni5gw30Qcud6cPLUV076MX/5FoRRkMPja8fUNwKGt9E7V7lsM6bogTmJpu0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788988253; c=relaxed/simple;
-	bh=Spjf6xqG2qfvbwK7Zr0ktdFO4xP0s4DHcL0CPQWQr/4=;
+	s=arc-20240116; t=1788988492; c=relaxed/simple;
+	bh=MnEDALe6uwOaXe/sMQyhmeqQexZ0FL6u6wwzWWIRwuQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M+12pqwAAjJXqoz4Tw2u0tOdfA3n1ciQ6R3vo82ETCe9AQYeRzikUkhmjjZbqF3BVSwMBDBMqxUNlxvldiPF7QHPmHBypMDUTICI+Qt5tZ1BEGNa37OmQdzwmWSfwCFb950RMJG0CEr56lvcSAbkMJjzBs8lHBmLssK3s51Lu20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QIJvOVNV; arc=none smtp.client-ip=74.125.227.140
+	 Content-Type:Content-Disposition:In-Reply-To; b=a7aWLQHgnorjvZxSvBtObhnadOASicUOHlCd4+C/HPhFGYHQ+rpzQnEk78GwvY8EHSxmuaGHWcM8Z8w0yuJVtdHjFoVqwMi5lbFIBx5OwLRSnWdN2ib45ADfYQUJz7n5Jj8+06oQ6UjaWKu5yf+MpBKsUGzO4ruSiZhHFIXMMNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qnw1bVAa; arc=none smtp.client-ip=209.85.215.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QIJvOVNV"
-Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccd78e6eso941879a91.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 09 Sep 2026 14:10:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qnw1bVAa"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-cc4aa0220f2so554388a12.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 09 Sep 2026 14:14:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788988252; x=1789593052; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788988483; x=1789593283; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=5s6tbDh0gZouWp+8QV/C1Mblvi6uIzTsyYuZmljZJMs=;
-        b=QIJvOVNV7sCE1YvcXsfGWKrtq8mUptt3Ppm9xsJzHcP1oR267eOn2BlpvWvmPUwWfY
-         NwUehrTA1YFFE6u7n8zSjaPs6jX0M3OzVoCzsX/fmQSeNlrYbnP7AZnVX+vGumc2JoTc
-         dEjWR41DLJqY/EuVCsdiNKPQZQlnSbLoii8NMBzoJuVOFOo5V8BpTiHNOUVJJeJLhgQo
-         49dnjMvZdH9P3YnUdOcVhFAVabJGAsAa4nt7Om6sIlu0108NBH/jKboNO2EJvUbub1zt
-         CbkNffXlTDWP1YkdvlMqwjLIKdcTcuHt3n+aqiYSO1YkVBxOOGd0arWKRiASUZEmt36D
-         oxYg==
+        bh=yxgxA+Z3MXKBfp6ZxROey+7ykV72GFbg4Bcj0PBfYIk=;
+        b=qnw1bVAaD2BRxJaur85L8eho8U1QSX2kgzNHSlYg+1wsNIElEhl5x1euBbrIwOgeUM
+         N7Fuo3ZoEF8f4KA0bo2rsjLGBDCxx/ftiamvGvuivwuoZ0G4jcCqMeOFvLmy514Q852x
+         LEOR7nWm8LTKHeq9rBiUX8Mkdjgk3Xfac3ln4e80+s+kd2l/YIZHK16EMJnrUu5NVLhq
+         d2W1qttEzEqD2dbRxPkbwmbsXMBoQRr4UvsUrWbUZURbcTN46in4RklMyObnh+/Vi5JF
+         tKeQVBAr7Em3ewzMMLEORMSylKKd6IN/bsJtSCxYsj6E4DuhpbVkq3ZZkqqlVyQA5nhU
+         m7/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788988252; x=1789593052;
+        d=1e100.net; s=20251104; t=1788988483; x=1789593283;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=5s6tbDh0gZouWp+8QV/C1Mblvi6uIzTsyYuZmljZJMs=;
-        b=ouALWBX6NXLDCve/ch23LdZ+DrhpnA4L9yl0SWa708Bc/+TUjMwxA3k3k6ZJgSoJ73
-         K/E+yTIv7egGMJuk1H4sWW0NYQowBHJy8JKZgYxz4AkjZ41VXoQMVcAEb4oeLj3/7br7
-         6Wu1gtDoowpNu3llu83YbcspVLK0rrRE3usYP0MrQkWhfIqSODFMgeLEsWwZI3y0TWZ/
-         oC7r+zNhWBY0YrZvKLIxXGtouu9WqssI5YeQUTfyG71Pp+ZX4XM+K6gFqnD7px3N6jZH
-         CaJdRQAAdappPngqKFetMkVY9Y5DbKxT+d6CcVCqYjA1La5HEbh9SdJJRy5z1XVNNYGS
-         JAYw==
-X-Forwarded-Encrypted: i=1; AKwUvBxZ0qRf+8vJm7kRdLr9GQE4gKG35L73aQyu1T69Q81rsAnetFwCIjFONd8i1azxz14QTL8ObRxClyqmdj8mWA==@vger.kernel.org
-X-Gm-Message-State: AFuF++koAmoGH0ajouq/nvWhpVcg1a+8X9j/zzhulsPYMODO72loyvHf
-	fvwLjsjcfBaXfcMGhhGInRMZGPfMXi6odi/80rj623sAXdFAieVetB9r8hlkiQ==
-X-Gm-Gg: AYBFou2wda3iXwU9dIqe6nr3Eiyb6/J8WQttjcVnoEinoljAfJ3QFx7uibQQ/Xzg1zp
-	9a7cU6I6eH1pBVCnrueIduF+AUGDpBwoSRhe1rSDR7jxggwmh4oZimyvFnybs7UX/lYM/9l/Koi
-	aXZ24VQdn1sHzRCxhgBruEJm/yMQM4MuYKDfynqi8mW+v2V6XQ22itVsDJh3jl8DBVvGmJA3Q/u
-	Qf+xujyj95zxSsvSypBZE2To7T81LM+jFCOq72KbR3O1rQB43LDUtarjV2++u76Wwi7Y0H9w87X
-	a+Y0D9WZigPQib7Hn7bQcfK4G1OxlQw3+9+ZdX27HQdJ2MYmK4i2xQBGRwwLkx81L+9x/zZSpls
-	Z9ijPHKSwz4wC7MQwTvhhboLfuF/J99vBeqm9cI8TZNhObKQTESJzq8mJNECa5vCDc0JUdRU4bh
-	lv555JVUmIfwS70Lkn1sNjMb08YCJ33t6EsDRiXRMu70MDUF0fBDTXXJnzWcGcOV6jqPi8VNgEQ
-	9uUUmqbZc7r
-X-Received: by 2002:a17:90b:58d0:b0:39b:5622:d645 with SMTP id 98e67ed59e1d1-39d7743f69bmr933364a91.0.1788988251631;
-        Wed, 09 Sep 2026 14:10:51 -0700 (PDT)
+        bh=yxgxA+Z3MXKBfp6ZxROey+7ykV72GFbg4Bcj0PBfYIk=;
+        b=d9SNdswqVIMjG00e8+xMlUv64aSK3JA3QvWtRzI+ltGPvjV6H8Dds5RVGTU6yx7a9B
+         18419cRqloc7eKAbkS5jqJnUF/y9MnOFOwsafTslOOtbUBmJvdNg7VZFaWf2xuqwK3Xt
+         jYBiM5jq9ovRZmSQXybB7NN3xELMDTiAnE7IXaRDHIRbUYfKG001SGCXAipxtvjPYAzL
+         ZajJN0GZ0jqjkdHUGOkRGNzRzRMTRJ4B5E4SrWh+ccELBeyNQLtu1fi7OEUUwg1aqUyj
+         PrTOH1n86zN/Gs6ghWzaj7TXBMJdmnKZF3gAa8JNBRJfeV/3PkVRWEDU169imemp4csN
+         6EnA==
+X-Forwarded-Encrypted: i=1; AKwUvBxDmFjOURkxrKHuo9OQBTbag8TX1QTF22azdC2am0rMuKpPjDy7NxwenWcLYq86rnSFc/BYehI9P3kQYUDMHg==@vger.kernel.org
+X-Gm-Message-State: AFuF++laEhAu8ShJBqycrlZEflK5bZirTsMLMqN39Oe71Pz6mtMsZU5k
+	6G889cVPqaxCd+AB+JmSWrfejs/nvBb3WLugM1TMiTzc/CI3ypX7nvtQ8NGvrQ==
+X-Gm-Gg: AYBFou1bPzckf/0JOn6m+5iPQUKf8T6EooryL/ylEw75w8V9ZeyMWCb+Tiw8Sr0Z9QK
+	LuGlb1x0MDyR9F9dhzXRdPSfQfrOdHBQ7XkMAxp04+8pzCFIRnnHcSs3PNHW7nPLtJKQjqSi4hu
+	MaXEC7yZ4RyuZaJYS0R1AOlqaWoigDB+FhNaHKEzHKc7soxfUDHffKKg55RP6L5EfkYjXh+nTMk
+	UfJYzKU2xLnx2msd3bJNDMGNUE5gClxXRyXaVzPbAv8rnQ5qaixKDu59SRTeQAGu+ILKmiESXfj
+	NsazBg8kCzTtKCgFpLUJy1kZaQEfHElNvIShhUYNAlNN2hsg3GEsrfy0be6B1oe6qQ4Wi1EFA3b
+	SHMiZAEq2yIdNqg5U1+uPnGNsLXtx64OkQsmYm5Gh4WM1I+bxWwnGmgNYOyub39wa2qBpQw6CQK
+	PUNqjl/K3J/TvncHjLMF+QnyJQDLhQVR2MyM4bWead13sBeZ9gSQvDlZByY5k0sMMtY29nOXn7e
+	dUo2JFRfkg7EZ2i8E9v8Ic=
+X-Received: by 2002:a17:90b:4c86:b0:395:5f43:4ec4 with SMTP id 98e67ed59e1d1-39b25f78ab8mr52972022a91.0.1788988483245;
+        Wed, 09 Sep 2026 14:14:43 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d77122566sm1331358a91.9.2026.09.09.14.10.50
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d770e39c1sm1379938a91.6.2026.09.09.14.14.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 14:10:51 -0700 (PDT)
+        Wed, 09 Sep 2026 14:14:42 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 9 Sep 2026 14:10:50 -0700
+Date: Wed, 9 Sep 2026 14:14:41 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Tzung-Bi Shih <tzungbi@kernel.org>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Daniel Palmer <daniel@thingy.jp>,
 	Romain Perier <romain.perier@gmail.com>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/9] watchdog: msc313e: Fix clock leak and spurious
- timer in settimeout()
-Message-ID: <23a329d0-f183-4efd-af9a-fde95a946403@roeck-us.net>
+Subject: Re: [PATCH v2 4/9] watchdog: msc313e: Enable clock before accessing
+ hardware registers
+Message-ID: <d9e501d3-53fb-4ec0-b63a-8f86566fd838@roeck-us.net>
 References: <20260828161348.13212-1-tzungbi@kernel.org>
- <20260828161348.13212-4-tzungbi@kernel.org>
+ <20260828161348.13212-5-tzungbi@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -81,90 +81,91 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260828161348.13212-4-tzungbi@kernel.org>
+In-Reply-To: <20260828161348.13212-5-tzungbi@kernel.org>
 
-On Sat, Aug 29, 2026 at 12:13:42AM +0800, Tzung-Bi Shih wrote:
-> msc313e_wdt_settimeout() unconditionally calls msc313e_wdt_start() which
-> introduces two severe bugs:
+On Sat, Aug 29, 2026 at 12:13:43AM +0800, Tzung-Bi Shih wrote:
+> msc313e_wdt_probe() reads from hardware registers without ensuring the
+> required clock is enabled.  Furthermore, if the bootloader leaves the
+> watchdog running, msc313e_wdt_probe() sets WDOG_HW_RUNNING without
+> increasing the clock's reference count.
 > 
-> 1. If the watchdog is already active, calling start() again will
->    increase the reference count of the clock again.  However stop() is
->    only called once, the reference count is unbalance.
-> 2. If the watchdog is stopped, calling settimeout() will start
->    the hardware timer accidentally.
+> While the clock is currently supplied as a fixed clock by the device
+> tree (`xtal_div2` in arch/arm/boot/dts/sigmastar/mstar-v7.dtsi) which
+> masks the physical issue, this still violates the API usage.
 > 
-> Factor out the register-writing logic into a helper function.  Only call
-> it in settimeout() if the watchdog is running.  Otherwise, simply update
-> `wdev->timeout`.
+> Call clk_prepare_enable() before reading WDT registers.  If the WDT is
+> running, leave the clock enabled so the CCF reference counter is
+> balanced.
 > 
-> Fixes: e9800b799464 ("watchdog: Add Mstar MSC313e WDT driver")
+> Fixes: ffd264bd152c ("watchdog: msc313e: Check if the WDT was running at boot")
 > Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 
-Applied. Comment below, though.
+Applied.
+
+Comment below.
+
+> ---
+> v2:
+> - Fix a clock leak issue in the error handling path (Sashiko reported).
+> 
+> v1: https://lore.kernel.org/all/20260827044700.554333-3-tzungbi@kernel.org
+> ---
+>  drivers/watchdog/msc313e_wdt.c | 23 +++++++++++++++++++++--
+>  1 file changed, 21 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wdt.c
+> index 8ce24df8e338..7c4593566781 100644
+> --- a/drivers/watchdog/msc313e_wdt.c
+> +++ b/drivers/watchdog/msc313e_wdt.c
+> @@ -108,6 +108,7 @@ static int msc313e_wdt_probe(struct platform_device *pdev)
+>  	struct device *dev = &pdev->dev;
+>  	struct msc313e_wdt_priv *priv;
+>  	unsigned long rate;
+> +	int ret;
+>  
+>  	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>  	if (!priv)
+> @@ -133,9 +134,21 @@ static int msc313e_wdt_probe(struct platform_device *pdev)
+>  	priv->wdev.max_timeout = U32_MAX / rate;
+>  	priv->wdev.timeout = MSC313E_WDT_DEFAULT_TIMEOUT;
+>  
+> +	ret = clk_prepare_enable(priv->clk);
+> +	if (ret)
+> +		return ret;
+> +
+>  	/* If the period is non-zero the WDT is running */
+> -	if (readw(priv->base + REG_WDT_MAX_PRD_L) | (readw(priv->base + REG_WDT_MAX_PRD_H) << 16))
+> +	if (readw(priv->base + REG_WDT_MAX_PRD_L) | (readw(priv->base + REG_WDT_MAX_PRD_H) << 16)) {
+>  		set_bit(WDOG_HW_RUNNING, &priv->wdev.status);
+> +		/*
+> +		 * Keep the clock enabled. The watchdog core will skip the next
+> +		 * start() and a future stop() will balance the CCF reference
+> +		 * count.
+> +		 */
+> +	} else {
+> +		clk_disable_unprepare(priv->clk);
+> +	}
+>  
+>  	watchdog_set_drvdata(&priv->wdev, priv);
+>  	platform_set_drvdata(pdev, priv);
+> @@ -144,7 +157,13 @@ static int msc313e_wdt_probe(struct platform_device *pdev)
+>  	watchdog_stop_on_reboot(&priv->wdev);
+>  	watchdog_stop_on_unregister(&priv->wdev);
+>  
+> -	return devm_watchdog_register_device(dev, &priv->wdev);
+> +	ret = devm_watchdog_register_device(dev, &priv->wdev);
+> +
+> +	/* If the WDT is running and anything goes wrong, disable the clock. */
+> +	if (ret && test_bit(WDOG_HW_RUNNING, &priv->wdev.status))
+> +		clk_disable_unprepare(priv->clk);
+
+Curious. Does this mean that Sashiko complains either way ?
 
 Thanks,
 Guenter
 
-> ---
-> v2:
-> - New to the series.
-> ---
->  drivers/watchdog/msc313e_wdt.c | 22 ++++++++++++++++------
->  1 file changed, 16 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wdt.c
-> index c3018b970164..8ce24df8e338 100644
-> --- a/drivers/watchdog/msc313e_wdt.c
-> +++ b/drivers/watchdog/msc313e_wdt.c
-> @@ -31,20 +31,26 @@ struct msc313e_wdt_priv {
->  	struct clk *clk;
->  };
->  
-> +static void msc313e_wdt_set_hw_timeout(struct msc313e_wdt_priv *priv,
-> +				       unsigned int timeout)
-> +{
-> +	u32 t = timeout * clk_get_rate(priv->clk);
 > +
-> +	writew(t & 0xffff, priv->base + REG_WDT_MAX_PRD_L);
-> +	writew((t >> 16) & 0xffff, priv->base + REG_WDT_MAX_PRD_H);
-> +	writew(1, priv->base + REG_WDT_CLR);
-
-I wonder if the write to REG_WDT_CLR can come first, to fix the
-problem outlined by Sashiko in one of the subsequent patches.
-
-
-> +}
-> +
->  static int msc313e_wdt_start(struct watchdog_device *wdev)
->  {
->  	struct msc313e_wdt_priv *priv = watchdog_get_drvdata(wdev);
-> -	u32 timeout;
->  	int err;
->  
->  	err = clk_prepare_enable(priv->clk);
->  	if (err)
->  		return err;
->  
-> -	timeout = wdev->timeout * clk_get_rate(priv->clk);
-> -	writew(timeout & 0xffff, priv->base + REG_WDT_MAX_PRD_L);
-> -	writew((timeout >> 16) & 0xffff, priv->base + REG_WDT_MAX_PRD_H);
-> -	writew(1, priv->base + REG_WDT_CLR);
-> +	msc313e_wdt_set_hw_timeout(priv, wdev->timeout);
->  	return 0;
+> +	return ret;
 >  }
 >  
-> @@ -69,9 +75,13 @@ static int msc313e_wdt_stop(struct watchdog_device *wdev)
->  
->  static int msc313e_wdt_settimeout(struct watchdog_device *wdev, unsigned int new_time)
->  {
-> +	struct msc313e_wdt_priv *priv = watchdog_get_drvdata(wdev);
-> +
->  	wdev->timeout = new_time;
->  
-> -	return msc313e_wdt_start(wdev);
-> +	if (watchdog_hw_running(wdev) || watchdog_active(wdev))
-> +		msc313e_wdt_set_hw_timeout(priv, wdev->timeout);
-> +	return 0;
->  }
->  
->  static const struct watchdog_info msc313e_wdt_ident = {
+>  static int __maybe_unused msc313e_wdt_suspend(struct device *dev)
