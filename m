@@ -1,57 +1,57 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AA913C5DA6;
-	Wed,  9 Sep 2026 20:22:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B8F3B7742;
+	Wed,  9 Sep 2026 20:28:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788985336; cv=none; b=US7Yb9MHwPTC796EEQ6OdUAA3Sn6W2qnxqKODRmDcF+kS9tndQ0uc48HmRgmv3mdPMheuoQ9BtXKrEh9flhFlmIdLD+s7KfjSioAxYZS63DPEU7vjTbBH13xYSgFHc522VeE1fe4RxtEVdZWY33Pmqi2WPgqjvtFRtu+NCPx4kY=
+	t=1788985728; cv=none; b=Bpv0xUCwiI+eCFj8l3/rjPqL6W588906nVJO5x1QbRhR2yEJhZs1mZSA8RRBgwgBY5MW3OpSUlgChhLSVEDrm4CApwkmRg5hfqE9IbDSP8FpfJOEvPD/1vvMHHmf4ztJrQQrFMEEVSSvJjvlMjlEihYnUreUSDzoC1QIFsLKVSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788985336; c=relaxed/simple;
-	bh=5MFsnNsghcZNkKF6FTeNb1hgCDrTiB1FUTpRFYAZwno=;
+	s=arc-20240116; t=1788985728; c=relaxed/simple;
+	bh=QISU5wQMrvMhMtMCIZ/TuxNbQ2q9R16Gc79aX5NAMQM=;
 	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=Kcnw0ETxB/1dLlSISYnGEIHav2EKC/dVJlYrWqpRUA2Kcd7RIQyHLkbk7JIDTY6NlWA1mK5PuBpBSp1NFp5UAa10MXU0Y07u7M4cIYMXHUi6xJUuc8PKiqsaAJj8cxnMiQVnm7SeiZbK7V1ug36PbVH3KlJT+QoSeb+frsN4C0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z6yQDY07; arc=none smtp.client-ip=100.103.45.18
+	 Subject:Content-Type; b=NSUHhL1W2ykJBwOKt1tCk178OhJtH4tHjelFNiFo2cX5s1mdNepgRA5J3D6FZULflzWlif3YK4+9FdW43YVl4UulCA7empWLNGRG0eoFoVF42SOPorCDmGwvrXe/OCBbBAI1hPhzpmzpmsD1vwdzWhXHKiz5aUud2Q76Q7clLsM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fols19Bh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z6yQDY07"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AABC71F00893;
-	Wed,  9 Sep 2026 20:22:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fols19Bh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED5A61F00893;
+	Wed,  9 Sep 2026 20:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788985328;
-	bh=f/vJPlc8T6fJJB4nW5dL7YWbom6WiGDZ7/U7PJNU6os=;
+	s=k20260515; t=1788985722;
+	bh=I+kxnJhecEnYspOixEfBiX1GOqSVXXYgliBU2I5h0UY=;
 	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=Z6yQDY07n9vEwnxKgqEkA9aaWxrEXnMW6mowwzxEtFO5nukDdKwGHmLUT93jWvuTk
-	 qp6kvaMWMHznazv9n9Ze/UAX6rMEMsCxXtliQ+BfM/J7hZGFAQjyMmAhWqaoYxYxaR
-	 6VgViAzgzuQo9lI8giFGHudbmm5LmXbbnzEJzUKfVKvM2F8FpPr+iN13t4220OYn6i
-	 nbtLjIxcCd3zreHP8jFc5IWmEFm0JeIPxAm+AhVCCNyIEA2qABDwhOkUP6jxkzDMr0
-	 7pcrFj7lefn6OO42HY7DlHtQEOMKM4YAOBOyyIcSEQqC7oCqGsclodGWGQM+FBL2GP
-	 kBS+PrqYhlaYA==
+	b=fols19BhcnoVFViG7MRlm/xSNYoyZW1iUzGGvPPwTBEPkTAoSSDv4SWvZA/wSMuOs
+	 Rn8a48x7FXHOzBkJUYC46B3E1dvcqiJK/P9wBxeIhQCIW9t0X7K1PXod5IYEUfWzSw
+	 gho00p+xVU1Jm7hG3YI2JldJRvJRKAkPkRN1KAW0GYHY/NIxCK/05NP144A3mZo40G
+	 o3hC2yk39TenVB/UXIk/z9zlM7TDYIfLYecA1pUabso6O/1ELgcN8uFp/k7+jR/E57
+	 IQAZ/nu5Zm9g5G7fwYP+aPOXeQSEe+LsE7GQUAcT9oDvXt1Af7Aa+RKcY7AS2z89Z6
+	 sXWah7Cm11ssg==
 Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 1B2F1198003A;
-	Wed,  9 Sep 2026 16:22:05 -0400 (EDT)
+	by mailfauth.ams.internal (Postfix) with ESMTP id 59E75198003A;
+	Wed,  9 Sep 2026 16:28:39 -0400 (EDT)
 Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:22:05 -0400
-X-ME-Sender: <xms:6r-handXz_o_C5DukWnEOfr4NLQn7c61KNre1FdUV0-TlZfBGhG9lg>
-    <xme:6r-haoD7H8K6PlEE6wyLuwHbjFmQRgdO0R46IZOUCp-UUXMp3R6i54OrAxl_lriYU
-    nbdfiLWg8PbYTmaQkiy9miT2q5r227w8ICANPKka4bFXNziY8boCOU>
-X-ME-Proxy-Cause: dmFkZTGOPtYz0YGef1KbspNp4wTPdGdk1T/H9qyyC2M/T06oJAVCV4BqA2OF/poQX871Yt
-    rk5p+hkaLTG4dMeFglwUkLNSxt+mUz9o0Ng0nlkD8CaDrF03PFrN572A1KJi6IpaQ3K5Cc
-    kJ0QAMtHkUz73asFAT0vYmeWZI2AMRi+55uTCOzPNIbdUShXXNPe4zAwxvl2Hiw7KHTC7u
-    vtBXDEs+zLHFPqZcnLz5Poo7kKx8eGHXSq0NkOHrzIbr6S4NbNMRIReJL5e4gCF9DM8OMC
-    CuTPI4Kc8oiHl9F/Aklk2oddw6LJOSIz0J5VUwKZSs97CZQi/t5ENn2m6o/PCUdSEHvxtz
-    b7KyWErK9fVop7OSL4coHmMjTr74TaqnqmYzGPdYEFfxDsZUbp/IR3O2OG3Y8+sXufCn3y
-    qfxMEZOLhvcmGBegrfv7nuTItkaVdX66Knrypo7JQMGtRu52GQqSeRlfpV94wEKTBY3KNd
-    xMeHtPdnwe58UkfH08GxhAlK6wo3jcPQlYGROQ0tRIx8KS7yLfeI9jOT6zeUUSK2D3Tysb
-    ujIyyY5iJjmRIBU+G0/rqFUmu2bg/gBZG0QwYkQQHaPKxB4RllUroB6kWU+MMdInTGIRbN
-    DLpdo2cCfbeQNA1vDTWyYRuKEtShuQ+Xt16kOmEyxXfDdv/0zAARwxXguaFw
-X-ME-Proxy: <xmx:7b-hao98DweUafzIKUW1PqUMQJbMtYex6kRnS13CmfzvX6-bBx0wuQ>
-    <xmx:7b-hatBM1m69H0ALdWWObIttuSMLllpPTiPC18GS4B8qhD_QamccWw>
-    <xmx:7b-havo296ND2cVaHy9kOISLZieXsWZW_5kNv1o9iRXIT_Dtt9hx_g>
-    <xmx:7b-halnDY6-h-CEgypR5Y3zZ6iS1CZqy2MQRzxMVsJFkLs6rvQsLKA>
-    <xmx:7b-haiW_6VXvtdc_Xg46AkkjNR10hmYi6kiNEVBYFEmgGPZsy8vCJQ0R>
+  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:28:39 -0400
+X-ME-Sender: <xms:dMGhakZrAgTBnlBqFftocUXviR0J2l7Sre8N_hkU3bm99NdIDpI_vQ>
+    <xme:dMGhaqNkf1UVpBqqwwAIKZGe6ZLR5887KxkWzxjdQYI3lCGrl43WgdmPSAAxnQHsP
+    Uox-U9EzoXttS4S5-47rSz-rZ2uAoCXuXOQors4CntR1dH4NInHP8jwKQ>
+X-ME-Proxy-Cause: dmFkZTE8Kd/+IGN7zwsPgDLBZ7Pw2HSIlU3e1eyy66uQrsX01THEP44sRyzEQVpoW8v+S7
+    UUKed+8n4cu4eeFtESaBbopZLJ6LrBTdCRAync7iQXnwkzKgdYbtZFutVSF81TSkj5oLHm
+    r580h0FhuAildnT6ONm+KzGew4F0SEbuCQV4nqvUhYlCrVwT9UfknvcS497JIK7cA13NaY
+    9Ud5IRKSG/vIwSogDRhoQkRzAa3SDHKuqOM0bM1KH7FXh9QDZUTCQwPNYTXC9RwyKnmJDH
+    V7+T/rFge4J+gL6ogMK86+6wii7xZ1h6OLfZj9KgnGZLdocmKJaNmoyXFpo/+mxxaiEdkT
+    jlWHsCaLqv1TGspZZq12xA8euHVb7zvVRyb2MXaU3xRe5DtA//BGIKLrgLh+dmhrsOl0Zr
+    LhWH2PfvgXrEg28p9yDwL50pLFysJbkseor7mYCo6kqWkSeWAqQTWUlbSkBwY2s5Tn9yji
+    zYbo1j/RT1XLUpGjwAmSZuYwovSpvRBA32oYRPXhVGksgdotjvcV8f5mqReuuUuAW9l67w
+    /etZ6hRhJ7BppXSfmCE1NW0Z51mYf/ZYPGj3MzO3OLBodhCqoMiydyYfetnuz+QZbRmWXG
+    6DUPUYvLLxpKQYFcX8kN926mmi5lo/AquurTUISnXbXY9XE75EuEaMhb2KlQ
+X-ME-Proxy: <xmx:d8Ghas_AlNDs4o4m4hmLeopgBHxFnbofTtd53FIHx00SNOdAX09wmA>
+    <xmx:d8GhatetjFIRC8dRHihv3Rdu5cMWoC3ft1F1tCAIAUNioBHRZa6oIw>
+    <xmx:d8GhagtO6IjNdv5Jht6BhK6wRORMmcDzfx-4GiJr1UkH7c_qnHCeLw>
+    <xmx:d8Ghau2zRd_Qf-XFQel1Ar1hzUadP-wn0PBMyD9aurfsjithUavzxA>
+    <xmx:d8GhalBJh7CQ2Q4n7PDcU-vbkiGbQPaVyavFhkAYmhgNTQLesx-lqTph>
 Feedback-ID: i36794607:Fastmail
 Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 7CDA632A007B; Wed,  9 Sep 2026 16:22:02 -0400 (EDT)
+	id CB1DB32A007B; Wed,  9 Sep 2026 16:28:36 -0400 (EDT)
 X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -59,48 +59,51 @@ List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AmJ_Nx877FLk
-Date: Wed, 09 Sep 2026 22:21:19 +0200
+X-ThreadId: A6VsXwS0CIh3
+Date: Wed, 09 Sep 2026 22:28:16 +0200
 From: "Arnd Bergmann" <arnd@kernel.org>
 To: sashiko-reviews@lists.linux.dev
-Cc: mfd@lists.linux.dev, linux-hwmon@vger.kernel.org, media-ci@linuxtv.org,
- "Rob Herring" <robh@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
- linux-leds@vger.kernel.org,
+Cc: linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org,
+ media-ci@linuxtv.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, "Rob Herring" <robh@kernel.org>,
+ linux-input@vger.kernel.org,
  "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- devicetree@vger.kernel.org, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- dri-devel@lists.freedesktop.org, linux-watchdog@vger.kernel.org,
- linux-rtc@vger.kernel.org, linux-input@vger.kernel.org,
- "Lee Jones" <lee@kernel.org>
-Message-Id: <ef6f3053-3455-449e-9e25-f35ebef63598@app.fastmail.com>
-In-Reply-To: <20260909133709.139231F00A3A@smtp.kernel.org>
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org,
+ "Conor Dooley" <conor+dt@kernel.org>,
+ "Florian Fainelli" <florian@openwrt.org>, "Lee Jones" <lee@kernel.org>
+Message-Id: <098645b4-afea-47db-9c43-ecd5ef61c68a@app.fastmail.com>
+In-Reply-To: <20260909133956.E4DD51F00A3D@smtp.kernel.org>
 References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-6-arnd@kernel.org>
- <20260909133709.139231F00A3A@smtp.kernel.org>
-Subject: Re: [PATCH 05/14] mfd: remove unused adp5520 driver
+ <20260909132153.1596191-3-arnd@kernel.org>
+ <20260909133956.E4DD51F00A3D@smtp.kernel.org>
+Subject: Re: [PATCH 02/14] mfd: remove unused rdc321x southbridge support
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 9, 2026, at 15:37, sashiko-bot@kernel.org wrote:
+On Wed, Sep 9, 2026, at 15:39, sashiko-bot@kernel.org wrote:
+>> Remove this driver, as there is no way to run Linux any more on the
+>> older chips after i486 support has been removed.
+>> 
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>
 > [Severity: Low]
-> Should the corresponding block for the _dim attributes also be removed?
+> Since the entire platform and driver support is being removed, should we
+> also clean up the remaining dead references to the RDC321x platform?
 >
-> Further down in this file, under the documentation for the _dim attributes,
-> there is another block describing the sysfs nodes for the ADP5520 driver:
+> Specifically, the reboot fixup code in arch/x86/kernel/reboot_fixups_32.c
+> has a rdc321x_reset() function and an associated entry in fixups_table that
+> appear to be left behind now that the hardware is no longer supported.
 >
-> 		For ADP5520 and ADP5501, <ambient light zone> can be:
->
-> 		===========  ================================================
-> 		Ambient      sysfs entry
-> 		light zone
-> 		===========  ================================================
-> 		daylight     /sys/class/backlight/<backlight>/daylight_dim
-> 		office       /sys/class/backlight/<backlight>/office_dim
-> 		dark         /sys/class/backlight/<backlight>/dark_dim
-> 		===========  ================================================
->
-> Leaving this block behind orphans the documentation for hardware that is no
-> longer supported.
+> Additionally, the PCI_DEVICE_ID_RDC_R6030 definition in include/linux/pci_ids.h
+> is no longer used by any active driver.
 
-Fixed now.
+This sounds like something that should go through the x86 tree, but probably
+not this patch.
 
-       Arnd
+> Finally, there is a stale "RDC R-321X SoC" entry in MAINTAINERS that might
+> need to be removed to complete the cleanup.
+
+Removed this now, and added Florian to Cc here and in the changelog.
+
+     Arnd
