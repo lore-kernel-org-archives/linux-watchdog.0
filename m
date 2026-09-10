@@ -1,138 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02584343887;
-	Thu, 10 Sep 2026 05:19:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25DD23B0587;
+	Thu, 10 Sep 2026 06:09:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789017571; cv=none; b=mtgg354TmIHfdxgLtoyrHGINxdTk0smU559wWQrIzGjkVrmd/DId+ju1cCgeg/1y9YWfpOuf6cgDdXGQOk7lcqwgaOQehFcTIhtcmcdVGATXuHYsr2znC8S9CVOy2Ja/pFcfv4++K1toJnzPz8rrDAn5s7ZgnwjNYrzJwfohE1M=
+	t=1789020574; cv=none; b=n4fB3ZoO6S1siOHRgzxS6aVxNXC7HLmwuMSFkRxELHP+V4vDt+Fa/S83u6ri3VTXD4aCUAYoSW7R8eoHgZMljvt0CIPXb/dvSc/Qbu9596CC2TcJa8iHGHlcDdUAYJn63xC71n4GHr3aetHQdpNWd1CVpDZ0D/hKVYFMfXBfcdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789017571; c=relaxed/simple;
-	bh=sCIravbDLR4dRvfc0AnyNjajRmfkR8ffGY8bBza22m0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ExQbpSZsMKjJNG82G4iHss8VpxHlngK3AQqEZhB5NWcXvCePMqxSpL3cirLzt+Qeis8KQV09K5wPNHas2ZZBfCXJ4a0oxA7v+1oaEAj0Z7OQJfBSUl9YXgD6arBxwEXbtW3JA9Hqr6JbhraJvdyALFbcNE/eXOed3EadmmkgQYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AbAlzTTm; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AbAlzTTm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 409D01F000FF;
-	Thu, 10 Sep 2026 05:19:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789017569;
-	bh=yjt/wM/Iti8exvVkW3P8C1tJl4czHm4nOQsXCqBz+lI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AbAlzTTm/LuRPzhqnB6XC8MN7yn8DSCkb95k1kweA4USR3ckM80iWMdgYAJQHYLEm
-	 MFoHcY4FtflSEsQRHW8vAh1lxt2VKzaVzJlTzFeKdzJFSsFaDeSR0Kr1dxH627WfOS
-	 prSG+A48f7YMF0jeJhnqImY0Ugh/Vt0PcXmZJIxQxTRZiH0z/OGkzfmQ5P2cGy+FBX
-	 IDDC9SkGaU5+hX7b0bHq9z9hDHXWblSsfsqaWpeFGVS3OmqtOJGMJJKbw9qyN6cMqt
-	 iLcE2w1JVozr8LhDeRTgYYX9hGnSZZIue4bjY4E15vbPujUgiy4zjOwPtR1otQxFBi
-	 yZR9PAjE4Fakw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 3/5] rtc: pcf85363: add timestamp support with
- configurable timestamp mode
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-watchdog@vger.kernel.org
-In-Reply-To: <20260910050747.1901440-3-lakshay.piplani@nxp.com>
-References: <20260910050747.1901440-1-lakshay.piplani@nxp.com>
- <20260910050747.1901440-3-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 05:19:28 +0000
-Message-Id: <20260910051929.409D01F000FF@smtp.kernel.org>
+	s=arc-20240116; t=1789020574; c=relaxed/simple;
+	bh=t8JANTFU7UxtiP+6KgcsdKxe35jESsN4YGFqLP2pFRY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mvveB6zdZYXxsFZXeQBIe4W9OkhCRVgUXkMXKQnGPEABJhi90D1VjrgbK6lLJK4s4Nj9BWmrWTs1+3V0ClZ3ysSKHCJRgFgHXYWl2/qbmVBhQXhb7eUSv9kPl5dJtrbkOzU0Qx+ZbEYnZGXZML2gGGm/W1q8WZBg6HrIajJeuQA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 2D22F2000FD;
+	Thu, 10 Sep 2026 08:09:28 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id E6542200369;
+	Thu, 10 Sep 2026 08:09:27 +0200 (CEST)
+Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id B24C918000B1;
+	Thu, 10 Sep 2026 14:09:24 +0800 (+08)
+From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+To: linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	alexandre.belloni@bootlin.com,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	conor+dt@kernel.org,
+	linux@roeck-us.net,
+	wim@linux-watchdog.org
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	lakshay.piplani@nxp.com,
+	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Subject: [PATCH v3 0/4] Add driver for NXP PCF8525 RTC
+Date: Thu, 10 Sep 2026 11:39:08 +0530
+Message-Id: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] Ignored `dev_err_probe()` return value defeats probe deferral fo=
-r the INTA interrupt line.
-- [Medium] Unconditionally clearing `RTC_FEATURE_ALARM` when no IRQ is pres=
-ent breaks wake-on-alarm functionality for boards that only configure a wak=
-eup-source.
---
+The PCF8525 is an NXP I2C real-time clock with integrated crystal
+oscillator, dual timestamp capture inputs, backup battery switch-over,
+a windowed watchdog, and an on-chip temperature sensor.
 
-commit c4131e782120105d3473c8eca13fcfb2ec8f0bf1
-Author: Lakshay Piplani <lakshay.piplani@nxp.com>
+This series adds:
+  - DT binding (YAML schema)
+  - Core RTC driver: timekeeping, alarms, dual timestamps, crystal
+    configuration, backup switch-over, and clock offset correction
+  - Watchdog support via the Linux watchdog framework
+  - Temperature sensor support via the hwmon framework
 
-rtc: pcf85363: add timestamp support with configurable timestamp mode
+Changes in v3:
+- patch 2: protect the Write-0-to-Clear (W0C) status flags in the
+  CTRL2/CTRL3 read-modify-write cycles so concurrently asserted
+  interrupt events are not silently cleared
+- patch 2: replace the timestamp spinlock with a mutex and re-read
+  CTRL4 under it, closing the TOCTOU race between the threaded IRQ
+  handler and the sysfs timestamp store
+- patch 3: configure the nINTB/CLKOUT pin (CLKOE=0) before requesting
+  the watchdog IRQ to avoid a spurious interrupt storm
+- patch 3: add suspend/resume PM ops to stop and re-ping the watchdog
+  across system sleep
+- patch 3: add WDIOF_PRETIMEOUT so the watchdog core attaches a
+  pretimeout governor
+- patch 3: re-mask INTA/INTB interrupts on driver unbind via devm
+  cleanup actions
+- patch 4: enable TEMP_RD_EN before registering the hwmon device and
+  add a devm cleanup to disable it on unbind
 
-This commit adds support for the timestamp capture registers on the
-PCF85263/PCF85363 to latch the time on selected events. The capture source
-is configured via device tree and exported through read-only sysfs attribut=
-es,
-along with other initialization cleanups.
+Changes in v2:
+- Fix include: use <linux/pm_wakeirq.h> instead of <pm_wakeup.h>
+- Add spinlock_t ts_lock to protect ts[]/ts_valid[] from IRQ/sysfs race
+- Fix W0C ordering: clear AF/TSF flags before acting on alarm/timestamp
+  events
+- Use dev_pm_set_wake_irq() for suspend wakeup wiring
+- Clear stale WDTF before unmasking watchdog interrupt on INTB to prevent
+  boot loop when battery-backed flag persists across resets
+- Add watchdog_notify_pretimeout() call in INTB IRQ handler
+- Set WDOG_HW_RUNNING if bootloader left watchdog running at probe time
+- Register hwmon device first, then enable PCF8525_CTRL5_TEMP_RD_EN only
+  after successful registration
 
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-[ ... ]
-> @@ -573,57 +819,75 @@ static int pcf85363_probe(struct i2c_client *client)
-[ ... ]
-> +		ret =3D devm_request_threaded_irq(dev, irq_a, NULL,
-> +						pcf85363_rtc_handle_irq,
-> +						irqflags | IRQF_ONESHOT,
-> +						"pcf85363-inta", client);
-> +
-> +		if (ret) {
-> +			dev_err_probe(dev, ret, "INTA IRQ request failed\n");
-> +			irq_a =3D 0;
-> +			clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
-> +		} else {
+Shiv Prakash Gupta (4):
+  dt-bindings: rtc: Add NXP PCF8525 RTC
+  rtc: pcf8525: Add NXP PCF8525 RTC driver
+  rtc: pcf8525: Add watchdog support
+  rtc: pcf8525: Add temperature sensor support via hwmon
 
-[Severity: Medium]
-Will ignoring the return value of dev_err_probe() in this block defeat
-probe deferral?
+ .../devicetree/bindings/rtc/nxp,pcf8525.yaml  |   86 +
+ drivers/rtc/Kconfig                           |   26 +
+ drivers/rtc/Makefile                          |    1 +
+ drivers/rtc/rtc-pcf8525.c                     | 1600 +++++++++++++++++
+ 4 files changed, 1713 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
+ create mode 100644 drivers/rtc/rtc-pcf8525.c
 
-If devm_request_threaded_irq() fails because the interrupt provider is not
-yet ready, it returns -EPROBE_DEFER. By not propagating this error and
-falling back to setting irq_a to 0, the driver permanently drops interrupt
-support on affected boots instead of allowing the core to defer probing.
+-- 
+2.34.1
 
-> +			u8 inta_en =3D INT_BSIE;
-> +
-> +			/*
-> +			 * Enable the timestamp interrupt only when a capture
-> +			 * mode is configured; always enable battery-switch.
-> +			 */
-> +			if (ts_mode_configured)
-> +				inta_en |=3D INT_TSRIE;
-> +
-> +			ret =3D regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
-> +						 INT_BSIE | INT_TSRIE, inta_en);
-> +			if (ret)
-> +				return dev_err_probe(dev, ret,
-> +						     "Failed to enable INTA sources\n");
->  		}
-> -	}
-> -
-> -	if (client->irq > 0 || wakeup_source) {
-> -		device_init_wakeup(&client->dev, true);
-> -		set_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
->  	} else {
-> +		/* Without an interrupt line the alarm cannot be delivered. */
->  		clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
->  	}
-
-[Severity: Medium]
-Does clearing RTC_FEATURE_ALARM unconditionally when there is no direct IRQ
-break wake-on-alarm functionality?
-
-If a system routes the RTC interrupt pin to an external PMIC to wake the
-system and defines the device tree with a wakeup-source property but no
-direct interrupts property, this logic clears the alarm feature bit. The
-RTC core will reject alarm setup requests when this feature bit is cleared,
-which seems like it could cause a functional regression for userspace tools
-like rtcwake that rely on the wakeup-source capability.
-
-> +	if (irq_a > 0 || wakeup_source)
-> +		device_init_wakeup(dev, true);
-> +
-> +	dev_set_drvdata(&pcf85363->rtc->dev, pcf85363);
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910050747.1901=
-440-1-lakshay.piplani@nxp.com?part=3D3
