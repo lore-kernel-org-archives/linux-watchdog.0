@@ -1,28 +1,28 @@
 Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9057D3B3C0F;
-	Thu, 10 Sep 2026 06:09:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 907F13BB135;
+	Thu, 10 Sep 2026 06:09:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789020586; cv=none; b=qPgAcRBkH4nRALUIvtHap2BQI73YaT9C0ZkP+Oq1GNrI68TmGWl4lIrLpVpdZ5v8BwHn370OSu2MXn8uHjdsgRK5R7p8Idjiohd9B4GPcOwyExpEXwkcIu4lLHNnx5n8lNQ6ks8uRPszluUfQgM5upgo05YbezfJhvljW4Y/a14=
+	t=1789020586; cv=none; b=de/SCXjd/8XEMwP4TBrihHTi8ZXQFlhu4CbNbVKegX01CoV/xl/vmL/pKCrAyTkaE+T1lqjtSJxuTEM7WMY04nNL/sv5e1nxrAjZNinrnpSbTmVzm8NKGRa4Sn3uqyXQnh8fEOYuDvi2d2zkMCaCkE2C0k0WN0ziZhBJz3Avnxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789020586; c=relaxed/simple;
-	bh=k3Be0/u76ldrMfrEXnkcoggGqYcslbOx5zndGILNz8I=;
+	bh=x/1eCG0YShWHNVrn1MpvOJB/Gz1gHGwkt7mTFIzXR4U=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=hHh6oNq6ponZzJNHswhEzzDbMDFHJakrfgoBR1EsVj0ZtGti4zxCHOwr2X+iWhneMO4IL4+Hn+bmbbupocU7GXXZYC2c+dy2MpI+bvN1oxadqjDW3T4H8i/qPCOR+sfWrDa5AB/3zsN2+5YWZDRXqRoilKb7irFRfMqqTlNv5/M=
+	 MIME-Version; b=Nfrrh4Nwn1L+lNFMlEBW46KbVSOdHkhPDjuvP1l5k3919peFdAUTaNAEr4f825IHZGUqM4cP44n5nVAExBIIwr+mhyvTbyS9ooCktuHCePIByRc4XI2KtpCa3b7H7NqNoBfBB0g8ipX4B7W+nJ5J3OIiNi+CPGV4ZJ7xp5jO3Uc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 49F0C200369;
-	Thu, 10 Sep 2026 08:09:34 +0200 (CEST)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 2DC70200386;
+	Thu, 10 Sep 2026 08:09:37 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id DC82B200382;
-	Thu, 10 Sep 2026 08:09:33 +0200 (CEST)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id C173720037D;
+	Thu, 10 Sep 2026 08:09:36 +0200 (CEST)
 Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 849B81800068;
-	Thu, 10 Sep 2026 14:09:30 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 91A4B180006C;
+	Thu, 10 Sep 2026 14:09:33 +0800 (+08)
 From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 To: linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
@@ -39,9 +39,9 @@ Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	lakshay.piplani@nxp.com,
 	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Subject: [PATCH v3 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
-Date: Thu, 10 Sep 2026 11:39:10 +0530
-Message-Id: <20260910060912.2443551-3-shivprakash.gupta@nxp.com>
+Subject: [PATCH v3 3/4] rtc: pcf8525: Add watchdog support
+Date: Thu, 10 Sep 2026 11:39:11 +0530
+Message-Id: <20260910060912.2443551-4-shivprakash.gupta@nxp.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
 References: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
@@ -54,1084 +54,497 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Add support for time and date, alarms, timestamp capture, backup
-switch-over configuration, external crystal configuration and clock
-offset correction.
+Add watchdog support for NXP PCF8525 real time clock(RTC) device
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
 Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 ---
- drivers/rtc/Kconfig       |   10 +
- drivers/rtc/Makefile      |    1 +
- drivers/rtc/rtc-pcf8525.c | 1026 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 1037 insertions(+)
- create mode 100644 drivers/rtc/rtc-pcf8525.c
+ drivers/rtc/Kconfig       |   1 +
+ drivers/rtc/rtc-pcf8525.c | 366 +++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 362 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 01def8231873..89ff23ffb9ef 100644
+index 89ff23ffb9ef..356c2d91e387 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
-@@ -513,6 +513,16 @@ config RTC_DRV_PCF8523
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf8523.
- 
-+config RTC_DRV_PCF8525
-+	tristate "NXP PCF8525"
-+	select REGMAP_I2C
-+	help
-+	  If you say yes here you get support for the NXP PCF8525 RTC
-+	  chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-pcf8525.
-+
- config RTC_DRV_PCF85363
- 	tristate "NXP PCF85363"
+@@ -516,6 +516,7 @@ config RTC_DRV_PCF8523
+ config RTC_DRV_PCF8525
+ 	tristate "NXP PCF8525"
  	select REGMAP_I2C
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 0347645b021f..2b90d28235c6 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -132,6 +132,7 @@ obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
- obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf2127.o
- obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
- obj-$(CONFIG_RTC_DRV_PCF8523)	+= rtc-pcf8523.o
-+obj-$(CONFIG_RTC_DRV_PCF8525)	+= rtc-pcf8525.o
- obj-$(CONFIG_RTC_DRV_PCF85363)	+= rtc-pcf85363.o
- obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
- obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
++	select WATCHDOG_CORE if WATCHDOG
+ 	help
+ 	  If you say yes here you get support for the NXP PCF8525 RTC
+ 	  chips.
 diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-new file mode 100644
-index 000000000000..9da8bcde7ef1
---- /dev/null
+index 9da8bcde7ef1..c2eab983f1ff 100644
+--- a/drivers/rtc/rtc-pcf8525.c
 +++ b/drivers/rtc/rtc-pcf8525.c
-@@ -0,0 +1,1026 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * I2C driver for NXP PCF8525 RTC
-+ * Features:
-+ * - Time/date read + set
-+ * - Alarm (sec/min/hour/day) using RTC wkalrm API
-+ * - Optional IRQ support (alarm + timestamp) on INTA
-+ * - Timestamp1/2 exported via custom sysfs attributes: timestamp0/1
-+ * - Crystal load capacitance and crystal type configuration
-+ * - Crystal aging offset correction through the RTC offset interface
-+ *
-+ * Register map summary (key ones):
-+ * 0x00 Control_1: STOP, 12_24, MI, SI, etc
-+ * 0x01 Control_2: MSF, TI_TP, WDTF, AF, OSFE[1:0], AIE, SMBUS_TIMEOUT
-+ * 0x02 Control_3: PWRMNG[1:0], BF, OSIE, BIE
-+ * 0x03 Control_4: TSF
-+ * 0x04 Control_5: TSIE, TEMP_RD_EN, CL, XTL_TYP
-+ * 0x05 Reset: command register (CPR, CTS, SR)
-+ * 0x06 100th seconds
-+ * 0x07 seconds (OSF bit7)
-+ * 0x08 minutes (VLF bit7)
-+ * 0x09 hours
-+ * 0x0A days
-+ * 0x0B weekdays
-+ * 0x0C months
-+ * 0x0D years
-+ * 0x0E..0x14 alarm registers (sec/min/hour/day/weekday/month/year)
-+ * 0x16 timestamp control
-+ * 0x17..0x1C TS1 (sec/min/hour/day/month/year)
-+ * 0x1D..0x23 TS2 (subsec/sec/min/hour/day/month/year)
-+ * 0x26..0x27 aging offset registers
-+ * 0x28..0x2B interrupt mask regs (INTA/B)
-+ * 0x2E temperature (read-only), gated by TEMP_RD_EN
-+ */
+@@ -47,6 +47,9 @@
+ #include <linux/slab.h>
+ #include <linux/bitfield.h>
+ #include <linux/uaccess.h>
++#include <linux/kernel.h>
++#include <linux/pm.h>
++#include <linux/watchdog.h>
+ 
+ /* Registers */
+ #define PCF8525_REG_CTRL1		0x00
+@@ -96,6 +99,8 @@
+ #define PCF8525_REG_INTB_MASK1		0x2A
+ #define PCF8525_REG_INTB_MASK2		0x2B
+ 
++#define PCF8525_REG_WD_CTL		0x2C
++#define PCF8525_REG_WD_VAL		0x2D
+ #define PCF8525_REG_TEMP		0x2E
+ 
+ /* CTRL1 */
+@@ -132,6 +137,9 @@
+ #define PCF8525_CTRL5_CL		BIT(1)
+ #define PCF8525_CTRL5_XTL_TYP		BIT(0)
+ 
++/* CLKOUT_ctl */
++#define PCF8525_CLKOUT_CLKOE		BIT(3)
 +
-+#include <linux/bcd.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/mutex.h>
-+#include <linux/pm_wakeirq.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+#include <linux/rtc.h>
-+#include <linux/slab.h>
-+#include <linux/bitfield.h>
-+#include <linux/uaccess.h>
+ /* Timestamp control */
+ #define PCF8525_TS_CTL1_TSM             BIT(7)
+ #define PCF8525_TS_CTL1_TSOFF           BIT(6)
+@@ -150,6 +158,7 @@
+ #define PCF8525_RESET_SR_CMD		0x2C /* software reset */
+ 
+ /* Interrupt masks (mask bit = 1 means masked/disabled) - INTA_MASK1 bits */
++#define PCF8525_MASK1_WD_CD		BIT(0)
+ #define PCF8525_MASK1_BIE		BIT(1)
+ #define PCF8525_MASK1_AIE		BIT(2)
+ #define PCF8525_MASK1_OSIE		BIT(3)
+@@ -161,6 +170,16 @@
+ #define PCF8525_ALM_AE_MONTH		BIT(7)
+ #define PCF8525_ALM_AE_YEAR		BIT(6)
+ 
++/* Watchdog control register bits */
++#define PCF8525_WD_CTL_WD_CD		BIT(7)
++#define PCF8525_WD_CTL_TF0		BIT(0)
++#define PCF8525_WD_CTL_TF1		BIT(1)
 +
-+/* Registers */
-+#define PCF8525_REG_CTRL1		0x00
-+#define PCF8525_REG_CTRL2		0x01
-+#define PCF8525_REG_CTRL3		0x02
-+#define PCF8525_REG_CTRL4		0x03
-+#define PCF8525_REG_CTRL5		0x04
-+#define PCF8525_REG_RESET		0x05
++#define PCF8525_WD_CLOCK_HZ_X1000	250 /* 1/4 Hz */
++#define PCF8525_WD_MIN_HW_HEARTBEAT_MS	4000
++#define PCF8525_WD_VAL_STOP		0
++#define PCF8525_WD_DEFAULT_TIMEOUT_S	60
 +
-+#define PCF8525_REG_100THS		0x06
-+#define PCF8525_REG_SECONDS		0x07
-+#define PCF8525_REG_MINUTES		0x08
-+#define PCF8525_REG_HOURS		0x09
-+#define PCF8525_REG_DAYS		0x0A
-+#define PCF8525_REG_WEEKDAYS		0x0B
-+#define PCF8525_REG_MONTHS		0x0C
-+#define PCF8525_REG_YEARS		0x0D
-+
-+#define PCF8525_REG_ALM_SEC		0x0E
-+#define PCF8525_REG_ALM_MIN		0x0F
-+#define PCF8525_REG_ALM_HOUR		0x10
-+#define PCF8525_REG_ALM_DAY		0x11
-+#define PCF8525_REG_ALM_WDAY		0x12
-+#define PCF8525_REG_ALM_MONTH		0x13
-+#define PCF8525_REG_ALM_YEAR		0x14
-+
-+#define PCF8525_REG_CLKOUT		0x15
-+
-+#define PCF8525_REG_TS_CTL1		0x16
-+#define PCF8525_REG_TS1_SEC		0x17
-+#define PCF8525_REG_TS1_MIN		0x18
-+#define PCF8525_REG_TS1_HOUR		0x19
-+#define PCF8525_REG_TS1_DAY		0x1A
-+#define PCF8525_REG_TS1_MONTH		0x1B
-+#define PCF8525_REG_TS1_YEAR		0x1C
-+
-+#define PCF8525_REG_TS2_SUBSEC		0x1D
-+#define PCF8525_REG_TS2_SEC		0x1E
-+#define PCF8525_REG_TS2_MIN		0x1F
-+#define PCF8525_REG_TS2_HOUR		0x20
-+#define PCF8525_REG_TS2_DAY		0x21
-+#define PCF8525_REG_TS2_MONTH		0x22
-+#define PCF8525_REG_TS2_YEAR		0x23
-+
-+#define PCF8525_REG_INTA_MASK1		0x28
-+#define PCF8525_REG_INTA_MASK2		0x29
-+#define PCF8525_REG_INTB_MASK1		0x2A
-+#define PCF8525_REG_INTB_MASK2		0x2B
-+
-+#define PCF8525_REG_TEMP		0x2E
-+
-+/* CTRL1 */
-+#define PCF8525_CTRL1_STOP		BIT(5)
-+#define PCF8525_CTRL1_12_24		BIT(2)
-+#define PCF8525_CTRL1_MI		BIT(1)
-+#define PCF8525_CTRL1_SI		BIT(0)
-+/* CTRL2 */
-+#define PCF8525_CTRL2_MSF		BIT(7)
-+#define PCF8525_CTRL2_TI_TP		BIT(6)
-+#define PCF8525_CTRL2_WDTF		BIT(5)
-+#define PCF8525_CTRL2_AF		BIT(4)
-+#define PCF8525_CTRL2_OSFE_MASK		GENMASK(3, 2)
-+#define PCF8525_CTRL2_AIE		BIT(1)
-+#define PCF8525_CTRL2_SMBTO		BIT(0)
-+/*
-+ * All W0C status bits in CTRL2 (writing 1 = no effect, writing 0 = clear).
-+ * Include WDTF here so that any regmap_update_bits touching CTRL2 control
-+ * bits (AIE, TI_TP, etc.) does not accidentally clear a pending watchdog
-+ * timer interrupt by writing 0 to WDTF in the RMW cycle.
-+ */
-+#define PCF8525_CTRL2_W0C_FLAGS		(PCF8525_CTRL2_MSF | \
-+					 PCF8525_CTRL2_WDTF | \
-+					 PCF8525_CTRL2_AF)
-+/* CTRL3 */
-+#define PCF8525_CTRL3_PWRMNG_MASK	GENMASK(6, 5)
-+#define PCF8525_CTRL3_BF		BIT(3)
-+#define PCF8525_CTRL3_OSIE		BIT(2)
-+#define PCF8525_CTRL3_BIE		BIT(1)
-+/* CTRL4/5 */
-+#define PCF8525_CTRL4_TSF		BIT(7)
-+#define PCF8525_CTRL5_TSIE		BIT(7)
-+#define PCF8525_CTRL5_TEMP_RD_EN	BIT(2)
-+#define PCF8525_CTRL5_CL		BIT(1)
-+#define PCF8525_CTRL5_XTL_TYP		BIT(0)
-+
-+/* Timestamp control */
-+#define PCF8525_TS_CTL1_TSM             BIT(7)
-+#define PCF8525_TS_CTL1_TSOFF           BIT(6)
-+
-+/* Seconds/Minutes flags */
-+#define PCF8525_SC_OSF			BIT(7)
-+#define PCF8525_MN_VLF			BIT(7)
-+
-+/* Alarm AE bits */
-+#define PCF8525_ALM_AE			BIT(7)
-+
-+/* RESET commands */
-+#define PCF8525_RESET_CPR_CMD		0xA4 /* clear prescaler */
-+#define PCF8525_RESET_CTS_CMD		0x25 /* clear timestamp */
-+#define PCF8525_RESET_CPR_CTS_CMD	0xA5 /* clear prescaler + timestamp */
-+#define PCF8525_RESET_SR_CMD		0x2C /* software reset */
-+
-+/* Interrupt masks (mask bit = 1 means masked/disabled) - INTA_MASK1 bits */
-+#define PCF8525_MASK1_BIE		BIT(1)
-+#define PCF8525_MASK1_AIE		BIT(2)
-+#define PCF8525_MASK1_OSIE		BIT(3)
-+#define PCF8525_MASK1_SI		BIT(4)
-+#define PCF8525_MASK1_MI		BIT(5)
-+/* INTA_MASK2 - timestamp mask bit3 */
-+#define PCF8525_MASK2_TSIE		BIT(3)
-+
-+#define PCF8525_ALM_AE_MONTH		BIT(7)
-+#define PCF8525_ALM_AE_YEAR		BIT(6)
-+
-+#define PCF8525_REG_AGING_OFFSET_HI	0x26
-+#define PCF8525_REG_AGING_OFFSET_LO	0x27
-+/*
-+ * One aging-offset register step is 0.0298 ppm, or 29.8 ppb.
-+ * The RTC core offset interface uses ppb.
-+ */
-+#define PCF8525_AGING_OFFSET_STEP_NUM	298L
-+#define PCF8525_AGING_OFFSET_STEP_DEN	10L
-+
-+#define PCF8525_AGING_OFFSET_MIN	(-32768L)
-+#define PCF8525_AGING_OFFSET_MAX	32767L
-+
-+struct pcf8525 {
-+	struct rtc_device *rtc;
-+	struct regmap *regmap;
-+	struct mutex ts_mutex;	/* protects ts[] and ts_valid[] in IRQ mode */
-+	bool irq_enabled;
-+	time64_t ts[2];
-+	bool ts_valid[2];
-+};
-+
-+static const struct regmap_config pcf8525_regmap_cfg = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = PCF8525_REG_TEMP,
-+};
-+
-+/*
-+ * Configure only the crystal fields explicitly provided by firmware.
-+ * If a property is absent, preserve the current hardware setting.
-+ *
-+ * quartz-load-femtofarads:
-+ *   6000 -> Control_5.CL = 0
-+ *   7000 -> Control_5.CL = 1
-+ *
-+ * nxp,xtal-type:
-+ *   1 -> Control_5.XTL_TYP = 0 (-0.035 ppm/degree C^2 model)
-+ *   2 -> Control_5.XTL_TYP = 1 (-0.04 ppm/degree C^2 model)
-+ */
-+static int pcf8525_configure_crystal(struct device *dev,
-+				     struct pcf8525 *pcf8525)
+ #define PCF8525_REG_AGING_OFFSET_HI	0x26
+ #define PCF8525_REG_AGING_OFFSET_LO	0x27
+ /*
+@@ -175,11 +194,14 @@
+ 
+ struct pcf8525 {
+ 	struct rtc_device *rtc;
++	struct watchdog_device wdd;
+ 	struct regmap *regmap;
+ 	struct mutex ts_mutex;	/* protects ts[] and ts_valid[] in IRQ mode */
+ 	bool irq_enabled;
+ 	time64_t ts[2];
+ 	bool ts_valid[2];
++	int irq_inta;
++	int irq_intb;
+ };
+ 
+ static const struct regmap_config pcf8525_regmap_cfg = {
+@@ -879,6 +901,296 @@ static const struct rtc_class_ops pcf8525_rtc_ops = {
+ 	.param_set = pcf8525_param_set,
+ };
+ 
++static unsigned int pcf8525_wdt_timeout_to_val(unsigned int timeout)
 +{
-+	unsigned int mask = 0;
-+	unsigned int value = 0;
-+	u32 xtal_type;
-+	u32 load;
-+	int ret;
-+
-+	ret = device_property_read_u32(dev,
-+				       "quartz-load-femtofarads",
-+				       &load);
-+	if (!ret) {
-+		switch (load) {
-+		case 6000:
-+			mask |= PCF8525_CTRL5_CL;
-+			break;
-+
-+		case 7000:
-+			mask |= PCF8525_CTRL5_CL;
-+			value |= PCF8525_CTRL5_CL;
-+			break;
-+
-+		default:
-+			dev_warn(dev,
-+				 "unsupported quartz-load-femtofarads=%u; "
-+				 "preserving CL bit\n",
-+				 load);
-+			break;
-+		}
-+	}
-+
-+	ret = device_property_read_u32(dev,
-+				       "nxp,xtal-type",
-+				       &xtal_type);
-+	if (!ret) {
-+		switch (xtal_type) {
-+		case 1:
-+			mask |= PCF8525_CTRL5_XTL_TYP;
-+			break;
-+
-+		case 2:
-+			mask |= PCF8525_CTRL5_XTL_TYP;
-+			value |= PCF8525_CTRL5_XTL_TYP;
-+			break;
-+
-+		default:
-+			dev_warn(dev,
-+				 "unsupported nxp,xtal-type=%u; "
-+				 "preserving XTL_TYP bit\n",
-+				 xtal_type);
-+			break;
-+		}
-+	}
-+
-+	if (!mask)
-+		return 0;
-+
-+	return regmap_update_bits(pcf8525->regmap,
-+				  PCF8525_REG_CTRL5,
-+				  mask, value);
-+}
-+
-+static int pcf8525_read_aging_offset(struct pcf8525 *pcf8525, s16 *offset)
-+{
-+	u8 buf[2];
-+	int ret;
-+
-+	ret = regmap_bulk_read(pcf8525->regmap,
-+			       PCF8525_REG_AGING_OFFSET_HI,
-+			       buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	*offset = (s16)((buf[0] << 8) | buf[1]);
-+
-+	return 0;
-+}
-+
-+static int pcf8525_write_aging_offset(struct pcf8525 *pcf8525, s16 offset)
-+{
-+	u8 buf[2];
-+
-+	buf[0] = (offset >> 8) & 0xff;
-+	buf[1] = offset & 0xff;
-+
-+	/*
-+	 * Write high byte first and low byte last. The new aging correction
-+	 * starts after AgingOffset_Low is written.
-+	 */
-+	return regmap_bulk_write(pcf8525->regmap,
-+				 PCF8525_REG_AGING_OFFSET_HI,
-+				 buf, sizeof(buf));
-+}
-+
-+static int pcf8525_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	s16 raw;
-+	int ret;
-+
-+	ret = pcf8525_read_aging_offset(pcf8525, &raw);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Convert the signed 16-bit hardware value to ppb:
-+	 *
-+	 * one raw step = 0.0298 ppm = 29.8 ppb
-+	 */
-+	*offset = DIV_ROUND_CLOSEST((long)raw *
-+				    PCF8525_AGING_OFFSET_STEP_NUM,
-+				    PCF8525_AGING_OFFSET_STEP_DEN);
-+
-+	return 0;
-+}
-+
-+static int pcf8525_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	long min_offset;
-+	long max_offset;
-+	long raw;
-+
-+	min_offset =
-+		DIV_ROUND_CLOSEST(PCF8525_AGING_OFFSET_MIN *
-+				  PCF8525_AGING_OFFSET_STEP_NUM,
-+				  PCF8525_AGING_OFFSET_STEP_DEN);
-+
-+	max_offset =
-+		DIV_ROUND_CLOSEST(PCF8525_AGING_OFFSET_MAX *
-+				  PCF8525_AGING_OFFSET_STEP_NUM,
-+				  PCF8525_AGING_OFFSET_STEP_DEN);
-+
-+	if (offset < min_offset || offset > max_offset)
-+		return -ERANGE;
-+
-+	/*
-+	 * Convert the requested ppb value to the closest signed
-+	 * 16-bit hardware value.
-+	 */
-+	raw = DIV_ROUND_CLOSEST(offset *
-+				PCF8525_AGING_OFFSET_STEP_DEN,
-+				PCF8525_AGING_OFFSET_STEP_NUM);
-+
-+	if (raw < PCF8525_AGING_OFFSET_MIN ||
-+	    raw > PCF8525_AGING_OFFSET_MAX)
-+		return -ERANGE;
-+
-+	return pcf8525_write_aging_offset(pcf8525, (s16)raw);
-+}
-+
-+static int pcf8525_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	u8 buf[7];
-+	int ret;
-+
-+	/* Read seconds..years (0x07..0x0D) */
-+	ret = regmap_bulk_read(pcf8525->regmap, PCF8525_REG_SECONDS, buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	/* OSF: oscillator stop => time not reliable */
-+	if (buf[0] & PCF8525_SC_OSF)
-+		return -EINVAL;
-+
-+	/*
-+	 * VLF is on minutes register bit7;
-+	 * Keep policy conservative: warn but still allow read.
-+	 */
-+	if (buf[1] & PCF8525_MN_VLF)
-+		dev_warn(dev, "VLF set: clock integrity not guaranteed\n");
-+
-+	tm->tm_sec =  bcd2bin(buf[0] & 0x7f);
-+	tm->tm_min =  bcd2bin(buf[1] & 0x7f);
-+	tm->tm_hour = bcd2bin(buf[2] & 0x3f);
-+	tm->tm_mday = bcd2bin(buf[3] & 0x3f);
-+	tm->tm_wday = buf[4] & 0x07;
-+	tm->tm_mon =  bcd2bin(buf[5] & 0x1f) - 1;
-+	tm->tm_year = bcd2bin(buf[6]) + 100; /* 20xx */
-+
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int pcf8525_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	u8 buf[7];
-+	int ret, ret2;
-+
-+	ret = rtc_valid_tm(tm);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Use STOP + clear prescaler (CPR) like RESET register describes.
-+	 */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL1,
-+				 PCF8525_CTRL1_STOP, PCF8525_CTRL1_STOP);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(pcf8525->regmap, PCF8525_REG_RESET, PCF8525_RESET_CPR_CMD);
-+	if (ret)
-+		goto out_start;
-+
-+	buf[0] = bin2bcd(tm->tm_sec); /* writing seconds also clears OSF per many NXP RTCs */
-+	buf[1] = bin2bcd(tm->tm_min);
-+	buf[2] = bin2bcd(tm->tm_hour);
-+	buf[3] = bin2bcd(tm->tm_mday);
-+	buf[4] = tm->tm_wday & 0x07;
-+	buf[5] = bin2bcd(tm->tm_mon + 1);
-+	buf[6] = bin2bcd(tm->tm_year - 100);
-+
-+	ret = regmap_bulk_write(pcf8525->regmap, PCF8525_REG_SECONDS, buf, sizeof(buf));
-+
-+out_start:
-+	/* Clear STOP regardless of bulk write outcome */
-+	ret2 = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL1, PCF8525_CTRL1_STOP, 0);
-+	if (ret2)
-+		return ret2;
-+	return ret;
-+}
-+
-+static int pcf8525_rtc_ioctl(struct device *dev,
-+			     unsigned int cmd, unsigned long arg)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
 +	unsigned int val;
-+	unsigned int flags = 0;
-+	int ret;
 +
-+	switch (cmd) {
-+	case RTC_VL_READ:
-+		ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL3, &val);
-+		if (ret)
-+			return ret;
++	val = DIV_ROUND_UP(timeout * PCF8525_WD_CLOCK_HZ_X1000, 1000) + 1;
 +
-+		if (val & PCF8525_CTRL3_BF)
-+			flags |= RTC_VL_BACKUP_SWITCH;
++	if (val < 2)
++		return 2;
++	if (val > 255)
++		return 255;
 +
-+		return put_user(flags, (unsigned int __user *)arg);
-+
-+	case RTC_VL_CLR:
-+		/* Clear BF by writing 0 (AND semantics respected) */
-+		return regmap_update_bits(pcf8525->regmap,
-+					  PCF8525_REG_CTRL3,
-+					  PCF8525_CTRL3_BF,
-+					  0);
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
++	return val;
 +}
 +
-+static int pcf8525_param_get(struct device *dev, struct rtc_param *param)
++static int pcf8525_wdt_ping(struct watchdog_device *wdd)
 +{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	unsigned int val;
-+	unsigned int mode;
-+	int ret;
++	struct pcf8525 *pcf8525 = watchdog_get_drvdata(wdd);
++	unsigned int wd_val;
 +
-+	switch (param->param) {
-+	case RTC_PARAM_BACKUP_SWITCH_MODE:
-+		ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL3, &val);
-+		if (ret)
-+			return ret;
++	wd_val = pcf8525_wdt_timeout_to_val(wdd->timeout);
 +
-+		mode = FIELD_GET(PCF8525_CTRL3_PWRMNG_MASK, val);
-+
-+		switch (mode) {
-+		case 0:
-+			param->uvalue = RTC_BSM_LEVEL;
-+			break;
-+		case 1:
-+			param->uvalue = RTC_BSM_DIRECT;
-+			break;
-+		default:
-+			param->uvalue = RTC_BSM_DISABLED;
-+			break;
-+		}
-+		return 0;
-+
-+	default:
-+		return -EINVAL;
-+	}
++	return regmap_write(pcf8525->regmap, PCF8525_REG_WD_VAL, wd_val);
 +}
 +
-+static int pcf8525_param_set(struct device *dev, struct rtc_param *param)
++static int pcf8525_wdt_active_ping(struct watchdog_device *wdd)
 +{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	unsigned int mode;
-+
-+	switch (param->param) {
-+	case RTC_PARAM_BACKUP_SWITCH_MODE:
-+		switch (param->uvalue) {
-+		case RTC_BSM_LEVEL:
-+			mode = 0;
-+			break;
-+		case RTC_BSM_DIRECT:
-+			mode = 1;
-+			break;
-+		case RTC_BSM_DISABLED:
-+			mode = 2;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+
-+	/*
-+	 * CTRL3 BF is a W0C bit: include it in the mask with value=1 so the
-+	 * RMW cycle does not accidentally clear it if it asserted between the
-+	 * regmap read and write.
-+	 */
-+	return regmap_update_bits(pcf8525->regmap,
-+				  PCF8525_REG_CTRL3,
-+				  PCF8525_CTRL3_PWRMNG_MASK | PCF8525_CTRL3_BF,
-+				  FIELD_PREP(PCF8525_CTRL3_PWRMNG_MASK, mode) |
-+				  PCF8525_CTRL3_BF);
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+/* Alarm uses RTC wkalrm: map to sec/min/hour/day and disable others */
-+static int pcf8525_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	unsigned int ctrl2;
-+	u8 buf[7];
-+	int ret;
-+
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_read(pcf8525->regmap, PCF8525_REG_ALM_SEC, buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	alrm->enabled = !!(ctrl2 & PCF8525_CTRL2_AIE);
-+	alrm->pending = !!(ctrl2 & PCF8525_CTRL2_AF);
-+
-+	alrm->time.tm_sec = bcd2bin(buf[0] & 0x7f);
-+	alrm->time.tm_min = bcd2bin(buf[1] & 0x7f);
-+	alrm->time.tm_hour = bcd2bin(buf[2] & 0x3f);
-+	alrm->time.tm_mday = bcd2bin(buf[3] & 0x3f);
++	if (watchdog_active(wdd))
++		return pcf8525_wdt_ping(wdd);
 +
 +	return 0;
 +}
 +
-+static int pcf8525_alarm_irq_enable(struct device *dev, unsigned int enable)
++static int pcf8525_wdt_start(struct watchdog_device *wdd)
 +{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	int ret;
-+
-+	/*
-+	 * Include all CTRL2 W0C flags in the mask and keep them set to 1 in the
-+	 * value so the RMW does not accidentally clear a concurrently asserted
-+	 * interrupt flag (AF or MSF).
-+	 */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-+				 PCF8525_CTRL2_AIE | PCF8525_CTRL2_W0C_FLAGS,
-+				 (enable ? PCF8525_CTRL2_AIE : 0) |
-+				 PCF8525_CTRL2_W0C_FLAGS);
-+	if (ret)
-+		dev_err(dev, "alarm_irq_enable: failed ret=%d\n", ret);
-+
-+	return ret;
++	return pcf8525_wdt_ping(wdd);
 +}
 +
-+static int pcf8525_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++static int pcf8525_wdt_stop(struct watchdog_device *wdd)
 +{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	u8 buf[7];
-+	int ret;
++	struct pcf8525 *pcf8525 = watchdog_get_drvdata(wdd);
 +
-+	/*
-+	 * Clear AF (W0C). Include MSF in the mask and write 1 to preserve it:
-+	 * writing 0 to a W0C bit that asserted between the read and write would
-+	 * silently drop the event.
-+	 */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-+				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF,
-+				 PCF8525_CTRL2_MSF);
-+	if (ret)
-+		return ret;
-+
-+	buf[0] = bin2bcd(alrm->time.tm_sec) & 0x7f;
-+	buf[1] = bin2bcd(alrm->time.tm_min) & 0x7f;
-+	buf[2] = bin2bcd(alrm->time.tm_hour) & 0x3f;
-+	buf[3] = bin2bcd(alrm->time.tm_mday) & 0x3f;
-+
-+	/* Disable match on weekday/month/year by setting AE bits */
-+	buf[4] = PCF8525_ALM_AE; /* weekday alarm ignored */
-+	buf[5] = PCF8525_ALM_AE_MONTH | PCF8525_ALM_AE_YEAR;  /* disable month + year alarm */
-+	buf[6] = 0x00; /* year alarm value (ignored if month/year disabled) */
-+
-+	ret = regmap_bulk_write(pcf8525->regmap, PCF8525_REG_ALM_SEC, buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	return pcf8525_alarm_irq_enable(dev, alrm->enabled);
++	return regmap_write(pcf8525->regmap, PCF8525_REG_WD_VAL,
++			    PCF8525_WD_VAL_STOP);
 +}
 +
-+/* ---- Timestamp handling (sysfs) ---- */
-+static int pcf8525_ts_read(struct device *dev, int id, time64_t *ts_out)
++static int pcf8525_wdt_set_timeout(struct watchdog_device *wdd,
++				   unsigned int timeout)
 +{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	struct rtc_time tm;
-+	u8 buf[6];
-+	int ret;
-+	u8 base;
++	wdd->timeout = timeout;
 +
-+	/*
-+	 * TS0 maps to TS1 (0x17..0x1C)
-+	 * TS1 maps to TS2 (0x1E..0x23) (skip subsec at 0x1D)
-+	 */
-+	if (id == 0)
-+		base = PCF8525_REG_TS1_SEC;
-+	else if (id == 1)
-+		base = PCF8525_REG_TS2_SEC;
-+	else
-+		return -EINVAL;
-+
-+	ret = regmap_bulk_read(pcf8525->regmap, base, buf, sizeof(buf));
-+	if (ret)
-+		return ret;
-+
-+	tm.tm_sec = bcd2bin(buf[0] & 0x7f);
-+	tm.tm_min = bcd2bin(buf[1] & 0x7f);
-+	tm.tm_hour = bcd2bin(buf[2] & 0x3f);
-+	tm.tm_mday = bcd2bin(buf[3] & 0x3f);
-+	tm.tm_mon = bcd2bin(buf[4] & 0x1f) - 1;
-+	tm.tm_year = bcd2bin(buf[5]) + 100;
-+
-+	ret = rtc_valid_tm(&tm);
-+	if (ret)
-+		return ret;
-+
-+	*ts_out = rtc_tm_to_time64(&tm);
-+	return 0;
++	return pcf8525_wdt_active_ping(wdd);
 +}
 +
-+static ssize_t timestamp_show_common(struct device *dev, char *buf, int id)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev->parent);
-+	unsigned int ctrl4;
-+	time64_t ts;
-+	int ret;
-+
-+	if (id < 0 || id > 1)
-+		return 0;
-+
-+	if (pcf8525->irq_enabled) {
-+		bool valid;
-+
-+		mutex_lock(&pcf8525->ts_mutex);
-+		valid = pcf8525->ts_valid[id];
-+		if (valid)
-+			ts = pcf8525->ts[id];
-+		mutex_unlock(&pcf8525->ts_mutex);
-+
-+		if (!valid)
-+			return 0;
-+		return sysfs_emit(buf, "%llu\n", (unsigned long long)ts);
-+	}
-+
-+	/* polling mode: only report if TSF is currently set */
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL4, &ctrl4);
-+	if (ret)
-+		return 0;
-+
-+	if (!(ctrl4 & PCF8525_CTRL4_TSF))
-+		return 0;
-+
-+	ret = pcf8525_ts_read(dev->parent, id, &ts);
-+	if (ret)
-+		return 0;
-+
-+	return sysfs_emit(buf, "%llu\n", (unsigned long long)ts);
-+}
-+
-+static ssize_t timestamp_store_common(struct device *dev, const char *buf,
-+				      size_t count, int id)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev->parent);
-+	int ret;
-+
-+	if (id < 0 || id > 1)
-+		return -EINVAL;
-+
-+	if (pcf8525->irq_enabled) {
-+		/*
-+		 * Hold the mutex across the software state update and the
-+		 * hardware CTS + TSF-clear sequence.
-+		 *
-+		 * pcf8525_irq() re-reads CTRL4 under the same mutex before
-+		 * touching the timestamp registers.  Clearing TSF here ensures
-+		 * that if the IRQ handler is blocked waiting for the mutex, it
-+		 * will see TSF=0 on its re-read and skip reading the now-zeroed
-+		 * CTS registers.  Without this clear the IRQ could read all-
-+		 * zeros from the CTS-wiped registers and cache garbage.
-+		 */
-+		mutex_lock(&pcf8525->ts_mutex);
-+		pcf8525->ts_valid[id] = false;
-+		regmap_write(pcf8525->regmap, PCF8525_REG_RESET,
-+			     PCF8525_RESET_CTS_CMD);
-+		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4,
-+				   PCF8525_CTRL4_TSF, 0);
-+		mutex_unlock(&pcf8525->ts_mutex);
-+		return count;
-+	}
-+
-+	/*
-+	 * Clear timestamp via RESET CTS command.
-+	 * This also clears the timestamp flag path.
-+	 */
-+	ret = regmap_write(pcf8525->regmap, PCF8525_REG_RESET, PCF8525_RESET_CTS_CMD);
-+	if (ret)
-+		return ret;
-+
-+	/* Also clear TSF flag (belt-and-suspenders) */
-+	regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4, PCF8525_CTRL4_TSF, 0);
-+
-+	return count;
-+}
-+
-+static ssize_t timestamp0_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return timestamp_show_common(dev, buf, 0);
-+}
-+
-+static ssize_t timestamp1_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return timestamp_show_common(dev, buf, 1);
-+}
-+
-+static ssize_t timestamp0_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	return timestamp_store_common(dev, buf, count, 0);
-+}
-+
-+static ssize_t timestamp1_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	return timestamp_store_common(dev, buf, count, 1);
-+}
-+
-+static DEVICE_ATTR_RW(timestamp0);
-+static DEVICE_ATTR_RW(timestamp1);
-+
-+static struct attribute *pcf8525_attrs[] = {
-+	&dev_attr_timestamp0.attr,
-+	&dev_attr_timestamp1.attr,
-+	NULL
++static const struct watchdog_info pcf8525_wdt_info = {
++	.identity = "NXP PCF8525 Watchdog",
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_PRETIMEOUT,
 +};
 +
-+static const struct attribute_group pcf8525_attr_group = {
-+	.attrs = pcf8525_attrs,
++static const struct watchdog_ops pcf8525_watchdog_ops = {
++	.owner = THIS_MODULE,
++	.start = pcf8525_wdt_start,
++	.stop = pcf8525_wdt_stop,
++	.ping = pcf8525_wdt_ping,
++	.set_timeout = pcf8525_wdt_set_timeout,
 +};
 +
-+static irqreturn_t pcf8525_irq(int irq, void *data)
++static int pcf8525_watchdog_get_period(int n, int f1000)
++{
++	return (1000 * (n - 1)) / f1000;
++}
++
++static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
 +{
 +	struct device *dev = data;
 +	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	unsigned int ctrl2, ctrl4;
++	unsigned int ctrl2;
 +	int ret;
 +
 +	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
 +	if (ret)
 +		return IRQ_NONE;
 +
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL4, &ctrl4);
++	if (!(ctrl2 & PCF8525_CTRL2_WDTF))
++		return IRQ_NONE;
++
++	/*
++	 * W0C: clear WDTF. Include AF and MSF in the mask and write 1 to them
++	 * so the RMW does not accidentally clear a concurrently asserted alarm
++	 * or minute/second interrupt flag.
++	 */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
++				 PCF8525_CTRL2_WDTF | PCF8525_CTRL2_AF |
++				 PCF8525_CTRL2_MSF,
++				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF);
 +	if (ret)
 +		return IRQ_NONE;
 +
-+	if (!(ctrl2 & (PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF)) &&
-+	    !(ctrl4 & PCF8525_CTRL4_TSF))
-+		return IRQ_NONE;
-+
-+	/* Timestamp */
-+	if (ctrl4 & PCF8525_CTRL4_TSF) {
-+		time64_t ts0, ts1;
-+		unsigned int ctrl4_now;
-+		bool ok0, ok1;
-+
-+		/*
-+		 * Acquire the mutex before touching TSF or the timestamp
-+		 * registers.  timestamp_store_common() holds the same mutex
-+		 * while issuing the CTS command and clearing TSF, so the
-+		 * entire check-clear-read sequence is serialized with any
-+		 * concurrent userspace store.
-+		 */
-+		mutex_lock(&pcf8525->ts_mutex);
-+
-+		/*
-+		 * Re-read CTRL4 under the mutex.  If timestamp_store_common()
-+		 * ran while we were waiting and already issued CTS and cleared
-+		 * TSF, the hardware timestamp registers now contain zeros.
-+		 * Skip the read to avoid caching garbage.
-+		 */
-+		if (regmap_read(pcf8525->regmap, PCF8525_REG_CTRL4,
-+				&ctrl4_now) ||
-+		    !(ctrl4_now & PCF8525_CTRL4_TSF)) {
-+			mutex_unlock(&pcf8525->ts_mutex);
-+			goto handle_alarm;
-+		}
-+
-+		/*
-+		 * TSF is still set: clear it (W0C) before reading the
-+		 * timestamp registers so a new event that fires during the
-+		 * I2C read is not lost.
-+		 */
-+		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4,
-+				   PCF8525_CTRL4_TSF, 0);
-+
-+		ok0 = !pcf8525_ts_read(dev, 0, &ts0);
-+		ok1 = !pcf8525_ts_read(dev, 1, &ts1);
-+		if (ok0 && !pcf8525->ts_valid[0]) {
-+			pcf8525->ts[0] = ts0;
-+			pcf8525->ts_valid[0] = true;
-+		}
-+		if (ok1 && !pcf8525->ts_valid[1]) {
-+			pcf8525->ts[1] = ts1;
-+			pcf8525->ts_valid[1] = true;
-+		}
-+		mutex_unlock(&pcf8525->ts_mutex);
-+	}
-+
-+handle_alarm:
-+	/* Alarm */
-+	if (ctrl2 & PCF8525_CTRL2_AF) {
-+		/*
-+		 * W0C: clear AF before notifying so that a new alarm event
-+		 * that fires during rtc_update_irq() is not lost.  Include MSF
-+		 * in the mask with value=1 so the RMW does not accidentally
-+		 * clear a concurrently asserted minute/second flag.
-+		 */
-+		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-+				   PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF,
-+				   PCF8525_CTRL2_MSF);
-+		rtc_update_irq(pcf8525->rtc, 1, RTC_IRQF | RTC_AF);
-+	}
-+
-+	if (ctrl2 & PCF8525_CTRL2_MSF) {
-+		/*
-+		 * W0C: clear MSF, protect AF from being accidentally cleared
-+		 * by writing 1 to it.
-+		 */
-+		ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-+					 PCF8525_CTRL2_MSF | PCF8525_CTRL2_AF,
-+					 PCF8525_CTRL2_AF);
-+		if (ret)
-+			return IRQ_NONE;
-+	}
-+
++	watchdog_notify_pretimeout(&pcf8525->wdd);
 +	return IRQ_HANDLED;
 +}
 +
-+static const struct rtc_class_ops pcf8525_rtc_ops = {
-+	.ioctl = pcf8525_rtc_ioctl,
-+	.read_time = pcf8525_read_time,
-+	.set_time = pcf8525_set_time,
-+	.read_alarm = pcf8525_read_alarm,
-+	.set_alarm = pcf8525_set_alarm,
-+	.alarm_irq_enable = pcf8525_alarm_irq_enable,
-+	.read_offset = pcf8525_rtc_read_offset,
-+	.set_offset = pcf8525_rtc_set_offset,
-+	.param_get = pcf8525_param_get,
-+	.param_set = pcf8525_param_set,
-+};
-+
-+static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
++static int pcf8525_watchdog_config(struct device *dev,
++				   struct pcf8525 *pcf8525)
 +{
-+	/*
-+	 * Mask registers: bit=1 means masked/disabled.
-+	 * We want alarm + timestamp unmasked on INTA by default:
-+	 * - AIE => mask bit2 must be 0
-+	 * - TSIE => mask2 bit3 must be 0
-+	 */
 +	unsigned int m1, m2;
 +	int ret;
 +
++	/* Configure nINTB/CLKOUT as nINTB open-drain interrupt output. */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CLKOUT,
++				 PCF8525_CLKOUT_CLKOE, 0);
++	if (ret)
++		return ret;
++
++	/* Enable watchdog interrupt and select 1/4 Hz source: TF[1:0] = 10. */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_WD_CTL,
++				 PCF8525_WD_CTL_WD_CD |
++				 PCF8525_WD_CTL_TF1 |
++				 PCF8525_WD_CTL_TF0,
++				 PCF8525_WD_CTL_WD_CD |
++				 PCF8525_WD_CTL_TF1);
++	if (ret)
++		return ret;
++
++	/* Keep watchdog masked on INTA. */
 +	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK1, &m1);
 +	if (ret)
 +		return ret;
 +
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK2, &m2);
-+	if (ret)
-+		return ret;
-+
-+	m1 &= ~PCF8525_MASK1_AIE;    /* unmask alarm interrupt on INTA */
-+	m2 &= ~PCF8525_MASK2_TSIE;   /* unmask timestamp interrupt on INTA */
-+
++	m1 |= PCF8525_MASK1_WD_CD;
 +	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
 +	if (ret)
 +		return ret;
 +
-+	return regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK2, m2);
++	/* Route watchdog only to INTB, and keep RTC interrupts masked on INTB. */
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
++	if (ret)
++		return ret;
++
++	/*
++	 * Clear any stale WDTF before unmasking the watchdog on INTB.
++	 * With battery backup the flag survives a power cycle and would
++	 * assert INTB immediately on the next boot, causing an infinite
++	 * reset loop if INTB is wired to a hardware reset line.
++	 * Include AF and MSF in the mask with value=1 to protect them from
++	 * the RMW clearing a concurrently asserted flag.
++	 */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
++				 PCF8525_CTRL2_WDTF | PCF8525_CTRL2_AF |
++				 PCF8525_CTRL2_MSF,
++				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF);
++	if (ret)
++		return ret;
++
++	m1 |= PCF8525_MASK1_BIE |
++	      PCF8525_MASK1_AIE |
++	      PCF8525_MASK1_OSIE |
++	      PCF8525_MASK1_SI |
++	      PCF8525_MASK1_MI;
++	m1 &= ~PCF8525_MASK1_WD_CD;
++
++	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
++	if (ret)
++		return ret;
++
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK2, &m2);
++	if (ret)
++		return ret;
++
++	m2 |= PCF8525_MASK2_TSIE;
++
++	return regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK2, m2);
 +}
 +
-+static int pcf8525_probe(struct i2c_client *client)
++static void pcf8525_mask_intb(void *data)
 +{
-+	struct device *dev = &client->dev;
-+	struct pcf8525 *pcf8525;
++	struct pcf8525 *pcf8525 = data;
++	unsigned int m1;
 +	int ret;
 +
-+	pcf8525 = devm_kzalloc(dev, sizeof(*pcf8525), GFP_KERNEL);
-+	if (!pcf8525)
-+		return -ENOMEM;
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
++	if (!ret) {
++		m1 |= PCF8525_MASK1_WD_CD;
++		regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
++	}
++}
 +
-+	mutex_init(&pcf8525->ts_mutex);
++static int pcf8525_watchdog_init(struct device *dev,
++				 struct pcf8525 *pcf8525)
++{
++	int ret;
 +
-+	pcf8525->regmap = devm_regmap_init_i2c(client, &pcf8525_regmap_cfg);
-+	if (IS_ERR(pcf8525->regmap))
-+		return dev_err_probe(dev, PTR_ERR(pcf8525->regmap),
-+				     "failed to init regmap\n");
++	if (!IS_ENABLED(CONFIG_WATCHDOG_CORE) ||
++	    !device_property_read_bool(dev, "reset-source"))
++		return 0;
 +
-+	i2c_set_clientdata(client, pcf8525);
-+
-+	pcf8525->rtc = devm_rtc_allocate_device(dev);
-+	if (IS_ERR(pcf8525->rtc))
-+		return dev_err_probe(dev, PTR_ERR(pcf8525->rtc),
-+				     "failed to allocate RTC device\n");
-+
-+	pcf8525->rtc->ops = &pcf8525_rtc_ops;
-+	pcf8525->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	pcf8525->rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	pcf8525->rtc->set_start_time = true;
-+
-+	clear_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
-+	set_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf8525->rtc->features);
-+	/* Use 24-hour mode */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL1,
-+				 PCF8525_CTRL1_12_24, 0);
-+	if (ret)
-+		return ret;
-+
-+	ret = pcf8525_configure_crystal(dev, pcf8525);
-+	if (ret)
-+		return ret;
 +	/*
-+	 * Enable timestamp engine + timestamp interrupt (TSIE).
++	 * Configure the hardware first: this switches the nINTB/CLKOUT pin
++	 * from clock output (CLKOE=1) to open-drain interrupt output before
++	 * the IRQ handler is installed.  Requesting the IRQ while CLKOE=1
++	 * would flood the CPU with spurious interrupts and may cause the
++	 * Linux spurious-interrupt detector to permanently disable the IRQ.
 +	 */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_TS_CTL1,
-+				 PCF8525_TS_CTL1_TSM | PCF8525_TS_CTL1_TSOFF,
-+				 PCF8525_TS_CTL1_TSM);
++	ret = pcf8525_watchdog_config(dev, pcf8525);
 +	if (ret)
 +		return ret;
 +
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL5,
-+				 PCF8525_CTRL5_TSIE, PCF8525_CTRL5_TSIE);
++	/* Register a cleanup action to re-mask INTB on driver unbind. */
++	ret = devm_add_action_or_reset(dev, pcf8525_mask_intb, pcf8525);
 +	if (ret)
 +		return ret;
 +
-+	/* Create sysfs timestamp0/1 */
-+	ret = rtc_add_group(pcf8525->rtc, &pcf8525_attr_group);
-+	if (ret)
-+		return ret;
-+
-+	/* Optional IRQ */
-+	if (client->irq > 0) {
-+		ret = devm_request_threaded_irq(dev, client->irq,
-+						NULL, pcf8525_irq,
++	if (pcf8525->irq_intb > 0) {
++		ret = devm_request_threaded_irq(dev, pcf8525->irq_intb,
++						NULL, pcf8525_wdt_irq,
 +						IRQF_ONESHOT,
-+						dev_name(dev), dev);
-+		if (ret)
-+			return dev_err_probe(dev, ret,
-+					     "failed to request INTA IRQ\n");
-+
-+		pcf8525->irq_enabled = true;
-+
-+		/* Route/unmask alarm + timestamp to INTA by default */
-+		ret = pcf8525_unmask_irqs_intA(pcf8525);
++						"pcf8525-wdt", dev);
 +		if (ret)
 +			return ret;
-+
-+		device_init_wakeup(dev, true);
-+		dev_pm_set_wake_irq(dev, client->irq);
-+		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
 +	}
 +
-+	/* Register device */
-+	ret = devm_rtc_register_device(pcf8525->rtc);
-+	if (ret)
-+		return ret;
++	pcf8525->wdd.parent = dev;
++	pcf8525->wdd.info = &pcf8525_wdt_info;
++	pcf8525->wdd.ops = &pcf8525_watchdog_ops;
++	pcf8525->wdd.min_timeout = pcf8525_watchdog_get_period(2,
++							       PCF8525_WD_CLOCK_HZ_X1000);
++	pcf8525->wdd.max_timeout = pcf8525_watchdog_get_period(255,
++							       PCF8525_WD_CLOCK_HZ_X1000);
++	pcf8525->wdd.timeout = PCF8525_WD_DEFAULT_TIMEOUT_S;
++	watchdog_init_timeout(&pcf8525->wdd, 0, dev);
++	pcf8525->wdd.min_hw_heartbeat_ms = PCF8525_WD_MIN_HW_HEARTBEAT_MS;
++	pcf8525->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++
++	watchdog_set_drvdata(&pcf8525->wdd, pcf8525);
++	watchdog_stop_on_reboot(&pcf8525->wdd);
++
++	{
++		unsigned int wd_val;
++
++		if (!regmap_read(pcf8525->regmap, PCF8525_REG_WD_VAL, &wd_val) &&
++		    wd_val != 0)
++			set_bit(WDOG_HW_RUNNING, &pcf8525->wdd.status);
++	}
++
++	return devm_watchdog_register_device(dev, &pcf8525->wdd);
++}
++
++static int pcf8525_get_irqs(struct i2c_client *client, struct pcf8525 *pcf8525)
++{
++	struct device *dev = &client->dev;
++	int irq;
++
++	irq = fwnode_irq_get_byname(dev_fwnode(dev), "inta");
++	if (irq == -ENOENT || irq == -EINVAL)
++		irq = client->irq;
++	else if (irq < 0)
++		return irq;
++	pcf8525->irq_inta = irq;
++
++	irq = fwnode_irq_get_byname(dev_fwnode(dev), "intb");
++	if (irq == -ENOENT || irq == -EINVAL)
++		irq = 0;
++	else if (irq < 0)
++		return irq;
++	pcf8525->irq_intb = irq;
 +
 +	return 0;
 +}
 +
-+static const struct of_device_id pcf8525_of_match[] = {
-+	{ .compatible = "nxp,pcf8525" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pcf8525_of_match);
++/*
++ * pcf8525_mask_inta - devm cleanup: re-mask INTA alarm and timestamp
++ * interrupts on driver unbind so the open-drain line is not left asserted.
++ */
++static void pcf8525_mask_inta(void *data)
++{
++	struct pcf8525 *pcf8525 = data;
++	unsigned int m1, m2;
++	int ret;
 +
-+static const struct i2c_device_id pcf8525_i2c_id[] = {
-+	{ .name = "pcf8525" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, pcf8525_i2c_id);
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK1, &m1);
++	if (!ret) {
++		m1 |= PCF8525_MASK1_AIE;
++		regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
++	}
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK2, &m2);
++	if (!ret) {
++		m2 |= PCF8525_MASK2_TSIE;
++		regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK2, m2);
++	}
++}
 +
-+static struct i2c_driver pcf8525_driver = {
-+	.driver = {
-+		.name = "rtc-pcf8525",
-+		.of_match_table = pcf8525_of_match,
-+	},
-+	.probe = pcf8525_probe,
-+	.id_table = pcf8525_i2c_id,
-+};
-+module_i2c_driver(pcf8525_driver);
+ static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
+ {
+ 	/*
+@@ -898,8 +1210,9 @@ static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
+ 	if (ret)
+ 		return ret;
+ 
+-	m1 &= ~PCF8525_MASK1_AIE;    /* unmask alarm interrupt on INTA */
+-	m2 &= ~PCF8525_MASK2_TSIE;   /* unmask timestamp interrupt on INTA */
++	m1 |= PCF8525_MASK1_WD_CD;	/* keep watchdog masked on INTA */
++	m1 &= ~PCF8525_MASK1_AIE;	/* unmask alarm interrupt on INTA */
++	m2 &= ~PCF8525_MASK2_TSIE;	/* unmask timestamp interrupt on INTA */
+ 
+ 	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
+ 	if (ret)
+@@ -908,6 +1221,32 @@ static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
+ 	return regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK2, m2);
+ }
+ 
++static int pcf8525_suspend(struct device *dev)
++{
++	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
 +
-+MODULE_AUTHOR("Lakshay Piplani <lakshay.piplani@nxp.com>");
-+MODULE_AUTHOR("Shiv Prakash Gupta <shivprakash.gupta@nxp.com>");
-+MODULE_DESCRIPTION("NXP PCF8525 RTC driver");
-+MODULE_LICENSE("GPL");
++	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
++	    device_property_read_bool(dev, "reset-source") &&
++	    watchdog_active(&pcf8525->wdd))
++		return pcf8525_wdt_stop(&pcf8525->wdd);
 +
++	return 0;
++}
++
++static int pcf8525_resume(struct device *dev)
++{
++	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
++
++	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
++	    device_property_read_bool(dev, "reset-source") &&
++	    watchdog_active(&pcf8525->wdd))
++		return pcf8525_wdt_ping(&pcf8525->wdd);
++
++	return 0;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(pcf8525_pm_ops, pcf8525_suspend, pcf8525_resume);
++
+ static int pcf8525_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+@@ -927,6 +1266,10 @@ static int pcf8525_probe(struct i2c_client *client)
+ 
+ 	i2c_set_clientdata(client, pcf8525);
+ 
++	ret = pcf8525_get_irqs(client, pcf8525);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to get IRQs\n");
++
+ 	pcf8525->rtc = devm_rtc_allocate_device(dev);
+ 	if (IS_ERR(pcf8525->rtc))
+ 		return dev_err_probe(dev, PTR_ERR(pcf8525->rtc),
+@@ -968,8 +1311,8 @@ static int pcf8525_probe(struct i2c_client *client)
+ 		return ret;
+ 
+ 	/* Optional IRQ */
+-	if (client->irq > 0) {
+-		ret = devm_request_threaded_irq(dev, client->irq,
++	if (pcf8525->irq_inta > 0) {
++		ret = devm_request_threaded_irq(dev, pcf8525->irq_inta,
+ 						NULL, pcf8525_irq,
+ 						IRQF_ONESHOT,
+ 						dev_name(dev), dev);
+@@ -984,11 +1327,23 @@ static int pcf8525_probe(struct i2c_client *client)
+ 		if (ret)
+ 			return ret;
+ 
++		/*
++		 * Register a cleanup action to re-mask INTA interrupts on
++		 * driver unbind so the open-drain line is not left asserted.
++		 */
++		ret = devm_add_action_or_reset(dev, pcf8525_mask_inta, pcf8525);
++		if (ret)
++			return ret;
++
+ 		device_init_wakeup(dev, true);
+-		dev_pm_set_wake_irq(dev, client->irq);
++		dev_pm_set_wake_irq(dev, pcf8525->irq_inta);
+ 		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
+ 	}
+ 
++	ret = pcf8525_watchdog_init(dev, pcf8525);
++	if (ret)
++		return ret;
++
+ 	/* Register device */
+ 	ret = devm_rtc_register_device(pcf8525->rtc);
+ 	if (ret)
+@@ -1013,6 +1368,7 @@ static struct i2c_driver pcf8525_driver = {
+ 	.driver = {
+ 		.name = "rtc-pcf8525",
+ 		.of_match_table = pcf8525_of_match,
++		.pm = pm_sleep_ptr(&pcf8525_pm_ops),
+ 	},
+ 	.probe = pcf8525_probe,
+ 	.id_table = pcf8525_i2c_id,
 -- 
 2.34.1
 
