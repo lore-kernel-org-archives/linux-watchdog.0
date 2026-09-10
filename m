@@ -1,103 +1,78 @@
-Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [80.241.56.161])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2670348F03E;
-	Thu, 10 Sep 2026 13:38:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.161
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74B91486647;
+	Thu, 10 Sep 2026 14:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789047543; cv=none; b=ExzUC4pWWLfbj2qNnA8tvl/+SnTJ5zQsKK+bd5a8LDuzzJ1vclbU48XdtAHZT0z2/Fn3PyDLmZz50JETUAW1Oj9xNPgi9HgshvNdfH0bumFlLJ4Ln8Oe/inlhnEIDe5SfgfVxJQdpcLYDOz865tCdeamIEQiZve6Iz6tiAsEKEk=
+	t=1789051299; cv=none; b=kOC3PrpPIGPprCGXakDxh1anzmjCXBSa5EC5ZC1oJf511aYr7J4wprVUYZN3rZRzC7xoImCir7T/CKGA7BlP+3HYe0KgbKoMRkP00KSSDAKAF2WI2ee95uc7z44h8qOtgPaEy/dlXQtBXl51txSkMAKXuKDTtE2dgG9puH42zxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789047543; c=relaxed/simple;
-	bh=qNQbWhzkJJssUJVitD2nzb/OS5KtUH+QbWhYXxuUlV4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mmSo2/KZvpFr7/eonGKJ7soIqp1HXacu55u1Bf/VKOKvqzlcOBwlT4CLY83t/ct8rUGUXvPKqGHIDs7+wRuqWCkvgvI6sBIQJ+2L2ZJN9GmCFIOM0LYE22tl8t6G5XE4RH1dzhq5FY5ciqrm7jVuof1etd7Z2qBtIm1Z+1jUxEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=AVM5p1SV; arc=none smtp.client-ip=80.241.56.161
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1789051299; c=relaxed/simple;
+	bh=NQhEknJQA8Ya6L5zdIqdUOsD85jIBAx1y0eYH103iRE=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=SIVxpfTh34phbtmWujLCiu0o27jo+wdJ4dC2xJbi0CKrt37bmseqpwdVqdTFSZJ4S3pdfFEv0zWjXG6owY4I1axrQhxA2hbdmhoeFEDEwD3NAvHUXiqqbqbtycCTNp5rNyLWecmeeME9V7s2Uf5P3d2qBh5WVpr3cGYEISznv0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=l/3pZbar; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="AVM5p1SV"
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="l/3pZbar"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1789051295;
+	bh=NQhEknJQA8Ya6L5zdIqdUOsD85jIBAx1y0eYH103iRE=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=l/3pZbarrLBIxC/Bgeh0sOVvNAHiwRlpACyCd/tvr6a1aDM1yE39N2cpwZK+VQkVE
+	 MgyWtOO0Dc/G1ZYcB3Qm2E1JLOY5QbBZm9ZMoR9VGyxl8WU4ADu2K1EFkl5j0Iad/6
+	 XiSMMocF2vJVEhsJ1ZOcck/zDrlzfTgL8Y4/YjcB/mFxDppjKilV/UtDKUyEpZP31Q
+	 mTKYy9+55otmsuxQ4ciXEEflpRBMZuFFQOBurS1VbeCxTqCCwf68d/vmE7JBrSXGzi
+	 NWXbHAsrvc2mgBb8+DDl0wZsc62pBjWjXdb1zlMM5WGG2NQrb7qk2p8HS+ZRws6USc
+	 ICkrBPI187SkA==
+Received: from IcarusMOD.eternityproject.eu (unknown [100.64.1.21])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4hgf0B2FPgzKnVM;
-	Thu, 10 Sep 2026 15:38:50 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1789047530;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KUX5+gLyZAnP+hET6uf/pLlFw8Zwibdi/KIZTVJajXU=;
-	b=AVM5p1SVJTMybgY83sDrM8ghcdxBl9w7DmaxUYlPh5qWX7HHkdbzsQylsQRLzy0cOFPU9D
-	+Bxff/k8aRv7Ddt0x0in+04pTa5VfvYDCoVn3EhR4+kB6a0ZEtIFNK8YCjbuYY3GCVuS3n
-	yESj7lYVCqsYZ/mI2Sup5xhke19KMsez3MoRrNHaH6m6LRaaeF2EfEg8LqT1sPQXLhNgY5
-	L6smBxrBrwnnSIpfNAHRa5cWybNrhb9S6bkh8KH+4lU7z9dzhvVkqvG0tn4UEBQen5953v
-	tEYxajEOSWBdZF9rOTAMhbsHH6HTepUZl4s26b8y4ZDR1vp5K81HXruopDqxGw==
-Date: Thu, 10 Sep 2026 15:38:43 +0200
-From: Zakariya Hadrami <zkh@mailbox.org>
-To: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Sean Wang <sean.wang@mediatek.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, zkh1@proton.me
-Subject: Re: [PATCH v4 4/4] ARM: dts: mediatek: Add basic support for Amazon
- ford board
-Message-ID: <aqKxMgAI4bPNx78kzjYD05-zkh@mailbox.org>
-References: <20260909-mt8127-amazon-ford-basic-v4-0-e9af5c420ab1@mailbox.org>
- <20260909-mt8127-amazon-ford-basic-v4-4-e9af5c420ab1@mailbox.org>
- <ab00e8c8-cbc2-4fe1-8900-f169aeab5a98@collabora.com>
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id D79DB17E05D3;
+	Thu, 10 Sep 2026 16:41:34 +0200 (CEST)
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+To: Matthias Brugger <matthias.bgg@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Sean Wang <sean.wang@mediatek.com>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Zakariya Hadrami <zkh@mailbox.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-watchdog@vger.kernel.org, zkh1@proton.me, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+In-Reply-To: <20260910-mt8127-amazon-ford-basic-v5-0-3cb9eeaffd5c@mailbox.org>
+References: <20260910-mt8127-amazon-ford-basic-v5-0-3cb9eeaffd5c@mailbox.org>
+Subject: Re: (subset) [PATCH v5 0/4] ARM: Basic support for Amazon ford
+ tablet (MT8127)
+Message-Id: <178905129482.89344.17321319958555136692.b4-ty@b4>
+Date: Thu, 10 Sep 2026 16:41:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ab00e8c8-cbc2-4fe1-8900-f169aeab5a98@collabora.com>
-X-MBO-RS-META: bxmk3mkmxrb34g5mrb17nipnddazm3fu
-X-MBO-RS-ID: d3b653577f41815733c
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.16.0
 
-On Thu, Sep 10, 2026 at 11:29:55AM +0200, AngeloGioacchino Del Regno wrote:
-> >diff --git a/arch/arm/boot/dts/mediatek/mt8127-amazon-ford.dts b/arch/arm/boot/dts/mediatek/mt8127-amazon-ford.dts
-> >new file mode 100644
-> >index 000000000000..8edad5482de2
-> >--- /dev/null
-> >+++ b/arch/arm/boot/dts/mediatek/mt8127-amazon-ford.dts
-> >@@ -0,0 +1,54 @@
-> >+// SPDX-License-Identifier: GPL-2.0
-> >+
-> >+/dts-v1/;
-> >+#include "mt8127.dtsi"
-> >+
-> >+/ {
-> >+	model = "MediaTek MT8127 Amazon Ford";
-> 
-> Please be friendlier with whoever reads this model string :-)
-> 
-> 	model = "Amazon Fire 7 2015 (Ford)";
-> 
-> that's better, isn't it?
+On Thu, 10 Sep 2026 15:29:11 +0200, Zakariya Hadrami wrote:
+> This series of patches adds basic support for MT8127 SoC based Amazon ford
+> tablet.
 
-My bad, sorry!
+Applied to v7.3-next/dts32, thanks!
 
-This and the missing space in watchdog compatible fixed in v5.
-Link to v5: https://patch.msgid.link/20260910-mt8127-amazon-ford-basic-v5-0-3cb9eeaffd5c@mailbox.org
+[2/4] dt-bindings: arm: mediatek: Add MT8127 Amazon ford
+      commit: f97be0d722ebef4de65a39813778f6ba62c2ac1e
+[3/4] ARM: dts: mediatek: mt8127: Add watchdog support
+      commit: 5e23e7d730c6e984e4f03c3b25e2188de9f4ba99
+[4/4] ARM: dts: mediatek: Add basic support for Amazon ford board
+      commit: 2e195497fc9fc0dd89cf95dab80a2d0486dab65b
 
-Thank you very much!
+Cheers,
+Angelo
 
-> 
-> After applying the proposed change,
-> Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-> 
-> Cheers,
-> Angelo
-> 
-> >+	compatible = "amazon,ford", "mediatek,mt8127";
-> >+	chassis-type = "tablet";
 
--- 
-Best regards,
-Zakariya
