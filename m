@@ -1,28 +1,28 @@
 Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BDFA221F26;
-	Thu, 10 Sep 2026 05:08:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581953AA50B;
+	Thu, 10 Sep 2026 05:08:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789016886; cv=none; b=dO+b3F7yJJm9GmtxdOurrSzmX3sN9qQLDtzz7Qx+NBmIHmeKxjo8Oo78wSVN0x3pLeW/6UTYMjZtvxRpnRbq2WU9Ht/4QeHgHihyaVZBVMrv4NGDlu02Kuy/Eu02K+/ZgcFbjSxNs9rWctEVno5KlrVjrDUfBwzkZ4cU8zRu3Mg=
+	t=1789016887; cv=none; b=F/t41qsgP6HnIOCzh3FmT1sq5EMFz1A505PZ6vul+3/iQ3sgO00x8NCuE1HI7Gf48kc5zSTcPiqSgD9la8kfzEZpMobIZ1L5ZJr0+PI6aZ2U7bnloDEEvgleKIqtesiAJsxV9lPu3g+sbrq36dq4W35dg/PllnQtR0QBXDn6lhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789016886; c=relaxed/simple;
-	bh=n/fxSucoH2WMfUtJqfzH0nrpSUyqNWkV52xSqITh/Ag=;
+	s=arc-20240116; t=1789016887; c=relaxed/simple;
+	bh=8Jal5HGjK356Dc65FpCPalwFLsiPY6g+TRNhA3Ci2tw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=S2o4yiUIfggUzfcBqz7xQwniTcH4HQifT+0BMkUOBDy0pTnqCw/ppEa/AWQnUyzFXTRknT3nOHRfWxXx2gTzLonwl7XfYhHiqslAFYvsF1ffl6JrVA9XgiFRWhGmEN0BNPghGtURH8sl5gwbR0lcQFm4pbuEnohdGxvET1yd0fk=
+	 MIME-Version; b=Y2QT5bw6Fe//K02DKPlLn8LFyjEVhciKM0JtoJCnqoRLSZBijHEimjQob3mUB+cAsmIGMrfvs/Q64jlPhGP0nu3YIB3LsXCKSMq2O/2XeBixtekoWiFX3JjYOrLlpZ+4+OqHXcsygEn+wPJ3VDsyrIma3KrQKZFb4XXH/6CY0As=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id E16B620034B;
-	Thu, 10 Sep 2026 07:07:56 +0200 (CEST)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 0818F200387;
+	Thu, 10 Sep 2026 07:07:58 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id AA59C200341;
-	Thu, 10 Sep 2026 07:07:56 +0200 (CEST)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id CD10E20036F;
+	Thu, 10 Sep 2026 07:07:57 +0200 (CEST)
 Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 723A418000B5;
-	Thu, 10 Sep 2026 13:07:55 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 916F21800068;
+	Thu, 10 Sep 2026 13:07:56 +0800 (+08)
 From: Lakshay Piplani <lakshay.piplani@nxp.com>
 To: alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org,
@@ -37,9 +37,9 @@ To: alexandre.belloni@bootlin.com,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [PATCH v5 4/5] rtc: pcf85363: add oscillator offset calibration support
-Date: Thu, 10 Sep 2026 10:37:46 +0530
-Message-Id: <20260910050747.1901440-4-lakshay.piplani@nxp.com>
+Subject: [PATCH v5 5/5] rtc: pcf85363: add watchdog support with configurable step size
+Date: Thu, 10 Sep 2026 10:37:47 +0530
+Message-Id: <20260910050747.1901440-5-lakshay.piplani@nxp.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20260910050747.1901440-1-lakshay.piplani@nxp.com>
 References: <20260910050747.1901440-1-lakshay.piplani@nxp.com>
@@ -52,28 +52,43 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Expose the oscillator offset register of PCF85263/PCF85363 through the
-read_offset and set_offset rtc_class_ops callbacks, so userspace can
-apply frequency correction for drift compensation.
+Add watchdog support to PCF85263/PCF85363 using the watchdog subsystem.
+The 5-bit count selects the timeout with a clock step: timeouts up to
+30 seconds use the 1 Hz step, longer ones the 0.25 Hz step (max 120 s),
+reported back through the watchdog device. One count of margin is added
+because the first period after a reload lasts between WDR and WDR-1
+counts, so the timeout is never shorter than requested. Select
+WATCHDOG_CORE if WATCHDOG so the device can register.
 
-The offset is in parts per billion (ppb). CTRL_OFFSET is a signed 8-bit
-step count whose size depends on the OFFM bit: 2170 ppb/step normal and
-2034.5 ppb/step fast, the latter computed with an x10-scaled constant to
-keep the arithmetic integer. Values are range-checked before that scaling
-so the multiply cannot overflow, and out-of-range values are rejected
-with -ERANGE rather than clamped.
+The chip has no reset output; expiry is only signalled via the WDF flag
+routed to INTA, so this is an alarm-only watchdog (WDIOF_ALARMONLY). WDIE
+is toggled on start/stop with rollback-safe register ordering, expiry is
+rate-limited from the IRQ handler, and the watchdog is only registered
+when an interrupt line is present. WDF is cleared through the
+write-0-to-clear helper.
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
 
 ---
 V4 -> V5:
-- Report and accept the offset in ppb (per the RTC offset ABI) using the
-  step selected by OFFM (2170 ppb, or 2034.5 ppb fast via x10 scaling).
-- Range-check before the x10 scaling to avoid overflow, and reject
-  out-of-range values with -ERANGE instead of clamping.
+- Select WATCHDOG_CORE if WATCHDOG so the device can register.
+- Scale the timeout by the clock select with one count of margin (1 Hz
+  step up to 30 s, else 0.25 Hz, max 120 s) and report it back.
+- Alarm-only watchdog (WDIOF_ALARMONLY): expiry is only signalled via WDF
+  routed to INTA; toggle WDIE on start/stop with rollback-safe ordering.
+- Don't program WDR from .set_timeout when inactive (it would start the
+  watchdog); only reload when watchdog_active(), and drop the clamp.
+- Register the watchdog only when an interrupt line is present.
+- Use a fixed default timeout (no timeout-sec); userspace can change it.
+- Give the watchdog struct a back-pointer to struct pcf85363 and clear
+  WDF via the shared write-0-to-clear helper.
 
 V3 -> V4:
-- No changes in v4.
+- Use watchdog_init_timeout(&wd->wdd, 0, dev) to allow devicetree or module parameter overrides; 
+  fallback to WD_DEFAULT_TIMEOUT if not provided.
+- Centralized clock selection logic in pcf85363_wdt_select_clock() and applied dynamically 
+  whenever timeout changes.
+- Removed unused repeat variable and simplified timeout handling for clarity.
 
 V2 -> V3:
 - Split into separate patches as suggested:
@@ -96,108 +111,275 @@ V1 -> V2:
 - Minor cleanup and comments.
 ---
 ---
- drivers/rtc/rtc-pcf85363.c | 67 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ drivers/rtc/Kconfig        |   1 +
+ drivers/rtc/rtc-pcf85363.c | 196 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 195 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 05b9233b9418..4871cb3fb24d 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -516,6 +516,7 @@ config RTC_DRV_PCF8523
+ config RTC_DRV_PCF85363
+ 	tristate "NXP PCF85363"
+ 	select REGMAP_I2C
++	select WATCHDOG_CORE if WATCHDOG
+ 	help
+ 	  If you say yes here you get support for the PCF85363 RTC chip.
+ 
 diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 38bff8954e7f..9da4b1617f82 100644
+index 9da4b1617f82..2046643788fd 100644
 --- a/drivers/rtc/rtc-pcf85363.c
 +++ b/drivers/rtc/rtc-pcf85363.c
-@@ -115,6 +115,7 @@
- #define OSC_CAP_SEL	GENMASK(1, 0)
- #define OSC_CAP_6000	0x01
- #define OSC_CAP_12500	0x02
-+#define OSC_OFFM	BIT(6)
+@@ -23,6 +23,7 @@
+ #include <linux/of.h>
+ #include <linux/regmap.h>
+ #include <linux/string.h>
++#include <linux/watchdog.h>
  
- #define STOP_EN_STOP	BIT(0)
+ #include <dt-bindings/rtc/pcf85363-tsr.h>
  
-@@ -131,6 +132,14 @@
- #define TSR2_SHIFT      2
- #define TSR3_SHIFT      6
+@@ -147,6 +148,22 @@
+ #define PCF85363_SEC_MASK	0x7F
+ #define PCF85363_TS_READ_RETRIES	3
  
-+#define OFFSET_SIGN_BIT 7
-+#define OFFSET_MASK     0xFF
-+/* Offset step in ppb; fast mode (OFFM=1) is scaled x10 for integer maths. */
-+#define OFFSET_STEP_PPB		2170
-+#define OFFSET_STEP_PPB_FAST_X10	20345
-+#define OFFSET_PPB_MAX		(127 * OFFSET_STEP_PPB)
-+#define OFFSET_PPB_MIN		(-128 * OFFSET_STEP_PPB)
++#define WD_TIMEOUT_SHIFT        2
++#define WD_CLKSEL_MASK  GENMASK(1, 0)
++#define WD_CLKSEL_0_25HZ        0x00
++#define WD_CLKSEL_1HZ   0x01
++#define WD_CLKSEL_4HZ   0x02
++#define WD_CLKSEL_16HZ  0x03
++#define WD_MODE_REPEAT	BIT(7)
 +
- #define PCF85363_NUM_TS		3
- /* Bytes latched per timestamp register (sec, min, hour, day, mon, year). */
- #define PCF85363_TS_LEN		6
-@@ -515,6 +524,62 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
- 	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-+/*
-+ * CTRL_OFFSET is a signed step count; the step is 2170 ppb (normal) or
-+ * 2034.5 ppb (fast/OFFM, scaled x10 to keep the arithmetic integer).
-+ */
-+static int pcf85363_read_offset(struct device *dev, long *offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+	unsigned int val, osc;
-+	long steps;
-+	int ret;
++#define WD_DEFAULT_TIMEOUT  10
++#define WD_TIMEOUT_MIN	1
++#define WD_COUNT_MAX	0x1F
++/* Longest guaranteed timeout at the 0.25 Hz step (WDR=31, one count margin). */
++#define WD_TIMEOUT_MAX	120
++/* Longest timeout served by the 1 Hz step (WDR=31, one count margin). */
++#define WD_TIMEOUT_1HZ_MAX	30
 +
-+	ret = regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_read(pcf85363->regmap, CTRL_OSCILLATOR, &osc);
-+	if (ret)
-+		return ret;
-+
-+	steps = sign_extend32(val, OFFSET_SIGN_BIT);
-+
-+	if (osc & OSC_OFFM)
-+		*offset = steps * OFFSET_STEP_PPB_FAST_X10 / 10;
-+	else
-+		*offset = steps * OFFSET_STEP_PPB;
-+
-+	return 0;
-+}
-+
-+static int pcf85363_set_offset(struct device *dev, long offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+	unsigned int osc;
-+	long steps;
-+	int ret;
-+
-+	ret = regmap_read(pcf85363->regmap, CTRL_OSCILLATOR, &osc);
-+	if (ret)
-+		return ret;
-+
-+	/* Range-check before the x10 scaling so the multiply cannot overflow. */
-+	if (offset > OFFSET_PPB_MAX || offset < OFFSET_PPB_MIN)
-+		return -ERANGE;
-+
-+	if (osc & OSC_OFFM)
-+		steps = DIV_ROUND_CLOSEST(offset * 10, OFFSET_STEP_PPB_FAST_X10);
-+	else
-+		steps = DIV_ROUND_CLOSEST(offset, OFFSET_STEP_PPB);
-+
-+	if (steps < -128 || steps > 127)
-+		return -ERANGE;
-+
-+	return regmap_write(pcf85363->regmap, CTRL_OFFSET,
-+			    steps & OFFSET_MASK);
-+}
-+
- static int pcf85363_rtc_ioctl(struct device *dev,
- 			      unsigned int cmd, unsigned long arg)
- {
-@@ -562,6 +627,8 @@ static const struct rtc_class_ops rtc_ops = {
- 	.read_alarm	= pcf85363_rtc_read_alarm,
- 	.set_alarm	= pcf85363_rtc_set_alarm,
- 	.alarm_irq_enable = pcf85363_rtc_alarm_irq_enable,
-+	.read_offset = pcf85363_read_offset,
-+	.set_offset = pcf85363_set_offset,
+ /* Cached timestamp; the flag is cleared once the value is copied here. */
+ struct pcf85363_ts {
+ 	bool valid;
+@@ -169,6 +186,13 @@ struct pcf85x63_config {
+ 	unsigned int num_nvram;
  };
  
- static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
++struct pcf85363_watchdog {
++	struct watchdog_device wdd;
++	struct pcf85363 *pcf85363;
++	u8 timeout_val;
++	u8 clock_sel;
++};
++
+ /*
+  * CTRL_FLAGS is write-0-to-clear, so write the complement of the mask to
+  * clear only the requested bits without disturbing the others.
+@@ -483,12 +507,13 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 
+ 	if (flags) {
+-		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s\n",
++		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s%s\n",
+ 			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
+ 			(flags & FLAGS_TSR1F) ? " [TSR1F]" : "",
+ 			(flags & FLAGS_TSR2F) ? " [TSR2F]" : "",
+ 			(flags & FLAGS_TSR3F) ? " [TSR3F]" : "",
+-			(flags & FLAGS_BSF) ? " [BSF]" : "");
++			(flags & FLAGS_BSF) ? " [BSF]" : "",
++			(flags & FLAGS_WDF) ? " [WDF]" : "");
+ 	}
+ 
+ 	if (flags & FLAGS_A1F) {
+@@ -512,6 +537,15 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ 		handled = true;
+ 	}
+ 
++	if (flags & FLAGS_WDF) {
++		dev_warn_ratelimited(&pcf85363->rtc->dev,
++				     "watchdog timer expired\n");
++		if (pcf85363_clear_flags(pcf85363, FLAGS_WDF))
++			dev_err(&pcf85363->rtc->dev,
++				"failed to clear watchdog flag\n");
++		handled = true;
++	}
++
+ 	/*
+ 	 * Clear flags this handler does not service (e.g. A2F/PIF); otherwise
+ 	 * they hold the level-triggered INTA line asserted and storm the IRQ.
+@@ -691,6 +725,153 @@ static const struct pcf85x63_config pcf_85363_config = {
+ 	.num_nvram = 2
+ };
+ 
++/*
++ * Program the watchdog counter (WDR) so the reported timeout is never
++ * shorter than requested: the first period after a reload lasts between
++ * WDR and WDR-1 counts, so add one count of margin. Timeouts up to 30 s
++ * use the 1 Hz step (1 s/count); longer ones the 0.25 Hz step (4 s/count).
++ */
++static void pcf85363_wdt_select_clock(struct pcf85363_watchdog *wd)
++{
++	unsigned int timeout = wd->wdd.timeout;
++
++	if (timeout <= WD_TIMEOUT_1HZ_MAX) {
++		wd->clock_sel = WD_CLKSEL_1HZ;
++		wd->timeout_val = timeout + 1;
++		wd->wdd.timeout = timeout;
++	} else {
++		wd->clock_sel = WD_CLKSEL_0_25HZ;
++		wd->timeout_val = DIV_ROUND_UP(timeout, 4) + 1;
++		wd->wdd.timeout = DIV_ROUND_UP(timeout, 4) * 4;
++	}
++}
++
++/* Repeat mode restarts the watchdog automatically after each period. */
++static int pcf85363_wdt_reload(struct pcf85363_watchdog *wd)
++{
++	u8 val;
++
++	val = WD_MODE_REPEAT |
++	      ((wd->timeout_val & WD_COUNT_MAX) << WD_TIMEOUT_SHIFT) |
++	      (wd->clock_sel & WD_CLKSEL_MASK);
++
++	return regmap_write(wd->pcf85363->regmap, CTRL_WDOG, val);
++}
++
++static int pcf85363_wdt_start(struct watchdog_device *wdd)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++	int ret;
++
++	/* Route WDF to INTA; alarm-only, the chip has no reset output. */
++	ret = regmap_update_bits(wd->pcf85363->regmap, CTRL_INTA_EN,
++				 INT_WDIE, INT_WDIE);
++	if (ret)
++		return ret;
++
++	ret = pcf85363_wdt_reload(wd);
++	if (ret)
++		regmap_update_bits(wd->pcf85363->regmap, CTRL_INTA_EN,
++				   INT_WDIE, 0);
++
++	return ret;
++}
++
++static int pcf85363_wdt_stop(struct watchdog_device *wdd)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++	int ret;
++
++	/* Halt the counter first so a failed disable cannot leave it armed. */
++	ret = regmap_write(wd->pcf85363->regmap, CTRL_WDOG, 0);
++	if (ret)
++		return ret;
++
++	return regmap_update_bits(wd->pcf85363->regmap, CTRL_INTA_EN,
++				  INT_WDIE, 0);
++}
++
++static int pcf85363_wdt_ping(struct watchdog_device *wdd)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++	int ret;
++
++	ret = pcf85363_clear_flags(wd->pcf85363, FLAGS_WDF);
++	if (ret)
++		return ret;
++
++	return pcf85363_wdt_reload(wd);
++}
++
++static int pcf85363_wdt_set_timeout(struct watchdog_device *wdd,
++				    unsigned int timeout)
++{
++	struct pcf85363_watchdog *wd = watchdog_get_drvdata(wdd);
++
++	wdd->timeout = timeout;
++
++	pcf85363_wdt_select_clock(wd);
++
++	/*
++	 * Programming the counter with a non-zero value starts it, so only
++	 * reprogram when the watchdog is already running; the core keeps the
++	 * new timeout for the next start otherwise.
++	 */
++	if (!watchdog_active(wdd))
++		return 0;
++
++	return pcf85363_wdt_reload(wd);
++}
++
++static const struct watchdog_info pcf85363_wdt_info = {
++	.identity = "PCF85363 Watchdog",
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_ALARMONLY,
++};
++
++static const struct watchdog_ops pcf85363_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = pcf85363_wdt_start,
++	.stop = pcf85363_wdt_stop,
++	.ping = pcf85363_wdt_ping,
++	.set_timeout = pcf85363_wdt_set_timeout,
++};
++
++static int pcf85363_watchdog_init(struct device *dev, struct pcf85363 *pcf85363)
++{
++	struct pcf85363_watchdog *wd;
++	int ret;
++
++	if (!IS_ENABLED(CONFIG_WATCHDOG))
++		return 0;
++
++	wd = devm_kzalloc(dev, sizeof(*wd), GFP_KERNEL);
++	if (!wd)
++		return -ENOMEM;
++
++	wd->pcf85363 = pcf85363;
++
++	wd->wdd.info = &pcf85363_wdt_info;
++	wd->wdd.ops = &pcf85363_wdt_ops;
++	wd->wdd.min_timeout = WD_TIMEOUT_MIN;
++	wd->wdd.max_timeout = WD_TIMEOUT_MAX;
++	wd->wdd.timeout = WD_DEFAULT_TIMEOUT;
++	wd->wdd.parent = dev;
++	wd->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++
++	/* Fixed default timeout; userspace can change it via WDIOC_SETTIMEOUT. */
++	pcf85363_wdt_select_clock(wd);
++
++	ret = pcf85363_clear_flags(pcf85363, FLAGS_WDF);
++	if (ret) {
++		dev_err(dev, "failed to clear WDF:%d\n", ret);
++		return ret;
++	}
++
++	watchdog_set_drvdata(&wd->wdd, wd);
++
++	return devm_watchdog_register_device(dev, &wd->wdd);
++}
++
+ /* Six BCD bytes; bit 7 of the seconds byte is reserved, not time data. */
+ static ssize_t pcf85363_format_timestamp(const u8 *regs, char *buf)
+ {
+@@ -943,6 +1124,17 @@ static int pcf85363_probe(struct i2c_client *client)
+ 		/* Without an interrupt line the alarm cannot be delivered. */
+ 		clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+ 	}
++
++	/*
++	 * Watchdog expiry is only signalled via INTA (no reset output), so it
++	 * needs an interrupt line to be usable.
++	 */
++	if (irq_a > 0) {
++		ret = pcf85363_watchdog_init(dev, pcf85363);
++		if (ret)
++			return dev_err_probe(dev, ret, "Watchdog init failed\n");
++	}
++
+ 	if (irq_a > 0 || wakeup_source)
+ 		device_init_wakeup(dev, true);
+ 
 -- 
 2.25.1
 
