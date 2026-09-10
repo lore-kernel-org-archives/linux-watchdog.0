@@ -1,216 +1,209 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B6C3BB677;
-	Thu, 10 Sep 2026 06:24:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC8E3806DC;
+	Thu, 10 Sep 2026 06:24:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789021469; cv=none; b=A44xBh/E0GxAVbH+Tdj3kmF26NKFlpS7MrF5DJou41rpcJjAiPgm0YH74k6xWJRvZGDmQuHV8/6HSGdndvyQGHnhJVLUuhqjO86tdhEH7ATGdVmEEUWKHyHTMX9qYh7umxUSnpmlXa6NxW/1oDjdvOLAfnfr+JOvi5glM/cRtU8=
+	t=1789021500; cv=none; b=IwZcUNuPjArA10kEdXSrQs8VjQZcVSdFcTZCTYKwkW6tyj0gcMY/QtSTa4bdRZ1b2wBjdg2AU3o5d2auY8NjxTbVEjTM9qbcW7I6pg4lN96v+xGfzZqPr1ePhgNCKbWfprl7I999rrlvlYdaCrmh0Sba98Di5pB89dauFYHgqSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789021469; c=relaxed/simple;
-	bh=3VkPXhOVat9bta2US2+kUu8osrymZpLV6J7Y+lY+100=;
+	s=arc-20240116; t=1789021500; c=relaxed/simple;
+	bh=aMzSKd5Mjcg+xCD5zfLPnt/B0PBjyFuywkDtpKKyT2k=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=h9ml8/FfdamQqBHD+WrcEV5qN8ZGpPrFe2DLYSQpdDdJivJVZjnM+KfpswiHTuH7MR1zEfIMtpqSVfeJ3owzw44dlCpm6uOR/NQBIffACAnvQfskMOj+Y/fBPr7MvHSiHEzMrbAfC5Jx9b/RpygZb3B6+Lb3SaZvISG7fSpQRek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=du72ABQ4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=QQPLoJ9O1JGld4U+PV5+4ppeeQ7utvfX3aGZbY/L0ilqzmHALQlwLK4oYHIyln5jshiNFcLglq4pW51E0PlGxptYPX5AnMrJlK3oCCdZzhgqvKLC0D7Aor15ukt0SWLQBnIWu163W2m8lfiLkmMG5UBHgEIL5rwYMPL2jWZFAE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cbx49SVm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="du72ABQ4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2CF1F000FF;
-	Thu, 10 Sep 2026 06:24:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cbx49SVm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A99421F000FF;
+	Thu, 10 Sep 2026 06:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789021467;
-	bh=rXISX+UNHS0qrMwr7CA1bwdG4ZmIl/0/rWhicBzT7ZM=;
+	s=k20260515; t=1789021498;
+	bh=LfGd0fsd+J7Xvr0/mRFblxaRUqfrTJwOa4VroBqvA9s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=du72ABQ43KLQ1vsT8pyIvJBpOLFPyXi5OEuuNYnUj8AFQZSJgDASSFBiuCphCU2SO
-	 ft+pH2A4Nh5SAaQrBVRbYHKa2abCBNa1HSLsjt63/qeDRgy/M+UpdySx3LhrPT2odE
-	 8QG/XyuGlny3Wv10LOqJJz0bVltS4iZdj650f6Qzj61lz+33fI5/Go0gFEf2dGtDPk
-	 9M5Gq5/0D3twjWCmy+82y3tv4TM6qgQskQ0fpUE8rLrg2Dvz8O6fd1ndBeFHw2hIrQ
-	 c5SGEbpQnHECgX3pLcWcZ7XxFW9+dsP5VbsHSq+qWEVYd3PqmgEhlKd4W6S30QR52V
-	 fwl1OcwwzC0Pg==
+	b=cbx49SVmMm4LKgtjz2MFCgn2X4W6r5WdPV3/sMaGMrzUMnZxPx8IqDDdxMtVNFDv2
+	 EawAGOxv1lOIuWpSIqsUdOPY0WeFRwfHvUvd6ECdqdPaw1BsgzgyDNnNzGnbf0psnY
+	 dBy1dzT4FqkuZ4JHfSPt106pkq6tjeqySbiSfnQB+MlRslSLhQdsXV7nnuyoW6yjzo
+	 J2rWdx6DaQLN0AIgg+dxVHKreW4bFL9b87BenhqSgVicTmW4v42ysuSZzQkRz5iN0j
+	 xuXbcO8hwzEzm1vZn7337DrUQxcOiM0uutnYIrw5l+z7u97K7XkNCkfpX1VVFXPpCX
+	 5i2qrsQ+trhvQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
+Subject: Re: [PATCH v3 3/4] rtc: pcf8525: Add watchdog support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260910060912.2443551-3-shivprakash.gupta@nxp.com>
+Cc: linux-rtc@vger.kernel.org, conor+dt@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, linux-hwmon@vger.kernel.org
+In-Reply-To: <20260910060912.2443551-4-shivprakash.gupta@nxp.com>
 References: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
- <20260910060912.2443551-3-shivprakash.gupta@nxp.com>
+ <20260910060912.2443551-4-shivprakash.gupta@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 06:24:26 +0000
-Message-Id: <20260910062426.7D2CF1F000FF@smtp.kernel.org>
+Date: Thu, 10 Sep 2026 06:24:57 +0000
+Message-Id: <20260910062457.A99421F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] RMW operations on PCF8525_REG_CTRL2 accidentally clear the watchdo=
-g interrupt flag (WDTF) by omitting it from the regmap_update_bits mask.
-- [Medium] Missing cleanup for wake IRQ and wakeup source on probe failure =
-and driver unbind leads to memory leaks and potential UAF.
-- [Medium] Unchecked return value of regmap_write for the CTS command leads=
- to inconsistent software/hardware state.
+- [High] Fake WDIOF_PRETIMEOUT support breaks pretimeout functionality and =
+watchdog reset guarantees.
+- [High] Watchdog is not stopped during system suspend if it is running but=
+ not actively opened.
+- [High] Unconditionally masking the INTB pin on driver unbind defeats the =
+hardware watchdog reset guarantees.
+- [High] Read-modify-write operations in pre-existing RTC handlers accident=
+ally clear the newly-enabled watchdog flag (WDTF).
 --
 
-commit d47460240cda581b03b6f4da9e28d366adee1b6a
+commit 64b260e0a56bf2f53534b37b3e23d2d66162de37
 Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 
-rtc: pcf8525: Add NXP PCF8525 RTC driver
+rtc: pcf8525: Add watchdog support
 
-Add support for time and date, alarms, timestamp capture, backup
-switch-over configuration, external crystal configuration and clock
-offset correction.
+Adds watchdog support for NXP PCF8525 real time clock (RTC) device.
 
 > diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> new file mode 100644
-> index 0000000000000..9da8bcde7ef11
-> --- /dev/null
+> --- a/drivers/rtc/rtc-pcf8525.c
 > +++ b/drivers/rtc/rtc-pcf8525.c
 [ ... ]
-> +static int pcf8525_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+> @@ -879,6 +901,296 @@ static const struct rtc_class_ops pcf8525_rtc_ops =
+=3D {
+[ ... ]
+> +static const struct watchdog_info pcf8525_wdt_info =3D {
+> +	.identity =3D "NXP PCF8525 Watchdog",
+> +	.options =3D WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_PRETIMEOUT,
+> +};
+
+[Severity: High]
+Does advertising WDIOF_PRETIMEOUT here prevent the core from falling back to
+hrtimer-based software pretimeout, despite the driver having no native
+pretimeout support?
+
+[ ... ]
+> +static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
 > +{
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
-> +	u8 buf[7];
-> +	int ret;
-> +
+[ ... ]
 > +	/*
-> +	 * Clear AF (W0C). Include MSF in the mask and write 1 to preserve it:
-> +	 * writing 0 to a W0C bit that asserted between the read and write would
-> +	 * silently drop the event.
+> +	 * W0C: clear WDTF. Include AF and MSF in the mask and write 1 to them
+> +	 * so the RMW does not accidentally clear a concurrently asserted alarm
+> +	 * or minute/second interrupt flag.
 > +	 */
 > +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF,
-> +				 PCF8525_CTRL2_MSF);
-
-[Severity: High]
-Does this regmap_update_bits() call accidentally clear the watchdog
-interrupt flag?
-
-Since PCF8525_CTRL2_WDTF is omitted from the mask, a concurrent
-assertion of the watchdog pretimeout flag between the regmap read
-and write might be cleared unintentionally, causing the pretimeout
-handler to be dropped.
-
+> +				 PCF8525_CTRL2_WDTF | PCF8525_CTRL2_AF |
+> +				 PCF8525_CTRL2_MSF,
+> +				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF);
 > +	if (ret)
-> +		return ret;
-[ ... ]
-> +static ssize_t timestamp_store_common(struct device *dev, const char *bu=
-f,
-> +				      size_t count, int id)
-> +{
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
-> +	int ret;
-[ ... ]
-> +	if (pcf8525->irq_enabled) {
-> +		/*
-> +		 * Hold the mutex across the software state update and the
-> +		 * hardware CTS + TSF-clear sequence.
-> +		 *
-> +		 * pcf8525_irq() re-reads CTRL4 under the same mutex before
-> +		 * touching the timestamp registers.  Clearing TSF here ensures
-> +		 * that if the IRQ handler is blocked waiting for the mutex, it
-> +		 * will see TSF=3D0 on its re-read and skip reading the now-zeroed
-> +		 * CTS registers.  Without this clear the IRQ could read all-
-> +		 * zeros from the CTS-wiped registers and cache garbage.
-> +		 */
-> +		mutex_lock(&pcf8525->ts_mutex);
-> +		pcf8525->ts_valid[id] =3D false;
-> +		regmap_write(pcf8525->regmap, PCF8525_REG_RESET,
-> +			     PCF8525_RESET_CTS_CMD);
-> +		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4,
-> +				   PCF8525_CTRL4_TSF, 0);
-
-[Severity: Medium]
-What happens if the underlying regmap_write() or regmap_update_bits() fails?
-
-The lack of error checks here leaves the driver assuming the hardware state
-was successfully cleared. If the clear failed, userspace receives a false
-success, and the software cache could become desynchronized from the hardwa=
-re,
-potentially causing the IRQ handler to incorrectly repopulate the cache with
-the same old timestamp.
-
-> +		mutex_unlock(&pcf8525->ts_mutex);
-> +		return count;
-> +	}
-[ ... ]
-> +static irqreturn_t pcf8525_irq(int irq, void *data)
-> +{
-> +	struct device *dev =3D data;
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
-[ ... ]
-> +	if (ctrl2 & PCF8525_CTRL2_MSF) {
-> +		/*
-> +		 * W0C: clear MSF, protect AF from being accidentally cleared
-> +		 * by writing 1 to it.
-> +		 */
-> +		ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +					 PCF8525_CTRL2_MSF | PCF8525_CTRL2_AF,
-> +					 PCF8525_CTRL2_AF);
+> +		return IRQ_NONE;
+> +
 
 [Severity: High]
-Does this operation risk dropping the watchdog interrupt?
+This isn't a bug introduced by this patch, but adding the WDTF flag exposes=
+ a
+pre-existing issue in other handlers.
 
-Similar to pcf8525_set_alarm(), the PCF8525_CTRL2_WDTF flag is missing
-from the mask, exposing the watchdog interrupt to being accidentally cleared
-when acknowledging RTC interrupts.
+In pre-existing code like pcf8525_irq() and pcf8525_set_alarm(),
+read-modify-write operations on PCF8525_REG_CTRL2 accidentally clear this
+newly-enabled WDTF flag.
 
-> +		if (ret)
-> +			return IRQ_NONE;
-> +	}
-> +
+For example, in pcf8525_irq():
+
+    regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
+                       PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF,
+                       PCF8525_CTRL2_MSF);
+
+If WDTF asserts between the read and write, will writing 0 to it accidental=
+ly
+clear the watchdog flag and lose the interrupt?
+
+> +	watchdog_notify_pretimeout(&pcf8525->wdd);
 > +	return IRQ_HANDLED;
 > +}
+
+[Severity: High]
+If the final hardware timeout is unconditionally treated as a pretimeout he=
+re,
+will a subsequent hardware reset ever occur if wired as an interrupt?
+
+Without a secondary timer to perform the actual reset, deployments relying =
+on
+this watchdog for system recovery might silently fail to reboot.
+
 [ ... ]
-> +static int pcf8525_probe(struct i2c_client *client)
+> +static void pcf8525_mask_intb(void *data)
 > +{
-> +	struct device *dev =3D &client->dev;
-> +	struct pcf8525 *pcf8525;
-[ ... ]
-> +	/* Optional IRQ */
-> +	if (client->irq > 0) {
-> +		ret =3D devm_request_threaded_irq(dev, client->irq,
-> +						NULL, pcf8525_irq,
-> +						IRQF_ONESHOT,
-> +						dev_name(dev), dev);
-> +		if (ret)
-> +			return dev_err_probe(dev, ret,
-> +					     "failed to request INTA IRQ\n");
+> +	struct pcf8525 *pcf8525 =3D data;
+> +	unsigned int m1;
+> +	int ret;
 > +
-> +		pcf8525->irq_enabled =3D true;
-> +
-> +		/* Route/unmask alarm + timestamp to INTA by default */
-> +		ret =3D pcf8525_unmask_irqs_intA(pcf8525);
-> +		if (ret)
-> +			return ret;
-> +
-> +		device_init_wakeup(dev, true);
-> +		dev_pm_set_wake_irq(dev, client->irq);
-> +		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
+> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
+> +	if (!ret) {
+> +		m1 |=3D PCF8525_MASK1_WD_CD;
+> +		regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
 > +	}
-
-[Severity: Medium]
-Will this leak the unmanaged wake IRQ and wakeup source if probe fails later
-or when the driver is unbound?
-
-The driver sets the wake IRQ using dev_pm_set_wake_irq() (ignoring the
-return value) but does not clean it up on error paths in pcf8525_probe()
-(like devm_rtc_register_device() failure) or via a registered .remove
-callback/devm action. This can leak the struct wake_irq and leave a dangling
-pointer in dev->power.wakeirq, causing subsequent driver rebinds to fail.
-
+> +}
 > +
-> +	/* Register device */
-> +	ret =3D devm_rtc_register_device(pcf8525->rtc);
-> +	if (ret)
-> +		return ret;
+> +static int pcf8525_watchdog_init(struct device *dev,
+> +				 struct pcf8525 *pcf8525)
+> +{
+[ ... ]
+> +	/* Register a cleanup action to re-mask INTB on driver unbind. */
+> +	ret =3D devm_add_action_or_reset(dev, pcf8525_mask_intb, pcf8525);
+
+[Severity: High]
+Does unconditionally masking the INTB pin on driver unbind defeat the hardw=
+are
+watchdog reset guarantees?
+
+If the watchdog is configured with the nowayout feature, or closed without
+the magic character, the core watchdog subsystem intentionally leaves the
+hardware timer running on driver unbind to ensure the system is eventually
+reset.
+
+Will silencing the physical reset line here prevent the hardware from
+asserting the reset?
+
+[ ... ]
+> +static int pcf8525_suspend(struct device *dev)
+> +{
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
+> +
+> +	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
+> +	    device_property_read_bool(dev, "reset-source") &&
+> +	    watchdog_active(&pcf8525->wdd))
+> +		return pcf8525_wdt_stop(&pcf8525->wdd);
 > +
 > +	return 0;
 > +}
 
+[Severity: High]
+If the hardware watchdog was started by the bootloader (meaning
+WDOG_HW_RUNNING is set), will this fail to pause the watchdog during suspen=
+d?
+
+Since watchdog_active() is only true when userspace has opened the device,
+this fails to stop the HW if it is only running in the background. If the
+ping worker is frozen during suspend, could the hardware timer reset the
+system while sleeping?
+
+> +
+> +static int pcf8525_resume(struct device *dev)
+> +{
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
+> +
+> +	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
+> +	    device_property_read_bool(dev, "reset-source") &&
+> +	    watchdog_active(&pcf8525->wdd))
+> +		return pcf8525_wdt_ping(&pcf8525->wdd);
+> +
+> +	return 0;
+> +}
+
+[Severity: High]
+Similarly, does this fail to resume a hardware-running watchdog on wake sin=
+ce
+it also relies on watchdog_active()?
+
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910060912.2443=
-551-1-shivprakash.gupta@nxp.com?part=3D2
+551-1-shivprakash.gupta@nxp.com?part=3D3
