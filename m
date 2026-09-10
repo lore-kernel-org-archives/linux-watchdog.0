@@ -1,136 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB7D373C1A;
-	Thu, 10 Sep 2026 05:18:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02584343887;
+	Thu, 10 Sep 2026 05:19:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789017505; cv=none; b=fSvepTxGB6fFWF3MxoOol0tgwaU8szMhdPzV0gJf+B6KzQuEyKp8Z5SRY1nZ6nr+cYDJvpRRaxYXseqOxr74PN/I92i/onzwTrFJNQNdLqgNLV6qM7n6K2SCAaSPyYuuM8j2mw6u8nK4lAD4OcG4FVhKmMt4ir9Ll6ZVCN6tHuM=
+	t=1789017571; cv=none; b=mtgg354TmIHfdxgLtoyrHGINxdTk0smU559wWQrIzGjkVrmd/DId+ju1cCgeg/1y9YWfpOuf6cgDdXGQOk7lcqwgaOQehFcTIhtcmcdVGATXuHYsr2znC8S9CVOy2Ja/pFcfv4++K1toJnzPz8rrDAn5s7ZgnwjNYrzJwfohE1M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789017505; c=relaxed/simple;
-	bh=oLytN5sGKwXVQqKjiJxYhIeCOZdT24WF9BJZxJZxxAs=;
+	s=arc-20240116; t=1789017571; c=relaxed/simple;
+	bh=sCIravbDLR4dRvfc0AnyNjajRmfkR8ffGY8bBza22m0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UF9cWEpCw89kdmHahkSPQiITNmEPiN5Xb9QgeZmVp3nsonLeCU4+yNFIHJPavsFVfk1deSIKO3onMLlxISmIk+PI5Hx9hf6f2cqsiaoL5lPuidfLy0R+UArLVRpjYMSlDxUayLFS9JnitGNLKLO1L9wUiqU3rkMiI9ObIxWPOXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iXH85JaI; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ExQbpSZsMKjJNG82G4iHss8VpxHlngK3AQqEZhB5NWcXvCePMqxSpL3cirLzt+Qeis8KQV09K5wPNHas2ZZBfCXJ4a0oxA7v+1oaEAj0Z7OQJfBSUl9YXgD6arBxwEXbtW3JA9Hqr6JbhraJvdyALFbcNE/eXOed3EadmmkgQYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AbAlzTTm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iXH85JaI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D780A1F000FF;
-	Thu, 10 Sep 2026 05:18:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AbAlzTTm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 409D01F000FF;
+	Thu, 10 Sep 2026 05:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789017503;
-	bh=jVgoy28piPW1BxY3JhQfRDdVhvOrHJbwYO15FNlHsGA=;
+	s=k20260515; t=1789017569;
+	bh=yjt/wM/Iti8exvVkW3P8C1tJl4czHm4nOQsXCqBz+lI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iXH85JaImch2jvcQ/vZ5wgwqOPs2mZEpaJdgvy95fh+uPVd9TI9KaAxFLA1lVpNC1
-	 gRqRZ0djXYb6noVwkL68GMj6vGIDRm7PFCtI7K5rE8dnWEb1GENJFeLth2lxZzMuWp
-	 Tt9HCATOHS0dDN2d54f0tPSOKyamxB9AXOysXrBEkCLiSkwu0QiZGHVjc2heU9LytH
-	 HlDM/YP+7dknqkuh6LF4kEt4b90k+fTK4CnLol4uP/51qDeL1kDvccIsvyJ2dCmQz8
-	 JZt0nr0Ia3n4+RvGT2XFs7s0wgCFbZ2CBHcAKxQbCcNliHRqGSWLk3RKiT+ZOD223O
-	 3sz0btMmLn4XQ==
+	b=AbAlzTTm/LuRPzhqnB6XC8MN7yn8DSCkb95k1kweA4USR3ckM80iWMdgYAJQHYLEm
+	 MFoHcY4FtflSEsQRHW8vAh1lxt2VKzaVzJlTzFeKdzJFSsFaDeSR0Kr1dxH627WfOS
+	 prSG+A48f7YMF0jeJhnqImY0Ugh/Vt0PcXmZJIxQxTRZiH0z/OGkzfmQ5P2cGy+FBX
+	 IDDC9SkGaU5+hX7b0bHq9z9hDHXWblSsfsqaWpeFGVS3OmqtOJGMJJKbw9qyN6cMqt
+	 iLcE2w1JVozr8LhDeRTgYYX9hGnSZZIue4bjY4E15vbPujUgiy4zjOwPtR1otQxFBi
+	 yZR9PAjE4Fakw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 5/5] rtc: pcf85363: add watchdog support with
- configurable step size
+Subject: Re: [PATCH v5 3/5] rtc: pcf85363: add timestamp support with
+ configurable timestamp mode
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: linux-watchdog@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org
-In-Reply-To: <20260910050747.1901440-5-lakshay.piplani@nxp.com>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <20260910050747.1901440-3-lakshay.piplani@nxp.com>
 References: <20260910050747.1901440-1-lakshay.piplani@nxp.com>
- <20260910050747.1901440-5-lakshay.piplani@nxp.com>
+ <20260910050747.1901440-3-lakshay.piplani@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 05:18:22 +0000
-Message-Id: <20260910051822.D780A1F000FF@smtp.kernel.org>
+Date: Thu, 10 Sep 2026 05:19:28 +0000
+Message-Id: <20260910051929.409D01F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Watchdog is neither stopped nor adopted on probe, leading to spu=
-rious periodic interrupts across reboots.
+- [Medium] Ignored `dev_err_probe()` return value defeats probe deferral fo=
+r the INTA interrupt line.
+- [Medium] Unconditionally clearing `RTC_FEATURE_ALARM` when no IRQ is pres=
+ent breaks wake-on-alarm functionality for boards that only configure a wak=
+eup-source.
 --
 
-commit a09fcbd2e909232c9247652551e0a3249e36a82e
+commit c4131e782120105d3473c8eca13fcfb2ec8f0bf1
 Author: Lakshay Piplani <lakshay.piplani@nxp.com>
 
-rtc: pcf85363: add watchdog support with configurable step size
+rtc: pcf85363: add timestamp support with configurable timestamp mode
 
-Add watchdog support to PCF85263/PCF85363 using the watchdog subsystem.
-The 5-bit count selects the timeout with a clock step: timeouts up to
-30 seconds use the 1 Hz step, longer ones the 0.25 Hz step (max 120 s),
-reported back through the watchdog device. One count of margin is added
-because the first period after a reload lasts between WDR and WDR-1
-counts, so the timeout is never shorter than requested. Select
-WATCHDOG_CORE if WATCHDOG so the device can register.
+This commit adds support for the timestamp capture registers on the
+PCF85263/PCF85363 to latch the time on selected events. The capture source
+is configured via device tree and exported through read-only sysfs attribut=
+es,
+along with other initialization cleanups.
 
 > diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index 9da4b1617f82a..2046643788fdc 100644
 > --- a/drivers/rtc/rtc-pcf85363.c
 > +++ b/drivers/rtc/rtc-pcf85363.c
 [ ... ]
-> @@ -691,6 +725,153 @@ static const struct pcf85x63_config pcf_85363_confi=
-g =3D {
->  	.num_nvram =3D 2
->  };
+> @@ -573,57 +819,75 @@ static int pcf85363_probe(struct i2c_client *client)
 [ ... ]
-> +static int pcf85363_watchdog_init(struct device *dev, struct pcf85363 *p=
-cf85363)
-> +{
-> +	struct pcf85363_watchdog *wd;
-> +	int ret;
+> +		ret =3D devm_request_threaded_irq(dev, irq_a, NULL,
+> +						pcf85363_rtc_handle_irq,
+> +						irqflags | IRQF_ONESHOT,
+> +						"pcf85363-inta", client);
 > +
-> +	if (!IS_ENABLED(CONFIG_WATCHDOG))
-> +		return 0;
-> +
-> +	wd =3D devm_kzalloc(dev, sizeof(*wd), GFP_KERNEL);
-> +	if (!wd)
-> +		return -ENOMEM;
-> +
-> +	wd->pcf85363 =3D pcf85363;
-> +
-> +	wd->wdd.info =3D &pcf85363_wdt_info;
-> +	wd->wdd.ops =3D &pcf85363_wdt_ops;
-> +	wd->wdd.min_timeout =3D WD_TIMEOUT_MIN;
-> +	wd->wdd.max_timeout =3D WD_TIMEOUT_MAX;
-> +	wd->wdd.timeout =3D WD_DEFAULT_TIMEOUT;
-> +	wd->wdd.parent =3D dev;
-> +	wd->wdd.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS;
-> +
-> +	/* Fixed default timeout; userspace can change it via WDIOC_SETTIMEOUT.=
- */
-> +	pcf85363_wdt_select_clock(wd);
-> +
-> +	ret =3D pcf85363_clear_flags(pcf85363, FLAGS_WDF);
-> +	if (ret) {
-> +		dev_err(dev, "failed to clear WDF:%d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	watchdog_set_drvdata(&wd->wdd, wd);
-> +
-> +	return devm_watchdog_register_device(dev, &wd->wdd);
+> +		if (ret) {
+> +			dev_err_probe(dev, ret, "INTA IRQ request failed\n");
+> +			irq_a =3D 0;
+> +			clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+> +		} else {
 
 [Severity: Medium]
-Since the watchdog configuration registers (CTRL_WDOG and CTRL_INTA_EN) are
-battery-backed and persist across system reboots, could the watchdog already
-be running when the driver probes?
+Will ignoring the return value of dev_err_probe() in this block defeat
+probe deferral?
 
-The driver does not clear the watchdog interrupt enable bit (WDIE) during
-probe, and pcf85363_watchdog_init() registers the watchdog but neither stops
-the hardware nor sets WDOG_HW_RUNNING in wdd.status.
+If devm_request_threaded_irq() fails because the interrupt provider is not
+yet ready, it returns -EPROBE_DEFER. By not propagating this error and
+falling back to setting irq_a to 0, the driver permanently drops interrupt
+support on affected boots instead of allowing the core to defer probing.
 
-Without WDOG_HW_RUNNING, the watchdog core will be unaware the hardware is
-active and will not automatically ping it.
+> +			u8 inta_en =3D INT_BSIE;
+> +
+> +			/*
+> +			 * Enable the timestamp interrupt only when a capture
+> +			 * mode is configured; always enable battery-switch.
+> +			 */
+> +			if (ts_mode_configured)
+> +				inta_en |=3D INT_TSRIE;
+> +
+> +			ret =3D regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
+> +						 INT_BSIE | INT_TSRIE, inta_en);
+> +			if (ret)
+> +				return dev_err_probe(dev, ret,
+> +						     "Failed to enable INTA sources\n");
+>  		}
+> -	}
+> -
+> -	if (client->irq > 0 || wakeup_source) {
+> -		device_init_wakeup(&client->dev, true);
+> -		set_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+>  	} else {
+> +		/* Without an interrupt line the alarm cannot be delivered. */
+>  		clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+>  	}
 
-If the watchdog was started before a reboot or by a bootloader, will this
-cause it to continuously expire and perpetually trigger the interrupt
-handler, resulting in repeated "watchdog timer expired" warnings in the
-logs?
+[Severity: Medium]
+Does clearing RTC_FEATURE_ALARM unconditionally when there is no direct IRQ
+break wake-on-alarm functionality?
 
-> +}
+If a system routes the RTC interrupt pin to an external PMIC to wake the
+system and defines the device tree with a wakeup-source property but no
+direct interrupts property, this logic clears the alarm feature bit. The
+RTC core will reject alarm setup requests when this feature bit is cleared,
+which seems like it could cause a functional regression for userspace tools
+like rtcwake that rely on the wakeup-source capability.
+
+> +	if (irq_a > 0 || wakeup_source)
+> +		device_init_wakeup(dev, true);
+> +
+> +	dev_set_drvdata(&pcf85363->rtc->dev, pcf85363);
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910050747.1901=
-440-1-lakshay.piplani@nxp.com?part=3D5
+440-1-lakshay.piplani@nxp.com?part=3D3
