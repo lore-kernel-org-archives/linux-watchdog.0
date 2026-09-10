@@ -1,28 +1,28 @@
-Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 907F13BB135;
-	Thu, 10 Sep 2026 06:09:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFB833C37A3;
+	Thu, 10 Sep 2026 06:09:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789020586; cv=none; b=de/SCXjd/8XEMwP4TBrihHTi8ZXQFlhu4CbNbVKegX01CoV/xl/vmL/pKCrAyTkaE+T1lqjtSJxuTEM7WMY04nNL/sv5e1nxrAjZNinrnpSbTmVzm8NKGRa4Sn3uqyXQnh8fEOYuDvi2d2zkMCaCkE2C0k0WN0ziZhBJz3Avnxw=
+	t=1789020597; cv=none; b=nlclO+GKDE5+4JkoQAaR5CjPngYkVEDrG8lGf0v7GgF7PJriTe7RoeAiw6wgCSVx4PjowL5hCuZ8NOb7DLAKLq2KIqI63RYS157hfdBxdOlAQE1iHGw/YFya6fHCnpuI7mjR6x0RlQtR+0g/fFGWv082fkrRcGqt6gYY3bkVyg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789020586; c=relaxed/simple;
-	bh=x/1eCG0YShWHNVrn1MpvOJB/Gz1gHGwkt7mTFIzXR4U=;
+	s=arc-20240116; t=1789020597; c=relaxed/simple;
+	bh=X0ylNUfyY2EdluJvR7UhHDvA6CCL61dTk8TBqJlBf5Y=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Nfrrh4Nwn1L+lNFMlEBW46KbVSOdHkhPDjuvP1l5k3919peFdAUTaNAEr4f825IHZGUqM4cP44n5nVAExBIIwr+mhyvTbyS9ooCktuHCePIByRc4XI2KtpCa3b7H7NqNoBfBB0g8ipX4B7W+nJ5J3OIiNi+CPGV4ZJ7xp5jO3Uc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
+	 MIME-Version; b=fjBsa5jj9MKBgOuFQ59QINo+rcdLTvIYdP5i1fj+ZV7NfHq8rqHYl49ikPrZIPd1CVE+UhkqA81eC0DTNn7ofNmEVBhIreRrbKO5fLdtDUJ88jFY/x7Bqvq0Cxa9GLVsvgTcMfQ3J4oxCf//vKFwgAi3KnNjyE4a6g/ERlyr4Ow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 2DC70200386;
-	Thu, 10 Sep 2026 08:09:37 +0200 (CEST)
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id E06BE1A00B1;
+	Thu, 10 Sep 2026 08:09:39 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id C173720037D;
-	Thu, 10 Sep 2026 08:09:36 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id A8CAE1A00C1;
+	Thu, 10 Sep 2026 08:09:39 +0200 (CEST)
 Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 91A4B180006C;
-	Thu, 10 Sep 2026 14:09:33 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 773F418000B6;
+	Thu, 10 Sep 2026 14:09:36 +0800 (+08)
 From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 To: linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
@@ -39,9 +39,9 @@ Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	lakshay.piplani@nxp.com,
 	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Subject: [PATCH v3 3/4] rtc: pcf8525: Add watchdog support
-Date: Thu, 10 Sep 2026 11:39:11 +0530
-Message-Id: <20260910060912.2443551-4-shivprakash.gupta@nxp.com>
+Subject: [PATCH v3 4/4] rtc: pcf8525: Add temperature sensor support via hwmon
+Date: Thu, 10 Sep 2026 11:39:12 +0530
+Message-Id: <20260910060912.2443551-5-shivprakash.gupta@nxp.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
 References: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
@@ -54,497 +54,295 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Add watchdog support for NXP PCF8525 real time clock(RTC) device
+Register the PCF8525 internal temperature sensor through the hwmon
+interface when CONFIG_RTC_DRV_PCF8525_HWMON is enabled.
+
+Exposes temp1_input (millidegrees Celsius, read-only) and
+update_interval (milliseconds, read/write).
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
 Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 ---
- drivers/rtc/Kconfig       |   1 +
- drivers/rtc/rtc-pcf8525.c | 366 +++++++++++++++++++++++++++++++++++++-
- 2 files changed, 362 insertions(+), 5 deletions(-)
+ drivers/rtc/Kconfig       |  15 +++
+ drivers/rtc/rtc-pcf8525.c | 218 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 233 insertions(+)
 
 diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 89ff23ffb9ef..356c2d91e387 100644
+index 356c2d91e387..7b4195e712b0 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
-@@ -516,6 +516,7 @@ config RTC_DRV_PCF8523
- config RTC_DRV_PCF8525
- 	tristate "NXP PCF8525"
+@@ -524,6 +524,21 @@ config RTC_DRV_PCF8525
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf8525.
+ 
++config RTC_DRV_PCF8525_HWMON
++	bool "HWMON support for NXP PCF8525"
++	depends on RTC_DRV_PCF8525 && HWMON && \
++		   !(RTC_DRV_PCF8525=y && HWMON=m)
++	default y
++	help
++	  Say Y here to expose the PCF8525 internal temperature
++	  sensor through the HWMON interface.
++
++	  This option provides temperature input reporting and allows
++	  the temperature measurement update interval to be configured
++	  from userspace.
++
++	  The interface is registered only when HWMON support is enabled
++
+ config RTC_DRV_PCF85363
+ 	tristate "NXP PCF85363"
  	select REGMAP_I2C
-+	select WATCHDOG_CORE if WATCHDOG
- 	help
- 	  If you say yes here you get support for the NXP PCF8525 RTC
- 	  chips.
 diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-index 9da8bcde7ef1..c2eab983f1ff 100644
+index c2eab983f1ff..a2958eb3a502 100644
 --- a/drivers/rtc/rtc-pcf8525.c
 +++ b/drivers/rtc/rtc-pcf8525.c
-@@ -47,6 +47,9 @@
- #include <linux/slab.h>
- #include <linux/bitfield.h>
- #include <linux/uaccess.h>
-+#include <linux/kernel.h>
-+#include <linux/pm.h>
-+#include <linux/watchdog.h>
+@@ -34,6 +34,7 @@
+  */
  
- /* Registers */
- #define PCF8525_REG_CTRL1		0x00
-@@ -96,6 +99,8 @@
- #define PCF8525_REG_INTB_MASK1		0x2A
- #define PCF8525_REG_INTB_MASK2		0x2B
+ #include <linux/bcd.h>
++#include <linux/hwmon.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/device.h>
+@@ -179,6 +180,7 @@
+ #define PCF8525_WD_MIN_HW_HEARTBEAT_MS	4000
+ #define PCF8525_WD_VAL_STOP		0
+ #define PCF8525_WD_DEFAULT_TIMEOUT_S	60
++#define PCF8525_CLKOUT_TCR_MASK		GENMASK(7, 5)
  
-+#define PCF8525_REG_WD_CTL		0x2C
-+#define PCF8525_REG_WD_VAL		0x2D
- #define PCF8525_REG_TEMP		0x2E
- 
- /* CTRL1 */
-@@ -132,6 +137,9 @@
- #define PCF8525_CTRL5_CL		BIT(1)
- #define PCF8525_CTRL5_XTL_TYP		BIT(0)
- 
-+/* CLKOUT_ctl */
-+#define PCF8525_CLKOUT_CLKOE		BIT(3)
-+
- /* Timestamp control */
- #define PCF8525_TS_CTL1_TSM             BIT(7)
- #define PCF8525_TS_CTL1_TSOFF           BIT(6)
-@@ -150,6 +158,7 @@
- #define PCF8525_RESET_SR_CMD		0x2C /* software reset */
- 
- /* Interrupt masks (mask bit = 1 means masked/disabled) - INTA_MASK1 bits */
-+#define PCF8525_MASK1_WD_CD		BIT(0)
- #define PCF8525_MASK1_BIE		BIT(1)
- #define PCF8525_MASK1_AIE		BIT(2)
- #define PCF8525_MASK1_OSIE		BIT(3)
-@@ -161,6 +170,16 @@
- #define PCF8525_ALM_AE_MONTH		BIT(7)
- #define PCF8525_ALM_AE_YEAR		BIT(6)
- 
-+/* Watchdog control register bits */
-+#define PCF8525_WD_CTL_WD_CD		BIT(7)
-+#define PCF8525_WD_CTL_TF0		BIT(0)
-+#define PCF8525_WD_CTL_TF1		BIT(1)
-+
-+#define PCF8525_WD_CLOCK_HZ_X1000	250 /* 1/4 Hz */
-+#define PCF8525_WD_MIN_HW_HEARTBEAT_MS	4000
-+#define PCF8525_WD_VAL_STOP		0
-+#define PCF8525_WD_DEFAULT_TIMEOUT_S	60
-+
  #define PCF8525_REG_AGING_OFFSET_HI	0x26
  #define PCF8525_REG_AGING_OFFSET_LO	0x27
- /*
-@@ -175,11 +194,14 @@
+@@ -374,6 +376,220 @@ static int pcf8525_rtc_set_offset(struct device *dev, long offset)
+ 	return pcf8525_write_aging_offset(pcf8525, (s16)raw);
+ }
  
- struct pcf8525 {
- 	struct rtc_device *rtc;
-+	struct watchdog_device wdd;
- 	struct regmap *regmap;
- 	struct mutex ts_mutex;	/* protects ts[] and ts_valid[] in IRQ mode */
- 	bool irq_enabled;
- 	time64_t ts[2];
- 	bool ts_valid[2];
-+	int irq_inta;
-+	int irq_intb;
- };
- 
- static const struct regmap_config pcf8525_regmap_cfg = {
-@@ -879,6 +901,296 @@ static const struct rtc_class_ops pcf8525_rtc_ops = {
- 	.param_set = pcf8525_param_set,
- };
- 
-+static unsigned int pcf8525_wdt_timeout_to_val(unsigned int timeout)
++static int pcf8525_hwmon_read_temp(struct device *dev, long *temp)
 +{
-+	unsigned int val;
++	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
++	unsigned int regval;
++	int ret;
 +
-+	val = DIV_ROUND_UP(timeout * PCF8525_WD_CLOCK_HZ_X1000, 1000) + 1;
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_TEMP, &regval);
++	if (ret)
++		return ret;
 +
-+	if (val < 2)
-+		return 2;
-+	if (val > 255)
-+		return 255;
-+
-+	return val;
-+}
-+
-+static int pcf8525_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct pcf8525 *pcf8525 = watchdog_get_drvdata(wdd);
-+	unsigned int wd_val;
-+
-+	wd_val = pcf8525_wdt_timeout_to_val(wdd->timeout);
-+
-+	return regmap_write(pcf8525->regmap, PCF8525_REG_WD_VAL, wd_val);
-+}
-+
-+static int pcf8525_wdt_active_ping(struct watchdog_device *wdd)
-+{
-+	if (watchdog_active(wdd))
-+		return pcf8525_wdt_ping(wdd);
++	/*
++	 * PCF8525: signed 8-bit, 1 degree C per LSB.
++	 * HWMON requires millidegree Celsius.
++	 */
++	*temp = (long)(s8)(u8)regval * 1000L;
 +
 +	return 0;
 +}
 +
-+static int pcf8525_wdt_start(struct watchdog_device *wdd)
++static int pcf8525_hwmon_read_update_interval(struct device *dev, long *val)
 +{
-+	return pcf8525_wdt_ping(wdd);
-+}
-+
-+static int pcf8525_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct pcf8525 *pcf8525 = watchdog_get_drvdata(wdd);
-+
-+	return regmap_write(pcf8525->regmap, PCF8525_REG_WD_VAL,
-+			    PCF8525_WD_VAL_STOP);
-+}
-+
-+static int pcf8525_wdt_set_timeout(struct watchdog_device *wdd,
-+				   unsigned int timeout)
-+{
-+	wdd->timeout = timeout;
-+
-+	return pcf8525_wdt_active_ping(wdd);
-+}
-+
-+static const struct watchdog_info pcf8525_wdt_info = {
-+	.identity = "NXP PCF8525 Watchdog",
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_PRETIMEOUT,
-+};
-+
-+static const struct watchdog_ops pcf8525_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = pcf8525_wdt_start,
-+	.stop = pcf8525_wdt_stop,
-+	.ping = pcf8525_wdt_ping,
-+	.set_timeout = pcf8525_wdt_set_timeout,
-+};
-+
-+static int pcf8525_watchdog_get_period(int n, int f1000)
-+{
-+	return (1000 * (n - 1)) / f1000;
-+}
-+
-+static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
-+{
-+	struct device *dev = data;
 +	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+	unsigned int ctrl2;
++	unsigned int regval;
++	unsigned int tcr;
 +	int ret;
 +
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CLKOUT, &regval);
 +	if (ret)
-+		return IRQ_NONE;
++		return ret;
 +
-+	if (!(ctrl2 & PCF8525_CTRL2_WDTF))
-+		return IRQ_NONE;
++	tcr = FIELD_GET(PCF8525_CLKOUT_TCR_MASK, regval);
 +
-+	/*
-+	 * W0C: clear WDTF. Include AF and MSF in the mask and write 1 to them
-+	 * so the RMW does not accidentally clear a concurrently asserted alarm
-+	 * or minute/second interrupt flag.
-+	 */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-+				 PCF8525_CTRL2_WDTF | PCF8525_CTRL2_AF |
-+				 PCF8525_CTRL2_MSF,
-+				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF);
-+	if (ret)
-+		return IRQ_NONE;
++	switch (tcr) {
++	case 0:
++		*val = 32 * 60 * 1000L;
++		break;
++	case 1:
++		*val = 16 * 60 * 1000L;
++		break;
++	case 2:
++		*val = 8 * 60 * 1000L;
++		break;
++	case 3:
++		*val = 4 * 60 * 1000L;
++		break;
++	case 4:
++		*val = 2 * 60 * 1000L;
++		break;
++	default:
++		*val = 60 * 1000L;
++		break;
++	}
 +
-+	watchdog_notify_pretimeout(&pcf8525->wdd);
-+	return IRQ_HANDLED;
++	return 0;
 +}
 +
-+static int pcf8525_watchdog_config(struct device *dev,
-+				   struct pcf8525 *pcf8525)
++static int pcf8525_hwmon_write_update_interval(struct device *dev, long val)
 +{
-+	unsigned int m1, m2;
-+	int ret;
++	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
++	unsigned int tcr;
 +
-+	/* Configure nINTB/CLKOUT as nINTB open-drain interrupt output. */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CLKOUT,
-+				 PCF8525_CLKOUT_CLKOE, 0);
-+	if (ret)
-+		return ret;
++	switch (val) {
++	case 32 * 60 * 1000L:
++		tcr = 0;
++		break;
++	case 16 * 60 * 1000L:
++		tcr = 1;
++		break;
++	case 8 * 60 * 1000L:
++		tcr = 2;
++		break;
++	case 4 * 60 * 1000L:
++		tcr = 3;
++		break;
++	case 2 * 60 * 1000L:
++		tcr = 4;
++		break;
++	case 60 * 1000L:
++		tcr = 5;
++		break;
++	default:
++		return -EINVAL;
++	}
 +
-+	/* Enable watchdog interrupt and select 1/4 Hz source: TF[1:0] = 10. */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_WD_CTL,
-+				 PCF8525_WD_CTL_WD_CD |
-+				 PCF8525_WD_CTL_TF1 |
-+				 PCF8525_WD_CTL_TF0,
-+				 PCF8525_WD_CTL_WD_CD |
-+				 PCF8525_WD_CTL_TF1);
-+	if (ret)
-+		return ret;
-+
-+	/* Keep watchdog masked on INTA. */
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK1, &m1);
-+	if (ret)
-+		return ret;
-+
-+	m1 |= PCF8525_MASK1_WD_CD;
-+	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
-+	if (ret)
-+		return ret;
-+
-+	/* Route watchdog only to INTB, and keep RTC interrupts masked on INTB. */
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Clear any stale WDTF before unmasking the watchdog on INTB.
-+	 * With battery backup the flag survives a power cycle and would
-+	 * assert INTB immediately on the next boot, causing an infinite
-+	 * reset loop if INTB is wired to a hardware reset line.
-+	 * Include AF and MSF in the mask with value=1 to protect them from
-+	 * the RMW clearing a concurrently asserted flag.
-+	 */
-+	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-+				 PCF8525_CTRL2_WDTF | PCF8525_CTRL2_AF |
-+				 PCF8525_CTRL2_MSF,
-+				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF);
-+	if (ret)
-+		return ret;
-+
-+	m1 |= PCF8525_MASK1_BIE |
-+	      PCF8525_MASK1_AIE |
-+	      PCF8525_MASK1_OSIE |
-+	      PCF8525_MASK1_SI |
-+	      PCF8525_MASK1_MI;
-+	m1 &= ~PCF8525_MASK1_WD_CD;
-+
-+	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK2, &m2);
-+	if (ret)
-+		return ret;
-+
-+	m2 |= PCF8525_MASK2_TSIE;
-+
-+	return regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK2, m2);
++	/* Update only TCR[2:0]; preserve OTPR, CLKOE and COF[2:0]. */
++	return regmap_update_bits(pcf8525->regmap, PCF8525_REG_CLKOUT,
++				  PCF8525_CLKOUT_TCR_MASK,
++				  FIELD_PREP(PCF8525_CLKOUT_TCR_MASK, tcr));
 +}
 +
-+static void pcf8525_mask_intb(void *data)
++static umode_t pcf8525_hwmon_is_visible(const void *data,
++					enum hwmon_sensor_types type,
++					u32 attr, int channel)
++{
++	switch (type) {
++	case hwmon_chip:
++		if (attr == hwmon_chip_update_interval)
++			return 0644;
++		break;
++	case hwmon_temp:
++		if (attr == hwmon_temp_input && channel == 0)
++			return 0444;
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++static int pcf8525_hwmon_read(struct device *dev,
++			      enum hwmon_sensor_types type,
++			      u32 attr, int channel, long *val)
++{
++	switch (type) {
++	case hwmon_chip:
++		if (attr == hwmon_chip_update_interval)
++			return pcf8525_hwmon_read_update_interval(dev, val);
++		break;
++	case hwmon_temp:
++		if (attr == hwmon_temp_input && channel == 0)
++			return pcf8525_hwmon_read_temp(dev, val);
++		break;
++	default:
++		break;
++	}
++
++	return -EOPNOTSUPP;
++}
++
++static int pcf8525_hwmon_write(struct device *dev,
++			       enum hwmon_sensor_types type,
++			       u32 attr, int channel, long val)
++{
++	if (type == hwmon_chip && attr == hwmon_chip_update_interval)
++		return pcf8525_hwmon_write_update_interval(dev, val);
++
++	return -EOPNOTSUPP;
++}
++
++static const struct hwmon_channel_info * const pcf8525_hwmon_info[] = {
++	HWMON_CHANNEL_INFO(chip, HWMON_C_UPDATE_INTERVAL),
++	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
++	NULL
++};
++
++static const struct hwmon_ops pcf8525_hwmon_ops = {
++	.is_visible = pcf8525_hwmon_is_visible,
++	.read = pcf8525_hwmon_read,
++	.write = pcf8525_hwmon_write,
++};
++
++static const struct hwmon_chip_info pcf8525_hwmon_chip_info = {
++	.ops = &pcf8525_hwmon_ops,
++	.info = pcf8525_hwmon_info,
++};
++
++static void pcf8525_hwmon_disable_temp(void *data)
 +{
 +	struct pcf8525 *pcf8525 = data;
-+	unsigned int m1;
-+	int ret;
 +
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
-+	if (!ret) {
-+		m1 |= PCF8525_MASK1_WD_CD;
-+		regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
-+	}
-+}
-+
-+static int pcf8525_watchdog_init(struct device *dev,
-+				 struct pcf8525 *pcf8525)
-+{
-+	int ret;
-+
-+	if (!IS_ENABLED(CONFIG_WATCHDOG_CORE) ||
-+	    !device_property_read_bool(dev, "reset-source"))
-+		return 0;
-+
-+	/*
-+	 * Configure the hardware first: this switches the nINTB/CLKOUT pin
-+	 * from clock output (CLKOE=1) to open-drain interrupt output before
-+	 * the IRQ handler is installed.  Requesting the IRQ while CLKOE=1
-+	 * would flood the CPU with spurious interrupts and may cause the
-+	 * Linux spurious-interrupt detector to permanently disable the IRQ.
-+	 */
-+	ret = pcf8525_watchdog_config(dev, pcf8525);
-+	if (ret)
-+		return ret;
-+
-+	/* Register a cleanup action to re-mask INTB on driver unbind. */
-+	ret = devm_add_action_or_reset(dev, pcf8525_mask_intb, pcf8525);
-+	if (ret)
-+		return ret;
-+
-+	if (pcf8525->irq_intb > 0) {
-+		ret = devm_request_threaded_irq(dev, pcf8525->irq_intb,
-+						NULL, pcf8525_wdt_irq,
-+						IRQF_ONESHOT,
-+						"pcf8525-wdt", dev);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	pcf8525->wdd.parent = dev;
-+	pcf8525->wdd.info = &pcf8525_wdt_info;
-+	pcf8525->wdd.ops = &pcf8525_watchdog_ops;
-+	pcf8525->wdd.min_timeout = pcf8525_watchdog_get_period(2,
-+							       PCF8525_WD_CLOCK_HZ_X1000);
-+	pcf8525->wdd.max_timeout = pcf8525_watchdog_get_period(255,
-+							       PCF8525_WD_CLOCK_HZ_X1000);
-+	pcf8525->wdd.timeout = PCF8525_WD_DEFAULT_TIMEOUT_S;
-+	watchdog_init_timeout(&pcf8525->wdd, 0, dev);
-+	pcf8525->wdd.min_hw_heartbeat_ms = PCF8525_WD_MIN_HW_HEARTBEAT_MS;
-+	pcf8525->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-+
-+	watchdog_set_drvdata(&pcf8525->wdd, pcf8525);
-+	watchdog_stop_on_reboot(&pcf8525->wdd);
-+
-+	{
-+		unsigned int wd_val;
-+
-+		if (!regmap_read(pcf8525->regmap, PCF8525_REG_WD_VAL, &wd_val) &&
-+		    wd_val != 0)
-+			set_bit(WDOG_HW_RUNNING, &pcf8525->wdd.status);
-+	}
-+
-+	return devm_watchdog_register_device(dev, &pcf8525->wdd);
-+}
-+
-+static int pcf8525_get_irqs(struct i2c_client *client, struct pcf8525 *pcf8525)
-+{
-+	struct device *dev = &client->dev;
-+	int irq;
-+
-+	irq = fwnode_irq_get_byname(dev_fwnode(dev), "inta");
-+	if (irq == -ENOENT || irq == -EINVAL)
-+		irq = client->irq;
-+	else if (irq < 0)
-+		return irq;
-+	pcf8525->irq_inta = irq;
-+
-+	irq = fwnode_irq_get_byname(dev_fwnode(dev), "intb");
-+	if (irq == -ENOENT || irq == -EINVAL)
-+		irq = 0;
-+	else if (irq < 0)
-+		return irq;
-+	pcf8525->irq_intb = irq;
-+
-+	return 0;
++	/* Disable temperature sensor to avoid draining the backup battery. */
++	regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL5,
++			   PCF8525_CTRL5_TEMP_RD_EN, 0);
 +}
 +
 +/*
-+ * pcf8525_mask_inta - devm cleanup: re-mask INTA alarm and timestamp
-+ * interrupts on driver unbind so the open-drain line is not left asserted.
++ * Keep HWMON optional and non-fatal so RTC and watchdog registration remain
++ * usable even if the temperature interface cannot be registered.
 + */
-+static void pcf8525_mask_inta(void *data)
++static void pcf8525_hwmon_register(struct device *dev,
++				   struct pcf8525 *pcf8525)
 +{
-+	struct pcf8525 *pcf8525 = data;
-+	unsigned int m1, m2;
++	struct device *hwmon_dev;
 +	int ret;
 +
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK1, &m1);
-+	if (!ret) {
-+		m1 |= PCF8525_MASK1_AIE;
-+		regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
++	if (!IS_ENABLED(CONFIG_RTC_DRV_PCF8525_HWMON))
++		return;
++
++	/*
++	 * Enable digital temperature readout first so that the hardware is
++	 * ready before the sysfs attributes are exposed to userspace.  The
++	 * previous order (register hwmon device first) left a window where
++	 * a concurrent sysfs read would return invalid data, and left the
++	 * device permanently broken if this step subsequently failed.
++	 */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL5,
++				 PCF8525_CTRL5_TEMP_RD_EN,
++				 PCF8525_CTRL5_TEMP_RD_EN);
++	if (ret) {
++		dev_warn(dev, "failed to enable temperature readout: %d\n", ret);
++		return;
 +	}
-+	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK2, &m2);
-+	if (!ret) {
-+		m2 |= PCF8525_MASK2_TSIE;
-+		regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK2, m2);
++
++	/*
++	 * Register a devm cleanup action to disable TEMP_RD_EN when the
++	 * driver is unbound, preventing the analog sensor from draining
++	 * the backup battery after driver removal.
++	 */
++	if (devm_add_action_or_reset(dev, pcf8525_hwmon_disable_temp, pcf8525)) {
++		dev_warn(dev, "failed to register HWMON cleanup action\n");
++		return;
 +	}
++
++	/* Only expose sysfs attributes once the hardware is fully ready. */
++	hwmon_dev = devm_hwmon_device_register_with_info(dev, "pcf8525",
++							 pcf8525,
++							 &pcf8525_hwmon_chip_info,
++							 NULL);
++	if (IS_ERR(hwmon_dev))
++		dev_warn(dev, "failed to register HWMON device: %ld\n",
++			 PTR_ERR(hwmon_dev));
 +}
 +
- static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
+ static int pcf8525_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	/*
-@@ -898,8 +1210,9 @@ static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
+ 	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
+@@ -1349,6 +1565,8 @@ static int pcf8525_probe(struct i2c_client *client)
  	if (ret)
  		return ret;
  
--	m1 &= ~PCF8525_MASK1_AIE;    /* unmask alarm interrupt on INTA */
--	m2 &= ~PCF8525_MASK2_TSIE;   /* unmask timestamp interrupt on INTA */
-+	m1 |= PCF8525_MASK1_WD_CD;	/* keep watchdog masked on INTA */
-+	m1 &= ~PCF8525_MASK1_AIE;	/* unmask alarm interrupt on INTA */
-+	m2 &= ~PCF8525_MASK2_TSIE;	/* unmask timestamp interrupt on INTA */
- 
- 	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
- 	if (ret)
-@@ -908,6 +1221,32 @@ static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
- 	return regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK2, m2);
++	pcf8525_hwmon_register(dev, pcf8525);
++
+ 	return 0;
  }
  
-+static int pcf8525_suspend(struct device *dev)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+
-+	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
-+	    device_property_read_bool(dev, "reset-source") &&
-+	    watchdog_active(&pcf8525->wdd))
-+		return pcf8525_wdt_stop(&pcf8525->wdd);
-+
-+	return 0;
-+}
-+
-+static int pcf8525_resume(struct device *dev)
-+{
-+	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
-+
-+	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
-+	    device_property_read_bool(dev, "reset-source") &&
-+	    watchdog_active(&pcf8525->wdd))
-+		return pcf8525_wdt_ping(&pcf8525->wdd);
-+
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(pcf8525_pm_ops, pcf8525_suspend, pcf8525_resume);
-+
- static int pcf8525_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
-@@ -927,6 +1266,10 @@ static int pcf8525_probe(struct i2c_client *client)
- 
- 	i2c_set_clientdata(client, pcf8525);
- 
-+	ret = pcf8525_get_irqs(client, pcf8525);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "failed to get IRQs\n");
-+
- 	pcf8525->rtc = devm_rtc_allocate_device(dev);
- 	if (IS_ERR(pcf8525->rtc))
- 		return dev_err_probe(dev, PTR_ERR(pcf8525->rtc),
-@@ -968,8 +1311,8 @@ static int pcf8525_probe(struct i2c_client *client)
- 		return ret;
- 
- 	/* Optional IRQ */
--	if (client->irq > 0) {
--		ret = devm_request_threaded_irq(dev, client->irq,
-+	if (pcf8525->irq_inta > 0) {
-+		ret = devm_request_threaded_irq(dev, pcf8525->irq_inta,
- 						NULL, pcf8525_irq,
- 						IRQF_ONESHOT,
- 						dev_name(dev), dev);
-@@ -984,11 +1327,23 @@ static int pcf8525_probe(struct i2c_client *client)
- 		if (ret)
- 			return ret;
- 
-+		/*
-+		 * Register a cleanup action to re-mask INTA interrupts on
-+		 * driver unbind so the open-drain line is not left asserted.
-+		 */
-+		ret = devm_add_action_or_reset(dev, pcf8525_mask_inta, pcf8525);
-+		if (ret)
-+			return ret;
-+
- 		device_init_wakeup(dev, true);
--		dev_pm_set_wake_irq(dev, client->irq);
-+		dev_pm_set_wake_irq(dev, pcf8525->irq_inta);
- 		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
- 	}
- 
-+	ret = pcf8525_watchdog_init(dev, pcf8525);
-+	if (ret)
-+		return ret;
-+
- 	/* Register device */
- 	ret = devm_rtc_register_device(pcf8525->rtc);
- 	if (ret)
-@@ -1013,6 +1368,7 @@ static struct i2c_driver pcf8525_driver = {
- 	.driver = {
- 		.name = "rtc-pcf8525",
- 		.of_match_table = pcf8525_of_match,
-+		.pm = pm_sleep_ptr(&pcf8525_pm_ops),
- 	},
- 	.probe = pcf8525_probe,
- 	.id_table = pcf8525_i2c_id,
 -- 
 2.34.1
 
