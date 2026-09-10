@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1E3F3B3C0F;
-	Thu, 10 Sep 2026 06:20:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B6C3BB677;
+	Thu, 10 Sep 2026 06:24:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789021232; cv=none; b=Gy21VYJQk4xvLHFb0Rn8kTgO5mdc3NlpGOQPufnOIa2H86edQ+brrVHs/mSrTJQ4NjP1AUHZNRqV0Gpg1PPQyWJ8pfswv2leN4ibqyJfCKiwUFtkfbfrf3F2QCD3+LoY7UK7hl7bJ7A8DwsUyHZ78UXuasUwrTr/92+khM/PklU=
+	t=1789021469; cv=none; b=A44xBh/E0GxAVbH+Tdj3kmF26NKFlpS7MrF5DJou41rpcJjAiPgm0YH74k6xWJRvZGDmQuHV8/6HSGdndvyQGHnhJVLUuhqjO86tdhEH7ATGdVmEEUWKHyHTMX9qYh7umxUSnpmlXa6NxW/1oDjdvOLAfnfr+JOvi5glM/cRtU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789021232; c=relaxed/simple;
-	bh=6COYCb6K/ta7F8KU75M8uMgsuX5FTVMnxJFmHv9m/N0=;
+	s=arc-20240116; t=1789021469; c=relaxed/simple;
+	bh=3VkPXhOVat9bta2US2+kUu8osrymZpLV6J7Y+lY+100=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=uZ+Tx5+yNjMG5ImGxGnmep6TRujtqMAhh7qJ+fCoZNZSvNSePZJ99qPWHOWJMGoOBMXg7PhRWX+zpekZqc+1/5uMlZuMv9Uw9m4uovK4zC2VWMAi4OJoRirFhQm8t09uA7I0ZN74g+YyHOBgaCN9PHWd98XKkBF0cUp63NlCaws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TrymQb6G; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=h9ml8/FfdamQqBHD+WrcEV5qN8ZGpPrFe2DLYSQpdDdJivJVZjnM+KfpswiHTuH7MR1zEfIMtpqSVfeJ3owzw44dlCpm6uOR/NQBIffACAnvQfskMOj+Y/fBPr7MvHSiHEzMrbAfC5Jx9b/RpygZb3B6+Lb3SaZvISG7fSpQRek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=du72ABQ4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TrymQb6G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7DDF1F000FF;
-	Thu, 10 Sep 2026 06:20:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="du72ABQ4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2CF1F000FF;
+	Thu, 10 Sep 2026 06:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789021224;
-	bh=shlJxtnCsoUG3GCdlFP+qjOr4I/LJYkEWNn/8DPRCAI=;
+	s=k20260515; t=1789021467;
+	bh=rXISX+UNHS0qrMwr7CA1bwdG4ZmIl/0/rWhicBzT7ZM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TrymQb6GEV4bnot+r3QErDyErEAuwGtWwbRqbKWI6tTkJ/kRzeenju1hkcK15QnOS
-	 G3uhWjL2OuY7Nk+Cj4xF4STbrJeI7hP5EdibTLiKLeonHagfjPdmLECAd1VpoNFIr5
-	 thMz6wE0AU448TXBui/zenbSHtyTsGpWC2NEOHBnmQnKU1lJR2GlHZiPGGeNbk4cCE
-	 1NP21Ar9DOxIwji3Xi1OTPJJOR2gwQPAZEF6tJwJl7pR/xittyrM4r1waiISuwPQ2T
-	 VJy2zrTQRN3zD8/iboDn1mJC8kfilu5+OjJBmi7zRBuf3ccodVs65XTcdH0G9NHrO+
-	 bYTfyyYzOzecQ==
+	b=du72ABQ43KLQ1vsT8pyIvJBpOLFPyXi5OEuuNYnUj8AFQZSJgDASSFBiuCphCU2SO
+	 ft+pH2A4Nh5SAaQrBVRbYHKa2abCBNa1HSLsjt63/qeDRgy/M+UpdySx3LhrPT2odE
+	 8QG/XyuGlny3Wv10LOqJJz0bVltS4iZdj650f6Qzj61lz+33fI5/Go0gFEf2dGtDPk
+	 9M5Gq5/0D3twjWCmy+82y3tv4TM6qgQskQ0fpUE8rLrg2Dvz8O6fd1ndBeFHw2hIrQ
+	 c5SGEbpQnHECgX3pLcWcZ7XxFW9+dsP5VbsHSq+qWEVYd3PqmgEhlKd4W6S30QR52V
+	 fwl1OcwwzC0Pg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/4] rtc: pcf8525: Add temperature sensor support via
- hwmon
+Subject: Re: [PATCH v3 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org
-In-Reply-To: <20260910060912.2443551-5-shivprakash.gupta@nxp.com>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260910060912.2443551-3-shivprakash.gupta@nxp.com>
 References: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
- <20260910060912.2443551-5-shivprakash.gupta@nxp.com>
+ <20260910060912.2443551-3-shivprakash.gupta@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 06:20:23 +0000
-Message-Id: <20260910062023.E7DDF1F000FF@smtp.kernel.org>
+Date: Thu, 10 Sep 2026 06:24:26 +0000
+Message-Id: <20260910062426.7D2CF1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -48,106 +47,170 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Medium] The RTC driver registers a hardware monitoring device directly i=
-nstead of using an auxiliary device driver, violating HWMON subsystem layer=
-ing guidelines.
-- [Medium] If hwmon device registration fails, the analog temperature senso=
-r is left permanently enabled, causing unnecessary backup battery drain.
-- [Medium] The analog temperature sensor is not disabled during system susp=
-end, causing continuous backup battery drain.
+- [High] RMW operations on PCF8525_REG_CTRL2 accidentally clear the watchdo=
+g interrupt flag (WDTF) by omitting it from the regmap_update_bits mask.
+- [Medium] Missing cleanup for wake IRQ and wakeup source on probe failure =
+and driver unbind leads to memory leaks and potential UAF.
+- [Medium] Unchecked return value of regmap_write for the CTS command leads=
+ to inconsistent software/hardware state.
 --
 
-commit 8de48a2b8b05df0e0fd29e3c00baaf40c4a06d38
+commit d47460240cda581b03b6f4da9e28d366adee1b6a
 Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Date:   Thu Sep 10 06:09:12 2026 +0000
 
-rtc: pcf8525: Add temperature sensor support via hwmon
+rtc: pcf8525: Add NXP PCF8525 RTC driver
 
-This commit adds hardware monitoring support for the PCF8525 internal
-temperature sensor. It registers the sensor via the hwmon interface to
-expose temperature reading and update interval configuration.
+Add support for time and date, alarms, timestamp capture, backup
+switch-over configuration, external crystal configuration and clock
+offset correction.
 
 > diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> index c2eab983f1ff0..a2958eb3a5026 100644
-> --- a/drivers/rtc/rtc-pcf8525.c
+> new file mode 100644
+> index 0000000000000..9da8bcde7ef11
+> --- /dev/null
 > +++ b/drivers/rtc/rtc-pcf8525.c
-
 [ ... ]
-
-> +static void pcf8525_hwmon_register(struct device *dev,
-> +				   struct pcf8525 *pcf8525)
+> +static int pcf8525_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 > +{
-> +	struct device *hwmon_dev;
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
+> +	u8 buf[7];
 > +	int ret;
 > +
-> +	if (!IS_ENABLED(CONFIG_RTC_DRV_PCF8525_HWMON))
-> +		return;
-> +
 > +	/*
-> +	 * Enable digital temperature readout first so that the hardware is
-> +	 * ready before the sysfs attributes are exposed to userspace.  The
-> +	 * previous order (register hwmon device first) left a window where
-> +	 * a concurrent sysfs read would return invalid data, and left the
-> +	 * device permanently broken if this step subsequently failed.
+> +	 * Clear AF (W0C). Include MSF in the mask and write 1 to preserve it:
+> +	 * writing 0 to a W0C bit that asserted between the read and write would
+> +	 * silently drop the event.
 > +	 */
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL5,
-> +				 PCF8525_CTRL5_TEMP_RD_EN,
-> +				 PCF8525_CTRL5_TEMP_RD_EN);
+> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
+> +				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF,
+> +				 PCF8525_CTRL2_MSF);
+
+[Severity: High]
+Does this regmap_update_bits() call accidentally clear the watchdog
+interrupt flag?
+
+Since PCF8525_CTRL2_WDTF is omitted from the mask, a concurrent
+assertion of the watchdog pretimeout flag between the regmap read
+and write might be cleared unintentionally, causing the pretimeout
+handler to be dropped.
+
+> +	if (ret)
+> +		return ret;
+[ ... ]
+> +static ssize_t timestamp_store_common(struct device *dev, const char *bu=
+f,
+> +				      size_t count, int id)
+> +{
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
+> +	int ret;
+[ ... ]
+> +	if (pcf8525->irq_enabled) {
+> +		/*
+> +		 * Hold the mutex across the software state update and the
+> +		 * hardware CTS + TSF-clear sequence.
+> +		 *
+> +		 * pcf8525_irq() re-reads CTRL4 under the same mutex before
+> +		 * touching the timestamp registers.  Clearing TSF here ensures
+> +		 * that if the IRQ handler is blocked waiting for the mutex, it
+> +		 * will see TSF=3D0 on its re-read and skip reading the now-zeroed
+> +		 * CTS registers.  Without this clear the IRQ could read all-
+> +		 * zeros from the CTS-wiped registers and cache garbage.
+> +		 */
+> +		mutex_lock(&pcf8525->ts_mutex);
+> +		pcf8525->ts_valid[id] =3D false;
+> +		regmap_write(pcf8525->regmap, PCF8525_REG_RESET,
+> +			     PCF8525_RESET_CTS_CMD);
+> +		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4,
+> +				   PCF8525_CTRL4_TSF, 0);
 
 [Severity: Medium]
-Once the temperature sensor is enabled here, it stays active for the lifeti=
-me
-of the device. Looking at pcf8525_suspend() in this file, it does not clear
-the PCF8525_CTRL5_TEMP_RD_EN bit.
+What happens if the underlying regmap_write() or regmap_update_bits() fails?
 
-Does the analog temperature sensor need to be disabled during system suspend
-to prevent continuous backup battery drain while the system is asleep?
+The lack of error checks here leaves the driver assuming the hardware state
+was successfully cleared. If the clear failed, userspace receives a false
+success, and the software cache could become desynchronized from the hardwa=
+re,
+potentially causing the IRQ handler to incorrectly repopulate the cache with
+the same old timestamp.
 
-> +	if (ret) {
-> +		dev_warn(dev, "failed to enable temperature readout: %d\n", ret);
-> +		return;
+> +		mutex_unlock(&pcf8525->ts_mutex);
+> +		return count;
+> +	}
+[ ... ]
+> +static irqreturn_t pcf8525_irq(int irq, void *data)
+> +{
+> +	struct device *dev =3D data;
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
+[ ... ]
+> +	if (ctrl2 & PCF8525_CTRL2_MSF) {
+> +		/*
+> +		 * W0C: clear MSF, protect AF from being accidentally cleared
+> +		 * by writing 1 to it.
+> +		 */
+> +		ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
+> +					 PCF8525_CTRL2_MSF | PCF8525_CTRL2_AF,
+> +					 PCF8525_CTRL2_AF);
+
+[Severity: High]
+Does this operation risk dropping the watchdog interrupt?
+
+Similar to pcf8525_set_alarm(), the PCF8525_CTRL2_WDTF flag is missing
+from the mask, exposing the watchdog interrupt to being accidentally cleared
+when acknowledging RTC interrupts.
+
+> +		if (ret)
+> +			return IRQ_NONE;
 > +	}
 > +
-> +	/*
-> +	 * Register a devm cleanup action to disable TEMP_RD_EN when the
-> +	 * driver is unbound, preventing the analog sensor from draining
-> +	 * the backup battery after driver removal.
-> +	 */
-> +	if (devm_add_action_or_reset(dev, pcf8525_hwmon_disable_temp, pcf8525))=
- {
-> +		dev_warn(dev, "failed to register HWMON cleanup action\n");
-> +		return;
-> +	}
+> +	return IRQ_HANDLED;
+> +}
+[ ... ]
+> +static int pcf8525_probe(struct i2c_client *client)
+> +{
+> +	struct device *dev =3D &client->dev;
+> +	struct pcf8525 *pcf8525;
+[ ... ]
+> +	/* Optional IRQ */
+> +	if (client->irq > 0) {
+> +		ret =3D devm_request_threaded_irq(dev, client->irq,
+> +						NULL, pcf8525_irq,
+> +						IRQF_ONESHOT,
+> +						dev_name(dev), dev);
+> +		if (ret)
+> +			return dev_err_probe(dev, ret,
+> +					     "failed to request INTA IRQ\n");
 > +
-> +	/* Only expose sysfs attributes once the hardware is fully ready. */
-> +	hwmon_dev =3D devm_hwmon_device_register_with_info(dev, "pcf8525",
-> +							 pcf8525,
-> +							 &pcf8525_hwmon_chip_info,
-> +							 NULL);
+> +		pcf8525->irq_enabled =3D true;
+> +
+> +		/* Route/unmask alarm + timestamp to INTA by default */
+> +		ret =3D pcf8525_unmask_irqs_intA(pcf8525);
+> +		if (ret)
+> +			return ret;
+> +
+> +		device_init_wakeup(dev, true);
+> +		dev_pm_set_wake_irq(dev, client->irq);
+> +		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
+> +	}
 
 [Severity: Medium]
-According to the HWMON subsystem guidelines, shouldn't hardware monitoring
-functionality for multi-function devices be implemented as an auxiliary dev=
-ice
-driver residing in drivers/hwmon/ instead of being registered directly from
-drivers/rtc/?
+Will this leak the unmanaged wake IRQ and wakeup source if probe fails later
+or when the driver is unbound?
 
-> +	if (IS_ERR(hwmon_dev))
-> +		dev_warn(dev, "failed to register HWMON device: %ld\n",
-> +			 PTR_ERR(hwmon_dev));
+The driver sets the wake IRQ using dev_pm_set_wake_irq() (ignoring the
+return value) but does not clean it up on error paths in pcf8525_probe()
+(like devm_rtc_register_device() failure) or via a registered .remove
+callback/devm action. This can leak the struct wake_irq and leave a dangling
+pointer in dev->power.wakeirq, causing subsequent driver rebinds to fail.
 
-[Severity: Medium]
-If hwmon device registration fails here, it only logs a warning and returns.
-
-Since the probe function ignores this failure and succeeds, the device rema=
-ins
-bound. Does this mean the devm cleanup action setup earlier will not execute
-until device removal, leaving the analog temperature sensor permanently
-enabled and unnecessarily draining the backup battery if hwmon registration
-fails?
-
+> +
+> +	/* Register device */
+> +	ret =3D devm_rtc_register_device(pcf8525->rtc);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
 > +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910060912.2443=
-551-1-shivprakash.gupta@nxp.com?part=3D4
+551-1-shivprakash.gupta@nxp.com?part=3D2
