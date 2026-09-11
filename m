@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF60C38F249;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5CC46C820;
 	Fri, 11 Sep 2026 11:32:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789126359; cv=none; b=GOGHB+/zvs84irXmHufzJ5mt2cngmWKM4tNrINqwFBKjDD3t8HJd2/nfyJdrRrrnhyPItnKg9LtSP5OeaF3ykw/Q/SgCCLFxWoaeFUPxRiZApynFKs7ncypdHm3wG0ZtGTM9dPTZefHmnbPoJ1LTl4QDy6CDhg8M1KQDGYvtwY4=
+	t=1789126364; cv=none; b=AZ1JKNYnJsrZTrsuVQi77HcANM4I+jic5M0NvHZYmi90uOX1YKLTybXSLMws+t899HWk5keczUk1vEv3zQrpgdk3Jb87xWeIrcw2m1R8Pi9uHPom3cSX/FBDSsMY+vxkKrP0sGbXdP4q9ZAV0iiTwhq9bJt4xotu0nqsbK5Bl9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789126359; c=relaxed/simple;
-	bh=9O0JP8UsQvKZjUAyRh3tLvaGVOxqgPF8lwwIZ66XuzY=;
+	s=arc-20240116; t=1789126364; c=relaxed/simple;
+	bh=4QdKHJnxfCg2TibksmmoIvTiihhQ8k069Yn1Q5P87lw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=B5d3BUfc1fxv219wZ09XvazyDe+VBR8n7yUtjLXGfV7qkWXxJNbsiRp9416+rI8wrz3A+EUGIrd+onfVDm9e40fj+1N3QVmY/eXd+QhaDL3GrcdWQFhB4s21V1iOLAlHkkhjC2Uxy5q3Lg9LLks5X+KMvyIqKosejn6soOO9pws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YoLQS3dt; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=dysQvG2pO/zljcHUsI2vqblvR2fmKS3diVaayR9suLUCkn3uTJ17/54n4hNqg5w553WP1rokcA+m8hDIN2ErpsJWya0LVgVQ8CqGfH9qqcyE5Q0V3vqOTmYz/JXVlVsGft0KvAlQsaF1o5jBUHJeKR2G6bvh7H5rCLQ+sMC4srM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NjAKvaEP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YoLQS3dt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3810F1F00893;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NjAKvaEP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0178F1F00899;
 	Fri, 11 Sep 2026 11:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789126336;
-	bh=nPb6ePHD3DBCwEh+6AehohjVlwhe7RL16iLnzLf8xrA=;
+	s=k20260515; t=1789126337;
+	bh=oXRo3GkZkhTeda33qWkodMuay+UkYe2oRx5JPaQoxNA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YoLQS3dtADRMhVFlPQzNe2w3oj5fzfbXgW7ed9nYHeeiWOSbRMHteBxE+EuT1lcJz
-	 6UNnYamBFLZ6iKjEMfBgXysoarLN4RF5KAJdo5TjDXV0mTSdgWBTyzWtHYFKim6NPe
-	 YjpB/Ae8YxdBA98g02eaoP84usAU0Q3uYBey4SGnGqH16QYnIuOryINNPaoDFctI1r
-	 mBy0/o+tOV2cBAuRDa5XGKp4v1rJqeQY29TfmHMxAM+VWJLaVA2oN20navkg9a5A0A
-	 h4NDrWG6RfBOGzhGGA4BgDzJILAFVSVZDbsZaGOUaCmRPvJp7KmhWVfEFx/wiXaar4
-	 aJBDaHRjNmDOA==
+	b=NjAKvaEP7kIh+1SJ4h5+GTDyH3WPab7XLee2BDcSj13Fem3ye8iucoVquF+ZAYFwg
+	 esHI8iPMHTAu+P+AJuidUHM2U0OwhOXyE6yDrOjhbIH46i4UVBcpp1RU6LkmGGISRa
+	 UYyjPn2hYhFKaSaNAo/TtL+odadaMfp7s4xiWcEUSWVy5S4b1M8ZIHxpP/nQBUupoX
+	 RET/DasTr9KY97s4uyPo4dixIiSTgjwcR2KLwofOjtMUxJya/3utFxh+C4oZ4fSB40
+	 YA0kUw+qrsPOoqnUTsEQB5iwGE+OViWeOL5ept35ZWFdSm4OlGgIiX5NvxtepWmtHu
+	 Ukq5wenEGH6xg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 7/8] arm64: dts: renesas: r9a09g077: Use CPG/MSSR
- syscon for WDTDCR access
+Subject: Re: [PATCH v5 1/8] watchdog: rzv2h: Drop enabling clocks in the
+ restart handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260911111731.3404308-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260911111731.3404308-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260911111731.3404308-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260911111731.3404308-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260911111731.3404308-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 11:32:15 +0000
-Message-Id: <20260911113216.3810F1F00893@smtp.kernel.org>
+Date: Fri, 11 Sep 2026 11:32:16 +0000
+Message-Id: <20260911113217.0178F1F00899@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,72 +47,70 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] The transition to using a syscon regmap for WDTDCR access is broke=
-n, preventing the watchdog from probing and containing an out-of-bounds reg=
-map access flaw.
+
+Pre-existing issues:
+- [High] Unchecked division by zero during probe if the optional 'oscclk' i=
+s missing from the device tree.
 --
 
-commit 0e87a2089f722e3ac7bcab46cff76d445536d9fd
+commit e61522c3f4f781e0b8cf17bd6e22135a7d714358
 Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: arm64: dts: renesas: r9a09g077: Use CPG/MSSR syscon for WDTDCR acc=
-ess
 
-This patch replaces the direct mapping of individual WDTDCR registers for
-watchdogs wdt0-wdt5 with a new "renesas,sysc" phandle property pointing
-to the CPG/MSSR block. The watchdog driver is expected to use a unified
-syscon regmap interface for these accesses.
+watchdog: rzv2h: Drop enabling clocks in the restart handler
 
-> diff --git a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi b/arch/arm64/boot=
-/dts/renesas/r9a09g077.dtsi
-> index 40494159831d8..ad5189d55cef2 100644
-> --- a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-> +++ b/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-> @@ -327,61 +327,61 @@ channel1 {
-> =20
->  		wdt0: watchdog@80082000 {
->  			compatible =3D "renesas,r9a09g077-wdt";
-> -			reg =3D <0 0x80082000 0 0x400>,
-> -			      <0 0x81295100 0 0x04>;
-> +			reg =3D <0 0x80082000 0 0x400>;
->  			clocks =3D <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
->  			clock-names =3D "pclk";
->  			power-domains =3D <&cpg>;
-> +			renesas,sysc =3D <&cpg 0>;
+The watchdog restart handler runs from do_kernel_restart() with
+interrupts disabled and after smp_send_stop() has halted the other CPUs.
+Calling clk_enable() from the !watchdog_active() path takes the clock
+framework's global enable_lock, which can cause a spin if another CPU holds=
+ it.
+This commit keeps pclk and oscclk enabled for the lifetime of the watchdog
+device by using devm_clk_get_enabled() and devm_clk_get_optional_enabled().
 
-[Severity: High]
-Does this node successfully acquire a syscon regmap from the cpg node?
-
-The cpg node lacks the "syscon" compatible string in its definition:
-
-		cpg: clock-controller@80280000 {
-			compatible =3D "renesas,r9a09g077-cpg-mssr";
-			reg =3D <0 0x80280000 0 0x10000>,
-			      <0 0x81280000 0 0x10000>;
-			...
-		};
-
-Without the "syscon" compatible string, syscon_node_to_regmap() will return
--EPROBE_DEFER indefinitely, preventing the watchdog driver from probing.
-
-Furthermore, will the generic syscon regmap allow access to the WDTDCR
-registers in the second memory region?
-
-The generic syscon framework only maps the first reg resource region, which
-the cpg node defines as 0x10000 bytes. The watchdog driver calculates a
-WDTDCR offset of 0x15100 via:
-
-drivers/watchdog/rzv2h_wdt.c:RZT2H_SYS_BLOCK1()
-#define RZT2H_SYS_BLOCK1(n)	(BIT(16) | (0x5100 + (n) * 4))
-
-This offset exceeds the max_register limit (0xFFFC) of the generic syscon
-regmap. When rzt2h_wdt_wdtdcr_count_stop() passes this offset to
-regmap_set_bits(), the regmap core will reject the write with -EINVAL.
-
->  			status =3D "disabled";
->  		};
+> diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
+> index 3b6abb66a1da0..bd86da71b0eb8 100644
+> --- a/drivers/watchdog/rzv2h_wdt.c
+> +++ b/drivers/watchdog/rzv2h_wdt.c
 
 [ ... ]
 
+> @@ -290,11 +277,11 @@ static int rzv2h_wdt_probe(struct platform_device *=
+pdev)
+>  	if (IS_ERR(priv->base))
+>  		return PTR_ERR(priv->base);
+> =20
+> -	priv->pclk =3D devm_clk_get_prepared(dev, "pclk");
+> +	priv->pclk =3D devm_clk_get_enabled(dev, "pclk");
+>  	if (IS_ERR(priv->pclk))
+>  		return dev_err_probe(dev, PTR_ERR(priv->pclk), "Failed to get pclk\n");
+> =20
+> -	priv->oscclk =3D devm_clk_get_optional_prepared(dev, "oscclk");
+> +	priv->oscclk =3D devm_clk_get_optional_enabled(dev, "oscclk");
+
+[Severity: High]
+This is a pre-existing issue, but can this optional clock fetch result in a
+divide by zero oops?
+
+If the optional "oscclk" is legitimately omitted from the device tree (or t=
+he
+device tree is malformed), priv->oscclk will be successfully returned as NU=
+LL.
+
+Later in rzv2h_wdt_probe(), if the chip variant uses COUNT_SOURCE_LOCO, this
+NULL pointer is assigned to count_clk and evaluated:
+
+	switch (priv->of_data->count_source) {
+	case COUNT_SOURCE_LOCO:
+		count_clk =3D priv->oscclk;
+		break;
+	...
+
+	priv->wdev.max_hw_heartbeat_ms =3D (MILLI * priv->of_data->timeout_cycles *
+					  priv->of_data->cks_div) / clk_get_rate(count_clk);
+
+Because clk_get_rate(NULL) safely returns 0, the unchecked division will
+cause a divide error exception during device probe. Should this verify
+count_clk or its rate before the division?
+
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911111731.3404=
-308-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D7
+308-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D1
