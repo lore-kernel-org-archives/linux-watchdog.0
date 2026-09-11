@@ -1,172 +1,118 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F6FA44AB88
-	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 11:30:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789126271; cv=pass; b=lFfla4Lsnb+cWuBGZUhiMZMc9GcobbvMGZ/65faudq6F1TzWmHRui7njLwwmvmlPT0qsxvY4nHU4Nq/rTd/oiCb8V9AIsDbsHJ7BEcPuuwNdTRH1QZxvY0XrmGxUGnlLb4c9/tGscdixl1/gEmj0xlXCuGjqwKiUxWqkUX0KL7g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789126271; c=relaxed/simple;
-	bh=8oBNrn73qh+O/Q5uT6gV+BncjX+bawSkeldQVubHZBU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=B5Wvlmifuu0MZfrs1PEaSWHkbqELRLfa/O9XT925qiDHF9TgHYHuNv5BGjuFNzzY2QruhRtKcdfSpBVpUg5JOH/55VFgWLBASXo53QVWObEFJC/el7ZsOcNL4auGTKXxa/MXNp1chUhPrSrz4hEFcG/d/08PcAXt+Nr5bZXGpd8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WE9E7auj; arc=pass smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF60C38F249;
+	Fri, 11 Sep 2026 11:32:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789126359; cv=none; b=GOGHB+/zvs84irXmHufzJ5mt2cngmWKM4tNrINqwFBKjDD3t8HJd2/nfyJdrRrrnhyPItnKg9LtSP5OeaF3ykw/Q/SgCCLFxWoaeFUPxRiZApynFKs7ncypdHm3wG0ZtGTM9dPTZefHmnbPoJ1LTl4QDy6CDhg8M1KQDGYvtwY4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789126359; c=relaxed/simple;
+	bh=9O0JP8UsQvKZjUAyRh3tLvaGVOxqgPF8lwwIZ66XuzY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=B5d3BUfc1fxv219wZ09XvazyDe+VBR8n7yUtjLXGfV7qkWXxJNbsiRp9416+rI8wrz3A+EUGIrd+onfVDm9e40fj+1N3QVmY/eXd+QhaDL3GrcdWQFhB4s21V1iOLAlHkkhjC2Uxy5q3Lg9LLks5X+KMvyIqKosejn6soOO9pws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YoLQS3dt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WE9E7auj"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-482f2ee53e7so537103f8f.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 04:30:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789126250; cv=none;
-        d=google.com; s=arc-20260327;
-        b=bH61eTEGNh7N/j6Wb8wQkIbdUVv32+1gdbGotaPBZLXJzDX8KRlpQGYrJa5xoYHWoB
-         Nnq7kCLK+jIypMhYtWpN4+0Mvy3hhia25Lpxyoy+25ifaYfhWuUHu7gBla9/SGt7Zn1b
-         XCjzRmlSonXwqZYwq4mgjbmEkXrFswwhfqucJTb7qzKn9QFsHSZYbfgBOa4uG7Ic5sal
-         CMThJMid/5K3MYvold/bgnLcy2BgKyCAq8aic68DTw+XPrDdcphEEIapjcgMN7PKx8aU
-         l5tNNCafy9zbDk7zW+P8opD8P2KHCjkm0TmNWMdHXRBjxWY1VApaFHU8eDH4EIGjzbQv
-         K05A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=EeNgemAb7lsaMF3mg8j+vPdtgIOxXFzORulJF8ZPymc=;
-        fh=aypRllL/t69+VoGx5zrt5fodxRlakcMyWY3dIqe6+dY=;
-        b=ESrae+Y38TK2Qg7CT+HQD4SLLXqMeizek+lStkkEdmCaYoBKbWQf4mSOV+Rh/uR4ph
-         LIhxP5ZSPlxsHvLEimYpGqMMd9yGDgpW0bB4wpLwbab8Jpoev3I/Zly55Iyc2XkUkqrI
-         9lgwWf07MW4XZ8qW63aKHfHRgkPqJlYVxMAHuDRxbxht9j168OuQvWv2GnztK8ndpHKn
-         cJ1foC97aKrIvlieclyD0VlUCJxLyUwajhUj5D8PpXYMVDNR5c3PuQBRoKYvs4E9zhml
-         l428yCSfjOXQ/m2eLSXDoTjeVKffzB5+qrh/3GCqV+ebogDshJ1XufTVSTbczKtrmXs2
-         XzHA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789126250; x=1789731050; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=EeNgemAb7lsaMF3mg8j+vPdtgIOxXFzORulJF8ZPymc=;
-        b=WE9E7aujDX9wgvf2lKhxdC/OqsF0xAz/i4dlFOfi6kfoOelL8kcK7kOl6nXmJUKfsa
-         scWbnvam0Py3pPCUVzooFmLEUpeQBHR4lIuYmday3tnOZqRcVBwNwO1Lp0VJ91wQEpLP
-         e9Y2c9/boyZgnLYgxk+JyGdj4M3Q9ELn6rHFVJZxQuKtkqfSG3MPsGjf5rNRPo2pBErA
-         iSAK0i4NgB5FARkvKPBemWtfCehRuie8NTTNvD82Z+WMirZg1OVl/5cDHBTShp29xvbo
-         EPOpMSlqSPlSLiSAHmujdYhUsiWT6SRchM/CbLRhyLg2+Vd2kahSQ+BIDyv2NtKfSMjc
-         h+4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789126250; x=1789731050;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=EeNgemAb7lsaMF3mg8j+vPdtgIOxXFzORulJF8ZPymc=;
-        b=KYW/CFgP6YgxDpNiSK4Tx7VepHFBhPJwbihYEreDNvoFaQKKCGgBSq3hHMLqEixIpZ
-         TtwnEUmQr06B9LcaRCajuDDURIAO79F/kCt8wtebkhQ2PEGCep4E40S+aRXdwn8+ojxr
-         dP/NlCtEgAsd1GnvUS8UziJfcBgsJP35k5UoqpnMvrn4yLtKaHCN1820hqEejcn+Xtk0
-         QOMa3YPFNdD/F43vIvFbe5FdnIGCQds9fKiLqVsweFEld7terJZh7aF6zwvOa+Xe2eZo
-         lXFwkBKDzrne/cYDstgXHhLAqfTIYKs6c9uLaFgvKfevkKby4JMQvwpm3xmc2XBE2AO/
-         HzPg==
-X-Forwarded-Encrypted: i=1; AKwUvByFU1PIYQ3iA90tLOr/UvetFMVkaZ54uEOFEzhrUvQqb1CkCaCal+l37GrYVQpsyH+CIqAxEeeGgUFm4lHMvA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kC63qgVrCsnFRDuAmajydyR1psDRLTZtY3cadOtsyLdh/Qvn3D
-	PKJ7VlZyX+ex8Gar8qa73p1fGdFi7AcnIvvfJwQQbceS0LM89sfEYX4IMzzA986aRsqEUBkwKhR
-	fBCqhMNPYRYUh4oHBV1afSREaUK5O4Zo=
-X-Gm-Gg: AYBFou2sr7u0SRRsu1akc/O3q1e1IZ6MXvZZtS88B4cHGD9GNsTqUI9GceQ3zeUGG58
-	IZG75v2Vs3BJgtcLN2qe4SQNNIFEhkNstjljERsEVff2BN6ncYhLTzitR2Zrar5RhKBf5vaM/ac
-	7eSaqu6UCxGYQjrbXqCDH51KaWVLDasty8DQkHovrsENkoCki+Fd8HcO1xYmN1ql0vVwLrrBNer
-	4w+tIRpgIfHXfby9IDBChh45tDrp2DNjmCJp+KL0FzHiJ4qFN5V9MtYeslcInJS3J6UeQKVhhZe
-	U39MTHlZ32cJvGZ0b6ju3d4RtoUFwbhiYBknLSaA6LKFCzvGSZUlthL6F+ieY80Wz0lkvAe3/gB
-	AMKR2EptswIkkc39RNoO3kdZzvZwrTzNZ7fel3xQoNb96I5og0IDtAG+srRX5+ActKqGpKlSHLA
-	==
-X-Received: by 2002:a5d:494e:0:b0:486:e73f:586a with SMTP id
- ffacd0b85a97d-486eb3046cemr2794052f8f.37.1789126249695; Fri, 11 Sep 2026
- 04:30:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YoLQS3dt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3810F1F00893;
+	Fri, 11 Sep 2026 11:32:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789126336;
+	bh=nPb6ePHD3DBCwEh+6AehohjVlwhe7RL16iLnzLf8xrA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YoLQS3dtADRMhVFlPQzNe2w3oj5fzfbXgW7ed9nYHeeiWOSbRMHteBxE+EuT1lcJz
+	 6UNnYamBFLZ6iKjEMfBgXysoarLN4RF5KAJdo5TjDXV0mTSdgWBTyzWtHYFKim6NPe
+	 YjpB/Ae8YxdBA98g02eaoP84usAU0Q3uYBey4SGnGqH16QYnIuOryINNPaoDFctI1r
+	 mBy0/o+tOV2cBAuRDa5XGKp4v1rJqeQY29TfmHMxAM+VWJLaVA2oN20navkg9a5A0A
+	 h4NDrWG6RfBOGzhGGA4BgDzJILAFVSVZDbsZaGOUaCmRPvJp7KmhWVfEFx/wiXaar4
+	 aJBDaHRjNmDOA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 7/8] arm64: dts: renesas: r9a09g077: Use CPG/MSSR
+ syscon for WDTDCR access
+Reply-To: sashiko-reviews@lists.linux.dev
+To: Prabhakar <prabhakar.csengg@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com
+In-Reply-To: <20260911111731.3404308-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20260911111731.3404308-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260911111731.3404308-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 11:32:15 +0000
+Message-Id: <20260911113216.3810F1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260911111731.3404308-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260911111731.3404308-4-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260911112607.3239E1F00893@smtp.kernel.org>
-In-Reply-To: <20260911112607.3239E1F00893@smtp.kernel.org>
-From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Fri, 11 Sep 2026 12:30:22 +0100
-X-Gm-Features: AcwNN1WtZyh7B-ne7h4Obd9ZeApvbyPgvZ7Ss5X-8P5TGBqm7FWkrnhW56vuKck
-Message-ID: <CA+V-a8vt0Y_9Qi7-KY2_206Be_H9GwG1g57aHwnVgx++A7_bEQ@mail.gmail.com>
-Subject: Re: [PATCH v5 3/8] watchdog: rzv2h: Propagate WDTDCR access errors
-To: sashiko-reviews@lists.linux.dev
-Cc: conor+dt@kernel.org, robh@kernel.org, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi Sashiko,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] The transition to using a syscon regmap for WDTDCR access is broke=
+n, preventing the watchdog from probing and containing an out-of-bounds reg=
+map access flaw.
+--
 
-On Fri, Sep 11, 2026 at 12:26=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
-> - [High] The error path in rzv2h_wdt_stop() leaves the watchdog unconfigu=
-red and missing a required delay after reset deassertion.
-> --
->
-> commit 3f7bad2568920b818b4bdb62349364febc443827
-> Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->
-> watchdog: rzv2h: Propagate WDTDCR access errors
->
-> The WDTDCR helpers currently access the register directly, but this will
-> change to use regmap, which can fail. This commit propagates errors from
-> rzt2h_wdt_wdtdcr_count_start() and rzt2h_wdt_wdtdcr_count_stop() and unwi=
-nds
-> the resources if an error occurs.
->
-> > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.=
-c
-> > index 7c6a4855bd8ad..cbf414e0c9a3c 100644
-> > --- a/drivers/watchdog/rzv2h_wdt.c
-> > +++ b/drivers/watchdog/rzv2h_wdt.c
-> [ ... ]
-> > @@ -169,8 +179,13 @@ static int rzv2h_wdt_stop(struct watchdog_device *=
-wdev)
-> >       if (ret)
-> >               return ret;
-> >
-> > -     if (priv->of_data->wdtdcr)
-> > -             rzt2h_wdt_wdtdcr_count_stop(priv);
-> > +     if (priv->of_data->wdtdcr) {
-> > +             ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
-> > +             if (ret) {
-> > +                     reset_control_deassert(priv->rstc);
-> > +                     return ret;
-> > +             }
-> > +     }
-> >
-> >       pm_runtime_put(wdev->parent);
->
-> [Severity: High]
-> Does this error path leave the hardware in an uninitialized state?
->
-> When rzt2h_wdt_wdtdcr_count_stop() fails in rzv2h_wdt_stop(), the code ca=
-lls
-> reset_control_deassert() to bring the hardware out of reset. However, it
-> does not include the mandatory udelay(3) wait for clock stabilization or
-> restore the watchdog register configuration via rzv2h_wdt_setup().
->
-The udelay(3)is not required as we are not reprogramming the WDT in
-the rzv2h_wdt_stop().
+commit 0e87a2089f722e3ac7bcab46cff76d445536d9fd
+Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: arm64: dts: renesas: r9a09g077: Use CPG/MSSR syscon for WDTDCR acc=
+ess
 
-> This leaves the hardware out of reset but unconfigured, which might trigg=
-er an
-> immediate spurious reboot if default timeouts are active, or fail to rebo=
-ot
-> the system during a hang if the watchdog remains dormant.
->
-> Could this error handling be updated to fully restore the previous watchd=
-og
-> state?
->
-Yes it does, if the rzt2h_wdt_wdtdcr_count_stop() fails in
-rzv2h_wdt_stop() we revert back things so that further pings from the
-WDT core continue without any issues.
+This patch replaces the direct mapping of individual WDTDCR registers for
+watchdogs wdt0-wdt5 with a new "renesas,sysc" phandle property pointing
+to the CPG/MSSR block. The watchdog driver is expected to use a unified
+syscon regmap interface for these accesses.
 
-Cheers,
-Prabhakar
+> diff --git a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi b/arch/arm64/boot=
+/dts/renesas/r9a09g077.dtsi
+> index 40494159831d8..ad5189d55cef2 100644
+> --- a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
+> +++ b/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
+> @@ -327,61 +327,61 @@ channel1 {
+> =20
+>  		wdt0: watchdog@80082000 {
+>  			compatible =3D "renesas,r9a09g077-wdt";
+> -			reg =3D <0 0x80082000 0 0x400>,
+> -			      <0 0x81295100 0 0x04>;
+> +			reg =3D <0 0x80082000 0 0x400>;
+>  			clocks =3D <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
+>  			clock-names =3D "pclk";
+>  			power-domains =3D <&cpg>;
+> +			renesas,sysc =3D <&cpg 0>;
+
+[Severity: High]
+Does this node successfully acquire a syscon regmap from the cpg node?
+
+The cpg node lacks the "syscon" compatible string in its definition:
+
+		cpg: clock-controller@80280000 {
+			compatible =3D "renesas,r9a09g077-cpg-mssr";
+			reg =3D <0 0x80280000 0 0x10000>,
+			      <0 0x81280000 0 0x10000>;
+			...
+		};
+
+Without the "syscon" compatible string, syscon_node_to_regmap() will return
+-EPROBE_DEFER indefinitely, preventing the watchdog driver from probing.
+
+Furthermore, will the generic syscon regmap allow access to the WDTDCR
+registers in the second memory region?
+
+The generic syscon framework only maps the first reg resource region, which
+the cpg node defines as 0x10000 bytes. The watchdog driver calculates a
+WDTDCR offset of 0x15100 via:
+
+drivers/watchdog/rzv2h_wdt.c:RZT2H_SYS_BLOCK1()
+#define RZT2H_SYS_BLOCK1(n)	(BIT(16) | (0x5100 + (n) * 4))
+
+This offset exceeds the max_register limit (0xFFFC) of the generic syscon
+regmap. When rzt2h_wdt_wdtdcr_count_stop() passes this offset to
+regmap_set_bits(), the regmap core will reject the write with -EINVAL.
+
+>  			status =3D "disabled";
+>  		};
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911111731.3404=
+308-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D7
