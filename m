@@ -1,40 +1,40 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E54345736
-	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 15:13:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE29832779D
+	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 15:17:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789139638; cv=none; b=OY9GefbXAg2etUOJbf7guPrJwSprVitvtvBylUVW1FA+3j7UreM4rr4UxGPQYlojbFH1jywWOCUjuzUhU0Vzj03r+SLc8LSaev4rDiDZq1wRIl3wKgdGR9hlGd6fmqL5piW8AhoOTtfNUWPbEp6/weKAJDmeR2apxEKeVoDzMao=
+	t=1789139835; cv=none; b=GjYjijTq6B693ay40cXzFE+R6VyrmbEJzyImE8SsBcUIm8YPBBV0sf6lsje1VR0/FtbwBMgHdVSX5m8HAXGRAoopODyZulBbegh0K7gY2fM2rVK2sYiQC74GkyaOafERSrcrp8YZG749TD85JjhbJyVkiWkJXOOFrWraT3cwv0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789139638; c=relaxed/simple;
-	bh=uq/WUuirl9LkveBlBap7y19BGfLqBJsaeerSYP8tut0=;
+	s=arc-20240116; t=1789139835; c=relaxed/simple;
+	bh=XgGukFaLm9ClfaJCRUXEngx70lnGu6tnboJmCPbDz9I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OojpFbojjp5+L/rBp9/BmdzGsDBjPS7PZ4MXNThfawoOtFsP8tHw7A8AbgkL62lGdAIy6gFxzWIc0NPWUATCwIZjgAvnAAoqD9wYaFpWdT1dgp8ao5QSea+ZplEcjwJdw791WMLEz2P7iSsNaYvLM46IIqhsRWPUjVO7zYZ6jco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Ayrsyn0a; arc=none smtp.client-ip=185.246.85.4
+	 In-Reply-To:Content-Type; b=YGbxMlexYcXpuPREyJSaBQzh4ms5o0VFlHwc4+7DYOnndjUXenNcDPYdESNrrO91xEw3BSjo7Ywl2rR3Yb3D25qbqBdLV3zvOHDYktxhJLFJDLJdGTfsvy5uB2ZQWn4TMi7X+VvXhiNsJ6QnIsSki7I6ZK8TE4JkWEKKwvu2JKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=du4jAI56; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Ayrsyn0a"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="du4jAI56"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 8EFD64E401EF;
-	Fri, 11 Sep 2026 15:13:55 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 6D2EF1A01ED;
+	Fri, 11 Sep 2026 15:17:12 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 545B8601DE;
-	Fri, 11 Sep 2026 15:13:55 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 37B6811C7AFA9;
-	Fri, 11 Sep 2026 17:13:53 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 40F99601DE;
+	Fri, 11 Sep 2026 15:17:12 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id DFD0B11C7AFA6;
+	Fri, 11 Sep 2026 17:17:07 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1789139634; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1789139831; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=zZngMg1fCLBrGuEL0fyeHrYu9D1J2Ahq2Mn+xR7GSjE=;
-	b=Ayrsyn0aAX9LhMS80a/W973tT1Vk8KiITQQBr9uCDIoV5VBVHdZYbu9oL777bxrCpP6I9g
-	BYew6UhOpO4syz+J5pwa4Jai29lSmO75EBUsl6AnOxABFy8p3pJfoQDaOTvjU7/weRozsC
-	xeBoANNnWws1ojF4HsVr64ZY3gH/3uhGJa0QDvVzSWyyvwFq4ExQmGCgDueY92OZkMR0uW
-	B4kBcwd88sPVJ42gIr/Qa02CouY5AqTQbIBDh3F6EfXdihbtZ/vzid2Kn0DF/GHGGI1CMS
-	cFaqR2lzq9YlnXmvJnaLkiZjiGGYttI7RMuT5N3u9XSVrknNpdKx3yzn5fUDog==
-Message-ID: <627a2d9f-3618-4615-9315-36c3766ca9a7@bootlin.com>
-Date: Fri, 11 Sep 2026 17:13:52 +0200
+	bh=MmwatGe7e6Rau0WxZg3LCruAvqvk5vMaFR7mz8DDi+g=;
+	b=du4jAI56UYGTI6LssNs4qBUtxs8fkFEcaiKb2fM2arVS2NIADqsqIXA6wwDGyXtqmxLKHy
+	yjNDExDnHOpXb6jCpQouJIx8MwMsC8/YhP7fcSFmTMhmeaFJJpdOwc0BjUJIqFqtcVr/k1
+	eNMZxSAfsvIWQUoCnSZMEyZ+cxqe3csfLVTs8/XDpCMbrOpmxvdffyqSP/JmDPGN8DRw9q
+	acJN+JxW9/V5ngO3vR8ecl4BLkCyh5FoIWBlqdNxoOxG4ElpN5zZ6fLbNArvt+NfEnrkAA
+	Z70aZGK27kVmQhVifaXmZE7e8GFi6CTtvGGdP3uK+WefBopl2D579gZTXfuALw==
+Message-ID: <14eb1c72-fab0-445a-82f2-5851a855f723@bootlin.com>
+Date: Fri, 11 Sep 2026 17:17:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -42,71 +42,64 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] arm: dts: ti: omap: Prevent watchdog from being reset
- on kernel boot
-To: sashiko-reviews@lists.linux.dev
-Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
- robh@kernel.org, conor+dt@kernel.org
+Subject: Re: [PATCH 0/3] watchdog: omap: Preserve OMAP watchdog across boot to
+ detect faulty boots
+To: Guenter Roeck <linux@roeck-us.net>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade
+ <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
+ Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
+ thomas.petazzoni@bootlin.com
 References: <20260911-omap4-wdt_boot-v1-0-637d778a4a1e@bootlin.com>
- <20260911-omap4-wdt_boot-v1-3-637d778a4a1e@bootlin.com>
- <20260911093025.DBDD01F000FF@smtp.kernel.org>
+ <407b9420-0ec6-4d95-960b-633677edf760@roeck-us.net>
 Content-Language: en-US
 From: Diogo Ivo <diogo.ivo@bootlin.com>
-In-Reply-To: <20260911093025.DBDD01F000FF@smtp.kernel.org>
+In-Reply-To: <407b9420-0ec6-4d95-960b-633677edf760@roeck-us.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Last-TLS-Session-Version: TLSv1.3
 
+Hi Guenter,
 
+On 9/11/26 4:29 PM, Guenter Roeck wrote:
+> On 9/11/26 02:17, Diogo Ivo wrote:
+>> Allow the OMAP watchdog to survive being stopped on kernel initialization
+>> so it can detect a faulty boot in cases where the bootloader leaves it
+>> running and the watchdog driver picks it up during kernel init.
+>>
+>> - Patch 1 removes a duplicate omap_wdt_start() call left behind by
+>> cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling"). This is
+>> unrelated to the main goal of the series and can be picked up
+>> independently.
+>>
+>> - Patch 2 adds support for reading the watchdog boot status. Probe now
+>> checks whether the watchdog is already running and takes it over instead
+>> of blindly stopping it based on early_enable alone. This introduces a
+>> regression possibility, explained in detail in the patch's message.
+>>
+>> - Patch 3 marks the OMAP4 watchdog node ti,no-reset-on-init so the
+>> ti-sysc driver stops resetting it. A detailed explaination of why is
+>> also provided in the commit message of the patch.
+>>
+>> This series has been tested on a platform based on the VAR-SOM-OM44 from
+>> Variscite, running a TI OMAP4460 SoC.
+>>
+> Please address the issues reported by Sashiko, or explain why they don't 
+> apply.
 
-On 9/11/26 11:30 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [High] The patch exposes the system to unexpected reboots due to a 30-second window before the watchdog is idled, contrary to the '3 second window' claimed in the commit message.
-> --
-> 
-> commit 1abe23cd5472149baeeab9af481deaf65caccd1f
-> Author: Diogo Ivo <diogo.ivo@bootlin.com>
-> Subject: arm: dts: ti: omap: Prevent watchdog from being reset on kernel boot
-> 
-> This commit prevents the watchdog from being reset and idled during kernel
-> boot by adding the ti,no-reset-on-init property to the target-module node.
-> This is intended to provide a 3-second window for the watchdog driver to
-> probe without resetting the watchdog.
-> 
->> diff --git a/arch/arm/boot/dts/ti/omap/omap4-l4.dtsi b/arch/arm/boot/dts/ti/omap/omap4-l4.dtsi
->> index 4c78a0b28fab3..e061ea3fc8e70 100644
->> --- a/arch/arm/boot/dts/ti/omap/omap4-l4.dtsi
->> +++ b/arch/arm/boot/dts/ti/omap/omap4-l4.dtsi
->> @@ -1126,6 +1126,7 @@ target-module@4000 {			/* 0x4a314000, ap 7 18.0 */
->>   					<SYSC_IDLE_SMART>,
->>   					<SYSC_IDLE_SMART_WKUP>;
->>   			ti,syss-mask = <1>;
->> +			ti,no-reset-on-init;
-> 
-> [Severity: High]
-> Does adding this property unintentionally cause a regression where the system
-> experiences unexpected reboots due to a 30-second delay instead of the
-> intended 3-second window?
-> 
-> Adding ti,no-reset-on-init skips the immediate hardware reset and triggers the
-> delayed work fallback in sysc_probe():
-> 
-> drivers/bus/ti-sysc.c:sysc_probe() {
->      ...
->      schedule_delayed_work(&ddata->idle_work, 3000);
->      ...
-> }
-> 
-> Because schedule_delayed_work() takes its delay in jiffies rather than
-> milliseconds, passing 3000 evaluates to 3000 jiffies. On typical ARM
-> configurations where HZ=100 (the default), this results in a 30-second delay
-> instead of the expected 3 seconds.
-> 
-> This could lead to a boot loop if the bootloader configures a watchdog timeout
-> of less than 30 seconds and the system relies on the driver to stop it.
+I have just replied to the Sashiko reviews but I'm not sure if you got
+the replies as Sashiko did not include your e-mail in its review. If you
+did not receive them please let me know and I can resend them. In
+any case if you could give your opinion on the comments I left on the
+patches about regressions that would be great as I think after the
+Sashiko points are addressed that is the main blocker for this series.
 
-This is a valid point that I am not sure how to solve. I could change
-the hardcoded 3000 but I don't know if that is the way to go. Any help
-would be greatly appreciated.
-
+Thanks,
 Diogo
+
+> Thanks,
+> Guenter
