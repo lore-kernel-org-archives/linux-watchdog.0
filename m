@@ -1,83 +1,83 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CAF2381E97
-	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 12:10:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03053449EA6
+	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 12:12:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.140
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789128618; cv=pass; b=sTEp3O7WwgMRBdIAkzZc4x3kVtEVD2HvMmZURQiEOvituP9XEjHFbuI2AZW/XLaBX9/XK54sgwHNU66zaRKm08ysBH4sJB5oE10VdqzsNM2qSqpwJ6ej06FukR8u/3IZfRPtI+hwEQCaqum8m8MIsW+6jqG2dWFk0sQC/Vp8zq0=
+	t=1789128741; cv=pass; b=HcTghC8vsYjwvs0qijEsPZV08dN9ncLRuTPSrC9qx5HAEafkn85jmFEEICDyDyKyUtRPvcvXFXDmTADkO3D0lHf4GusihF8pQAuuMDslunbSAIDl4sQWOmJZSBl463K+5Wk/VriANnRzzy7XuSOTnmqZacJFe3EPOzo8Lag/RCE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789128618; c=relaxed/simple;
-	bh=s2doigL40MavgJYYi+6feoNcgx2hlI7yC6v15ZMkMkU=;
+	s=arc-20240116; t=1789128741; c=relaxed/simple;
+	bh=y0XIFCeENQJqN8g/vbt7VAjbJq+Nz3Xv9yF4zfVVk+g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CluslAxh9AqjM4kVrtOj6TRm4POZ7MOPjK1ZWdUdHqJBzKQHw6uehwo7tMns8+qtv6dH22TguwWj451tRTNHrQUjE7J2IKhINlwetvVGzsHHqlGaPIxDFBYBxF698EDGcpp3PwS9uHYdzUH/H+oFIVWgfwvny5ZCyZsmOq0CjhI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UJnITs4I; arc=pass smtp.client-ip=209.85.128.45
+	 To:Cc:Content-Type; b=QwEs5AJf3BpLZIND30mQdg3yPWBpWbvObyNaaY5Di50o6DQP893Q5MG1U5x5+WkrJF7J3k1eV8abNSh/iYTFCGWZy4l+W/JN7C9NRFaFedPFlq2Py8SS/M2uG8dfQokbkwX8oTiLoXZc3RCCSEJBZZIBNBhoXpusrBgWO3lixhA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V5qY8lxc; arc=pass smtp.client-ip=74.125.225.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UJnITs4I"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4995b0343c1so12733575e9.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 05:10:15 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789128614; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V5qY8lxc"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912d37b6so4290565e9.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 05:12:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789128737; cv=none;
         d=google.com; s=arc-20260327;
-        b=UJCCURRug5uhWa4Hrrk03rHSdLY9TrPyNfWnH3oQUjF4yxtzAyxx57klWzuz+K12p5
-         yqfB41EuwPcrw1PzWF632LVRdUea5nasjWbTzN1ElPh/ePa4AIehLliLQm3XqFFdb9fP
-         FzKOKCNSdJy7f3OqJ+T+zX9M0ZbmstnW44QqppvYeGHjEslI7NTpB3p2u80z/ku5BiYk
-         wgjbgzXrb7j/aXoTqZPizbn4X7pc6I2LnlYmAejp+buSYYALk7q6bAaJBvPYZKltvi3Y
-         hDog4QyjAwFIPlCOn48G3Q0jJ9gD8bunyr4Sac2UR9gMFCzTG3A5BR2dvHlbSTLrvyjC
-         Mjbg==
+        b=UOkLNs+FmDWnl1FU8YbvsjiTlRH/3WNop1KO/3Bq/yM7/mqsglh8izWtBNyTaauGLQ
+         2Bjmt671zoVSVVXF9eZLzJAWT6tQ9N4jgAjTCeOvmb/BNoIPFw1CpuK7Zh98nXewVBGD
+         oJiVKdGcRiN4fwyZVaZgcKqEatVwTCYRAVIEh1kBU02P7PzkkHseYpi2wHyGXSmdbGm8
+         fGQMMQxgLx2LuvZ0C048+H7gbVRakiW2lePqEHSasphx//Kafyu5FokoCO6KtIGigcUJ
+         mj6p0s3GKlpggJ2gpwnGmCW/4pjRvyaiqpa80xl1xVMoNnAbLSCWHLnPkT9WYOLg/IDD
+         qHXg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=s3J8UlCAdANDfuXwyK75WO7Z8Tmd6ahY31LeseAlh3w=;
-        fh=A7JYtss2vot8vxLqXTJz84v16/p8oXfjDjLmRiFFW5U=;
-        b=JWs8Ib6WjZP18Vp5k4AeGwyeRjq2DKNbg9g3f2trOzIFEujP7aGFwWSx9JtUflOxd6
-         sx5s1joI8rdkntsz3wpcBnKovSL768Z0840QoSLctSX9vajZUE7I+Zm+9EeRgl2f1VX6
-         pN1gxD+iM+23htpEoTsLt+MN1u3bK+umTFyk3BfybH3dBFp1KtsLqXXsP91IXvieqw4f
-         rZZ9I7C8IMfcR6RRw7FEXCW/rwxYcd+Gx6lPnJEHheuRZWC/Q2as2xFAAacUJORecFhZ
-         6UW7Ee0MsXPz1JB9sPFE7OJhIZ8JLN2W03l/ho/KNGuQxMTSkP75YZ3+0npEYOvO1a6C
-         LU1g==;
+        bh=lNwnWJHPLgasWdBDmLTUGAni7FNn6xt21s/9H9MyjEs=;
+        fh=wPum3L4ni45aDTvg/4LnH0ChDi6pfoRyhYKL8YRQwR8=;
+        b=j4E3CXkGGtWAk1oi1AXIl0G6w3hU3Ad0cw3Nk2XFJYIom5CZ25zfo5aH7ssnZpbvJ3
+         2E8uQ9aVy4sQGTEGStdk4i+ijl4zKwSaDwg8zOW0JA53Iznm+RHaygqMbdimjPXtPL/A
+         +1uF7Qi+/4oN6odj8iJqixyEMSnMI0eWOId3NJFc8SOz4zFyAr2Wm87YAgmy64v6X3HA
+         fn2dgfPI+p8/lmrEY8qj15TRKJVn7/bWrn+M+siJUeUMJIuJoGMxXDh5wYn2/QTyfmvW
+         Gwid0MPvfvn/bJufgCOTFjGKrk0KEZuTVmLBOaivG653myFctcyk/8TkCBSrDQSgcq+z
+         1DCw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789128614; x=1789733414; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789128737; x=1789733537; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=s3J8UlCAdANDfuXwyK75WO7Z8Tmd6ahY31LeseAlh3w=;
-        b=UJnITs4IWqEYDrj2zmCXCQ9ra2nHSN0SEipTyEWmaag3pjKibnEWj/gft1gkd0nF2Y
-         qFOLDzFZ1SpnYGjxkHbWZO0Fvhh0k2/+TDGce9eiT/L7OkSFnXfoXPFCZFSz/mv2dm2h
-         1caNsLn/NvCFT2Ue+lYIBGdC8b9vuhOWxXmXAQeYXjEdcRzUW7fA5FGJqQPXCDYppITy
-         hPlJod6PbPG4DDizHOD6lit9aACK8bBfe8InWZu/D48PystHHco5vhUmRJdkdu2Q2I5R
-         fk+ppuLwO4J3AbXFqb8WXmvCUwDDH0tlCeMzMg3SFt/vi5S5ZWSrSjd/26W0XPWHq7hO
-         JMbQ==
+        bh=lNwnWJHPLgasWdBDmLTUGAni7FNn6xt21s/9H9MyjEs=;
+        b=V5qY8lxcYRx5ZkIgRmvJ9ikvQM9tfa1YVpHh6YCgYiAmdE6HSAt5KOhaMYdaJQQzCa
+         Hj8dI0T54rgkj+2XeN0gpFjo6DOZTdu57sTzoCn3XKHn2mBfyk+agK9tVCBoAb0iXt17
+         C2toev6+JdfrF7feTUBAheboKY64UOpMslY9Lm4C+7aN9yKRFPFwgGh6YdYrnG8YAijH
+         46Kl1Dmxsbwmn+KtFd6qxEFx8cf3gsjhCjpQFjkLcyrBkIgJGbf9LFt2qbLk+aT8dosn
+         sVjlm3KmBoAKqRT0EqZVfLydjEQTE+uKcqmtqBAvS5bFW0KntWKPlVV9CSwsCPir5FBt
+         9XFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789128614; x=1789733414;
+        d=1e100.net; s=20251104; t=1789128737; x=1789733537;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=s3J8UlCAdANDfuXwyK75WO7Z8Tmd6ahY31LeseAlh3w=;
-        b=h7qqkBmSVVhE18Q7h/APv4n1aBQTZVCJ9MJSv6TAdQwQ4lKiC7Mr5BJvr+PGKN50QU
-         Vjs1RxKz9qrTlXzHh7f3T6MotNlqAV3VnD4VDI4fGaFjKmFRj8neJf9iUJI9tpmxhTWE
-         ziRZD5ygXhWnVExuI5erWl7U+hYzgdxxVK2vfu1XOF4kyAbDp+B8EU08JehNpFP4gmT3
-         fZ1cCZFY+9dGBAUdSmIo4KaaRuTrnnmaxQX88p6D/SpvO0K9uCLg+4VjxRKXiQjBhh+3
-         bb4WFuFXVCIWEDzO0kc4rv8ETBHmCsZFONd8pYNM8Fq+bww/t5QGwdGXYi+pd8dmtqJu
-         iE4Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxK3YajH2SE3JQNIO/FNlldX9Ph0m4Hao0CU2rAHeCMgTaQN3Yl4TipGZxARcgucmCiL6RNm4UOSwlqmOq31w==@vger.kernel.org
-X-Gm-Message-State: AFuF++n3jNZki2kYwirKGpgTARKj9eYAHrn2uo3sswwsaQttFpjbdT0d
-	y42kVb6/Mv+vAYcWOv1A8Im5jBlxT8BlvfYXDo2EPvzBPVF0qAaewYWfyBQwdTzbVnL7Ah+HpIW
-	NffH2NUMPSG/TglHSyzX3ElEfs9G8tss=
-X-Gm-Gg: AYBFou2CNCroyZQFat8Cd3CAcKKWRK4ugjOTU2qjjnz4tN74EKoxIQjd7/t4JNMeM24
-	sJ2/if0xYUFw5d9tE8K72AoygFoxWlwCfF4alIcnSH2eeMAnxwpMapp1fi4Uor6VHctZNxGT6l8
-	8II3lfzC+EPY4Xc3nn+oF9OL/VPE/NP4EsoO+Lgc8/FAAyoStC9KuDpXHK3NXNs4PUjq483f9yU
-	OB7an1CA4HZDGJT/EiKjMI7oC/3V3kWog7oyDG3MLmtYVJPjkqoEIWakQKepdAKyHPrMOjt1T9+
-	jUOmwz85eab09declDvbt4z5P6eLUR8ZlJvYEA02JZqNL3YoiihRXwCN3J6+eHfOZYT08K9IOlU
-	J8v3E8QhZTkrRtFmDSlg2pgFWeJjvRzXna7Vll+t2aZUG1N9n04Don3gaNLzyyAzqHe9+BSbTQA
-	==
-X-Received: by 2002:a05:600c:3ba2:b0:49d:99:1d98 with SMTP id
- 5b1f17b1804b1-49e619881e3mr56892275e9.9.1789128614171; Fri, 11 Sep 2026
- 05:10:14 -0700 (PDT)
+        bh=lNwnWJHPLgasWdBDmLTUGAni7FNn6xt21s/9H9MyjEs=;
+        b=QT0RuCgk7A4rf8Ofg/UFLR6cmuxLNzKlP1RVbh7lfXpA7HKBfQ1/QZoEFfzj5bkSbs
+         XQ0o10bvMJrzhO06MYN5BepT8ZfUs+fnwRFK8PByazC0cf0Gaql0S6zf1o5bltR9cg13
+         XXMtv9MGMWFcyxnMQTAH0BwMxSSTR/mwXp8AzY6jOSlC41jQhoy+MwH7y/O1ZZijiUyt
+         5kIIa8VFJZRQB9uRypuf24Tvy3wQBbCKy1h+/hcycGR4dplSSPWiGVrNpsvEVpJ1dxqm
+         46H955JINi5u6asBBR8Sj2dW1S/PrrZ46b0UELFhyIXrRF+TOkbRIrpZN08S3TKs8C0j
+         UILQ==
+X-Forwarded-Encrypted: i=1; AKwUvBx15I+lyxhLlzkEHqwyM5NjGqtzk31Uc+fPNeA0cPrOu3I+sePqqdm++xsR1iQCAzeE2JOYKBKpRys1c1e+xg==@vger.kernel.org
+X-Gm-Message-State: AFuF++m8Z5nwPk8MMY+XpeutozZBXnPQCLQosu1J/ZZpDIyPJF1fNI8f
+	rk1fJe2jl6cI8T5RYX89FoQRraMW1USbSMEgqXGPcNVv9sPLWWpg/axwrvJoUgdTnAPRPB94ChC
+	iqU2b8rLv6Ca4W4upAb/XHjBY+fqNifk=
+X-Gm-Gg: AYBFou0qjSJ7PQo0tznY9AD70gAmqcJ9z3Jij2BAKS3E/Y1uky5F5MrkA5xULw/toTn
+	WZWLhdVQlkU0KmD9BG+dtFo2+uRdleIz/uE9J2+jV50QYuzuF7l8TF6AUjCqysUgfwVIwQSMcKu
+	LAU+GlrpLUj+fuBGP8CipIdiTQIo6Rm/UfYehAItxFKem0Z7Lsdw/rbhxKXYbtaK60MXB+lRqTv
+	61F0bWnUyS1X33RhFkJN0sUlxW7bcEReKU/slYZMHXItlVvkcZ0nNaX/Z+1fmiHr32ZxgYanXXU
+	/j4fF+d+fGkeyAhQmrq3eFJ3BwGkQ8+5kbwCm+x7M23h/bcPcQDNOBAPQ5DEBwxqmL1NllJ3p7P
+	bFSb2G8IE60dnxJ1JWcAwkW4radxoRW7PDHdzY38+ILymsyIYs8wjiKVzWq+mz0EVUZWXAmsEb0
+	5ekvK0OnH0
+X-Received: by 2002:a05:600c:1385:b0:499:a5c8:c6f3 with SMTP id
+ 5b1f17b1804b1-49e61878ab9mr68367055e9.3.1789128736767; Fri, 11 Sep 2026
+ 05:12:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -85,98 +85,133 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260911111731.3404308-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260911111731.3404308-9-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260911113322.F03531F000FF@smtp.kernel.org>
-In-Reply-To: <20260911113322.F03531F000FF@smtp.kernel.org>
+ <20260911111731.3404308-5-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260911112713.355FA1F00893@smtp.kernel.org>
+In-Reply-To: <20260911112713.355FA1F00893@smtp.kernel.org>
 From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Fri, 11 Sep 2026 13:09:47 +0100
-X-Gm-Features: AcwNN1X3EMrEnABSXEIebhNF9fcbF1O099DZU69vOon2jNzLHf0JqRb5x3-yA24
-Message-ID: <CA+V-a8uJLn1N5+ThxH4c67gO76ksuJeMFroDf-WHM_4QLuqt-A@mail.gmail.com>
-Subject: Re: [PATCH v5 8/8] arm64: dts: renesas: r9a09g087: Use CPG/MSSR
- syscon for WDTDCR access
+Date: Fri, 11 Sep 2026 13:11:50 +0100
+X-Gm-Features: AcwNN1XOUOwZDNjKd0fMCAdW1pC8fPronyNs541sSWVf7U32M71-UP3UfDUWtnw
+Message-ID: <CA+V-a8vH1yC_7V2F9HGMaP2QhuyU+qSXd_J2BAvn5aT-0CH61A@mail.gmail.com>
+Subject: Re: [PATCH v5 4/8] watchdog: rzv2h: Use pm_runtime_put_sync()
 To: sashiko-reviews@lists.linux.dev
-Cc: robh@kernel.org, devicetree@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, conor+dt@kernel.org, 
-	wsa+renesas@sang-engineering.com
+Cc: conor+dt@kernel.org, linux-watchdog@vger.kernel.org, 
+	wsa+renesas@sang-engineering.com, robh@kernel.org, devicetree@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 Hi Sashiko,
 
-On Fri, Sep 11, 2026 at 12:33=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+On Fri, Sep 11, 2026 at 12:27=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
 >
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+> Thank you for your contribution! Sashiko AI review found 3 potential issu=
 e(s) to consider:
-> - [High] Watchdog probe failure due to missing syscon compatible string i=
-n CPG/MSSR node and invalid physical memory bounds for the disjoint second =
-register region.
+>
+> Pre-existing issues:
+> - [High] Incomplete fix: rzv2h_wdt_stop() still uses asynchronous pm_runt=
+ime_put() during driver unbind, risking a race with pm_runtime_disable().
+> - [High] Kernel panic from division by zero when the optional 'oscclk' is=
+ missing from the device tree.
+> - [High] Missing NULL check for of_device_get_match_data() return value l=
+eads to a NULL pointer dereference.
 > --
 >
-> commit 026369134b14659a11e1791a537a1142aec5c877
+> commit a446e675679ece36ef9554b71239f1b2c12cce73
 > Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> arm64: dts: renesas: r9a09g087: Use CPG/MSSR syscon for WDTDCR access
+> watchdog: rzv2h: Use pm_runtime_put_sync()
 >
-> This commit replaces the direct mapping of WDTDCR registers for watchdogs=
- with
-> a renesas,sysc phandle to the CPG/MSSR node. It updates wdt0-wdt5 to remo=
-ve
-> the second register region and use the syscon interface instead.
+> pm_runtime_put() may trigger the idle check after pm_runtime_disable()
+> is run as part of devm_pm_runtime_enable()'s cleanup action, leaving
+> runtime PM active.
 >
-> > diff --git a/arch/arm64/boot/dts/renesas/r9a09g087.dtsi b/arch/arm64/bo=
-ot/dts/renesas/r9a09g087.dtsi
-> > index e8d4f76949ccb..40ffe56a40353 100644
-> > --- a/arch/arm64/boot/dts/renesas/r9a09g087.dtsi
-> > +++ b/arch/arm64/boot/dts/renesas/r9a09g087.dtsi
-> > @@ -327,61 +327,61 @@ channel1 {
+> Use pm_runtime_put_sync() to ensure the idle check runs synchronously.
+>
+> > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.=
+c
+> > index cbf414e0c9a3c..4a5a856060e91 100644
+> > --- a/drivers/watchdog/rzv2h_wdt.c
+> > +++ b/drivers/watchdog/rzv2h_wdt.c
+> > @@ -270,7 +270,7 @@ static int rzt2h_wdt_wdtdcr_init(struct platform_de=
+vice *pdev,
 > >
-> >               wdt0: watchdog@80082000 {
-> >                       compatible =3D "renesas,r9a09g087-wdt", "renesas,=
-r9a09g077-wdt";
-> > -                     reg =3D <0 0x80082000 0 0x400>,
-> > -                           <0 0x81295100 0 0x04>;
-> > +                     reg =3D <0 0x80082000 0 0x400>;
+> >       ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
+> >
+> > -     pm_runtime_put(&pdev->dev);
+> > +     pm_runtime_put_sync(&pdev->dev);
+> >
+> >       return ret;
+> >  }
 >
 > [Severity: High]
-> Does this change cause a silent mismatch with the actual hardware topolog=
-y?
+> This isn't a bug introduced by this patch, but it seems there is another
+> instance of this same issue in rzv2h_wdt_stop(). During module unbind, th=
+e
+> devres cleanup triggers watchdog_unregister_device(), which calls
+> rzv2h_wdt_stop(). This function issues an asynchronous pm_runtime_put():
 >
-> Generic syscons map only the first contiguous reg block. The driver compu=
-tes
-> the WDTDCR offset as 0x15100. Since the first CPG block mapped is typical=
-ly
-> 0x80280000 with size 0x10000, accessing 0x15100 either fails the regmap b=
-ounds
-> check or mistakenly accesses 0x80295100 instead of the previously configu=
-red
-> 0x81295100 located in the second CPG block.
+> drivers/watchdog/rzv2h_wdt.c:rzv2h_wdt_stop() {
+>         ...
+>         if (priv->of_data->wdtdcr) {
+>                 ret =3D rzt2h_wdt_wdtdcr_count_stop(priv);
+>                 if (ret) {
+>                         reset_control_deassert(priv->rstc);
+>                         return ret;
+>                 }
+>         }
 >
-The syscon is registered in the CPG driver and the reported issue is a
-false positive.
+>         pm_runtime_put(wdev->parent);
+>         ...
+> }
+>
+> Should this also use pm_runtime_put_sync() to ensure the idle check compl=
+etes
+> before the devres cleanup calls pm_runtime_disable()?
+>
+Agreed, I will update rzv2h_wdt_stop() to use pm_runtime_put_sync() call.
 
-> >                       clocks =3D <&cpg CPG_CORE R9A09G087_CLK_PCLKL>;
-> >                       clock-names =3D "pclk";
-> >                       power-domains =3D <&cpg>;
-> > +                     renesas,sysc =3D <&cpg 0>;
+> [Severity: High]
+> This is a pre-existing issue, but I noticed a potential NULL pointer
+> dereference in rzv2h_wdt_probe(). The return value of
+> of_device_get_match_data() is not checked:
+>
+> drivers/watchdog/rzv2h_wdt.c:rzv2h_wdt_probe() {
+>         ...
+>         priv->of_data =3D of_device_get_match_data(dev);
+>         ...
+>         switch (priv->of_data->count_source) {
+>         ...
+> }
+>
+> If the driver is bound via sysfs without device tree match data, could
+> priv->of_data be NULL here and cause a crash?
 >
 > [Severity: High]
-> Will the watchdog driver probe fail indefinitely here?
+> This is a pre-existing issue, but could the clock rate calculation result=
+ in a
+> division by zero?
 >
-> When the rzv2h_wdt driver uses syscon_regmap_lookup_by_phandle_args() to =
-parse
-> this renesas,sysc phandle, it evaluates syscon_node_to_regmap() on the cp=
-g
-> node.
+> drivers/watchdog/rzv2h_wdt.c:rzv2h_wdt_probe() {
+>         ...
+>         priv->oscclk =3D devm_clk_get_optional_enabled(dev, "oscclk");
+>         ...
+>         switch (priv->of_data->count_source) {
+>         case COUNT_SOURCE_LOCO:
+>                 count_clk =3D priv->oscclk;
+>                 break;
+>         ...
+>         priv->wdev.max_hw_heartbeat_ms =3D (MILLI * priv->of_data->timeou=
+t_cycles *
+>                                           priv->of_data->cks_div) / clk_g=
+et_rate(count_clk);
+>         ...
+> }
 >
-> Because the cpg node in r9a09g087.dtsi lacks the syscon compatible string=
-,
-> and the renesas-cpg-mssr driver doesn't register a custom regmap (e.g., v=
-ia
-> of_syscon_register_regmap()), the lookup fails and returns
-> ERR_PTR(-EPROBE_DEFER). This prevents the watchdog hardware from function=
-ing.
+> If the optional 'oscclk' is omitted in the device tree, priv->oscclk will=
+ be
+> NULL. When count_clk is assigned this NULL clock, clk_get_rate(count_clk)
+> safely returns 0. Will this cause a kernel panic due to division by zero?
 >
-The syscon is registered in the CPG driver and the issue reported is a
-false positive.
+As replied in the previous patch, I will add a new patch to check the
+clock rate to avoid division by zero.
 
 Cheers,
 Prabhakar
