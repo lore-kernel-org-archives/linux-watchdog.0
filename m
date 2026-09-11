@@ -1,63 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B49283D6CD3;
-	Thu, 10 Sep 2026 21:53:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBBD6286425
+	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 03:05:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789077221; cv=none; b=N0NANqIdp5K4zBA7f8WqKWZNzgu3zwhmSPr11ZYRuNhLq2ccAkMNqiW/+2FoZLeNOeHn2GlgGuHwmGdW2Y6mtSRld3FSQaIAKu/HaCeN0ZnYEXOOPFWzeR6YuyFHD7gK1LvZviO5lHcPTIH0Kdvn/vciF9jTAc2rxfHPSKpcguY=
+	t=1789095958; cv=none; b=jeul79iKOnfOzJLyfxnxPHahCZrOtoCNrKYLQaW1aLZ+gZCvfUYWtPuUohFXJDAJpd50foge8kcmUJ5aLmLkm8bK9TV430swevHYh8t9SGylIeKVLHtdtNvWHnDKC2bJOXr14bopGrafK4CxBSsvkWBJRJGflrJPbsa8nwR5oPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789077221; c=relaxed/simple;
-	bh=VJBhayoy06rfNd91y+p8HBMN1/zhNwXBmviM8Es4B18=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=QtstbZnl2z47yl+vrZw9XHFViM/ppdIAvRhbAU6x7AiZ+yaxWOt9iVBHMfYI3kXZ1pZv5v5oecG0Q2g/OLY3yv0UWuuZ4di8E/eLtTwkjk1ycRpWJ6C6JAb0gfpr70Pb7y4aQPLGNskAWfdfWHU+a1lcMiOYGv4RpHykBONRzFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fF0cfkoD; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fF0cfkoD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA58F1F00899;
-	Thu, 10 Sep 2026 21:53:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789077217;
-	bh=JKceiLQcX0msvSGaiO4zjbvexeNqzYnz4x9nrfSpi/c=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=fF0cfkoDqFS73LRblt6bGGTqT3T+4J3jmXSgBF5h+5aHaLmC8gZvdHA3u7OwFVaYL
-	 +EmxQF7BR4Cg0MWSp1VRBRJFydTFcURPy6/1eBDpFLyQxZHoBKmC6DVd5ohAVkmth0
-	 YOSkQi2t/hZE9KFuwRQhbHUALBbyoHX9liSlWXH5DFmvUbmaoRIVxTzIjvBDLPbLSR
-	 hgWhViZbxnuNDiJXz4DjePNT8eKB8GSks8QcS/pUC4MYUI4d+ighJDPYwKwDaMe/QN
-	 X4FFUga+hKJ6Y2C9Apbuwr2DIZ1wWkOfsHxYAsm5AQusoTff8XQj6aZuu7kDP8JAa9
-	 nra06VNXk3h5w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 56C29380DBDD;
-	Thu, 10 Sep 2026 21:52:36 +0000 (UTC)
-Subject: Re: [GIT PULL] watchdog fixes for v7.3-rc3
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20260910011406.951178-1-linux@roeck-us.net>
-References: <20260910011406.951178-1-linux@roeck-us.net>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20260910011406.951178-1-linux@roeck-us.net>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-v7.3-rc3
-X-PR-Tracked-Commit-Id: 01504d14e47b34779911250dd308a03f6ef681c2
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: c9a8c0e393d6043fc29b0b527e654110ba523c36
-Message-Id: <178907715500.2100681.3735844180099026225.pr-tracker-bot@kernel.org>
-Date: Thu, 10 Sep 2026 21:52:35 +0000
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+	s=arc-20240116; t=1789095958; c=relaxed/simple;
+	bh=k7QI4j+TKOJu8ZyxI8aH/yAzqXNN1lNcgndEphlQpRw=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type; b=iRg2L60oVoXISJU8BiLyabLHFiMVZ/poZkJXTeKcEfSDTCJWY5PeWmtVxlsG3Ge2vZ0/N5lP2yce/a3eqra2t7GApnJLr0DSOD20nH4xrdGytvE5s+c0mRmZt/7HnTnRifRpZXRKlKstCt4bY0yHXj/hpXCH+rEEqEBKuspU81U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: ae8e01b6ad8d11f19a56ed5b684f684d-20260911
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:0914911d-7e62-42a3-bc51-239aebe95f72,IP:0,U
+	RL:0,TC:0,Content:0,EDM:-25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:-25
+X-CID-META: VersionHash:7db8b62,CLOUDID:a8a5c4a8dbfa5d2f681b3f9344efac2a,BulkI
+	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50|99,EDM:2,IP
+	:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,
+	LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: ae8e01b6ad8d11f19a56ed5b684f684d-20260911
+X-User: lijun01@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <lijun01@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 931265426; Fri, 11 Sep 2026 11:05:45 +0800
+From: Li Jun <lijun01@kylinos.cn>
+To: lijun01@kylinos.cn,
+	wim@linux-watchdog.org,
+	linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: sp805_wdt: fix suspend/resume handling of HW_RUNNING watchdog
+Date: Fri, 11 Sep 2026 11:05:31 +0800
+Message-Id: <20260911030531.837140-1-lijun01@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-The pull request you sent on Wed,  9 Sep 2026 18:14:06 -0700:
+sp805_wdt_suspend() and sp805_wdt_resume() only check watchdog_active(),
+when the watchdog is left running by the driver sets
+WDOG_HW_RUNNING in sp805_wdt_probe() but userspace never opens the
+device, so WDOG_ACTIVE remains cleared, the wdt_disable() will not be
+executed in sp805_wdt_suspend. In this case, the suspend callback is
+a no-op and the watchdog keeps counting during system suspend,
+leading to an unexpected system reset.
+Check WDOG_HW_RUNNING and wdt->wdd，can fix this issue.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-v7.3-rc3
+Signed-off-by: Li Jun <lijun01@kylinos.cn>
+---
+ drivers/watchdog/sp805_wdt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/c9a8c0e393d6043fc29b0b527e654110ba523c36
-
-Thank you!
-
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index c2125f204a13..2ddb754f3b4a 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -325,7 +325,8 @@ static int __maybe_unused sp805_wdt_suspend(struct device *dev)
+ {
+ 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
+ 
+-	if (watchdog_active(&wdt->wdd))
++	if (watchdog_active(&wdt->wdd) ||
++	    watchdog_hw_running(&wdt->wdd))
+ 		return wdt_disable(&wdt->wdd);
+ 
+ 	return 0;
+@@ -335,7 +336,8 @@ static int __maybe_unused sp805_wdt_resume(struct device *dev)
+ {
+ 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
+ 
+-	if (watchdog_active(&wdt->wdd))
++	if (watchdog_active(&wdt->wdd) ||
++	    watchdog_hw_running(&wdt->wdd))
+ 		return wdt_enable(&wdt->wdd);
+ 
+ 	return 0;
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.25.1
+
