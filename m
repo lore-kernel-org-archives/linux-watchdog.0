@@ -1,82 +1,83 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701AC3E49D5
-	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 11:36:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DD783932C0
+	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 11:40:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.76
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789126621; cv=pass; b=C4nxzVWMeDAGD+Ig/wUXVbTtYpWhOL2zmG0iIb4Jmx1Nh3S3DqjQaQfdaunpn5VjrVQaIDiez6jSK7qFqI0DcafDgTEq0+bgWTOXCpINxszx0IJJ6q1AMS5GSkz8KshIs7J3i1B6XwhPisKgQboX0h8qk/PIPL94uZ+zZsXP0js=
+	t=1789126818; cv=pass; b=fVsu2BHubrUZcWQSIq4yhGWzbBVlXFgVbUgrPI/5WWaHpR1WtbNrswgliAvww0Vfv1fsvvEyrb/i+8R+dJzAe+2O7I9JZetRY8Iko6Avplw3mJ5gNU7G9E+2eGfr3QpZV7ZvWml/JnDBfy0qfDWePfaPguGm/mE553Cwyjz5vMY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789126621; c=relaxed/simple;
-	bh=VP4BlcnfUZVr3/+zomIB7ojpIUneSSNJHRIVnHGfdr8=;
+	s=arc-20240116; t=1789126818; c=relaxed/simple;
+	bh=jXGJ1+Cv6nGnyJj2lXAv0ULWiPCyAn1DaGrDuuzFGiU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LorhbA1LpqkfDZr5QbVJnxLZtc4K/rrQMNBu0/bN1NJJohNJNHFRDCAydwz3nwSodt0jwClSB01D/E2Os5Ak+I4pSPl/V61fy/8RNlMxt0Adi6QYiP/cEFDEFxWPsP9bwQddjeloDHCSvR8Zq7w4R/Ky3uic5H2Whf0lXshUwx0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HeR2pStX; arc=pass smtp.client-ip=209.85.221.42
+	 To:Cc:Content-Type; b=pgNn4p7B8a2o1B5cEHBXYHzHAVyb2nyFRlkmvebSFjjxVGVKOpmbPMft/qtpUvP1BKVnMZvLgoUu5G9sM2FjU7N9jDaRXefJRDT6IqeeU4I1NN3WuGgjA0sqD2wND8RmwZn0+ehYxX4ZaPsnrUSJDAWhg1BOIeh7TmchxoiHM5k=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pZbMltyq; arc=pass smtp.client-ip=74.125.225.76
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HeR2pStX"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-485888b3c3dso743920f8f.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 04:36:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789126616; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pZbMltyq"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843cedd129so480914f8f.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 04:40:15 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789126814; cv=none;
         d=google.com; s=arc-20260327;
-        b=iuQDfh4iJGB3MYS2FiI7DHOgIYbqUP80LfnRHQ66aVuFii01/ZkxSYpKcWZQ6EUY1T
-         PDq5XCCVHg6UFWoeNxv5wMp9aN5ko3VsAR7VBDnTBFQUhil4FDE6pxq+legW5tO0xEuN
-         pJGDEc6/6+Y9BSkxgzdSHwEepwu10VXfKCmFNQskrFT8KfRcSzemJm9mQog96NL2XklR
-         IAKY0BeFzxSD598wxxe1FGpGXWFLjrr+RmwPgEMHzEqTm3QXQ1YpK34Pj6En9No4Nbam
-         Dkeef2MnV3ziDfWxy6uGjoylULHSGLbRgE+etClC8jvSU3030CB3iqXJ/wzAouMWuvKx
-         aGqw==
+        b=GpAOtKGjflI6vZ/LzWxlxho3hzfY39UHnsoiu8QnyQ9CrqI1qCQ69lYf2Xxw5Sw6OX
+         eR3W709BJBDESZ9EaoYwQ6dFkzTXsrWP7TNir3PnxbxTc/IgR4PsJ3y1Rf0MFgs4i/Nn
+         OYBgSmv5X0+CVtB4gnDIHSG04DckuPeaenCcG7LddnUqM9NXCPqRTe8H8v3SPQycZDf/
+         uQn185VfODxD2h4cXtaGE5qRxCEDNofMPWwTuYwys48jyEuFcKKxHUguVXOVdBwOR2wL
+         C5XS9i7eNavq7kbh0eoAmxu9qkBsnqzqBNp+K3pe61LEL0UwhuVfyZ8b/y95xOHdY9x2
+         n2ww==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=LIgt75iQmZv2IR1V0VMxqaMEjC44FA+M0gjq3T1j3yE=;
-        fh=13L9lns6+9DWzS/kdkWn/v6gGpgaXxlhOFZ5Z8k63ls=;
-        b=sarCZK3mAl5WN1tzWwSvxoCt6Di4U80rs5uz7ZXM+XG4lepvAi8zAk9oS0KJq/Ke4D
-         h9OePNOzpI9N859r0vxGDgUb3FW1gaukkAQjZUOkmucPqAr4vyqfW1ny5jQlKgFwXlnY
-         40BEcjnmS2hC1w3eZQ605EkC/gP3fbbk3QI8pKrLs+uCxHF0N7j+vtMTOmYMIYH2I2gX
-         GRHoM4/rRuYS9YsXNAGhFepdYUFaO8Thl510dnxXwvE0b/iNvWqzG7Mru/4Fzem7qdPA
-         mkXNsEM09axBc/qRGWQ4p4RmKcjf67vL3FLZ+tcSK88zj6dMje7+ooviQf8hZSpKapoK
-         ruGA==;
+        bh=VG+qeXnRBa8SMBywMNzx/mbp44ozs4FNe3yNR5x/cvA=;
+        fh=K1NJekQzYeztA5I5ggJDCswpKc91gut6u8ai2utVlZQ=;
+        b=g53NFmqdqFIWqk60NrISwtLmO+72lgnbEdf48jAf4TwHt/zBeVc8mQCrkaxTBsQpjV
+         sX9fYxcNVlOnfsS95t9YtqZluhkvw1QD2upEsG6EIG7m1V6cnymSep3JLjOXfrffKq18
+         IRW086xpXCXB24OfTNfNmMvJ/98WWigQ77I0uVfEcxC80gd6Is+Wr06JCYej3sKxakcT
+         2fH7xJoNxmyi8hyxTr7AONnHWCF2OXCSUUlxkTZ7jpEK9p6rtFWeBZ9+qjQ8c9RUQUXW
+         eCtWpNZzDZYdTlxDv+aTa5xyBXBljZYaSe+Esq/JcLmoV6VJJoJgLyz3kO9p70I4KivQ
+         YTDQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789126616; x=1789731416; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789126814; x=1789731614; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=LIgt75iQmZv2IR1V0VMxqaMEjC44FA+M0gjq3T1j3yE=;
-        b=HeR2pStXmqottZaQS4HHHd7cIOZMQQ2qsO84RCoJZscAB74ww0boi7Oc2iSRtQQtVj
-         tO2Y6CTUQg19O5Vufdurc/R+G7DF2YFJDwfT5mniWw6CvDdH/+zE6yWynYGZYrFFrnWd
-         nZ1bJNge2hD4z95o9Gtb2a9SuwsFkS9XCXs5YmPBMY3CPZ818OlbalrQi48k2qxqzcC2
-         IebsxWm88P/sabWLTU4uLLsfs/IjcC66xB34DRA6E87jGNQX6yoxLtytJJjs6y6QS6Dp
-         cldGCw/ez6o/9lABv/3GCxV68sn1J7t7M4yPoPSh7WSjy6+9OF3ECwgM5ncpm+LycPlp
-         BB4Q==
+        bh=VG+qeXnRBa8SMBywMNzx/mbp44ozs4FNe3yNR5x/cvA=;
+        b=pZbMltyqOoDJE0Rt5RTvlbbNvoX037nNu3WO8yDdb846lmGTRnSwQ0V8J3C8NQgeme
+         CB59e993VaDl6G8sxwbUc+3ZmR348edxcM9bQ5+KerdkQhdO7ui8iMbN/AYSSnYpyoJn
+         l4Zzyr3IxKy/UHS/B9imMrITUD800I2bKLvnf6HWUFSUERiAeGkVjHY9x9KivebIM5EW
+         fKTjGc8UA3GL3ILcQ0aQitEwbSVO4ZC11nn4mEUgIFt41iP7nwJxqkbwVC8KBX/1+NUW
+         sMZzDO8jvstySDS4KWUSj0oO0gotgWvkAU6t2/HWYfk5t4QskZDR/KJxVE9azTvDJGUq
+         dORg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789126616; x=1789731416;
+        d=1e100.net; s=20251104; t=1789126814; x=1789731614;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=LIgt75iQmZv2IR1V0VMxqaMEjC44FA+M0gjq3T1j3yE=;
-        b=Ibm9v8JGolZozGLPhhrOHtYLkFl6psRZFtwxJLonJOpU6PDR02B0U3wKT+IFSFagK9
-         HNCkxJmZFOSRFQWNculcookGba0anYDtNDzsfErcqisztDaIfqm1w/UQqIUu3YC3uMVk
-         yiWk/xgj2XK+qYqpnDQdURusspbQ0Cf3bNcJaNxxjJuMa/IXkbayglwsVqJCLkbqBLsr
-         k9WTzl5morHH7IVaJ6epailrzv0WOkvXzpHtXMt6AWOR1bbClFnGG51A7geE66+itIh7
-         jniNp/N7tNMTaOML/MjbfyNQbsBTDRMjjgdeP42mTnsclcg1mOV4hetSiLVg+pvbwqQE
-         28vg==
-X-Gm-Message-State: AFuF++nCIs5sSZUcJRURUVBA0LM/6zFjTS7P85RN0nTVNXpnpRgfomTW
-	eCNeCrNSNjLj8QRPkmDKC/jXHj/1gPSXkbIkNSs7HWZvFC4NpGU67I31tJqGbRNJvq6a551CcGq
-	eMDxFT8udYfdo/Yj+EPKlL1ozRZciJjI=
-X-Gm-Gg: AYBFou0v+7m4mPtqyU3iFVrLIuXPWGKSueFKtEG3c1o6i0092mYJYQQTXqJNucOUksF
-	EWBc2jEBL6mY69dp5CTZou80eanP7T7EMOnCV1UlFZDnc79GA9lqRybXh+z8XVOZ21WyjSqlPa5
-	blzNyD2n6tv4KMPwUj/vn5/kPejGiXlpLK9AnTeqK/byw/tKat3zEINH88iY9vAzUtvMQ3YSuJp
-	24MLpXB9oZjCqT3O+WsJCwgJKVfqi5HNPVLOweLS4VfwHGnej/LtxNo/3EXd9JObuzs1Xw/0th4
-	FVUsCcbN9hxo6C6E7NokhcISfIkSJY708/IYnsyWgLecyvANsBrvBrK7p5wBrYUgAU2cTBe35hX
-	BB1U+OEEiS0AMxchrIWYpN/3qYJ1q/rJCHbRJrxRCOGqeiJXDoyt/roeVjBA7ObsCC7yyNeiXzA
+        bh=VG+qeXnRBa8SMBywMNzx/mbp44ozs4FNe3yNR5x/cvA=;
+        b=N2q6pPqwcZ4c+oyPtUjqGqZIyDGT7AwDyvq6VbpOwDco7epunZBgdhLade9JiTxZfB
+         PGR81d7zfgLEYt2DwBnvBEqLiLXQdWK1+rzGdy7fRLx4st2uaP4pOTEEGuqUMGqDs3e4
+         PH5uY899Td7gI5YgzNGF6UMaj0kf5P5fEhS2q0YjAhs1yeUnjSJnBQfd2E8b/6KXkDI2
+         sSgU0ww2oizkQdgg5e4Drg0m6Xgo6NcxX0ZZ4v3ysyzRrZu4ldgh1jxVcax4s9ACTZLX
+         3u7/l8s28jaTGEoHdppuaqdMHjjlVS0Pz6EVCQvWkQKzV7BdOBOHoSjYp+58yuoOmdlo
+         9DLA==
+X-Forwarded-Encrypted: i=1; AKwUvBwt9SuNwSRi6InpIJbX3mq7+P4CT34X1uQ3hpj+W7bweBXjdVRofUqylpWwjt9nz4JRrgmwUfKcP84AJI7Erg==@vger.kernel.org
+X-Gm-Message-State: AFuF++nUInAEvGdw8Qf6MxOoM+N6ScHvmXY41kJef6PslksSZL3plKKw
+	xE7rASF+1YbpfVCGhJtEO5K08JFSMKRJPbGMsT/6yBtrexbYi/xaEo+Yie9L70mxdi81m2+pqMt
+	+M+wz6wm57qogSSjDiNeWHyB1Uxnw2bo=
+X-Gm-Gg: AYBFou2t34xlTuk1rtd18tmYIxCpnioebpE12Dk5mHkPykgQyNsc2yzqHmFATnKnYna
+	VvqwCx0pJb/goryocaZRVOl2edw0vDU9N/AsRf7HuJcqH6xQDElONEii5IVBRgHE661JBLyfq7L
+	xq3TeQDNB9Pr9jK7dsyLsHx2aeV9r4g82oJpsc4A9pfgsSEEEKSShYwGy0pYcerYRwmJaXsiT/y
+	84SAf/TNYWD254Y2na8NlIKb5/KQ+RbV0QnYR0+b2tO9QARlD93UdDF9IUoieLRzDou2ZwkPUwV
+	Pi4Ufm8Xf7iu5BK03cGoPImfcRoyjQOW8aTu2IunqtlMmj9KCAYgiWiDUO/LRYGUS8urKPPEftR
+	rMEwVPtKAAC+IZDeRD5Kp1PsPgGg2HA0My51UHEdNJ1i0bxmTTDAXXcj4BpI9rCJfer8ix/u4ig
 	==
-X-Received: by 2002:a05:6000:2311:b0:485:8c16:5ef5 with SMTP id
- ffacd0b85a97d-486eb30a9ffmr4061062f8f.47.1789126616471; Fri, 11 Sep 2026
- 04:36:56 -0700 (PDT)
+X-Received: by 2002:a5d:630b:0:b0:484:3604:c7bd with SMTP id
+ ffacd0b85a97d-486eb31c4d4mr6627074f8f.17.1789126813565; Fri, 11 Sep 2026
+ 04:40:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -84,100 +85,97 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260911111731.3404308-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260911111731.3404308-2-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260911113217.0178F1F00899@smtp.kernel.org>
-In-Reply-To: <20260911113217.0178F1F00899@smtp.kernel.org>
+ <20260911111731.3404308-7-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260911112804.39EA91F000FF@smtp.kernel.org>
+In-Reply-To: <20260911112804.39EA91F000FF@smtp.kernel.org>
 From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Fri, 11 Sep 2026 12:36:29 +0100
-X-Gm-Features: AcwNN1WsWnutDhTfem_mFFkR3R6OacHy1RxvsrgccYae_oUqrtA6rSmNdVdNO54
-Message-ID: <CA+V-a8vCd7n1BBzoxL6XB6iiB8fyakT-bDgu6cX5GjnpoREzbg@mail.gmail.com>
-Subject: Re: [PATCH v5 1/8] watchdog: rzv2h: Drop enabling clocks in the
- restart handler
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
-	wsa+renesas@sang-engineering.com, robh@kernel.org, conor+dt@kernel.org
+Date: Fri, 11 Sep 2026 12:39:47 +0100
+X-Gm-Features: AcwNN1WJ8okh1HOUuJE3ueC1NR-zA8LxQ9g_9pvoKKyvz8W9CWr4L1YVLC5FhrQ
+Message-ID: <CA+V-a8sQZv-NbarMqTHiH4C3TaanEJF-pAb56tpZpN9M-xWBzg@mail.gmail.com>
+Subject: Re: [PATCH v5 6/8] watchdog: rzv2h: Add syscon support for WDTDCR
+To: sashiko-reviews@lists.linux.dev, 
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, 
+	wsa+renesas@sang-engineering.com, linux-watchdog@vger.kernel.org, 
+	robh@kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 Hi sashiko,
 
-On Fri, Sep 11, 2026 at 12:32=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+On Fri, Sep 11, 2026 at 12:28=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
 >
 > Thank you for your contribution! Sashiko AI review found 1 potential issu=
 e(s) to consider:
->
-> Pre-existing issues:
-> - [High] Unchecked division by zero during probe if the optional 'oscclk'=
- is missing from the device tree.
+> - [High] Watchdog restart handler may deadlock during system panic becaus=
+e it executes a locked regmap operation on a syscon regmap.
 > --
 >
-> commit e61522c3f4f781e0b8cf17bd6e22135a7d714358
+> commit a3a7e98fdd4da0cb2994accaf697498b31aba4d4
 > Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> watchdog: rzv2h: Drop enabling clocks in the restart handler
+> watchdog: rzv2h: Add syscon support for WDTDCR
 >
-> The watchdog restart handler runs from do_kernel_restart() with
-> interrupts disabled and after smp_send_stop() has halted the other CPUs.
-> Calling clk_enable() from the !watchdog_active() path takes the clock
-> framework's global enable_lock, which can cause a spin if another CPU hol=
-ds it.
-> This commit keeps pclk and oscclk enabled for the lifetime of the watchdo=
-g
-> device by using devm_clk_get_enabled() and devm_clk_get_optional_enabled(=
-).
+> This commit introduces syscon regmap support for the WDTDCR (WDT Debug Co=
+ntrol
+> Register) on RZ/T2H and RZ/N2H SoCs. It retrieves the SYSC regmap using t=
+he
+> "renesas,sysc" property and derives the WDTDCR offset from the watchdog
+> instance index, while preserving MMIO compatibility when the property is =
+absent.
 >
 > > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.=
 c
-> > index 3b6abb66a1da0..bd86da71b0eb8 100644
+> > index 550112446db49..9dee410ab7f31 100644
 > > --- a/drivers/watchdog/rzv2h_wdt.c
 > > +++ b/drivers/watchdog/rzv2h_wdt.c
 >
 > [ ... ]
 >
-> > @@ -290,11 +277,11 @@ static int rzv2h_wdt_probe(struct platform_device=
- *pdev)
-> >       if (IS_ERR(priv->base))
-> >               return PTR_ERR(priv->base);
-> >
-> > -     priv->pclk =3D devm_clk_get_prepared(dev, "pclk");
-> > +     priv->pclk =3D devm_clk_get_enabled(dev, "pclk");
-> >       if (IS_ERR(priv->pclk))
-> >               return dev_err_probe(dev, PTR_ERR(priv->pclk), "Failed to=
- get pclk\n");
-> >
-> > -     priv->oscclk =3D devm_clk_get_optional_prepared(dev, "oscclk");
-> > +     priv->oscclk =3D devm_clk_get_optional_enabled(dev, "oscclk");
+> >  static inline int rzt2h_wdt_wdtdcr_count_start_nolock(struct rzv2h_wdt=
+_priv *priv)
+> >  {
+> > -     return regmap_clear_bits(priv->wdtdcr_regmap, WDTDCR, WDTDCR_WDTS=
+TOPCTRL);
+> > +     struct rzv2h_sysc_wdtdcr *sysc =3D &priv->sysc;
+> > +
+> > +     return regmap_clear_bits(sysc->regmap, sysc->offset, WDTDCR_WDTST=
+OPCTRL);
+> >  }
 >
 > [Severity: High]
-> This is a pre-existing issue, but can this optional clock fetch result in=
- a
-> divide by zero oops?
+> Does this introduce a deadlock risk during a system panic?
 >
-> If the optional "oscclk" is legitimately omitted from the device tree (or=
- the
-> device tree is malformed), priv->oscclk will be successfully returned as =
-NULL.
+> The watchdog restart handler, rzv2h_wdt_restart(), expects an unlocked
+> execution path to avoid deadlocks and specifically calls this nolock vari=
+ant:
 >
-> Later in rzv2h_wdt_probe(), if the chip variant uses COUNT_SOURCE_LOCO, t=
-his
-> NULL pointer is assigned to count_clk and evaluated:
+>         if (priv->of_data->wdtdcr) {
+>                 /*
+>                  * Best effort, ignore return value and use the unlocked
+>                  * variant of the function to avoid potential deadlocks.
+>                  */
+>                 rzt2h_wdt_wdtdcr_count_start_nolock(priv);
+>         }
 >
->         switch (priv->of_data->count_source) {
->         case COUNT_SOURCE_LOCO:
->                 count_clk =3D priv->oscclk;
->                 break;
->         ...
+> Previously, the driver used a dedicated MMIO regmap with
+> .disable_locking =3D true. Now that sysc->regmap can be a syscon regmap,
+> which is shared and uses internal spinlocks, regmap_clear_bits() will att=
+empt
+> to acquire the syscon lock.
 >
->         priv->wdev.max_hw_heartbeat_ms =3D (MILLI * priv->of_data->timeou=
-t_cycles *
->                                           priv->of_data->cks_div) / clk_g=
-et_rate(count_clk);
->
-> Because clk_get_rate(NULL) safely returns 0, the unchecked division will
-> cause a divide error exception during device probe. Should this verify
-> count_clk or its rate before the division?
->
-oscclk is optional for T2H SoCs and is handled in the DT binding, to
-be fully proof, I'll add a check for this case.
+Agreed, I will update the syscon regmap in the CPG to drop the locking
+and let consumers handle locking.
+
+@Geert, would this approach of consumers handling the locking be OK?
 
 Cheers,
 Prabhakar
+
+> If the system panics while another CPU holds this shared syscon spinlock,
+> will attempting to acquire it here cause the panic handler to hang instea=
+d of
+> resetting the system?
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911111731.34=
+04308-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D6
