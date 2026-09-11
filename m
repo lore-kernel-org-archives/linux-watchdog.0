@@ -1,75 +1,55 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3652F3B8413
-	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 03:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE33232395;
+	Fri, 11 Sep 2026 07:25:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789097978; cv=none; b=SYvROBTuL7sAb404fudrt67hgpKKJIi8Cww2Zz7OSSFbAOQcl+YmnvfZYzofA7g6Rv+M+y7Sm2R3zMefdmGEKnpuU6ufW6cmuYWv7ggWp2nS3A79NECYe4xx2gPcm/VUkOsocC35Ki2bvq+j0fa8ZZHOl8tKfr/n3bvYhDUUy7I=
+	t=1789111503; cv=none; b=KV+IGgXFsQMPevUP4+7mQA1lf2cSBZ5NB/nrjEIWH0WR3ClTj0p2HYI+ue88G4kEXizvdlyYY8Lbs/d/SQUFjrRzle3HrOsTwSp4u+i17cFnhVzpGKv05jRSJNnKJ5bBkofntu5AX2BU5cgyaa1p+/QKGQv0BBtVMaGGY+RzRzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789097978; c=relaxed/simple;
-	bh=FJFGlGVdbeEyeBDWM5Qw+xmK9I5Y0Ls7Z5bdMUMJoJw=;
+	s=arc-20240116; t=1789111503; c=relaxed/simple;
+	bh=GWroBVEzFoQk4S/34nBzYkm+qHO729shFJDiDKYbJl8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aFRvJOsxyYROTDIyS4sgpYG+wmyRH/4wMYCpGYtqaWZE17syZ2Bj+yAcFHvHi8nxHqPGdApyXU9b+p8wmgpnfagiEpqF0kVDK/opb0JVuwcXJrzjY/kCAWFiD+xDNGKPkzfbu+yUvypk7w2xSP3+H1NPWxOt2b0pTQOOHkQIf9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rwo75oGg; arc=none smtp.client-ip=74.125.228.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=C71P2j8HTpbUfn8LdhLyUlC/xlvcCLwHmTebJq1U4PeGaxsI87u5dtEnm9WN1cN6WHW9kIg25Hyi8HBAFSnnbenQS4tfDO1CwRlveaGsKA0y0V5bQ1zHsJaboIo7Zoea5dRNRPoAGc35+3llqIqZPPWXNviGdotwKImcca9Oz7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ANl9844t; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rwo75oGg"
-Received: by mail-pz2-f12.google.com with SMTP id d2e1a72fcca58-85469e25400so273766b3a.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 10 Sep 2026 20:39:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789097976; x=1789702776; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=JozBrHAJqyNEU4Ya07gtANtKW5o1JFbZSNqDARQkvO4=;
-        b=rwo75oGgkoVWyBhphBAjoHFm0uPS9eRhb1SW4HbaCYwA21Ea6tI/VnGGyjX79irwGF
-         tNNhAGbF04QTc9gvlwGQQ6O7EIWqueB58gUMDd8weB+F3yETB0FBwizopKk1pK15tC+9
-         hcqKxHQj8VPNtjiMNOYnHKQ/Jx644CgSi891MExryap+FBYDxDzjWu/O1CIF2EIsh/kM
-         X1Uj+7DXG0kSjndYcK6gStr1ApAI3HJzgXzkaSXhrFWIYL8SsPdQ0QnRI4jMjLRqp4i/
-         Z4BpXyjseWwYog5vnpCrTO+/6fT2KXsgkaaQDwBZmB1RSfL7OLbP5fJXB/BzylIRy0/5
-         fcNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789097976; x=1789702776;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=JozBrHAJqyNEU4Ya07gtANtKW5o1JFbZSNqDARQkvO4=;
-        b=cMy76bwHcjTZ3nBJHFOAc//Q9oWxFSpfAcEzg/UJqgVWsztYqA9ZHEo8On+swpmVYv
-         FMEhJFP6jFKXwPaXW4br4S91cwquGTWkkvng9aINULrg5ZhNqsI9Ed1AA7DGjrkR6qF5
-         51FpmFXyt/wVv/mjKg6rHqbiUWDKea24sHp5m7++TSfrmFthmAv2KDkJzAipI6mfzy3E
-         90dwh1xveGsjJToYZrCQHFi5TMg6jQMm9Ys/clZYwV9QfQu6CnPXBln+wjRmWa9gp0Wv
-         /7s6WCnAKL/ftDntSr2pAykFrHe5IF4r7JVAsACuqrsAf0X+zBYL3oBlxjvhGRBx5oXy
-         eQkA==
-X-Forwarded-Encrypted: i=1; AKwUvBwCOA1bMgye59S9EFrhWflBieQuQXwQsjLargvmMRfDzRWUGuwgq8eOah3U5SkOzSHfQGHJqSQWybw9EkcReQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++lur8lV8A0yscYr7kB2OyigT/28pYY2tE/CSyOHMnpiuP2Ucy6Q
-	5oEWYmMKI78CQZMtuuGsWg4gywAvqnbg74uLFjVlI6xxoZkLy5sPUIO/
-X-Gm-Gg: AYBFou11L+abyW+ll2wtD8CDQ/k3KZHPkX6cRijSyW1+iR+FyQSVb/0KXoz8SP6alD9
-	cD+FBhRdFzhqKGpjgp9aF8eF29gM+NyKohCzMrC06YeGqeOLTifI8CsEfdKyQ0jI0OuG67gz/7X
-	7e9T+c7T9RNbkAjnkxNAkKly0edYF+lNfemf1efcOYIw/DeDWBYDxmTSMQIH/131et4VmDMgSlN
-	kKDxdmqTLfWd8S345JXTiK5XlYt4ijUgHMcfIlV7oUqAvSrra7WB2C0V8CIE4+uyf/NiFn1nfeV
-	3zvF/iV6n1F8JtJWIq2QWZLhe7JCyoA79wwi8DUzg8UNNWA5KcmYbAPmXmqNdI4fN51LEUIEdDk
-	OftDrZglTJC1goAtoitfLc61Q1MOhEeyQj2OddYgTsFXp7K1ncy8kgk79icXN4WLMA3CsWNQJ1h
-	BLssBUtCbJaJPV2kNSveMPFn/S5VhuYgqOcWJxjSysvbwuRaMP7ukgYr8YI3/4oXyfzraXn65Ip
-	q67Ls3XZrOE
-X-Received: by 2002:a17:902:f60e:b0:2d9:33d4:a910 with SMTP id d9443c01a7336-2dd2a1d526amr56647575ad.4.1789097976509;
-        Thu, 10 Sep 2026 20:39:36 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd94easm4310465ad.63.2026.09.10.20.39.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Sep 2026 20:39:36 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Thu, 10 Sep 2026 20:39:35 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Li Jun <lijun01@kylinos.cn>
-Cc: wim@linux-watchdog.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sp805_wdt: fix suspend/resume handling of
- HW_RUNNING watchdog
-Message-ID: <6f6c82e7-74eb-40d9-a277-2ecbdfa02b14@roeck-us.net>
-References: <20260911030531.837140-1-lijun01@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ANl9844t"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D7E1F000FF;
+	Fri, 11 Sep 2026 07:25:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789111501;
+	bh=BH+kR55l7q2T4yQ9SIaFXw37h9ozVxD3HhYmGKf8G4g=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ANl9844tOuE5AoQGY+DjaIFqCkPogFuzPNdfQWqulQ1ewcXnDBgt4NdOoaAxooGZH
+	 otw3WqXN/dfJ1pNs0X0yevkODFTPh3pxA9BwxVVkBA1iktQgUJQewif5xVbMODOWQG
+	 p/mWIch3ra5WH3jLHFaw3cWT0YrPLRjUedj8sYvbwLEFVFwspXynmHIaliKaD8MzHM
+	 Xaf5Qs18Xas8eGIznU7yaUWvc+9ptKBerpjAHFGKEw0DHIqd0hSZcM1yyqzMhkH095
+	 IUQbqVg1ph51dt/CUhqYAMrmXLp66EUw6RS72Jj/2UD9lzJLKJvRcTkZjvnML1Ja+L
+	 dkfqQ0ihw0QKA==
+Date: Fri, 11 Sep 2026 09:24:57 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	Arnd Bergmann <arnd@arndb.de>, Daniel Thompson <danielt@kernel.org>, 
+	Jingoo Han <jingoohan1@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@kernel.org>, 
+	Michael Hennerich <michael.hennerich@analog.com>, Support Opensource <support.opensource@diasemi.com>, 
+	Sebastian Reichel <sre@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Helge Deller <deller@gmx.de>, dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org, 
+	linux-media@vger.kernel.org, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev
+Subject: Re: [PATCH 01/14] mfd: remove unused 88pm80x driver
+Message-ID: <20260911-righteous-arboreal-angelfish-3bcbdf@quoll>
+References: <20260909132153.1596191-1-arnd@kernel.org>
+ <20260909132153.1596191-2-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -78,22 +58,21 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260911030531.837140-1-lijun01@kylinos.cn>
+In-Reply-To: <20260909132153.1596191-2-arnd@kernel.org>
 
-On Fri, Sep 11, 2026 at 11:05:31AM +0800, Li Jun wrote:
-> sp805_wdt_suspend() and sp805_wdt_resume() only check watchdog_active(),
-> when the watchdog is left running by the driver sets
-> WDOG_HW_RUNNING in sp805_wdt_probe() but userspace never opens the
-> device, so WDOG_ACTIVE remains cleared, the wdt_disable() will not be
-> executed in sp805_wdt_suspend. In this case, the suspend callback is
-> a no-op and the watchdog keeps counting during system suspend,
-> leading to an unexpected system reset.
-> Check WDOG_HW_RUNNING and wdt->wdd，can fix this issue.
+On Wed, Sep 09, 2026 at 03:21:38PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Signed-off-by: Li Jun <lijun01@kylinos.cn>
+> This pair of drivers was originally added as companion chips for pxa/mmp
+> SoCs, but the corresponding platform code was never merged, so it has
+> been unused the entire time.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  .../devicetree/bindings/regulator/88pm800.txt |  38 --
 
-Applied.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Thanks,
-Guenter
+Best regards,
+Krzysztof
+
