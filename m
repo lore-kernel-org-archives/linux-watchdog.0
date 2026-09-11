@@ -1,93 +1,122 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBBD6286425
-	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 03:05:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7511A3B8939
+	for <linux-watchdog@vger.kernel.org>; Fri, 11 Sep 2026 03:19:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789095958; cv=none; b=jeul79iKOnfOzJLyfxnxPHahCZrOtoCNrKYLQaW1aLZ+gZCvfUYWtPuUohFXJDAJpd50foge8kcmUJ5aLmLkm8bK9TV430swevHYh8t9SGylIeKVLHtdtNvWHnDKC2bJOXr14bopGrafK4CxBSsvkWBJRJGflrJPbsa8nwR5oPA=
+	t=1789096758; cv=none; b=ZFUIk5UebKrJryiCWzsZ3P0XAbq1sKav1n4U5mFuJmKGbvKgFAlNf4h2nx8TQhPw3Jnap91eDv2cI2BXeiPxqU+aCJXXEKz1qTz8Gh+tOzOJncTQeqpaGjvzLlJ6rnEXikNM7PUpg0+M3AVPJyH9eJpcDlvWEdpc4yApt2x2Us8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789095958; c=relaxed/simple;
-	bh=k7QI4j+TKOJu8ZyxI8aH/yAzqXNN1lNcgndEphlQpRw=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type; b=iRg2L60oVoXISJU8BiLyabLHFiMVZ/poZkJXTeKcEfSDTCJWY5PeWmtVxlsG3Ge2vZ0/N5lP2yce/a3eqra2t7GApnJLr0DSOD20nH4xrdGytvE5s+c0mRmZt/7HnTnRifRpZXRKlKstCt4bY0yHXj/hpXCH+rEEqEBKuspU81U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: ae8e01b6ad8d11f19a56ed5b684f684d-20260911
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:0914911d-7e62-42a3-bc51-239aebe95f72,IP:0,U
-	RL:0,TC:0,Content:0,EDM:-25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:-25
-X-CID-META: VersionHash:7db8b62,CLOUDID:a8a5c4a8dbfa5d2f681b3f9344efac2a,BulkI
-	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50|99,EDM:2,IP
-	:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,
-	LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: ae8e01b6ad8d11f19a56ed5b684f684d-20260911
-X-User: lijun01@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <lijun01@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 931265426; Fri, 11 Sep 2026 11:05:45 +0800
-From: Li Jun <lijun01@kylinos.cn>
-To: lijun01@kylinos.cn,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: sp805_wdt: fix suspend/resume handling of HW_RUNNING watchdog
-Date: Fri, 11 Sep 2026 11:05:31 +0800
-Message-Id: <20260911030531.837140-1-lijun01@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1789096758; c=relaxed/simple;
+	bh=C6QZZSf+/tCnfXjnNQBBYJQ5DbLPqVj57Z4D5CJe2Gs=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=W4qStDQy/SGep2h/u315etO/3QWZw4Y/sMxR+BlkL1YhAm0sS7H4jaKhBMUBM47IZt385M4AYkhGfOIgF4UGzTWvxERNAQfbaMd6zxWnf49cUn8NXBeSijcJakXTmtsVQ6VnH7zLhDQzX3APXRm4wCgxKBZyQbVocFfEzYhBLDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CP0jP3G0; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CP0jP3G0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8E051F000FF;
+	Fri, 11 Sep 2026 03:19:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789096756;
+	bh=/DwQ1OjBsLSi3WwaZ+qj6d6ndU9Rtcqgu0wrNtaVY1o=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CP0jP3G0rOVlkyJFBswoWXoQ06AFMVpRYcF+RtSjgkudpwb2DZ8NBGvj7Vuv8r5Ww
+	 ABYuoo1yNec5BvgjSdAukVv/YUZjxwykwSEMm+lfn6LcGKnSR4RSpwYA7QPmk/qzFx
+	 pmdV34DKd6ycyYD5AdLaa4ibthMmbqQkpEdst86Ms113IPU0/DiUcIdri5tduFDAsi
+	 mqdPyjDb8RWQP+YIlLgW/HsD6WzaCDxeu15B1HM6ctikOa9W/AKFQ5C4CgnrY6HrFA
+	 N7NaFx/nasuLTVJTspApcNiLaHX8GHidXX66JehXuZ/U24Yrx7K7yNTOToFXokz93c
+	 F+vXYWS8hw6jg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: sp805_wdt: fix suspend/resume handling of
+ HW_RUNNING watchdog
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Li Jun" <lijun01@kylinos.cn>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260911030531.837140-1-lijun01@kylinos.cn>
+References: <20260911030531.837140-1-lijun01@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 03:19:16 +0000
+Message-Id: <20260911031916.A8E051F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [High] wdt_restart() fails to reboot the system if the watchdog counter c=
+lock (wdt->clk) was previously disabled.
+--
+
+commit 5341b327de5a15d0411852abc081601a0f32ac49
+Author: Li Jun <lijun01@kylinos.cn>
+
+watchdog: sp805_wdt: fix suspend/resume handling of HW_RUNNING watchdog
 
 sp805_wdt_suspend() and sp805_wdt_resume() only check watchdog_active(),
-when the watchdog is left running by the driver sets
-WDOG_HW_RUNNING in sp805_wdt_probe() but userspace never opens the
-device, so WDOG_ACTIVE remains cleared, the wdt_disable() will not be
-executed in sp805_wdt_suspend. In this case, the suspend callback is
-a no-op and the watchdog keeps counting during system suspend,
-leading to an unexpected system reset.
-Check WDOG_HW_RUNNING and wdt->wdd，can fix this issue.
+when the watchdog is left running by the driver sets WDOG_HW_RUNNING.
+This ensures wdt_disable() is called in suspend.
 
-Signed-off-by: Li Jun <lijun01@kylinos.cn>
----
- drivers/watchdog/sp805_wdt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+> index c2125f204a137..2ddb754f3b4a1 100644
+> --- a/drivers/watchdog/sp805_wdt.c
+> +++ b/drivers/watchdog/sp805_wdt.c
+> @@ -325,7 +325,8 @@ static int __maybe_unused sp805_wdt_suspend(struct de=
+vice *dev)
+>  {
+>  	struct sp805_wdt *wdt =3D dev_get_drvdata(dev);
+> =20
+> -	if (watchdog_active(&wdt->wdd))
+> +	if (watchdog_active(&wdt->wdd) ||
+> +	    watchdog_hw_running(&wdt->wdd))
+>  		return wdt_disable(&wdt->wdd);
+> =20
+>  	return 0;
+>  }
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index c2125f204a13..2ddb754f3b4a 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -325,7 +325,8 @@ static int __maybe_unused sp805_wdt_suspend(struct device *dev)
- {
- 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
- 
--	if (watchdog_active(&wdt->wdd))
-+	if (watchdog_active(&wdt->wdd) ||
-+	    watchdog_hw_running(&wdt->wdd))
- 		return wdt_disable(&wdt->wdd);
- 
- 	return 0;
-@@ -335,7 +336,8 @@ static int __maybe_unused sp805_wdt_resume(struct device *dev)
- {
- 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
- 
--	if (watchdog_active(&wdt->wdd))
-+	if (watchdog_active(&wdt->wdd) ||
-+	    watchdog_hw_running(&wdt->wdd))
- 		return wdt_enable(&wdt->wdd);
- 
- 	return 0;
--- 
-2.25.1
+[ ... ]
 
+> @@ -335,7 +336,8 @@ static int __maybe_unused sp805_wdt_resume(struct dev=
+ice *dev)
+>  {
+>  	struct sp805_wdt *wdt =3D dev_get_drvdata(dev);
+> =20
+> -	if (watchdog_active(&wdt->wdd))
+> +	if (watchdog_active(&wdt->wdd) ||
+> +	    watchdog_hw_running(&wdt->wdd))
+>  		return wdt_enable(&wdt->wdd);
+> =20
+>  	return 0;
+>  }
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does wdt_restart() fail to
+reboot the system if the watchdog counter clock was previously disabled?
+
+If userspace cleanly stops the watchdog, the core calls wdt_disable() which
+disables wdt->clk. If a reboot command is subsequently issued, wdt_restart()
+writes to WDTCONTROL to assert RESET_ENABLE:
+
+drivers/watchdog/sp805_wdt.c:wdt_restart() {
+        ...
+        writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
+        writel_relaxed(0, wdt->base + WDTCONTROL);
+        writel_relaxed(0, wdt->base + WDTLOAD);
+        writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
+        ...
+}
+
+Because the counter clock is disabled, the hardware timer will not count do=
+wn,
+and the hardware reset signal is never generated. Since wdt_restart() retur=
+ns
+0 without re-enabling the clock, does the reboot silently fail and hang the
+system?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911030531.8371=
+40-1-lijun01@kylinos.cn?part=3D1
