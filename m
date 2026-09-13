@@ -1,44 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34DEA3CAE7F;
-	Sun, 13 Sep 2026 06:49:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97FBB3C5546;
+	Sun, 13 Sep 2026 06:51:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789282150; cv=none; b=sAgujC/qHE55bJKd/gKs6itgDnuvvh6Jt1oHfITx9Q6PniEy/DvwTV8423OPfwvjfyMhCGyImNLcT9PkLmQp0rBWSRKYqYFZ3C50Lc0y4/3y/PGDtbZKIxYgF+YAuFCMf2J7im5MYTyLmuHUMtdqT+fGLiOCJHKIegcWOAQKSvA=
+	t=1789282306; cv=none; b=ZpBNjJ1AFhnwfuQJnsZgq4hVU7s+PEPFihENwCYkzXITUUYginpIz+hMnNtMhUP6PyPlvru454yWbetlXVVUsmDnnCzGOnnyLafkxDz3yEiNjJBsz54llVFPkre/zj2j074DKPLIACxZUxlTPn29KTmUn67N661Wb5LAhQVaspY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789282150; c=relaxed/simple;
-	bh=pa9bi2gTpvDqDAwkZftMhy3DJPdhjXbXtM/QyyiPXq8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eg/zZu6fn8yxakDFpRozEu15/zr+Pc7n13hbWEU/DnDTcGSozvv9owgs6OArKpyDuiGSxYWfh74P5HNUhRVgHH7UgLKv5c5X7k3qhN36vTjvw8x6z3jq/Rnql1Nf8KVuBi8HYMjxJLkBO+s5H0mjrfpTfWWCmxMJt1ZUPKyAE4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S6CBRuU8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789282306; c=relaxed/simple;
+	bh=fcaJHkHVNIDCbPBs47jJjMIvqIcpA0ePW375pEcfxcU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WpncUElaAKFdhe9kx14pjG3nrdD0HAtLHPyliRebFtdEvSWctolRxMRbjxLrLlvVr6nRgvNX72ezT8A9w8mKuRuUQFo8d54UejTwQNj6GmLwkt5riCBVJTor2O3g4ZvDqSVe48qSlnckDFE7O67Xa13FjIR4ijX3aBMR7PFeGfA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QS25O4ZE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S6CBRuU8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 668401F00893;
-	Sun, 13 Sep 2026 06:49:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QS25O4ZE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18EA71F000FF;
+	Sun, 13 Sep 2026 06:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789282148;
-	bh=RH7auDzRZm51pq9Ic6ls/26JXCqmBMKMAK5aSQaL8cM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=S6CBRuU8fsWJxZyFpdXf0wfRSrKuLpDjGZcDV1dnIryvvH4sAdlJkyeV7RxjSxQzD
-	 /vtiVpkwFmblTvKBN5UzFdaY0xTBNkzfnreTTev1lEnJ2CS93ns3S95Hi3snMfPJXm
-	 ZhUNvFTVTXrd1/HpFLchKpYcQ7y5lRy4uJd9PIp1DQsohY/CHA45UrrOg10zDzBC57
-	 r0S7nzAjxiJlfBtEoRV8WOMsQMZUajBTXBIG7pfZccMI1Uqwg2xKAjYD8xKDrExA0V
-	 iiIUsJz+M0Eu6YGYRWEZt/O1kscRLwp81QYP/LUvTsqUUtWEEHoynEXFNbhjl+WV+e
-	 uAjkkvwyd74bg==
+	s=k20260515; t=1789282301;
+	bh=NvlXi29UW+lhoY1tSTI0DBTTqIv0jJalOwCYNxonEVk=;
+	h=From:To:Cc:Subject:Date;
+	b=QS25O4ZECg6TyKeIb3M/TJBsz2HNQ0zLsE04McJM7mqInwmgf8F7HfDjxUPsgsM/T
+	 vIsxj4TOb5eBD2e/wCHywZeuV2/JmYBzOeYnVTdErSKDpp8yKVYf7Z+iprtRhqq4QM
+	 zWjyjLaWJQFZf7Dl2o5vPUgBkDHxkOjleabfftO33VrlALyVip4LkUgbnG6F+OfSqM
+	 oKmNqUgTpkCHgxw8CI/w+WJkAfLwdGSjAxu5XFdTWNVsroQ5ickGcvNSxCOu8GlINv
+	 mpvA2JCdGBGSCCCf4B2LPZ+O5xZiXFeq37mjoH2OCGtcj4mVenyux5R6N7QlSQo+5/
+	 jORdHT6Lx8J0w==
 From: Tzung-Bi Shih <tzungbi@kernel.org>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>
-Cc: Baruch Siach <baruch@tkos.co.il>,
+Cc: Daniel Palmer <daniel@thingy.jp>,
+	Romain Perier <romain.perier@gmail.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	tzungbi@kernel.org
-Subject: [PATCH 3/3] watchdog: rzv2h: Avoid division by zero
-Date: Sun, 13 Sep 2026 14:48:51 +0800
-Message-ID: <20260913064851.8239-4-tzungbi@kernel.org>
+Subject: [PATCH] watchdog: msc313e: Fix premature reset during timeout update
+Date: Sun, 13 Sep 2026 14:51:26 +0800
+Message-ID: <20260913065126.8350-1-tzungbi@kernel.org>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260913064851.8239-1-tzungbi@kernel.org>
-References: <20260913064851.8239-1-tzungbi@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -47,40 +45,47 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-clk_get_rate() could return 0.  Avoid a division by zero panic.
+Updating the 32-bit hardware timeout requires writing to two 16-bit
+registers sequentially.  If the watchdog is actively running, this
+non-atomic update might trigger a premature system reset.
 
-Fixes: f6febd0a30b6 ("watchdog: Add Watchdog Timer driver for RZ/V2H(P)")
+Clear the watchdog counter before updating the registers to prevent the
+timer from timing out prematurely against an intermediate threshold.
+
+Fixes: e9800b799464 ("watchdog: Add Mstar MSC313e WDT driver")
 Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 ---
- drivers/watchdog/rzv2h_wdt.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+This fixes a Sashiko report [1].
 
-diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
-index 3b6abb66a1da..83540dd9a37b 100644
---- a/drivers/watchdog/rzv2h_wdt.c
-+++ b/drivers/watchdog/rzv2h_wdt.c
-@@ -278,6 +278,7 @@ static int rzv2h_wdt_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct rzv2h_wdt_priv *priv;
- 	struct clk *count_clk;
-+	unsigned long rate;
- 	int ret;
+[1] https://lore.kernel.org/all/20260828162210.3C2881F000E9@smtp.kernel.org
+---
+ drivers/watchdog/msc313e_wdt.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wdt.c
+index dc7bdd5660e6..0a68be7a217b 100644
+--- a/drivers/watchdog/msc313e_wdt.c
++++ b/drivers/watchdog/msc313e_wdt.c
+@@ -46,6 +46,9 @@ static void msc313e_wdt_set_hw_timeout(struct msc313e_wdt_priv *priv,
+ {
+ 	u32 t = timeout * clk_get_rate(priv->clk);
  
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -314,8 +315,12 @@ static int rzv2h_wdt_probe(struct platform_device *pdev)
- 		return dev_err_probe(dev, -EINVAL, "Invalid count source\n");
- 	}
- 
-+	rate = clk_get_rate(count_clk);
-+	if (!rate)
-+		return dev_err_probe(dev, -EINVAL, "Invalid clock rate\n");
++	/* Clear before to prevent premature reset during non-atomic updates. */
++	writew(1, priv->base + REG_WDT_CLR);
 +
- 	priv->wdev.max_hw_heartbeat_ms = (MILLI * priv->of_data->timeout_cycles *
--					  priv->of_data->cks_div) / clk_get_rate(count_clk);
-+					  priv->of_data->cks_div) / rate;
- 	dev_dbg(dev, "max hw timeout of %dms\n", priv->wdev.max_hw_heartbeat_ms);
+ 	writew(t & 0xffff, priv->base + REG_WDT_MAX_PRD_L);
+ 	writew((t >> 16) & 0xffff, priv->base + REG_WDT_MAX_PRD_H);
+ 	writew(1, priv->base + REG_WDT_CLR);
+@@ -76,6 +79,9 @@ static int msc313e_wdt_stop(struct watchdog_device *wdev)
+ {
+ 	struct msc313e_wdt_priv *priv = watchdog_get_drvdata(wdev);
  
- 	ret = devm_pm_runtime_enable(dev);
++	/* Clear before to prevent premature reset during non-atomic updates. */
++	writew(1, priv->base + REG_WDT_CLR);
++
+ 	writew(0, priv->base + REG_WDT_MAX_PRD_L);
+ 	writew(0, priv->base + REG_WDT_MAX_PRD_H);
+ 	writew(0, priv->base + REG_WDT_CLR);
 -- 
 2.53.0
 
