@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6857C3CB560;
-	Sun, 13 Sep 2026 06:49:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34DEA3CAE7F;
+	Sun, 13 Sep 2026 06:49:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789282149; cv=none; b=FHxZo+lbE/6XXSs4VHaUcmU8Yd6VimSev4bQ04N68krP3004M8Vuqj29maT/Qg2rSOVHFmPpMbrqQ3PUK4qLOXRffhDuod1j93uz8u6/bU+/zlpEBTnmSdsdNG0+Jw7L0EItBXCgNoJnbZrYQR/l+FjTCKOel60ilbbUsv3LdtA=
+	t=1789282150; cv=none; b=sAgujC/qHE55bJKd/gKs6itgDnuvvh6Jt1oHfITx9Q6PniEy/DvwTV8423OPfwvjfyMhCGyImNLcT9PkLmQp0rBWSRKYqYFZ3C50Lc0y4/3y/PGDtbZKIxYgF+YAuFCMf2J7im5MYTyLmuHUMtdqT+fGLiOCJHKIegcWOAQKSvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789282149; c=relaxed/simple;
-	bh=r3jcwyTedaTxb9b3RfNhohViDgy9af5oaw4AG343a7k=;
+	s=arc-20240116; t=1789282150; c=relaxed/simple;
+	bh=pa9bi2gTpvDqDAwkZftMhy3DJPdhjXbXtM/QyyiPXq8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nFC+KJbMrXfrpN3xaaAz9o/yL1MpntCwq8xcSPhf1roeWOBlvk9W3qJF8OrzFCyvKlsSvCdn9fWaRoMiweNFV1Kbvp8vQbcaHrWlkt8UAKPIwdKtgHnmmKB3KWLapuV6mJSlxLsipSY+bOvE1GkZoB/1P+ojnhkcaJmbsxF+lAs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DDyNRJAS; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=eg/zZu6fn8yxakDFpRozEu15/zr+Pc7n13hbWEU/DnDTcGSozvv9owgs6OArKpyDuiGSxYWfh74P5HNUhRVgHH7UgLKv5c5X7k3qhN36vTjvw8x6z3jq/Rnql1Nf8KVuBi8HYMjxJLkBO+s5H0mjrfpTfWWCmxMJt1ZUPKyAE4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S6CBRuU8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DDyNRJAS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36801F000FF;
-	Sun, 13 Sep 2026 06:49:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S6CBRuU8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 668401F00893;
+	Sun, 13 Sep 2026 06:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789282147;
-	bh=GR8e9OThUzczma4Aaeh5prTyfxSVnwc9ScJ2htIrV/8=;
+	s=k20260515; t=1789282148;
+	bh=RH7auDzRZm51pq9Ic6ls/26JXCqmBMKMAK5aSQaL8cM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=DDyNRJASTISkX1Dy52ifusp1KPyPNlpx3aqX37nwH6hiRkY9AWq6aOkLTdOfxbVWE
-	 10bm+s18xrfWpmJYiX2/A6Vxi915K5YgxQeKrxR/0Wr89F12rhz/Xl588IsnohGuX6
-	 +WKabKsqw4zSbBhhS7q5x2Hx4OvzKFux31eD422T7G0u2VGKrakLrq7DeYQ+37UvJO
-	 8klPhhKdMhW4dpc0sssjr4ruTcJxg50ckRrPfQLrbvpAy3EolAE0aA97Bcu67Gt/g0
-	 6IukYsoPM3V85ghU5xTIDj+i0pb8Sinm2n53WRRQfI3nvw1wWvyUKCztsxRhwdzVHE
-	 qNfaePycyACtg==
+	b=S6CBRuU8fsWJxZyFpdXf0wfRSrKuLpDjGZcDV1dnIryvvH4sAdlJkyeV7RxjSxQzD
+	 /vtiVpkwFmblTvKBN5UzFdaY0xTBNkzfnreTTev1lEnJ2CS93ns3S95Hi3snMfPJXm
+	 ZhUNvFTVTXrd1/HpFLchKpYcQ7y5lRy4uJd9PIp1DQsohY/CHA45UrrOg10zDzBC57
+	 r0S7nzAjxiJlfBtEoRV8WOMsQMZUajBTXBIG7pfZccMI1Uqwg2xKAjYD8xKDrExA0V
+	 iiIUsJz+M0Eu6YGYRWEZt/O1kscRLwp81QYP/LUvTsqUUtWEEHoynEXFNbhjl+WV+e
+	 uAjkkvwyd74bg==
 From: Tzung-Bi Shih <tzungbi@kernel.org>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>
@@ -33,9 +33,9 @@ Cc: Baruch Siach <baruch@tkos.co.il>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	tzungbi@kernel.org
-Subject: [PATCH 2/3] watchdog: rtd119x: Avoid division by zero
-Date: Sun, 13 Sep 2026 14:48:50 +0800
-Message-ID: <20260913064851.8239-3-tzungbi@kernel.org>
+Subject: [PATCH 3/3] watchdog: rzv2h: Avoid division by zero
+Date: Sun, 13 Sep 2026 14:48:51 +0800
+Message-ID: <20260913064851.8239-4-tzungbi@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260913064851.8239-1-tzungbi@kernel.org>
 References: <20260913064851.8239-1-tzungbi@kernel.org>
@@ -49,40 +49,38 @@ Content-Transfer-Encoding: 8bit
 
 clk_get_rate() could return 0.  Avoid a division by zero panic.
 
-Fixes: 2bdf6acbfead ("watchdog: Add Realtek RTD1295")
+Fixes: f6febd0a30b6 ("watchdog: Add Watchdog Timer driver for RZ/V2H(P)")
 Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 ---
- drivers/watchdog/rtd119x_wdt.c | 7 ++++++-
+ drivers/watchdog/rzv2h_wdt.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/rtd119x_wdt.c b/drivers/watchdog/rtd119x_wdt.c
-index 984905695dde..0bfadb58917b 100644
---- a/drivers/watchdog/rtd119x_wdt.c
-+++ b/drivers/watchdog/rtd119x_wdt.c
-@@ -98,6 +98,7 @@ static int rtd119x_wdt_probe(struct platform_device *pdev)
- {
+diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
+index 3b6abb66a1da..83540dd9a37b 100644
+--- a/drivers/watchdog/rzv2h_wdt.c
++++ b/drivers/watchdog/rzv2h_wdt.c
+@@ -278,6 +278,7 @@ static int rzv2h_wdt_probe(struct platform_device *pdev)
  	struct device *dev = &pdev->dev;
- 	struct rtd119x_watchdog_device *data;
+ 	struct rzv2h_wdt_priv *priv;
+ 	struct clk *count_clk;
 +	unsigned long rate;
+ 	int ret;
  
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
-@@ -111,10 +112,14 @@ static int rtd119x_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(data->clk))
- 		return PTR_ERR(data->clk);
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+@@ -314,8 +315,12 @@ static int rzv2h_wdt_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, -EINVAL, "Invalid count source\n");
+ 	}
  
-+	rate = clk_get_rate(data->clk);
++	rate = clk_get_rate(count_clk);
 +	if (!rate)
-+		return -EINVAL;
++		return dev_err_probe(dev, -EINVAL, "Invalid clock rate\n");
 +
- 	data->wdt_dev.info = &rtd119x_wdt_info;
- 	data->wdt_dev.ops = &rtd119x_wdt_ops;
- 	data->wdt_dev.timeout = 120;
--	data->wdt_dev.max_timeout = 0xffffffff / clk_get_rate(data->clk);
-+	data->wdt_dev.max_timeout = 0xffffffff / rate;
- 	data->wdt_dev.min_timeout = 1;
- 	data->wdt_dev.parent = dev;
+ 	priv->wdev.max_hw_heartbeat_ms = (MILLI * priv->of_data->timeout_cycles *
+-					  priv->of_data->cks_div) / clk_get_rate(count_clk);
++					  priv->of_data->cks_div) / rate;
+ 	dev_dbg(dev, "max hw timeout of %dms\n", priv->wdev.max_hw_heartbeat_ms);
  
+ 	ret = devm_pm_runtime_enable(dev);
 -- 
 2.53.0
 
