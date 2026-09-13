@@ -1,100 +1,222 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from flow-b6-smtp.messagingengine.com (flow-b6-smtp.messagingengine.com [202.12.124.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB9935AC31
-	for <linux-watchdog@vger.kernel.org>; Sun, 13 Sep 2026 07:00:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 919FF381E92;
+	Sun, 13 Sep 2026 08:34:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789282821; cv=none; b=PkW8NTIA0l3sh4oVpP1htNDys8eBCIvQ6x23V53oN2SO3omWrlaIxGG5lpVQH3M+aVi3Fc+ypPuIZ5COB6KJC5DC7B4+0TsCz9LrjIAfEIdX81runz2yhPivSHy6fJj50XaKq08lNhdqvJ/Qbz4fTLULv4WSqSqmmGEO5/sdElo=
+	t=1789288443; cv=none; b=oWR60WUWAMvRCRSYlm56i48yaj+Q5RxThtk1WFeNlQYBNOZQ4bmMj29fiDqgA7UD+IFdm0r9Oo0sft4SbLBv67S521fyw+FUgj/c7S85AQK4HxHznRN/R6/NmDuZp3dCpGGhtYbDgmV9gF1wu6NerUt0XXv+LDwozkHu6PoAgAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789282821; c=relaxed/simple;
-	bh=eyLipANu+txoTcmd9Are0/dV2ItVgjp7NKdCZn9IDpw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GaZ6/NHH6OJCniNafdv63IFgrUbeqgWs7U9Am1f0DcjTptJKJVS69O+++UVrO0zz9mRJEsaYzN3BDGI5J2jPuFYQG36ivzrpTCo2j1RxxzMQfUDZsbunBuMPyPDTYuhDnw9DkzpdDTlDnlX/aWSIUOAPouZLaJTX7WKLakHxrZE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KeQ3wljO; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789288443; c=relaxed/simple;
+	bh=l21u1VfuTUk80ee1/KqRN/TTYww9xGQuE4vEMp/bBy0=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=amxxgufPOZT09XmoTHFO+Oy04bCak6y5OKiCcpfEI/2/ApcFMmsVDcFBVGj5dQzHbyueDBZ4VEz92MpXa28mc7JIpaBPVWhbLz3EiMZ9MfwJSLi5P21s7s7IsV5PahHXUricLe1B8be/e9R1ayy32BYyt6/+wBJG14+lvsuONac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=hP4uSJGU; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=nvm4EGrz; arc=none smtp.client-ip=202.12.124.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KeQ3wljO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63D61F000FF;
-	Sun, 13 Sep 2026 07:00:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789282810;
-	bh=A0cDs7Ni+oXgc3JYbtzF03H9Op/y2ZBCXI2VrHcXgP8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KeQ3wljOlUV5F6dzI58ogB4sSatv2NuqGOBJAXnlPx74kzvT93LHVmm8CzLV+M9uY
-	 XcTtp9HrWhhoBKv99jAQUmPuNXM7al6T4dBslVxOD1/yJNyvqh1FC9RFKL6ys0sXyE
-	 nA1PvQWMAYi5MbhExpNp70w5kRQi30+UYNkOfMRNvCg57IM4cm0YQmDG6K4GkTqmYz
-	 yxYKZyFfB+dSWZTTRmP3rCGmMoAYgIhfbE58vS3H4MBxzDwVoREwmWIO0qNKM+SIfg
-	 tBbbVwSsfXfalcAa0hSdOgv5mNzGcPH4J9L5iMW6AKsyTZ2T8vDQKcrtF9goSxbZHj
-	 jsAcLyDFcfLKQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: msc313e: Fix premature reset during timeout
- update
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tzung-Bi Shih" <tzungbi@kernel.org>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260913065126.8350-1-tzungbi@kernel.org>
-References: <20260913065126.8350-1-tzungbi@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 13 Sep 2026 07:00:09 +0000
-Message-Id: <20260913070009.D63D61F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="hP4uSJGU";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="nvm4EGrz"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.stl.internal (Postfix) with ESMTP id 3F049130010C;
+	Sun, 13 Sep 2026 04:33:55 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Sun, 13 Sep 2026 04:33:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1789288434;
+	 x=1789295634; bh=FK/hgn5ztNrzJ8FzxNsGVH8sTakZzoGmnSB/QJ0ZjK4=; b=
+	hP4uSJGU4LPNyh7tNOFYiOwyUhoJjvn+rtx/gV1jNxsXli24Yj4H9OHWbSCUCOYp
+	1LmeKkR/FDUTxfeVUcR3PW6hzHXaeKbqkwhguEsHXcWXM+EqRDq6Mutivw7D6AP7
+	zxcO7/7iOjRUeRDtvmwTdGVJi91XV93oTtX2lrN8t5oAK8MveTvPjOJLHdwKGLDv
+	WDY18MwDH078GeQblDSx50OkW8RYXHIL1Py1DTJXQ6l5yXDv8UpvOCwggfr73muh
+	tjWCnmei/4Ederp7aq+6q9XhHyjG3orbvr7iO3P4pOWy80p3tGPWWzvPjFz6Xoj/
+	l/E+uRa80heywM28ZQPbng==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789288434; x=
+	1789295634; bh=FK/hgn5ztNrzJ8FzxNsGVH8sTakZzoGmnSB/QJ0ZjK4=; b=n
+	vm4EGrz4F6jR5JXE4wigJ8Ry7JX5M0AcC921ZlsuVqc/YpoeL8SAT+tKWa33nB0T
+	ZjwnZB7JaKQBbZtda19Ii6izZqboxNE1agBJILSQAvcaL8wIdNQhGx6H6fTk7CiJ
+	9DNwc7XlhvV+mMoGxebUGze3s1kX5uyoEPunC4jlIgaJyiyTX4Sbb7UtBOpcgTkm
+	GA9daUeYKwy5LcIt5VDo8mzbeUuePrI+JBZLjzF/J2KeYkeu+nmvT4YELvXjrCdX
+	MgxF8P55rsqI0lTOj9w6JBgCin8AMz9HlCAbF/Hl/i9h5rN/siDdaojxzhTnkeU0
+	a5HBpRoQJPWwTY7SPsEjQ==
+X-ME-Sender: <xms:6V-mapGAWvvTCYmPsF0gHXxbEy2q1VIUbPN28RqMGUUZtzTOrnEvuA>
+    <xme:6V-mapLXRXStV_91mp4cNlBE7UDv4i1YnLRZiVf3ZoCTB1V3wH1kzPlEqS463DWcH
+    jBKPFdmoJWdTPPrTaq2cSmCN-or1svTLHlOTE8BeqZQDBbr6-RKxf_M>
+X-ME-Proxy-Cause: dmFkZTFlVhM1xA9XUYL3SefhQrC0hRhFkTaBBJIQ3su2kNz4MfZ3F028vj/UpSaZ9vtqdo
+    wovmypaSI/+/Azrkn02Yb8tOmVCj78ufH0HthXhTBRf6WeFoUXig393+d5/MfEq2pSRnyw
+    LvkfDeXAZA0b/j/z/1yiQhabfROQmtQB7KcVHYhL5U/1ONNfzRfrULV/TAUFjNOKXvZqHU
+    1d3D75czeqAluQHI4FwbSCqywRuOSl2dbfCEwiQwzFVuJIGYTmYp+6BhJS/cWlHc13mRMu
+    JCF4bc/fUM2PhFgmF6DfLis1vMU0ddqwu1kq89fIC1RtR0wlPT1taz0+6qP2fokAV623EC
+    7WvNLhWl3kVw2NxV4IcXin9Y98/yDUmwATW+ikygGBZJ6YYQmvcBkxJjwY6s1s0lBnkurW
+    dgFHyjPldyFsZBx8c3uSdH5l15d1REZen5gyrGPU1HE169zMMgo3KEmBEUmtacwkM75/YY
+    grwFCl6KM0Bz9faJrynux+UReF8cohlyDGeVV9rTC5y20vL4mU3p+bx1hfEaXHZ84F3XO2
+    v2UOS2mSdQ64QMhfWRfWITFHODS475vwD85qi+Wj3j/4MpFov5LCO3ZCpCX0NoG23iGgHA
+    cDtOhMrnZ/x93jpFr/xtrmhKYEtASmslgyDXrwp3akV21xiDzYSAeZt4Xing
+X-ME-Proxy: <xmx:7l-marCsxWSQh7GyHEJQeExs04vUHwGvSpX6l3ZVDsiTwMGzIFCPpg>
+    <xmx:7l-mamy6bQq8k5lrbzz61NVzb-U8lzuLCWChRPmqZFuL-W1-V1RBnA>
+    <xmx:7l-mapO3Ea7pdRgQSbEG743m78cgcMsUglEvHhQP6eVdBbbYwVXaDw>
+    <xmx:7l-matdXxH-1ltZbtCG0gBd_mR1zKSCO473ThhfLCbYY-V19IRKADw>
+    <xmx:8l-maj_96L_YD-vKCf9QRDIxzcji6jyg1fRDZfFt7ZuAErCOtrULUMr4>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id DB07132A007E; Sun, 13 Sep 2026 04:33:44 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-ThreadId: AK-jVwBtQCQR
+Date: Sun, 13 Sep 2026 10:33:04 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Jonathan Cameron" <jic23@kernel.org>
+Cc: "Svyatoslav Ryhel" <clamor95@gmail.com>,
+ "Arnd Bergmann" <arnd@kernel.org>,
+ "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Mark Brown" <broonie@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
+ "Daniel Thompson" <danielt@kernel.org>, "Helge Deller" <deller@gmx.de>,
+ devicetree@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ dri-devel@lists.freedesktop.org, "Jingoo Han" <jingoohan1@gmail.com>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
+ "Liam Girdwood" <lgirdwood@gmail.com>,
+ "Linus Walleij" <linusw@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fbdev@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
+ llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
+ mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
+ patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
+ "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
+ "Support Opensource" <support.opensource@diasemi.com>
+Message-Id: <e53ae695-99ed-4f14-855b-b922a938438c@app.fastmail.com>
+In-Reply-To: <20260912232047.19c4cb10@jic23-hlaptop>
+References: 
+ <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+ <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+ <20260912232047.19c4cb10@jic23-hlaptop>
+Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Sun, Sep 13, 2026, at 00:20, Jonathan Cameron wrote:
+> On Thu, 10 Sep 2026 20:14:15 +0200 "Arnd Bergmann" <arnd@arndb.de> wrote:
+>> 
+>> I tried to be careful about figuring out exactly which drivers are
+>> unused, but I'm sure there are still a few false positive and false
+>> negative ones in there. I've added the current list of driver files below,
+>> let me know if you see something that shouldn't be there.
+> Hi Arnd
+>
+> For I2C and SPI at least, there doesn't need to be explicit
+> device tree support as long as they have defaults when platform
+> data isn't there. Those two buses will happily bind based on
+> a dt-compatible and their i2c_device_id or spi_device_id tables
+> for example.
+>
+> So unless they fail to probe (some might?) we don't have
+> a clear signal on whether they are in use via DT or not.
+>
+> For vast majority of IIO drivers we don't have an upstream
+> DTS as there is no clear motivation for anyone to upstream
+> the dts for a random industrial control board or similar.
 
-Pre-existing issues:
-- [High] Incomplete race condition fix leading to premature system reset du=
-ring watchdog timeout update.
---
+Right, that was my general rule, if I had tried to remove
+all drivers that could plausibly probe with an external dtb
+but have no internal users, that would have easily doubled
+the 300 patches I already did.
 
-commit 7f35d2e3193543673ce5c7858773cd48582d5c52
-Author: Tzung-Bi Shih <tzungbi@kernel.org>
+>> drivers/iio/adc/ad7266.c
+> No to dropping this.
+>
+>
+>> drivers/iio/adc/ad7791.c
+> No to dropping this one.
+>
+>> drivers/iio/adc/ad7793.c
+> Maybe. Analog devices ack needed.
+>
+> Production part but this one indeed fails to probe.  Analog
+> folk, do you want to fix this one up?
+>
+>> drivers/iio/adc/ad7887.c
+> No to dropping this.
+>
+> Production part - should work fine with defaults in driver.
+> Could like the others drop the platform data handling.
 
-watchdog: msc313e: Fix premature reset during timeout update
+This was one patch that I wasn't sure about myself (all four
+drivers together) since it looks like even when they do probe
+from dtb, the feature set would be limited without a DT
+binding, and they have been in the tree for a rather long time
+without users.
 
-Updating the 32-bit hardware timeout requires writing to two 16-bit
-registers sequentially. Clear the watchdog counter before updating the
-registers to prevent the timer from timing out prematurely.
+I've dropped the patch now. I looked at dropping the platform_data
+handling, but I think that only makes sense if we get a
+proper DT binding first.
 
-> diff --git a/drivers/watchdog/msc313e_wdt.c b/drivers/watchdog/msc313e_wd=
-t.c
-> index 4a5cce2a16b18..a743087e922d5 100644
-> --- a/drivers/watchdog/msc313e_wdt.c
-> +++ b/drivers/watchdog/msc313e_wdt.c
-> @@ -46,6 +46,9 @@ static void msc313e_wdt_set_hw_timeout(struct msc313e_w=
-dt_priv *priv,
->  {
->  	u32 t =3D timeout * clk_get_rate(priv->clk);
-> =20
-> +	/* Clear before to prevent premature reset during non-atomic updates. */
-> +	writew(1, priv->base + REG_WDT_CLR);
-> +
->  	writew(t & 0xffff, priv->base + REG_WDT_MAX_PRD_L);
->  	writew((t >> 16) & 0xffff, priv->base + REG_WDT_MAX_PRD_H);
+>> drivers/iio/adc/lp8788_adc.c
+> Probably
+>
+> Sub driver of an MFD.  I'm fine with that going if we know
+> the mfd is no longer in use.
 
-[Severity: High]
-This is a pre-existing issue, but does this non-atomic update still leave a
-race condition window?
+Ok, I posted that one as
+https://lore.kernel.org/all/20260909132153.1596191-8-arnd@kernel.org/
 
-If a preemption or interrupt occurs between these two writes in
-msc313e_wdt_set_hw_timeout(), the active threshold becomes a hybrid of the
-old high bits and the new low bits.
+and so far, everyone agreed on removing it.
 
-Since the counter was just cleared to 0 immediately prior to this, if the
-old high bits are 0 and the new low bits are small, the intermediate
-threshold will be very low.
+>> drivers/iio/adc/lpc18xx_adc.c
+>> drivers/iio/dac/lpc18xx_dac.c
+> Probably
+>
+> Likewise these two.
 
-Could the counter reach this small intermediate threshold during the
-preemption window and still trigger a premature hardware reset?
+Right, this one of course should follow the removal of
+CONFIG_ARCH_LPC18XX in arch/arm/
 
->  	writew(1, priv->base + REG_WDT_CLR);
->  }
+>> drivers/iio/frequency/ad9523.c
+> Maybe. Analog Devices ack needed.
+>
+> Fails to probe without platform data and marked not recomended
+> for new designs. If we get an Ack from Analog devices folk
+> I'm fine with this one going away.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260913065126.8350=
--1-tzungbi@kernel.org?part=3D1
+This matches what I wrote in 
+https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/commit/?id=20c1515b0caec2769c0916d087326f640bfb8aab
+
+I'll keep the patch in the series and we'll see what the
+maintainers think when I post it.
+
+Thanks a lot for taking a look!
+
+I wonder if some of the older Analog drivers were only ever used
+on Blackfin. My series still removes a few more drivers outside
+of iio list that had platform_data in arch/blackfin/ until we
+removed that in 2018. These all fail to probe without
+platform_data, which means they also wouldn't work with the
+downstream adsp-sc5xx/sc8xx port or any other upstream Arm
+platform:
+
+a4bdf847e0e1 backlight: remove unused adp8860/8870 drivers
+c71829e110e9 Input: touchscreen: remove unused ad7877 driver
+b4d4ca64500b Input: misc: remove unused ad714x driver
+978426a3fe1a usb: remove unused sl811 driver
+0860c9f297c3 mfd: remove unused adp5520 driver
+
+       Arnd
