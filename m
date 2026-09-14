@@ -1,115 +1,164 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74F302EA75E
-	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 06:37:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 612713F39D0
+	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 08:32:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789367856; cv=none; b=TlrionvGBPvJuJdBT1IjcsxwdRsN251g0IqMsUYYEZ1SalOHfo/J7MhFeH10TP0F7YTiDeLAID4NZ/XPOmtYuyhQ0CDNv3DYpXalA5IimtLs+JaakRkHMKEvLYqcfKHVH0cHrckCsaQIkgrf7EC9LINcDgtoEmFHvyK/K3YxS+A=
+	t=1789374772; cv=none; b=r5VF4SfDUKbd9F4tpfZGV4IjV5Xs1F/x/lt1vQX4EsiUuZD1vOPVc56lESuohdQwRquOAVb5bCak2plmnqeNEfwbF2dSZl8M+TjBV7vlwUwrpPwk9ZS0uqRehIgg2NdG1omffwemW+B68tz9urDMMeyJhQshRlzK6dsO2FTm2yU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789367856; c=relaxed/simple;
-	bh=R+EIZt71PO/4pjyQd7ny5Pdtj6+QjpO/sNh9KwVkxW8=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type; b=RyTOxQVHkawUyn1huxbhA7txxtksj0jfWxht8aGjaEB+k+7MwTDROKQ6OKEBBonQtOA4frVrsNd28l1JBNwXLZ9FE41Q+Fc2myNhYS6/UGQ41ThnfjBJtom48kWuP2W25X4irmtlxH70FC/OwZ+QUJxRhrG2gj4rNP9TyfpXRXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: c02342d0b00611f19a56ed5b684f684d-20260914
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:f88f2ce5-233b-4125-8499-e95202c19fe3,IP:0,U
-	RL:0,TC:0,Content:0,EDM:-25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:-25
-X-CID-META: VersionHash:7db8b62,CLOUDID:c919d9e49e40bbe7ae74eb9607bbdf59,BulkI
-	D:nil,BulkQuantity:0,SF:102|850|865|898|915,TC:nil,Content:0|15|50|99,EDM:
-	2,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,A
-	V:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: c02342d0b00611f19a56ed5b684f684d-20260914
-X-User: lijun01@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <lijun01@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 2039437972; Mon, 14 Sep 2026 14:37:26 +0800
-From: Li Jun <lijun01@kylinos.cn>
-To: lijun01@kylinos.cn,
-	support.opensource@diasemi.com,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH v2] watchdog: da906*: fix suspend/resume handling of HW_RUNNING watchdog
-Date: Mon, 14 Sep 2026 14:37:07 +0800
-Message-Id: <20260914063707.607071-1-lijun01@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1789374772; c=relaxed/simple;
+	bh=wQIW58kd96Mxvk8XVo8GGflIQ5a1Ent2zmnDJu8T9NU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=C9FFtu7djVbYztNxtaQWpLCWt9x6uwZZw4ukBiIlffs7n06FMbqWC8MsVpGjxKDEE4E9vwIeJk82OqRuict5hH6lA4w9z5qwt+UWiI552fgab5vX/kHWrjj3c5dqjQDUbRkIjyZrFAF0cypvkNctCUsnkEMfCTGABXlAOHhBFek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=2d/FvAvt; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="2d/FvAvt"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 914494E4052B;
+	Mon, 14 Sep 2026 08:32:47 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 632E060323;
+	Mon, 14 Sep 2026 08:32:47 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3BF4E11C7AFD9;
+	Mon, 14 Sep 2026 10:32:42 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1789374766; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=t+bhyABek7V/xx++E1c8RabUELBTBXODnbFXuaAAKQQ=;
+	b=2d/FvAvtyc/nTCI+osd9aWSzqN3jILc8tPO/hoImrs1bErK9hO29yZuznpWAQ1KLbDsZAF
+	VEn/Wa/kJOlX3KwrGPW5TbqsABU1F2iayhdQmkxK7jF9NzPcsT2rFg4bzX2uWIsRhvPJrh
+	lMZpnW69DbP0OLRIXsr/xLcqfowQNtxCNSL3jp38UiRBQXpPc47MXSkR5Qu77BVKgdJMdI
+	lgRutwBQivXKAkON0WsRRxp+YhQVKdE7rT80cm9UE+Vcxp3SrNyFyS3Phat1rqLYDajzmP
+	SLi0Vq9YQE5JEuRCxb5N+G42oNkbsDlSzysWDB1bx3aZUQtvgipfGUHLaJOPdg==
+Message-ID: <b86b0f43-4a86-4bc8-865b-1d767992597a@bootlin.com>
+Date: Mon, 14 Sep 2026 10:32:42 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/3] watchdog: omap: Preserve OMAP watchdog across boot to
+ detect faulty boots
+To: Guenter Roeck <linux@roeck-us.net>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade
+ <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
+ Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
+ thomas.petazzoni@bootlin.com
+References: <20260911-omap4-wdt_boot-v1-0-637d778a4a1e@bootlin.com>
+ <407b9420-0ec6-4d95-960b-633677edf760@roeck-us.net>
+ <14eb1c72-fab0-445a-82f2-5851a855f723@bootlin.com>
+ <f1adea74-8f87-4442-aa12-18536cabec3c@roeck-us.net>
+Content-Language: en-US
+From: Diogo Ivo <diogo.ivo@bootlin.com>
+In-Reply-To: <f1adea74-8f87-4442-aa12-18536cabec3c@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-da906*_wdt_suspend() and da906*_wdt_resume() only check watchdog_active(),
-when the watchdog is left running by the driver sets
-WDOG_HW_RUNNING in da906*_wdt_probe() but userspace never opens the
-device, so WDOG_ACTIVE remains cleared, the wdt_disable() will not be
-executed in da906*_wdt_suspend. In this case, the suspend callback is
-a no-op and the watchdog keeps counting during system suspend,
-leading to an unexpected system reset.
-Check WDOG_HW_RUNNING and wdt->wdd，can fix this issue.
 
-Signed-off-by: Li Jun <lijun01@kylinos.cn>
----
- drivers/watchdog/da9062_wdt.c | 4 ++--
- drivers/watchdog/da9063_wdt.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index 2b6946478527..3d7bf2f351db 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -256,7 +256,7 @@ static int da9062_wdt_suspend(struct device *dev)
- 	if (!wdt->use_sw_pm)
- 		return 0;
- 
--	if (watchdog_active(wdd))
-+	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
- 		return da9062_wdt_stop(wdd);
- 
- 	return 0;
-@@ -270,7 +270,7 @@ static int da9062_wdt_resume(struct device *dev)
- 	if (!wdt->use_sw_pm)
- 		return 0;
- 
--	if (watchdog_active(wdd))
-+	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
- 		return da9062_wdt_start(wdd);
- 
- 	return 0;
-diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-index 92e1b78ff481..3703110e82fc 100644
---- a/drivers/watchdog/da9063_wdt.c
-+++ b/drivers/watchdog/da9063_wdt.c
-@@ -271,7 +271,7 @@ static int da9063_wdt_suspend(struct device *dev)
- 	if (!da9063->use_sw_pm)
- 		return 0;
- 
--	if (watchdog_active(wdd))
-+	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
- 		return da9063_wdt_stop(wdd);
- 
- 	return 0;
-@@ -285,7 +285,7 @@ static int da9063_wdt_resume(struct device *dev)
- 	if (!da9063->use_sw_pm)
- 		return 0;
- 
--	if (watchdog_active(wdd))
-+	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
- 		return da9063_wdt_start(wdd);
- 
- 	return 0;
--- 
-2.25.1
+On 9/11/26 7:25 PM, Guenter Roeck wrote:
+> On 9/11/26 08:17, Diogo Ivo wrote:
+>> Hi Guenter,
+>>
+>> On 9/11/26 4:29 PM, Guenter Roeck wrote:
+>>> On 9/11/26 02:17, Diogo Ivo wrote:
+>>>> Allow the OMAP watchdog to survive being stopped on kernel 
+>>>> initialization
+>>>> so it can detect a faulty boot in cases where the bootloader leaves it
+>>>> running and the watchdog driver picks it up during kernel init.
+>>>>
+>>>> - Patch 1 removes a duplicate omap_wdt_start() call left behind by
+>>>> cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling"). This is
+>>>> unrelated to the main goal of the series and can be picked up
+>>>> independently.
+>>>>
+>>>> - Patch 2 adds support for reading the watchdog boot status. Probe now
+>>>> checks whether the watchdog is already running and takes it over 
+>>>> instead
+>>>> of blindly stopping it based on early_enable alone. This introduces a
+>>>> regression possibility, explained in detail in the patch's message.
+>>>>
+>>>> - Patch 3 marks the OMAP4 watchdog node ti,no-reset-on-init so the
+>>>> ti-sysc driver stops resetting it. A detailed explaination of why is
+>>>> also provided in the commit message of the patch.
+>>>>
+>>>> This series has been tested on a platform based on the VAR-SOM-OM44 
+>>>> from
+>>>> Variscite, running a TI OMAP4460 SoC.
+>>>>
+>>> Please address the issues reported by Sashiko, or explain why they 
+>>> don't apply.
+>>
+>> I have just replied to the Sashiko reviews but I'm not sure if you got
+>> the replies as Sashiko did not include your e-mail in its review. If you
+>> did not receive them please let me know and I can resend them. In
+>> any case if you could give your opinion on the comments I left on the
+>> patches about regressions that would be great as I think after the
+>> Sashiko points are addressed that is the main blocker for this series.
+>>
+> I did. I just wonder if the effort is worth the pain / cost.
+> 
+> Is there an actual use case ? Is the problem you are trying to solve
+> a real problem, or a theoretic one ? For example, the patches impose
+> a hard boot delay of more than 30 ms in omap_wdt_is_running().
+> Even though that could be optimized (there is no reason to wait
+> that long; the value could change a microsecond after the first read),
+> it is nevertheless a mandatory boot delay.
 
+Yes, I stumbled upon this problem while trying to do exactly what is on
+the commit messages, so having a system that does A/B updates and uses
+the watchdog to detect if the boot succeeded or failed. The current boot
+delay is actually (1000000 / 32768) * 10 = 305us, so quite a bit smaller
+than the 30ms you mention, even though from the Sashiko comments I need
+to take into account the prescaler, which in the worst case brings the
+value to the 30ms you mention, but if I adjust it I can bring it down to
+3ms in the worst case of a 128 prescaler. However, for a system with
+prescaler=1 the delay can be brought down to 30us.
+
+> Another concern is the impact and potential side effects of setting
+> ti,no-reset-on-init (and the possible boot loop cause by it due to the odd
+> 30-second init delay). After this change, a running watchdog is no longer
+> stopped. What happens on systems which do not load the watchdog at all
+> (for example because the driver was not configured) ? Will that also cause
+> a boot loop on such systems ?
+
+Here with ti,no-reset-on-init the ti-sysc driver will shutdown the
+watchdog driver after 30 seconds, which can indeed cause problems. When
+I sent the patch I thought the timeout would be 3 seconds, which
+considerable reduces the possibility of a bootloop. I will look into it
+to see if it makes sense to change the timeout value and reduce the
+possibility of the bootloop. My initial assumption of the 3 seconds was
+what actually made me not add ti,no-idle-on-reset since that would
+completely block the watchdog stopping from ti-sysc.
+
+> This is just a couple of problems introduced by this series. You better 
+> have
+> a very good reason for it to warrant having to deal with the potential 
+> fallout.
+
+The reason is that in these systems the watchdog is not behaving as one
+would expect: if the bootloader leaves the watchdog running it is a
+reasonable expectation that unless the kernel or userspace services it
+the system should shutdown. With this series I have tried to achieve
+this while minimizing the risk of regressions, and from my point of
+view the only sore point is indeed the 30s timeout in ti-sysc. If you
+agree with my reasoning and think this is worth pursuing let me know and
+I will change the 30s timeout for v2. In the meantime patch 1 is
+completely regression free and can be picked up!
+
+Thanks,
+Diogo
+
+> Thanks,
+> Guenter
