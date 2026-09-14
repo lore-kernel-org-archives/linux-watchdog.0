@@ -1,28 +1,27 @@
-Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523B941F344;
-	Mon, 14 Sep 2026 09:21:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72D76420889;
+	Mon, 14 Sep 2026 09:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789377699; cv=none; b=La5Cx6P0KwXyo2JnuXKKPUWaSgZVnbpAhBPMMyPi7Yjz7sP1GO9YJ9DRhbUga45PAWO0J9+kIXsrBGwM2seIH3FBAJnskJ6OKmFhocEkkmNEyRTxOovKpvQEnFiV0wjOUswvEHxThHDGRyPv2D3oqDfTc7bEFWoYGKUuqAMHEQU=
+	t=1789377701; cv=none; b=YbqyPtuV69HOPwBNgAUe/9ZnO29gmmU2MsIgpfHwoz9E6grK500GzM77N4R7JXTjakRaZOitbaLEXlKonTCRJqCNC77xncf/k2E5lLgZrIA6nsDohdMrhlQyup+WyYEW4frwtS30ePP2As3VXrXNwDPM5TmWb/8JdywF4Mxwtfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789377699; c=relaxed/simple;
-	bh=xNjSkE0rQFMMhmmNabZTtQc6VgiPIt9zv4wzCci7EhU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=V7hoWEgffpIYXWTwRaKH4xIxu7WCq7Zjqk2TmL4DMo1aEWw6RffSGM9ccuKlyEdSl4Y89IAs/CsBYwVIaU4dsEW2TKLetJyG0+cFQulloY3+mF/fl1KPzy8p5pdP4wRbbxtEmoPyPG+KUU12e+0+IESmulIT5aHiirJpl/WZweo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
+	s=arc-20240116; t=1789377701; c=relaxed/simple;
+	bh=JUP2KfE874qW9iRW4lSl2UKhMG35xfmBwv0th05PxhE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=g+w21vkIYxIV5AzxblZtI0lWf0YG8BMh9UR439HrtD6e7IgScKA6mCuy90dEYR5SUUdbj0+Sai42UN51RRpE9esBoFB7YOBSTiIhriwJ4xWz3oPEZf4poDR40mGOkJSazkMFOlYSoYM/LdAPYsSlAw3UGUvPgzkBBywgG6gv1ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 97DE4200266;
-	Mon, 14 Sep 2026 11:21:35 +0200 (CEST)
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 0F0241A026F;
+	Mon, 14 Sep 2026 11:21:32 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 61BB920025C;
-	Mon, 14 Sep 2026 11:21:35 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id CD9171A0288;
+	Mon, 14 Sep 2026 11:21:31 +0200 (CEST)
 Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 7FD5918000BE;
-	Mon, 14 Sep 2026 17:21:34 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 95D2F180006C;
+	Mon, 14 Sep 2026 17:21:30 +0800 (+08)
 From: Lakshay Piplani <lakshay.piplani@nxp.com>
 To: alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org,
@@ -37,12 +36,10 @@ To: alexandre.belloni@bootlin.com,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [PATCH v6 4/5] rtc: pcf85363: add oscillator offset calibration support
-Date: Mon, 14 Sep 2026 14:51:25 +0530
-Message-Id: <20260914092126.3757418-4-lakshay.piplani@nxp.com>
+Subject: [PATCH v6 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode config
+Date: Mon, 14 Sep 2026 14:51:22 +0530
+Message-Id: <20260914092126.3757418-1-lakshay.piplani@nxp.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260914092126.3757418-1-lakshay.piplani@nxp.com>
-References: <20260914092126.3757418-1-lakshay.piplani@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -52,155 +49,136 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Expose the oscillator offset register of PCF85263/PCF85363 through the
-read_offset and set_offset rtc_class_ops callbacks, so userspace can
-apply frequency correction for drift compensation.
+NXP PCF85263/PCF85363 provides three timestamp registers (TSR1-TSR3)
+which latch the current time when a selected event occurs. Add a
+vendor specific property, nxp,timestamp-mode, to select the event
+source for each register.
 
-The offset is in parts per billion (ppb). CTRL_OFFSET is a signed 8-bit
-step count whose size depends on the OFFM bit: 2170 ppb/step normal and
-2034.5 ppb/step fast, the latter computed with an x10-scaled constant to
-keep the arithmetic integer. Values are range-checked before that scaling
-so the multiply cannot overflow, and out-of-range values are rejected
-with -ERANGE rather than clamped.
+Also introduce a new header 'pcf85363-tsr.h' to expose
+macros for timestamp mode fields, improving readability
+of device tree file.
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 
 ---
 V5 -> V6:
 - No change
 
 V4 -> V5:
-- Report and accept the offset in ppb (per the RTC offset ABI) using the
-  step selected by OFFM (2170 ppb, or 2034.5 ppb fast via x10 scaling).
-- Range-check before the x10 scaling to avoid overflow, and reject
-  out-of-range values with -ERANGE instead of clamping.
+- No change
 
 V3 -> V4:
-- No changes in v4.
+- Added Reviewed-by tag in commit message (previously only in changelog) 
 
 V2 -> V3:
-- Split into separate patches as suggested:
-  - Battery switch-over detection.
-  - Timestamp recording for TS pin and battery switch-over events.
-  - Offset calibration.
-  - Watchdog timer (to be reviewed by watchdog maintainers).
-- Dropped Alarm2 support
-- Switched to rtc_add_group() for sysfs attributes
+- No changes in v3
+- Added Reviewed-by: Rob Herring <robh@kernel.org>
 
 V1 -> V2:
-- Watchdog related changes due to removal of vendor specific properties
-  from device tree
-  * remove vendor DT knobs (enable/timeout/stepsize/repeat)
-  * use watchdog_init_timeout (with 10s default)
-  * derive clock_sel from final timeout
-  * default, repeat=true (repeat mode)
-- Fixed uninitalised warning on 'ret' (reported by kernel test robot)
-- Use dev_dbg instead of dev_info for debug related print messages
-- Minor cleanup and comments.
+- Addressed review comments from Rob Herring:
+  * use $ref: /schemas/types.yaml#/definitions/uint32-array
+  * tuple form with exactly 3 items (TSR1/TSR2/TSR3), per items decimal enums
+  * define 'nxp,timestamp-mode' clearly
+  * drop watchdog related vendor properties
+  * remove watchdog related vendor properties from i2c example
 ---
 ---
- drivers/rtc/rtc-pcf85363.c | 67 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ .../devicetree/bindings/rtc/nxp,pcf85363.yaml | 23 ++++++++++++++-
+ include/dt-bindings/rtc/pcf85363-tsr.h        | 28 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+ create mode 100644 include/dt-bindings/rtc/pcf85363-tsr.h
 
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 5cc854d617f3..22661abd9ebb 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -115,6 +115,7 @@
- #define OSC_CAP_SEL	GENMASK(1, 0)
- #define OSC_CAP_6000	0x01
- #define OSC_CAP_12500	0x02
-+#define OSC_OFFM	BIT(6)
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+index 52aa3e2091e9..cf9c155162d6 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/rtc/nxp,pcf85363.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
  
- #define STOP_EN_STOP	BIT(0)
+-title: Philips PCF85263/PCF85363 Real Time Clock
++title: NXP PCF85263/PCF85363 Real Time Clock
  
-@@ -131,6 +132,14 @@
- #define TSR2_SHIFT      2
- #define TSR3_SHIFT      6
+ maintainers:
+   - Alexandre Belloni <alexandre.belloni@bootlin.com>
+@@ -39,6 +39,24 @@ properties:
+   start-year: true
+   wakeup-source: true
  
-+#define OFFSET_SIGN_BIT 7
-+#define OFFSET_MASK     0xFF
-+/* Offset step in ppb; fast mode (OFFM=1) is scaled x10 for integer maths. */
-+#define OFFSET_STEP_PPB		2170
-+#define OFFSET_STEP_PPB_FAST_X10	20345
-+#define OFFSET_PPB_MAX		(127 * OFFSET_STEP_PPB)
-+#define OFFSET_PPB_MIN		(-128 * OFFSET_STEP_PPB)
++  nxp,timestamp-mode:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    items:
++      - enum: [0, 1, 2] # TSR1: NONE, FE, LE
++        description: TSR1 mode
++      - enum: [0, 1, 2, 3, 4, 5] # TSR2: NONE, FB, LB, LV, FE, LE
++        description: TSR2 mode
++      - enum: [0, 1, 2, 3] # TSR3: NONE, FB, LB, LV
++        description: TSR3 mode
++    description: |
++      Defines timestamp modes for TSR1, TSR2, and TSR3.
++      Use macros from <dt-bindings/rtc/pcf85363-tsr.h>.
 +
- #define PCF85363_NUM_TS		3
- /* Bytes latched per timestamp register (sec, min, hour, day, mon, year). */
- #define PCF85363_TS_LEN		6
-@@ -515,6 +524,62 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
- 	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
++      Each value corresponds to a mode constant:
++        - TSR1: NONE, FE, LE
++        - TSR2: NONE, FB, LB, LV, FE, LE
++        - TSR3: NONE, FB, LB, LV
++
+ required:
+   - compatible
+   - reg
+@@ -47,6 +65,7 @@ additionalProperties: false
  
+ examples:
+   - |
++    #include <dt-bindings/rtc/pcf85363-tsr.h>
+     i2c {
+         #address-cells = <1>;
+         #size-cells = <0>;
+@@ -56,5 +75,7 @@ examples:
+             reg = <0x51>;
+             #clock-cells = <0>;
+             quartz-load-femtofarads = <12500>;
++            wakeup-source;
++            nxp,timestamp-mode = <PCF85363_TSR1_FE PCF85363_TSR2_LB PCF85363_TSR3_LV>;
+         };
+     };
+diff --git a/include/dt-bindings/rtc/pcf85363-tsr.h b/include/dt-bindings/rtc/pcf85363-tsr.h
+new file mode 100644
+index 000000000000..1fb5b9b3601e
+--- /dev/null
++++ b/include/dt-bindings/rtc/pcf85363-tsr.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause */
 +/*
-+ * CTRL_OFFSET is a signed step count; the step is 2170 ppb (normal) or
-+ * 2034.5 ppb (fast/OFFM, scaled x10 to keep the arithmetic integer).
++ * Copyright 2025 NXP
 + */
-+static int pcf85363_read_offset(struct device *dev, long *offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+	unsigned int val, osc;
-+	long steps;
-+	int ret;
 +
-+	ret = regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
-+	if (ret)
-+		return ret;
++#ifndef _DT_BINDINGS_RTC_PCF85363_TSR_H
++#define _DT_BINDINGS_RTC_PCF85363_TSR_H
 +
-+	ret = regmap_read(pcf85363->regmap, CTRL_OSCILLATOR, &osc);
-+	if (ret)
-+		return ret;
++/* TSR1 modes */
++#define PCF85363_TSR1_NONE 0x00
++#define PCF85363_TSR1_FE 0x01
++#define PCF85363_TSR1_LE 0x02
 +
-+	steps = sign_extend32(val, OFFSET_SIGN_BIT);
++/* TSR2 modes */
++#define PCF85363_TSR2_NONE 0x00
++#define PCF85363_TSR2_FB 0x01
++#define PCF85363_TSR2_LB 0x02
++#define PCF85363_TSR2_LV 0x03
++#define PCF85363_TSR2_FE 0x04
++#define PCF85363_TSR2_LE 0x05
 +
-+	if (osc & OSC_OFFM)
-+		*offset = steps * OFFSET_STEP_PPB_FAST_X10 / 10;
-+	else
-+		*offset = steps * OFFSET_STEP_PPB;
++/* TSR3 modes */
++#define PCF85363_TSR3_NONE 0x00
++#define PCF85363_TSR3_FB 0x01
++#define PCF85363_TSR3_LB 0x02
++#define PCF85363_TSR3_LV 0x03
 +
-+	return 0;
-+}
-+
-+static int pcf85363_set_offset(struct device *dev, long offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+	unsigned int osc;
-+	long steps;
-+	int ret;
-+
-+	ret = regmap_read(pcf85363->regmap, CTRL_OSCILLATOR, &osc);
-+	if (ret)
-+		return ret;
-+
-+	/* Range-check before the x10 scaling so the multiply cannot overflow. */
-+	if (offset > OFFSET_PPB_MAX || offset < OFFSET_PPB_MIN)
-+		return -ERANGE;
-+
-+	if (osc & OSC_OFFM)
-+		steps = DIV_ROUND_CLOSEST(offset * 10, OFFSET_STEP_PPB_FAST_X10);
-+	else
-+		steps = DIV_ROUND_CLOSEST(offset, OFFSET_STEP_PPB);
-+
-+	if (steps < -128 || steps > 127)
-+		return -ERANGE;
-+
-+	return regmap_write(pcf85363->regmap, CTRL_OFFSET,
-+			    steps & OFFSET_MASK);
-+}
-+
- static int pcf85363_rtc_ioctl(struct device *dev,
- 			      unsigned int cmd, unsigned long arg)
- {
-@@ -562,6 +627,8 @@ static const struct rtc_class_ops rtc_ops = {
- 	.read_alarm	= pcf85363_rtc_read_alarm,
- 	.set_alarm	= pcf85363_rtc_set_alarm,
- 	.alarm_irq_enable = pcf85363_rtc_alarm_irq_enable,
-+	.read_offset = pcf85363_read_offset,
-+	.set_offset = pcf85363_set_offset,
- };
- 
- static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
++#endif /* _DT_BINDINGS_RTC_PCF85363_TSR_H */
+
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
 -- 
 2.25.1
 
