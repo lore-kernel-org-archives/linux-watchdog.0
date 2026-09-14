@@ -1,64 +1,64 @@
-Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73E94418353
-	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 08:56:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3DC6419303
+	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 08:56:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789376179; cv=none; b=h5tdWykSO0xFbldAqThU+Axrds7DT57TjKbnw1loCpu/VK48iYgJT/3o/IGegyeQEIQPHlWV+vwm5ojP99p6Ux75Z2wNc0FSt6qptqjgE/oDe09Gei63GKmfmlBykBpGBK16werOe8xO94Q6IlzPyA5uYrVV5Inaj2ElUqCXhK4=
+	t=1789376185; cv=none; b=iomvZvnz3f5L+UHn3/K5mDbUeIbkVIeP4O1IblhK6sWp+/SifNJSMlas9yGJ7/gwMir9DwH9XzxjhyChIzx0/kC7D3oYrD/iFruQRObmsx0Zb4sbidYHgUKVoOBLRHnqorZJwR1KgsEARzb+N9ZWHcOJY3c9ZbtUXU+QGptsyqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789376179; c=relaxed/simple;
-	bh=VJiv67mwrVIrgYZjYbjLcy3MCF7os9CZLrjt3yy/g/g=;
+	s=arc-20240116; t=1789376185; c=relaxed/simple;
+	bh=Vjq8CiV+AcjbGl5WrMdRx4kgcRKSqFinvXEF5hweCog=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Jq8wTYZF5t/z/t7OWAswsSYCHcDHb8UNf/zzVSbNRGurgl9FeUa3tvzJFBb+kA0AcItOTGDTBapLG4H9y6syc8z2jDo1wUazRluIS70wOO5Qe04BH7Lqp0WTjjWC9Q32w4DEEm76/om1wB6EwilR/w3oe6wbYlA5Z0QYIBuOpRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mmdTjezE; arc=none smtp.client-ip=74.125.227.141
+	 MIME-Version; b=tSrt0msx6kPWv25/hqTJT2FIaV92IJ7IX/qxECkfGQsmUAH8G8GY+CuQaCXNh8xgiq5CJeUxmSONcy+tDBEFnN7K04v8KbT3LcV+GnhmC+ND+wIzQyOjne3e+Y+jWm0pertbPYE7vlYHevl7K3At9xgmTHxGgE3ICnEijTPy19w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TOCb5vLN; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mmdTjezE"
-Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d747eb79f6so11006145ad.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 01:56:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TOCb5vLN"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2d6d28aa26cso22097955ad.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 01:56:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789376172; x=1789980972; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789376174; x=1789980974; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=i1h8gGQ0slKUu38u6edByv4D8YDTtTT2PSzYga/X6JE=;
-        b=mmdTjezExf9Ivp3ru82myHQ2fNAwA8CTzZxJ8ZE3jMvNfwelaRFQfYyZLPMM1AKsnW
-         SmlyLWL7vIUws2ytBemx2HrwixIVqVwlMtOwCum+0sAXryYXIfWwP2dnbK3FQ5X9olOv
-         H1AkgYk07Z0altyjG8Uo0tq08BziCbKVwDizK6rhgiwdp6G7Vuwblv81g8YNs4e1mg0Z
-         ojOkkJiqutQ6w1lbeX+x6eEwx6J/DrgGWWve7Mmq6lAAb/aNUNT5Ijo7G9ScAbaJqOj7
-         RtMr7RBr27/gXov5xxJFlMcPjUbPeWa59+yeVb7aC4HKEKDrjTmnHgXyQgIH8Iu4Cud/
-         gVKA==
+        bh=tm1uWvgjniSyNtPcFMhaA/1vZV2icpLuG4huWPMXaXk=;
+        b=TOCb5vLNYloaaLbcGMgRk8mlY2rCFxzMr2EiipdYOwGZ0ca3jvsrMMRSICt/BbWrdh
+         P+qqq1MKNr68P7nQmHB6XOogjR0wDMQGNotfxuEJWEWRq3g0x5RfYyd7woMwfdm4mkMt
+         ck4iRqc8sdZQtzoPr6Y3jEzqBi1HvBsFquFhWHRr5VSYWCfvN/Ww5bL8+pvSsT4PEBmW
+         OlARlYaTk/XaXShPsFAJiO7KzQvt4J5dluHShZfl02Prgvh+GCBzD6echUCrjWWTOUNh
+         O5kxhU/fMILZrPSUWHRe++B+HCzMEohdfIpickRjRJOShT7JgRXOTguc2ecWqjdbP2to
+         gl+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789376172; x=1789980972;
+        d=1e100.net; s=20251104; t=1789376174; x=1789980974;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=i1h8gGQ0slKUu38u6edByv4D8YDTtTT2PSzYga/X6JE=;
-        b=lvQAZpkkSjlwUWX4U09SVpduVFtCZOFbIZ/aWDO9hGH+QjewN2858KGQnoe8Qpecc0
-         TZ1h8FHMOapqRbHcccmQiHKcD7MKyKcZRYMBQMol9ebWb6hQIiY57IAPdIDiF8HN1uUR
-         /PajCNU5IcHQfMRW/Qotzaxquo9pmqVTyV63FU1ENMCSxoTh3u9CtW2UNVPjplimpeua
-         LG8rXruLSqRfL9ZAgzEkdPgtCL8ysQGAXyFrdHWYUtUthSfvXROFdZ58oNh8jkzkHTPF
-         JrJo1cxgP31P4yVD2px5Yq6nGayZhpnILYpgZ42M6rzGszWdTF6MNT9XnmOtQF6gqqhF
-         9Ivg==
-X-Forwarded-Encrypted: i=1; AKwUvBwh+RmMvSqEl9M5+4RwuWpaxvVO7oURz1nEalXVR9UMoZPGZ3/kAhURX+PI5TDQ5ITnRKl9Df1l/EqNDQVNBw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lGA1QVHbJ6p1fJFH3XtMDITz4qG1IOIZk1H28noi0UaV36HJUZ
-	iar1ahKdXwvilj59NReNDxIOf55/31goq8wIy9OLJaI0KJi1TXLxtRE=
-X-Gm-Gg: AYBFou2CsMARuNtUVypHS85XmAA3xLXqUSbfhhmCLKfsOkvUc2FEiiwG8bgZYBQy1hl
-	sUS28C5g+kpezg9Ri1ilUZZDqZ+Afoy6P5IHQOiEzA2wixPNGhTJpylqluzfRKZUf+HNLD+76xg
-	niAYjKziDnQT21T/6hw9vA3xHeQB7Dzuxevp1DD9JgOmLT3fPR556j0dcgHHco3ZvQ+T3nhrfdR
-	t3PxtZbOnEgTAZtdKuhYBDkX81hOeXgbI/YSCxXj+ReegXHpYM81HgovKkLxFkJt4u35IDOc7E/
-	P9rTnnTq6uaQm0rRpsEVsqvhMqwF5NhwITRD4jV9F2/rP/Vj/ENQRPofkNQWqZ1ACf+NPn+zLKZ
-	cxko6Cgj3LcQMuvyPWRISqCtlHKfnMj9K6qcw4cBcOltHm9isfMnuThV2MJ1QIB6d5uwuwV9cnk
-	bzFLUAKcmAUP4jmthFfal2Nu7avqBOLU7w8ZeEVQq+ntFfiLupjjEkEm6djzTeYNNEOHsSbSw5N
-	/yAnJOPk9CYUORHaty4Eyg=
-X-Received: by 2002:a17:902:f608:b0:2d9:33d4:a910 with SMTP id d9443c01a7336-2dd6c5bfbb2mr40132535ad.4.1789376171709;
-        Mon, 14 Sep 2026 01:56:11 -0700 (PDT)
+        bh=tm1uWvgjniSyNtPcFMhaA/1vZV2icpLuG4huWPMXaXk=;
+        b=bvK2j/zNv6TNXF5FDHvhm3vxuco6QIXjAbrvnxPeSXe0gf9if+XQfUiPujEyBx7z+m
+         Lt12fNnZGmpQUvF69ys65YNYktVnXFi+9GkHTkGUO35gN7Cid0ymeeKqTakC4IILKxVa
+         NldqMDSk46OZFnyymbsj07bM2tH05TroXsirigwmf+2FfiJcCVXJwAMfbNCg1NI4FNC6
+         TKRdubJmQ1Orq0JxOsnTmjuKPxYGe7ormrC/V7S5CQEo1Joybvbz31OUp3OBHJQBPTRJ
+         ecs5pKwKbkOBcX3+zzHpFNYlVuRRGOOAc73qJ8o1/1zQeUeGM3kpadWz0mt4F4IKREHD
+         PeQA==
+X-Forwarded-Encrypted: i=1; AKwUvBxppo3U/xDIdS9b1wgdQybPPkVneJ1dJDlk2nOOVDo72txmC9TWah431GH06765V8uXLI3cdzC8ECwhltdkgA==@vger.kernel.org
+X-Gm-Message-State: AFuF++msRkNJHTZR2HT5ErnLerGPjnKan/n+Lcnu+uJp9lhNLhEc51QH
+	mLmYi1owSD7q5LQcOMOz5c9YLpOUkDvUxIGfKWPpFrMyoARcKRS0au8=
+X-Gm-Gg: AYBFou1utcl+yKkGnZ5lAjYNXH9vwaW4+wbcriYd0c1mwNuf355YJL/mi4zWOSw8N+f
+	ddrmFqvH6x7jl3IpKPstYDYl7BHWDZiXwCXNhAaxzejkiKVBGTyS1uePZmvPnS5VDrSP7x1AAg3
+	zjdlwmwULhfm0P0JON5EXOqDp6LgfBQ7jUSacMab1ljc3Jm1R1B0uscfAAZXCbSscFDB870bpc3
+	zHD0gSF8QfXGk88WogdIGE4FmrXDIvVKq1qIBZN+uEjrJRBKoodfi3OakZNo0nIr24E5wlmH/XY
+	2EB/THzzrXKPkx1kNG8xNeqXAvwb1twwo//DBqSRCL1t+O4oF+2W8yrqEbAt+mejcH9qJwRHFcx
+	dBkYdPj/8fTEfSjyz/i8c40IXRjq4NGeqzzZLfyJ7+SQfyPrB/5QAwZqi5ZmIWEUprrOhRoRd+i
+	vZkpjreVusjaH0FXsoAzPFxm4E/sobgo3X7qLBWbrqtyViTfTlyOvG0McPBIYIuja/El8wgdygn
+	PZiGxg3tAVu
+X-Received: by 2002:a17:903:458f:b0:2d8:d4ce:9f32 with SMTP id d9443c01a7336-2dd6c70a474mr28892895ad.16.1789376173904;
+        Mon, 14 Sep 2026 01:56:13 -0700 (PDT)
 Received: from DL2XHKPB4.dl.net ([103.63.104.162])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd8c84sm44569105ad.62.2026.09.14.01.56.09
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd8c84sm44569105ad.62.2026.09.14.01.56.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 01:56:11 -0700 (PDT)
+        Mon, 14 Sep 2026 01:56:13 -0700 (PDT)
 From: Triet Hoang <triet.hoang.dev@gmail.com>
 To: linux@roeck-us.net,
 	tzungbi@kernel.org
@@ -66,9 +66,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	triet.hoang.dev@gmail.com,
 	wim@linux-watchdog.org
-Subject: [PATCH v2 7/8] watchdog: sp805_wdt: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-Date: Mon, 14 Sep 2026 15:54:50 +0700
-Message-ID: <20260914085451.891675-8-triet.hoang.dev@gmail.com>
+Subject: [PATCH v2 8/8] watchdog: stmp3xxx_rtc_wdt: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+Date: Mon, 14 Sep 2026 15:54:51 +0700
+Message-ID: <20260914085451.891675-9-triet.hoang.dev@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260914085451.891675-1-triet.hoang.dev@gmail.com>
 References: <20260914085451.891675-1-triet.hoang.dev@gmail.com>
@@ -87,50 +87,47 @@ This lets us drop the __maybe_unused annotations from the resume callback.
 
 Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
 ---
- drivers/watchdog/sp805_wdt.c | 9 ++++-----
+ drivers/watchdog/stmp3xxx_rtc_wdt.c | 9 ++++-----
  1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index c2125f204a13..73f821e2611a 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -321,7 +321,7 @@ static void sp805_wdt_remove(struct amba_device *adev)
- 	watchdog_set_drvdata(&wdt->wdd, NULL);
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index 060447101f48..cdd02661758c 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -114,7 +114,7 @@ static void stmp3xxx_wdt_remove(struct platform_device *pdev)
+ 	unregister_reboot_notifier(&wdt_notifier);
  }
  
--static int __maybe_unused sp805_wdt_suspend(struct device *dev)
-+static int sp805_wdt_suspend(struct device *dev)
+-static int __maybe_unused stmp3xxx_wdt_suspend(struct device *dev)
++static int stmp3xxx_wdt_suspend(struct device *dev)
  {
- 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
+ 	struct watchdog_device *wdd = &stmp3xxx_wdd;
  
-@@ -331,7 +331,7 @@ static int __maybe_unused sp805_wdt_suspend(struct device *dev)
+@@ -124,7 +124,7 @@ static int __maybe_unused stmp3xxx_wdt_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused sp805_wdt_resume(struct device *dev)
-+static int sp805_wdt_resume(struct device *dev)
+-static int __maybe_unused stmp3xxx_wdt_resume(struct device *dev)
++static int stmp3xxx_wdt_resume(struct device *dev)
  {
- 	struct sp805_wdt *wdt = dev_get_drvdata(dev);
+ 	struct watchdog_device *wdd = &stmp3xxx_wdd;
  
-@@ -341,8 +341,7 @@ static int __maybe_unused sp805_wdt_resume(struct device *dev)
+@@ -134,13 +134,12 @@ static int __maybe_unused stmp3xxx_wdt_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(sp805_wdt_dev_pm_ops, sp805_wdt_suspend,
--		sp805_wdt_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(sp805_wdt_dev_pm_ops, sp805_wdt_suspend, sp805_wdt_resume);
+-static SIMPLE_DEV_PM_OPS(stmp3xxx_wdt_pm_ops,
+-			 stmp3xxx_wdt_suspend, stmp3xxx_wdt_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(stmp3xxx_wdt_pm_ops, stmp3xxx_wdt_suspend, stmp3xxx_wdt_resume);
  
- static const struct amba_id sp805_wdt_ids[] = {
- 	{
-@@ -361,7 +360,7 @@ MODULE_DEVICE_TABLE(amba, sp805_wdt_ids);
- static struct amba_driver sp805_wdt_driver = {
- 	.drv = {
- 		.name	= MODULE_NAME,
--		.pm	= &sp805_wdt_dev_pm_ops,
-+		.pm	= pm_ptr(&sp805_wdt_dev_pm_ops),
+ static struct platform_driver stmp3xxx_wdt_driver = {
+ 	.driver = {
+ 		.name = "stmp3xxx_rtc_wdt",
+-		.pm = &stmp3xxx_wdt_pm_ops,
++		.pm = pm_ptr(&stmp3xxx_wdt_pm_ops),
  	},
- 	.id_table	= sp805_wdt_ids,
- 	.probe		= sp805_wdt_probe,
+ 	.probe = stmp3xxx_wdt_probe,
+ 	.remove = stmp3xxx_wdt_remove,
 -- 
 2.53.0
 
