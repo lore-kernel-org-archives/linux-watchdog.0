@@ -1,64 +1,64 @@
-Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 542EB3A2E12
-	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 08:56:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB143F8243
+	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 08:56:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789376166; cv=none; b=jEdSPfkkUgFUAY/kWYTgjx8h5JnJF/AuOHMK1ktXHZNwvUxvqWaAV74dfyweOS9/58AuWGwxJrTxrfWbGJcuDr4fWEUB6+dkFpbTV9fWnAZOOELcX4uC+MpsUV+nPa0DtNoUHTNHfJHB49WW7053tzwCam5yP2YIP+EmpETrdOE=
+	t=1789376170; cv=none; b=FEKUzD1ppu/jJ/XIqA3G8TrwmOLWvyrHD1crK9s7POs63F09Bg8dqx0CzkmZD5CrAnrzFkHXU4qdLTPrGphxEYLAUSNup4SHsEZ5snkUE7M8sYfesrbXI/YI/TpHLOOj6tV36Of72QvnXEVZb6h+h/XB5nxnawHpFkn0jSCbdUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789376166; c=relaxed/simple;
-	bh=udSeO2SM7u5F70GVWuzJCWev3yVYkJLzouX7XDHTfCo=;
+	s=arc-20240116; t=1789376170; c=relaxed/simple;
+	bh=8DM52ZxJYSCTECoScr2jeTQHoMA3M3eAOqwROetVXIQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IyvIppB9PJfPZNCIZTiCRPK1fzkNJoRWMXAgPsXtkQkEE43q0qPcNQkCPc9/Lgq7SCcG2TU8amyd98MelA3nh4AJAhtJ2JQwZMAIPLlTEuLNI9nsAGV41AZOr2i635Ei3PNuQ5b3fFETUbiEFYyQfuTCJotc+Gq72CE9HLYS5dU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n2tu1nGV; arc=none smtp.client-ip=74.125.227.141
+	 MIME-Version; b=s+1uSwvboZJ2vgN+oNZOTzTC7WNcLRvLry1tYE9plWHkppAO1Txw49qc/wAgUS/OR04kOepxcyUOaNUhiC2L96JRqpBMmnGQIRoAxCMXJXoxBXlU1QRcp7clmK90/y9YTlsajty3VewKwbiFjYOTGof3gzw0YLIQLfVsYA2AXLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gut6a78I; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n2tu1nGV"
-Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d91ede8035so19198075ad.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 01:56:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gut6a78I"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2db3305f94fso46783495ad.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 01:56:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789376159; x=1789980959; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789376160; x=1789980960; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=tQQuZfHbagcPKZy5EeFp3pnDLGdMdLr7Ly2KqLSH5Tw=;
-        b=n2tu1nGVIc1kmR8qVoR0DYU1lroB5pk3C8Q2fklzXrfLcdmQBB1j6E5DtahQt5Iceg
-         NqqDw/lLiqAqijb7mZJyTivrwuJJPV3OZBCzPrRcH4YIB+qtMeRWziuGudECVs2r/QBq
-         hHRu+7xHY+iUqIVrJLoGaCKegD9Kwl8Iolpi0a22YRXjNYuqp4r795joDKyo4DoDRZ0Z
-         sNdj5xHQKJ4zJBQGuFA2W5UK+yGuQne6u1UUvhO1aAeJeOKICc7wrGb4Ygmm+F2FbP4G
-         FhMhDzi3zA6N9cuhQWY2+K6j40W200CjCsW2WN/lcIwBFOIsZp+zk6TLEXIYoHoTpVuM
-         r9Kg==
+        bh=kR5F0K9Uis9I6dBmqd9WemQ0wgMGxaZJC6u0jihBbyA=;
+        b=Gut6a78I0S8hiZdutr9ru7qjIAEm2G78+ELDqopZM710Z3JBqTkyZaFndmym3lrfk0
+         iOnRX17Izk7b1IP6cT5Pm6iGCTqe7o8HsQZEVWo4npE+3whdmolbORqREQZWwT25v8Gk
+         XTYxf4skLtDt3Rk/TDsigB7axg1hIwhFlTf02GKUZ2qpYRFAJfWNrYslcL2p2LeViBO7
+         SUkM22ZgHR5ekZi5JZ/ekh3lsNdcn5ydhgv7f5cm95YrBj50J0uzXIAD5FlLUlnKKxO9
+         bVa3o5jh5O6n1RQgLyZBkhwyycLB83kGI4bnZ9eMzThC+O2p9ZyuSEzeJ/R7HGr4NkyV
+         UlUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789376159; x=1789980959;
+        d=1e100.net; s=20251104; t=1789376160; x=1789980960;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=tQQuZfHbagcPKZy5EeFp3pnDLGdMdLr7Ly2KqLSH5Tw=;
-        b=nSN/pkf9sJwGo0EVqiaTTGqPxlGiT3i+tQ1B5TV3SWgmCFlyT6Cc2TOE8MziHtwNPN
-         WY9xUnbSVb5EZcUjN11pgsppNk7EJbdzrst3l2B657jIXSOYaHJXN7zc4J3CA4J8YrBV
-         58S5m8AfTGISOW7PNxlplp2x1/yMNQKPel/KMn1TemufPYPIxLGraBIZO+WBlw8M2fc+
-         xwApZ8S/BL4evK8+YaKiICjnpZQf0+1U/JepuGpgHuajrukl6asMjMk+aN3HPkW2BLhI
-         +JFol/uiAnQcOynYtsidWeltzo/F07itq1w/ddqH4U6nCC4FsStZxuUoHN5rh8NfH9g5
-         P6fA==
-X-Forwarded-Encrypted: i=1; AKwUvBy3o9ADeopoq6nKdhoshrC4Ctx44sIU0N5N2N/Ctx3/0jHFDHg+FWMAvjickRuIkgHB7RXzVk61dnWF5mAcMQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++kV30Sw3englP6YCx0sn8DbN62AivGfHy6g3VdfH6ma97sCD3bv
-	tlWHYgt9bxEru/feUJpoPjtkzn97RIoRRPf+4NBregiUKe2Kb+00Y1I=
-X-Gm-Gg: AYBFou0s6A2Mxcha7WPf5vasWYh3YKHBwMugBXHa4aMp6ejxJh5OZ6frAvx29f8smi3
-	KABiO9l5rkoi3CnEeqhEcDBbNIco0YuLzQW1Q8aPUW1hvS337Yu0c+F4z5a5T+eRaZu7rbhFuV4
-	3PsbOBg/Ot/mBYuCv0beiIT3b87neDcSs/N0ZreGpw1LtcBrGFMBlN/Dq80UXhuxHHyGLPYG2rZ
-	DiFLKkSeO3N9fp0fV5HYqwMvxr5pfld9beOiwbT/mZenZtVeRZYzQNcMnzDtixL7UMRu3y4G3x5
-	Usyu8W0S+k2nhskxgQWJRBgj9wdXt2PmXWAdFwZL1CpXykG9XnDEH4l/6E3XNuEL+qRj3fIIL4H
-	K/d6H7IR8tmiYV1gR0d5z5hlPH0F649yVXVKOnurP5Tt3Hn0qDfYZF/ignSBW2jTWXEtxSDrY0U
-	KO5hXApiP+iGrLVBZNTe4PkIGEYxauzXJIEztcLqssI4npRRLi+s2MgDBBSQpZoyLLSV9QkSvWs
-	hM/pfNrL8v5
-X-Received: by 2002:a17:902:f541:b0:2dd:1701:3b6e with SMTP id d9443c01a7336-2dd6c73381dmr33672585ad.16.1789376158331;
-        Mon, 14 Sep 2026 01:55:58 -0700 (PDT)
+        bh=kR5F0K9Uis9I6dBmqd9WemQ0wgMGxaZJC6u0jihBbyA=;
+        b=jgd5CHrKynqGXDpdEWdmtAg3VQ6XQx39T6NWjZLj6WOGUlYh+eEGVWSkAZC2prAR4g
+         kxlCPhtJsICMqaG5Zs0/YSBrfloIrBXDK0p+oYpeNnGQKT/SRghSZPhadWxNimFmd5zJ
+         LFOBi70629CZPSNJceFrPv1DO+JQFbThHUd+4qVKn92oA6oTo7iufOaGI0nwaDXlI0Wp
+         GJErumjkj7ub1yxNLcFPOPpy8quGBOSlsRIla9iNBQAwteEV5lqg8KbvbjP5gO6Bt/lZ
+         6sEgU5Qo+u8Itm3XV4vcAyc9Ma+0ZIs9IEwbi8Xn9lKmABv01gz3Z1TTs0AEydWJQmWN
+         hcfQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxPAzRrnkMVSjJeZayfAB0nYgxLCLoVI5K5MYoH/NgKxAKjhgw+VFiskOceXcuUU0nLD0GFy5oeMovdDWUNgA==@vger.kernel.org
+X-Gm-Message-State: AFuF++m36f+xO0MM6SLO6IzZ6c4s2XUbLxbjG4au+Bcb8XBpvxZiZPap
+	v7hwHmhdeiFtL3/JRQ7B9igqIuvs1tF4pGoXnRiNDdSpgtUxmU5i64E=
+X-Gm-Gg: AYBFou3bHve1xEGz1vLUNpd/rH49jgvxd539hpClHgm8TiDl0ypFgVCNSBAiZwI8T3s
+	NS6udiEyT9gj6MmQGe+0EKXVx9JL8bIWonRmliOo26C3/2tQee3/dm2kEx5mLfMy1NBHmUWvHT1
+	6XNXrw5grWxF/2eMpV9ZEXy4Ga6gTKBocFL4swITeUHdwd7awwTzr0OgeABqgFRrAMkZVZbx7du
+	MUphtD7bXU5QrSCWH7rnicPBh8O0qLViSIKy2Y8BcHbZg4XBG7wqASmUFUywmK0zlb5884CDCPF
+	MebUdcdtbvpVlo44Khnm2xS/lWZQD8hxU38g8Ja26K4oLA9atkW99i+Wlsb/yXmNI4bH9BCensI
+	XNs3gys8cf3aaL0AYEF8jpxSfgsBvWTBGcotQMWx26FedBllPSdEyfjUQdEBPeaSoUEeZ0ces1h
+	96ySG4JXlZJBjzQh3ynLVBIails0H7XsPE7OCQMMfJcEjbnUjKlnduPwYMJOqbgQCiCkxcyacrp
+	MGi9kftJcPh
+X-Received: by 2002:a17:902:fc4b:b0:2d0:cc92:f7ae with SMTP id d9443c01a7336-2dd6c5d0c4cmr37285505ad.3.1789376160522;
+        Mon, 14 Sep 2026 01:56:00 -0700 (PDT)
 Received: from DL2XHKPB4.dl.net ([103.63.104.162])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd8c84sm44569105ad.62.2026.09.14.01.55.56
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd8c84sm44569105ad.62.2026.09.14.01.55.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 01:55:58 -0700 (PDT)
+        Mon, 14 Sep 2026 01:56:00 -0700 (PDT)
 From: Triet Hoang <triet.hoang.dev@gmail.com>
 To: linux@roeck-us.net,
 	tzungbi@kernel.org
@@ -66,9 +66,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	triet.hoang.dev@gmail.com,
 	wim@linux-watchdog.org
-Subject: [PATCH v2 1/8] watchdog: cadence_wdt: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-Date: Mon, 14 Sep 2026 15:54:44 +0700
-Message-ID: <20260914085451.891675-2-triet.hoang.dev@gmail.com>
+Subject: [PATCH v2 2/8] watchdog: da9062: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
+Date: Mon, 14 Sep 2026 15:54:45 +0700
+Message-ID: <20260914085451.891675-3-triet.hoang.dev@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260914085451.891675-1-triet.hoang.dev@gmail.com>
 References: <20260914085451.891675-1-triet.hoang.dev@gmail.com>
@@ -87,49 +87,48 @@ This lets us drop the __maybe_unused annotations from the resume callback.
 
 Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
 ---
- drivers/watchdog/cadence_wdt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/watchdog/da9062_wdt.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index ad46b33ce5f2..94e74f451c7e 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -359,7 +359,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
-  * @dev: handle to the device structure.
-  * Return: 0 always.
-  */
--static int __maybe_unused cdns_wdt_suspend(struct device *dev)
-+static int cdns_wdt_suspend(struct device *dev)
- {
- 	struct cdns_wdt *wdt = dev_get_drvdata(dev);
+diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+index 426962547df1..95585dffba6d 100644
+--- a/drivers/watchdog/da9062_wdt.c
++++ b/drivers/watchdog/da9062_wdt.c
+@@ -248,7 +248,7 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+ 	return devm_watchdog_register_device(dev, &wdt->wdtdev);
+ }
  
-@@ -377,7 +377,7 @@ static int __maybe_unused cdns_wdt_suspend(struct device *dev)
-  * @dev: handle to the device structure.
-  * Return: 0 on success, errno otherwise.
-  */
--static int __maybe_unused cdns_wdt_resume(struct device *dev)
-+static int cdns_wdt_resume(struct device *dev)
+-static int __maybe_unused da9062_wdt_suspend(struct device *dev)
++static int da9062_wdt_suspend(struct device *dev)
  {
- 	int ret;
- 	struct cdns_wdt *wdt = dev_get_drvdata(dev);
-@@ -394,7 +394,7 @@ static int __maybe_unused cdns_wdt_resume(struct device *dev)
+ 	struct watchdog_device *wdd = dev_get_drvdata(dev);
+ 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+@@ -262,7 +262,7 @@ static int __maybe_unused da9062_wdt_suspend(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(cdns_wdt_pm_ops, cdns_wdt_suspend, cdns_wdt_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(cdns_wdt_pm_ops, cdns_wdt_suspend, cdns_wdt_resume);
+-static int __maybe_unused da9062_wdt_resume(struct device *dev)
++static int da9062_wdt_resume(struct device *dev)
+ {
+ 	struct watchdog_device *wdd = dev_get_drvdata(dev);
+ 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+@@ -276,14 +276,13 @@ static int __maybe_unused da9062_wdt_resume(struct device *dev)
+ 	return 0;
+ }
  
- static const struct of_device_id cdns_wdt_of_match[] = {
- 	{ .compatible = "cdns,wdt-r1p2", },
-@@ -408,7 +408,7 @@ static struct platform_driver cdns_wdt_driver = {
- 	.driver		= {
- 		.name	= "cdns-wdt",
- 		.of_match_table = cdns_wdt_of_match,
--		.pm	= &cdns_wdt_pm_ops,
-+		.pm	= pm_ptr(&cdns_wdt_pm_ops),
+-static SIMPLE_DEV_PM_OPS(da9062_wdt_pm_ops,
+-			 da9062_wdt_suspend, da9062_wdt_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(da9062_wdt_pm_ops, da9062_wdt_suspend, da9062_wdt_resume);
+ 
+ static struct platform_driver da9062_wdt_driver = {
+ 	.probe = da9062_wdt_probe,
+ 	.driver = {
+ 		.name = "da9062-watchdog",
+-		.pm = &da9062_wdt_pm_ops,
++		.pm = pm_ptr(&da9062_wdt_pm_ops),
+ 		.of_match_table = da9062_compatible_id_table,
  	},
  };
- 
 -- 
 2.53.0
 
