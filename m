@@ -1,111 +1,187 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8874384CC3
-	for <linux-watchdog@vger.kernel.org>; Tue, 15 Sep 2026 03:33:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7078E3F9A16;
+	Tue, 15 Sep 2026 03:45:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789443198; cv=none; b=QgYSUpsylxkDEn2sM5yFfkhajaoRVHUDx2rUWkkDnXWGpvSdMGAm8GPdHyEYvLaT+JPqGcORG0CBJ/81NXQuE3le0yRxpC8shyCQZTardArizHjKdbQr0JVsYNQNC7L5L+qbB1aLGjv4ieOjbltF6MVF/eBfrd9lg0rdb9nz12k=
+	t=1789443906; cv=none; b=ss4YxsAK/s+uRuCc+53oCja/oQaFcSSOAzswnNINyz5MfiRpiUfGSTxdczide1k8ubXIRJdHEExCtiJ+6fGTpwp11+dboYkV3I4zWPRqvTJMXMu4rhuYqpqisPrEA4TPaC+f/XtDziTP075BXesJeHBfWLDXnPq/qlv8K5C/WyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789443198; c=relaxed/simple;
-	bh=/NaV7fzug7T9KIteaYq4fPuT+gLPQU6fW5GPYyVYur0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YZ0Z7WNWuVb7Oz2WbRkvrfjQR3ZVNFnHooE6Xg5jlAm593Z2Zk+EWbUFBvDShspelCzA/rlJkz41QDay2g0Z9yukYAiXWE+YKOwYzqNtSXGwoIe9s1q8+iFQ/yaXu9zu+ksmtrwHPwADtXuxW4IX7R4bZgGz7njH0O8KAnpKuFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WF+6Hxs+; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WF+6Hxs+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 657481F000FF;
-	Tue, 15 Sep 2026 03:33:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789443185;
-	bh=aMxKDfI2+E/cp82ohGesqr+zyvfK11WFqQHOd30eEew=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WF+6Hxs+sHNen618lbM6DTg1QM2/rvke+8hakbrVHIl4wtMgkWMBnn4k/6F5YyV37
-	 Oo+5+isKgk05QQJs6TRHe0yCOemNQEmhIcoJL+rDiG7zQ2WIVXanc9YX9yFd84PXzP
-	 rDeekgE+MKcb4slFkrppsOpTF9xDLDMlDkIos66zA2Mmz08YLof6eYY8p+qrWbAKZQ
-	 C33wj+644/8FFAzymCD0QhFl6z/Fl5iDkD+aULzFMh8g3AOwsF4lPnh1eaybnZRh8J
-	 aelEdXMGNeac8RsmScnQZEHU/4f3lCiVMsrdvg+tsHG/T1kx6Vx5+ihTfH3vD1upVc
-	 AoqWO1GuX1TWg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] watchdog: starfive-wdt: fix PM reference leak in
- probe error path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ivy Lopez" <skunkolee@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260915032032.222665-1-skunkolee@gmail.com>
-References: <20260914165022.169877-1-skunkolee@gmail.com>
- <20260915032032.222665-1-skunkolee@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 15 Sep 2026 03:33:05 +0000
-Message-Id: <20260915033305.657481F000FF@smtp.kernel.org>
+	s=arc-20240116; t=1789443906; c=relaxed/simple;
+	bh=21sIjn1CMCwVWRosJesInKPw67AAh9ENicYWDDsZe28=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mIRmRtZ2DpMhhH3HMcf+4ZteBcAnMZYpAAKgcrm8JWW6/8ufCRZMkHi0qs3A7OLzZTv5sa5SspM7wJWBlHWwIVeAfHCDfCei0j89mW1TVJRrf57abuimCQIaA7sPDTlNVSYcYYroLysgAQonaM4J74lpDwoZXrtdpp87JH+x6Nk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B9E541A00AF;
+	Tue, 15 Sep 2026 05:45:02 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7D4541A00AC;
+	Tue, 15 Sep 2026 05:45:02 +0200 (CEST)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 92049180006C;
+	Tue, 15 Sep 2026 11:44:59 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	wim@linux-watchdog.org,
+	linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>
+Subject: [PATCH v7 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode config
+Date: Tue, 15 Sep 2026 09:14:48 +0530
+Message-Id: <20260915034452.4086683-1-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] pm: desynchronize PM state by manually disabling clocks on put fai=
-lure
---
+NXP PCF85263/PCF85363 provides three timestamp registers (TSR1-TSR3)
+which latch the current time when a selected event occurs. Add a
+vendor specific property, nxp,timestamp-mode, to select the event
+source for each register.
 
-commit 5ff7d303ba1caba3e17ed0a2e51c79514ccbc5c5
-Author: Ivy Lopez <skunkolee@gmail.com>
+Also introduce a new header 'pcf85363-tsr.h' to expose
+macros for timestamp mode fields, improving readability
+of device tree file.
 
-watchdog: starfive-wdt: fix PM reference leak in probe error path
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-This commit addresses a PM reference leak in the probe error path by tracki=
-ng
-whether a PM reference is held and whether clocks are enabled, ensuring they
-are properly released on exit.
+---
+V6 -> V7:
+- No change.
 
-> diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-=
-wdt.c
-> index af55adc4a3c69..4ad587732bdaa 100644
-> --- a/drivers/watchdog/starfive-wdt.c
-> +++ b/drivers/watchdog/starfive-wdt.c
+V5 -> V6:
+- No change
 
-[ ... ]
+V4 -> V5:
+- No change
 
-> @@ -509,7 +517,12 @@ static int starfive_wdt_probe(struct platform_device=
- *pdev)
->  err_unregister_wdt:
->  	watchdog_unregister_device(&wdt->wdd);
->  err_exit:
-> -	starfive_wdt_disable_clock(wdt);
-> +	if (pm_ref_held) {
-> +		if (pm_runtime_put_sync(&pdev->dev))
-> +			starfive_wdt_disable_clock(wdt);
+V3 -> V4:
+- Added Reviewed-by tag in commit message (previously only in changelog) 
 
-[Severity: High]
-Does manually disabling the clock here risk desynchronizing the PM state if
-pm_runtime_put_sync() intentionally fails?
+V2 -> V3:
+- No changes in v3
+- Added Reviewed-by: Rob Herring <robh@kernel.org>
 
-If a concurrent operation (like userspace sysfs interaction) bumps the PM
-usage count during this window, pm_runtime_put_sync() in starfive_wdt_probe=
-()
-returns an error such as -EAGAIN. This indicates the PM core has decided to
-keep the device active.
+V1 -> V2:
+- Addressed review comments from Rob Herring:
+  * use $ref: /schemas/types.yaml#/definitions/uint32-array
+  * tuple form with exactly 3 items (TSR1/TSR2/TSR3), per items decimal enums
+  * define 'nxp,timestamp-mode' clearly
+  * drop watchdog related vendor properties
+  * remove watchdog related vendor properties from i2c example
+---
+---
+ .../devicetree/bindings/rtc/nxp,pcf85363.yaml | 23 ++++++++++++++-
+ include/dt-bindings/rtc/pcf85363-tsr.h        | 28 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+ create mode 100644 include/dt-bindings/rtc/pcf85363-tsr.h
 
-By manually disabling the clocks here, the hardware is turned off while the
-PM core still considers the device to be RPM_ACTIVE.
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+index 52aa3e2091e9..cf9c155162d6 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/rtc/nxp,pcf85363.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Philips PCF85263/PCF85363 Real Time Clock
++title: NXP PCF85263/PCF85363 Real Time Clock
+ 
+ maintainers:
+   - Alexandre Belloni <alexandre.belloni@bootlin.com>
+@@ -39,6 +39,24 @@ properties:
+   start-year: true
+   wakeup-source: true
+ 
++  nxp,timestamp-mode:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    items:
++      - enum: [0, 1, 2] # TSR1: NONE, FE, LE
++        description: TSR1 mode
++      - enum: [0, 1, 2, 3, 4, 5] # TSR2: NONE, FB, LB, LV, FE, LE
++        description: TSR2 mode
++      - enum: [0, 1, 2, 3] # TSR3: NONE, FB, LB, LV
++        description: TSR3 mode
++    description: |
++      Defines timestamp modes for TSR1, TSR2, and TSR3.
++      Use macros from <dt-bindings/rtc/pcf85363-tsr.h>.
++
++      Each value corresponds to a mode constant:
++        - TSR1: NONE, FE, LE
++        - TSR2: NONE, FB, LB, LV, FE, LE
++        - TSR3: NONE, FB, LB, LV
++
+ required:
+   - compatible
+   - reg
+@@ -47,6 +65,7 @@ additionalProperties: false
+ 
+ examples:
+   - |
++    #include <dt-bindings/rtc/pcf85363-tsr.h>
+     i2c {
+         #address-cells = <1>;
+         #size-cells = <0>;
+@@ -56,5 +75,7 @@ examples:
+             reg = <0x51>;
+             #clock-cells = <0>;
+             quartz-load-femtofarads = <12500>;
++            wakeup-source;
++            nxp,timestamp-mode = <PCF85363_TSR1_FE PCF85363_TSR2_LB PCF85363_TSR3_LV>;
+         };
+     };
+diff --git a/include/dt-bindings/rtc/pcf85363-tsr.h b/include/dt-bindings/rtc/pcf85363-tsr.h
+new file mode 100644
+index 000000000000..1fb5b9b3601e
+--- /dev/null
++++ b/include/dt-bindings/rtc/pcf85363-tsr.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause */
++/*
++ * Copyright 2025 NXP
++ */
++
++#ifndef _DT_BINDINGS_RTC_PCF85363_TSR_H
++#define _DT_BINDINGS_RTC_PCF85363_TSR_H
++
++/* TSR1 modes */
++#define PCF85363_TSR1_NONE 0x00
++#define PCF85363_TSR1_FE 0x01
++#define PCF85363_TSR1_LE 0x02
++
++/* TSR2 modes */
++#define PCF85363_TSR2_NONE 0x00
++#define PCF85363_TSR2_FB 0x01
++#define PCF85363_TSR2_LB 0x02
++#define PCF85363_TSR2_LV 0x03
++#define PCF85363_TSR2_FE 0x04
++#define PCF85363_TSR2_LE 0x05
++
++/* TSR3 modes */
++#define PCF85363_TSR3_NONE 0x00
++#define PCF85363_TSR3_FB 0x01
++#define PCF85363_TSR3_LB 0x02
++#define PCF85363_TSR3_LV 0x03
++
++#endif /* _DT_BINDINGS_RTC_PCF85363_TSR_H */
 
-If a concurrent thread or a subsequent driver reprobe accesses the peripher=
-al
-registers while unclocked (since a later pm_runtime_resume_and_get() would
-find the device already active and skip the resume callback), could this le=
-ad
-to a bus error or system crash?
+base-commit: 704340f1cd0dcef829eb62f5b48ae95a2ce17bdf
+-- 
+2.25.1
 
-> +	} else if (clocks_on) {
-> +		starfive_wdt_disable_clock(wdt);
-> +	}
->  	pm_runtime_disable(&pdev->dev);
-> =20
->  	return ret;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260915032032.2226=
-65-1-skunkolee@gmail.com?part=3D1
