@@ -1,267 +1,176 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D06E2931D5
-	for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 17:03:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07A213D47A5
+	for <linux-watchdog@vger.kernel.org>; Tue, 15 Sep 2026 03:20:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789405405; cv=none; b=YosF/psqhQirHaBQxz4HfteFDKqexnqS+U7wCFpBPe6ZP2bSsMxXxHR0C+wg1khlxg29rnGYydQWmuoePg2NO1zH+p5a2P7PPzQRJfe+47w28Is81Rw5pqM63CTtmZXBbCn9Za9TgtQiJEC4t7zl32nsU1YRnOf3f/sZRTBgWYQ=
+	t=1789442443; cv=none; b=YxvT7qGAEGWsWJUHSu8RzA28RfYIQhj6VyVCbW7i3kLMzoQgnB2iZ9tZVlhJvkuGj6S1AfIXF9e9U6kS7lwpuAuokXFl8WTHUgwSn/fL7bWRdKcfFBeebqMCMdKOTnI6+rky8SdhtsyuGqf17opGzWMQUBKqnza+RdHedEYy9IY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789405405; c=relaxed/simple;
-	bh=JSiHdvh7DWiZqi58FpIukQBnqlTqJlfWuTvpRQ4qP9c=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iFNsC2tfli/BCEBLiN7tDG0hVSDSCZSlKMF1zN30/7uIRev1zv72Tg/uZaVgmREpSC5c89noIes7yOVgTy25RMkgLxi6EZ2gstU4CtBGpqzEM1usRLkwlU12j/u/YoBq2c1EDLaPGvG+APl6U1pBn3qFxCX81C+QWFwdh5CnaVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W9yvxXeb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789442443; c=relaxed/simple;
+	bh=yxXtP6UckxLv5x3EVT70BovJg6XWgH1u4N7iOnnLp0I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jrdlzl5QmQtS09K0S2uStw1qfBc/VQVdPHrNfHjCrZT/448pim2YT0bNqLaKhrgobPPTsaelz3kpnJD1y2Yf2vXjeOAUACPAlZubf0TPK7RcMT+I2ndshiENukfoMO3Da4/5H99s66JmdLSpSqDaJG+uhCMxWBUbRbVDhb9LeXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CMpLYxKA; arc=none smtp.client-ip=74.125.228.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W9yvxXeb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB3691F000FF;
-	Mon, 14 Sep 2026 17:03:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789405404;
-	bh=9wnecXu8SAnV0vJPdKV/GIwURpC/7soJjyc9kssnScc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=W9yvxXeb6zGfkATKy9+H6bHqKt/BY/Wd6GYjpG8AKj12KJsKyMqV6AQQ2L97dLMko
-	 EYetkZWs0721aQghN2plMfYTOBaYT5VoBwCLqCgUZvmMp1HQ0lMAiuShsBIBhi5XKX
-	 prRUDJpkHJcW49Qk4QGOW8H/0DZ8LPXnzlwVwU5M+hUTHlgymkMgE04cigGB8cqR7D
-	 c4ajINKlx9SqcMUqX9N0gIglL2mcgWNuZ2hPwEEgwyz/1fb19WTo05ZEQin9/jcqCi
-	 e6KZ5FPHZ7x4rhCaeuP20qW8vXDMfhxInbRrMiu8kI1tp8DC7mpAPNBB0Ee2T/ceRT
-	 GORefXHcTw1MA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: starfive-wdt: fix PM reference leak in probe
- error path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ivy Lopez" <skunkolee@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CMpLYxKA"
+Received: by mail-pz2-f12.google.com with SMTP id d2e1a72fcca58-85469b2e1d7so2208355b3a.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 Sep 2026 20:20:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789442441; x=1790047241; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xuEusvWCpqoTP9YielagDsw/aIOrA0JH7ZF59XWCaiw=;
+        b=CMpLYxKAfxa5PRV+uIsgyPb0yDTnTEN/E6xnf9XmlC56v0XV93CsG36wUvGk6YTXrL
+         YlDbmKKRBY9h3ivRbCvEOb2MSi+2iuvr3REEhs0P6VfKV7THiuB0Jfbvt/jOceZ6RcSo
+         WXq041SazIcbkaJpZpxgsZy6NmUIP2r6cWjgFUdB91bBncGIIFtpHz6oTN7e9fCI8Wl8
+         90Xle9KTIW7GQ4zxoDa/dIXJllD9BjxMUfNVLaF5YvWvFyubwOclk3jxx4SCAQ0ZjG3W
+         RNS4v3acH4riXVHRX35jNfyiAmJR/YX7EgDdTLJqlfFWOgCWHNkud95L4NVgslq2IcIg
+         /ztQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789442441; x=1790047241;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xuEusvWCpqoTP9YielagDsw/aIOrA0JH7ZF59XWCaiw=;
+        b=iMUqaTJdyZrzisx6M5JdNRWygZqcCQ9l4GirIY1O3Uyhysga/+DmwRicAsUMlL8F7A
+         52/a0QikKuKwomS96nMyBYaacB6/KdFOrxiV36auAmQ2Jc3WRyNKoz1uS02dqN0iiO86
+         C/rVIHAfdJ3zBxgfdh/r/gjJxPGqF9mNA+VrfOx4TwG8k88snnucJzKl23oSjvTYaYvk
+         4VnnuDZ0hP4rXhoinCKmmRHxFNVEHXSRZrK3uFdP8MlB4Bqn3MWbh8WMRqxvzDFg0qw3
+         AYeU27Mk3C0QIDeQd6gLyXuCOS4le2kKnY/72nEiQ4WxMjs/jR/jgXYiQCMg53nz59Zv
+         rG/w==
+X-Gm-Message-State: AFuF++mCvWRAkSnpSfxT6kxd/5svrg3atZBXoh2Dd2ucuGckfkCdp1TO
+	wWL8zU8LJEKzVrP3UKgAcGfYVDLSRNm0YkRD98JWnneDnNxSbhS0enlSwAAkChyojZ0=
+X-Gm-Gg: AYBFou0tTmUl8V7JP+39lOdXtiaIvkBLTFWD/M43jtyh+q2ZIc1h0t75CRDQIH/BDMr
+	M8hhxXrT0Fv0obNaNHu7sX5BYRfgXgqmuX+9tXTV2kqQhs8PFv4LVKYc5EzNPm8Wfw7tgz4lR3x
+	FFkhDWujVYEo6lTsjKcMrQDiWj4rGvzNxeHktU8K9xl4BPNdrNMOLc8ts4pmfGosN0nw6+7JKqx
+	pxb5s+oz2Tbu5sZWM5ah2Zf/y1wDyJ1L3zg9hRejTwzDjruUVw9rqM7v6f1durLJclnwsdb8HLq
+	TfYD1wHl/HMIQ39ThABrazbt1+aypZO8zptrKJSDY2JwSFJYEzMFKjOyOZpns8kEV/LvL+o+Jll
+	BLrSx0uYNsQFs7mcK3vKaaTQvkTvte4+UD9Y0rDaOKSDZR8tRnLRCQ5Ka/dGk/3reK7ePFVPzbx
+	U5SdBbvnA3pFqjtuPnqpDEHgyi3Pf0FFmo49Hn6P5xxaqmW5hpqtoFWQPzSRIMdjN7
+X-Received: by 2002:a05:6a00:950b:b0:86a:b3:fc50 with SMTP id d2e1a72fcca58-86f82e5bd35mr12406951b3a.3.1789442441185;
+        Mon, 14 Sep 2026 20:20:41 -0700 (PDT)
+Received: from bloom.localdomain ([2604:3d09:178e:e100::c570])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-86b291c06e0sm5393699b3a.28.2026.09.14.20.20.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Sep 2026 20:20:40 -0700 (PDT)
+From: Ivy Lopez <skunkolee@gmail.com>
+To: xingyu.wu@starfivetech.com,
+	ziv.xu@starfivetech.com,
+	wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ivy Lopez <skunkolee@gmail.com>
+Subject: [PATCH v2] watchdog: starfive-wdt: fix PM reference leak in probe error path
+Date: Mon, 14 Sep 2026 21:20:32 -0600
+Message-ID: <20260915032032.222665-1-skunkolee@gmail.com>
+X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260914165022.169877-1-skunkolee@gmail.com>
 References: <20260914165022.169877-1-skunkolee@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 17:03:23 +0000
-Message-Id: <20260914170323.EB3691F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-
-Thank you for your contribution! Sashiko AI review found 8 potential issue(=
-s) to consider:
-
-New issues:
-- [High] Double clock disable in the probe error path leads to clock underf=
-low.
-- [High] Double pm_runtime_put_sync() and usage counter underflow when fall=
-ing through from err_unregister_wdt.
-
-Pre-existing issues:
-- [High] Missing `pm_runtime_disable()` when `probe()` fails during clock e=
-nablement or PM resume.
-- [High] `starfive_wdt_set_timeout()` unconditionally enables the watchdog =
-hardware, which can unexpectedly start a stopped watchdog.
-- [High] Unbalanced PM usage count decrement in shutdown callback.
-- [High] Hardware access while runtime suspended in remove() and shutdown().
-- [Medium] The driver incorrectly treats a return value of 1 from pm_runtim=
-e_put_sync() as an error.
-- [Medium] The driver permanently leaks the PM usage count across driver un=
-binds if early_enable is true.
---
-
-commit bf7d8a19365abbc34b40d8597c85a439ec80777c
-Author: Ivy Lopez <skunkolee@gmail.com>
-
-watchdog: starfive-wdt: fix PM reference leak in probe error path
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
 pm_runtime_resume_and_get() increments the runtime PM usage counter
-on success. If a later step in probe() fails (reset_init, clock rate
-check, watchdog_start, or watchdog_register_device), control reaches
-err_exit, which calls pm_runtime_disable() but never puts the
-reference, leaking the PM usage count.
+and, via starfive_wdt_runtime_resume(), enables the clocks. If a
+later step in probe() fails (reset_init, clock rate check,
+watchdog_start, or watchdog_register_device), control reaches
+err_exit, which calls pm_runtime_disable() but never balances the
+earlier get, leaking the PM usage count.
 
-> diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-=
-wdt.c
-> index af55adc4a3c69..f87f8d5a3dabb 100644
-> --- a/drivers/watchdog/starfive-wdt.c
-> +++ b/drivers/watchdog/starfive-wdt.c
-> @@ -510,6 +510,8 @@ static int starfive_wdt_probe(struct platform_device =
-*pdev)
->  	watchdog_unregister_device(&wdt->wdd);
->  err_exit:
->  	starfive_wdt_disable_clock(wdt);
-> +	if (pm_runtime_enabled(&pdev->dev))
-> +		pm_runtime_put_sync(&pdev->dev);
+Track whether a PM reference is currently held (pm_ref_held) and
+whether the clocks are currently enabled (clocks_on), and use them
+in err_exit to release exactly what was acquired:
 
-[Severity: High]
-The probe function correctly calls pm_runtime_resume_and_get(&pdev->dev),
-which implicitly enables the clocks via starfive_wdt_runtime_resume().
+ - if a PM reference is held, put it via pm_runtime_put_sync();
+   only fall back to a manual clock disable if the resulting
+   suspend transition did not actually run (put failure), since
+   the runtime_suspend callback already disables the clocks on a
+   successful put and a redundant call would double-disable them
+   and underflow the clock enable count.
+ - if no PM reference is held but the clocks were enabled directly
+   (runtime PM disabled case), disable them manually.
 
-On failure, the code jumps to err_exit and explicitly calls
-starfive_wdt_disable_clock(wdt).
+Also propagate this accounting to the existing pm_runtime_put_sync()
+call at the end of a successful probe: its usage-count decrement
+happens regardless of the call's return value, so pm_ref_held must
+be cleared immediately after calling it to avoid a second,
+unbalanced put_sync() call if a later step in that path fails and
+falls through to err_exit.
 
-By adding pm_runtime_put_sync(&pdev->dev) here, it synchronously invokes
-starfive_wdt_runtime_suspend(), which also calls
-starfive_wdt_disable_clock(wdt) a second time.
+Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
+Signed-off-by: Ivy Lopez <skunkolee@gmail.com>
+---
+v2:
+ - Fix double clock-disable / clock-enable-count underflow when a
+   PM reference was already released via a successful
+   pm_runtime_put_sync() in err_exit
+ - Fix double pm_runtime_put_sync() / usage-count underflow when
+   falling through from the tail put failure to err_unregister_wdt
 
-Does this code double-disable the clocks and cause an underflow in the Comm=
-on
-Clock Framework?
+ drivers/watchdog/starfive-wdt.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-[Severity: High]
-At the end of starfive_wdt_probe(), if !early_enable, the driver invokes
-pm_runtime_put_sync(&pdev->dev) to drop the PM reference.
+diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
+index af55adc4a3c6..4ad587732bda 100644
+--- a/drivers/watchdog/starfive-wdt.c
++++ b/drivers/watchdog/starfive-wdt.c
+@@ -429,6 +429,8 @@ static int starfive_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct starfive_wdt *wdt;
+ 	int ret;
++	bool pm_ref_held = false;
++	bool clocks_on = false;
+ 
+ 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt)
+@@ -449,11 +451,14 @@ static int starfive_wdt_probe(struct platform_device *pdev)
+ 		ret = pm_runtime_resume_and_get(&pdev->dev);
+ 		if (ret < 0)
+ 			return ret;
++		pm_ref_held = true;
++		clocks_on = true;
+ 	} else {
+ 		/* runtime PM is disabled but clocks need to be enabled */
+ 		ret = starfive_wdt_enable_clock(wdt);
+ 		if (ret)
+ 			return ret;
++		clocks_on = true;
+ 	}
+ 
+ 	ret = starfive_wdt_reset_init(&pdev->dev);
+@@ -499,6 +504,9 @@ static int starfive_wdt_probe(struct platform_device *pdev)
+ 	if (!early_enable) {
+ 		if (pm_runtime_enabled(&pdev->dev)) {
+ 			ret = pm_runtime_put_sync(&pdev->dev);
++			pm_ref_held = false;
++			if (ret == 0)
++				clocks_on = false;
+ 			if (ret)
+ 				goto err_unregister_wdt;
+ 		}
+@@ -509,7 +517,12 @@ static int starfive_wdt_probe(struct platform_device *pdev)
+ err_unregister_wdt:
+ 	watchdog_unregister_device(&wdt->wdd);
+ err_exit:
+-	starfive_wdt_disable_clock(wdt);
++	if (pm_ref_held) {
++		if (pm_runtime_put_sync(&pdev->dev))
++			starfive_wdt_disable_clock(wdt);
++	} else if (clocks_on) {
++		starfive_wdt_disable_clock(wdt);
++	}
+ 	pm_runtime_disable(&pdev->dev);
+ 
+ 	return ret;
+-- 
+2.55.0
 
-Because pm_runtime_put_sync() unconditionally decrements the usage counter
-regardless of its return value, any failure still results in a decremented
-count.
-
-If that first call returns an error, the code checks if (ret) and executes
-goto err_unregister_wdt;, which falls through to err_exit:
-
-drivers/watchdog/starfive-wdt.c:starfive_wdt_probe() {
-    ...
-	if (!early_enable) {
-		if (pm_runtime_enabled(&pdev->dev)) {
-			ret =3D pm_runtime_put_sync(&pdev->dev);
-			if (ret)
-				goto err_unregister_wdt;
-		}
-	}
-
-	return 0;
-
-err_unregister_wdt:
-	watchdog_unregister_device(&wdt->wdd);
-err_exit:
-    ...
-}
-
-Could falling through to err_exit drop the usage counter below zero and sev=
-erely
-corrupt the runtime PM state, because the patch adds a second
-pm_runtime_put_sync() call in err_exit?
-
->  	pm_runtime_disable(&pdev->dev);
-> =20
->  	return ret;
-
-[Severity: High]
-This is a pre-existing issue, but if pm_runtime_resume_and_get() or
-starfive_wdt_enable_clock() fail early in starfive_wdt_probe(), the function
-immediately executes return ret;, bypassing the err_exit cleanup block:
-
-drivers/watchdog/starfive-wdt.c:starfive_wdt_probe() {
-    ...
-	pm_runtime_enable(&pdev->dev);
-	if (pm_runtime_enabled(&pdev->dev)) {
-		ret =3D pm_runtime_resume_and_get(&pdev->dev);
-		if (ret < 0)
-			return ret;
-    ...
-}
-
-Because pm_runtime_disable(&pdev->dev) is skipped on these paths, the disab=
-le
-depth remains unbalanced.
-
-Will this leak the PM enablement state and cause an
-"Unbalanced pm_runtime_enable!" warning upon a subsequent re-probe?
-
-[Severity: High]
-This is a pre-existing issue, but starfive_wdt_set_timeout() unconditionally
-calls starfive_wdt_enable() after updating the reload count:
-
-drivers/watchdog/starfive-wdt.c:starfive_wdt_set_timeout() {
-    ...
-	starfive_wdt_disable(wdt);
-	starfive_wdt_set_reload_count(wdt, wdt->count);
-	starfive_wdt_enable(wdt);
-    ...
-}
-
-If a user explicitly stops the watchdog (using WDIOC_SETOPTIONS with
-WDIOS_DISABLECARD) and then sets a new timeout, this will silently turn the
-hardware back on.
-
-Can this break the watchdog core's state tracking and result in an
-unexpected system reboot when the hardware watchdog times out?
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but according to the Power
-Management subsystem guidelines, pm_runtime_put_sync() returns 1 when the
-device is already suspended.
-
-This is a success condition, not an error.
-
-drivers/watchdog/starfive-wdt.c:starfive_wdt_probe() {
-    ...
-			ret =3D pm_runtime_put_sync(&pdev->dev);
-			if (ret)
-				goto err_unregister_wdt;
-    ...
-}
-
-Does treating any non-zero value as a failure violate the API contract and
-potentially trigger the error rollback path incorrectly?
-
-[Severity: Medium]
-This is a pre-existing issue, but if early_enable is true,
-starfive_wdt_probe() intentionally skips pm_runtime_put_sync(), leaving
-the device's PM usage_count incremented by 1.
-
-When starfive_wdt_remove() unregisters the device and disables PM, it fails
-to drop this initial reference:
-
-drivers/watchdog/starfive-wdt.c:starfive_wdt_remove() {
-    ...
-	if (pm_runtime_enabled(&pdev->dev))
-		pm_runtime_disable(&pdev->dev);
-    ...
-}
-
-Because the platform device structure is not destroyed on unbind, its
-usage_count is not reset.
-
-Will a subsequent driver bind start with usage_count >=3D 1 and leak another
-reference?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but starfive_wdt_shutdown()
-unconditionally calls starfive_wdt_pm_stop(&wdt->wdd), which calls
-pm_runtime_put_sync().
-
-If the watchdog was not running (e.g., userspace closed it, or it was never
-started and early_enable was false), the PM usage count is already 0.
-
-Because watchdog_stop_on_reboot() was called during probe, the watchdog core
-may have already stopped the watchdog via a reboot notifier before the driv=
-er
-core calls shutdown.
-
-Will this unconditional decrement drop the usage count to -1 and cause a PM
-core warning and state corruption?
-
-[Severity: High]
-This is a pre-existing issue, but if the watchdog device enters RPM_SUSPEND=
-ED
-state, its clocks are disabled.
-
-In starfive_wdt_remove() and starfive_wdt_shutdown(), starfive_wdt_stop() is
-called directly without ensuring the device is active.
-
-In starfive_wdt_suspend(), the driver unconditionally calls
-starfive_wdt_get_count() and starfive_wdt_stop():
-
-drivers/watchdog/starfive-wdt.c:starfive_wdt_suspend() {
-    ...
-	wdt->reload =3D starfive_wdt_get_count(wdt);
-    ...
-}
-
-Accessing peripheral registers while the APB and core clocks are disabled
-triggers a bus fault and hangs the system on many platforms.
-
-Does the driver need to check watchdog_active() or resume the device first
-before accessing these registers?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914165022.1698=
-77-1-skunkolee@gmail.com?part=3D1
