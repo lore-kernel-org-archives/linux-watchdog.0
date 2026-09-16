@@ -1,90 +1,115 @@
-Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9640E4BD34F;
-	Wed, 16 Sep 2026 17:07:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475464C1505
+	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 17:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789578471; cv=none; b=sC5gVehYpX2+ZsOR5YxNx1212wtzZjt7YSYxBaE3EyXgX7KaCuGxx0Cxv6kX3cOu7QO5mdWDn2w4drgZf/SKodd5NR0I1KZWFvFIkIZUjmxcyS83/gqh8IpuEhmmZDjhINTL0YZm2UyZMZM6a1e6fO1qfog66kG+kgSZqH2Khe8=
+	t=1789578713; cv=none; b=Uwx6d4+0R7g+DAlEQ9hFqvswtuwr8Y2z/6rJ60NI7UCOPFb1W/ReDUXhHrgdK3tpgO+sSbFVnc+c00jHU1zIjYSJqZOm5XzQskFbOwo54dgUBYFrxzs3ReDYyGdeO409+DVQt7fE8RMyCJnDhgNg+BTUBo2bGHLUGCbg5b/E/c4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789578471; c=relaxed/simple;
-	bh=Al1K8wxz/zn0mqT1JKDJOTh/j2mNf/sitfv1OCJjQ5E=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=So77xQzlxeZJWbexQPbjSNg+3O7WqaYKx2Jlv8Mc+nM8OMOCJDYqI02eszZ/IL9KqsEx3wS83W/6XuDxW+M+PZDKM4uQZMWir3/zwX95kHZsR5NmnbIP3ELR84dDJwKGAApV+z+vc7lsiEgNQVEZaijxxuMityI0fbp3KfGtly0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from dfae2b116770.home.arpa (unknown [36.110.52.2])
-	by APP-05 (Coremail) with SMTP id zQCowACXAz7UzKpqnENuCA--.22370S2;
-	Thu, 17 Sep 2026 01:07:32 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: emil.renner.berthing@canonical.com
-Cc: linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	linux@roeck-us.net,
-	wim@linux-watchdog.org,
-	xingyu.wu@starfivetech.com,
-	ziv.xu@starfivetech.com,
-	Wentao Liang <vulab@iscas.ac.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] watchdog: starfive-wdt: Fix runtime PM leak in starfive_wdt_pm_start()
-Date: Wed, 16 Sep 2026 17:07:04 +0000
-Message-Id: <20260916170704.2086331-1-vulab@iscas.ac.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1789578713; c=relaxed/simple;
+	bh=ZnWnFhxuUH8mxiv8e3zmB0zJVoi98pWVrCFuAaNfGI4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=jZqz/Ydj+YiFze4qn/gjpczCCJhinpdd21H8UGIwJq3i0lS82xKWg+Ss9bezZoZygktuZk1yWSCC0djE75iaV5ehtF2p2zd+70oonQvTjHXSl2tYobi/47ACPZAmkLL9l3MCQvOxj2NBh2up3hX9/M3ud1gHAzXgC+jVmWNP5z0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MxfSdeFG; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MxfSdeFG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BC041F000FF;
+	Wed, 16 Sep 2026 17:11:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789578701;
+	bh=bfdhipYSQ93LYNHqDYHLjQCZGD2tI3GbPImqgN5BbSo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=MxfSdeFGypfoXvPCnCskgRRX4jy8wwkL1bt6N31N1TIci7mCMsc2k1m5hGN7OKTTZ
+	 fy1Y9ZRBSvdIgFXFLYMlJpIBm7GfG23nAqJ4yQqEI+n7ZS3N3yigYt6ydC3+Cs5+DD
+	 JGFrZbmErd7Ez+1fAn0CzL61Ub97CY2GU2TyS/ESb1tB8Rh09QDHxQ48hkZ/1gaQCF
+	 5kPV4qWBKrWDaBmGpvUZdwU/+QwnhlQSLYJTworUBiVkEoVs/v2t+7Viyc+7rbioap
+	 CGHQX9afxNnUFzlcqGqFxzzSW+wQL6zbCM/Sqw7oBU3uTDmp/AhuovcaZvoH80Vz6Z
+	 M7yGWm9qirIyg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: nv_tco: Fix pci_dev reference leak in
+ nv_tco_getdevice()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Wentao Liang" <vulab@iscas.ac.cn>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260916170240.2086046-1-vulab@iscas.ac.cn>
+References: <20260916170240.2086046-1-vulab@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 16 Sep 2026 17:11:41 +0000
+Message-Id: <20260916171141.8BC041F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQCowACXAz7UzKpqnENuCA--.22370S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Xr1DGFy3Ww17uFW7Xr15twb_yoW8JrWrpr
-	4YvF1FyrW5Jw4xAwsxJ3ZrZFyrC397JrW7GFW8Kw1fZFn8K3Z8Xw4rCryYgFnrAFZ3J3Wj
-	vFsFy3y8Ga1Yyr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvY14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
-	6r4UJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r
-	4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2Wl
-	Yx0E2Ix0cI8IcVAFwI0_JF0_Jw1lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbV
-	WUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lc7CjxVAaw2AF
-	wI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
-	xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43
-	MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I
-	0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_
-	Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0J
-	UgXocUUUUU=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiBwcMA2qqpVhZ+gAAsR
 
-starfive_wdt_pm_start() takes a runtime PM reference with
-pm_runtime_get_sync(), which increments the usage counter even when it
-fails, and returns the error without dropping it again.  The watchdog
-core does not invoke the stop callback when start fails, so the
-reference taken on the error path is leaked.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] watchdog: nv_tco: UAF of tco_pci in nv_tco_getdevice() after rebind
+--
 
-Use pm_runtime_resume_and_get() instead, which keeps the usage counter
-balanced when the resume fails.
+commit ebd2445ef6099c554744a2027e93f0a0d26346d1
+Author: Wentao Liang <vulab@iscas.ac.cn>
 
-Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
----
- drivers/watchdog/starfive-wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+watchdog: nv_tco: Fix pci_dev reference leak in nv_tco_getdevice()
 
-diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index af55adc4a3c6..5a3254c83d3b 100644
---- a/drivers/watchdog/starfive-wdt.c
-+++ b/drivers/watchdog/starfive-wdt.c
-@@ -371,7 +371,7 @@ static void starfive_wdt_stop(struct starfive_wdt *wdt)
- static int starfive_wdt_pm_start(struct watchdog_device *wdd)
- {
- 	struct starfive_wdt *wdt = watchdog_get_drvdata(wdd);
--	int ret = pm_runtime_get_sync(wdd->parent);
-+	int ret = pm_runtime_resume_and_get(wdd->parent);
- 
- 	if (ret < 0)
- 		return ret;
--- 
-2.34.1
+This commit addresses a pci_dev reference leak in the nv_tco driver. It adds
+pci_dev_put() calls to the error paths of nv_tco_getdevice() and also inside
+nv_tco_cleanup() to properly drop the reference when the driver is removed =
+or
+encounters an error.
 
+> diff --git a/drivers/watchdog/nv_tco.c b/drivers/watchdog/nv_tco.c
+> index f16cee5173d50..9ce8325b4d3fd 100644
+> --- a/drivers/watchdog/nv_tco.c
+> +++ b/drivers/watchdog/nv_tco.c
+[ ... ]
+> @@ -373,6 +373,9 @@ static unsigned char nv_tco_getdevice(void)
+>  	return 1;
+>  out:
+>  	release_region(tcobase, 0x10);
+> +err:
+> +	pci_dev_put(tco_pci);
+> +	tco_pci =3D NULL;
+>  	return 0;
+>  }
+> =20
+> @@ -443,6 +446,7 @@ static void nv_tco_cleanup(void)
+>  	/* Deregister */
+>  	misc_deregister(&nv_tco_miscdev);
+>  	release_region(tcobase, 0x10);
+> +	pci_dev_put(tco_pci);
+
+[Severity: High]
+Is tco_pci left as a dangling pointer here?
+
+If the driver is unbound, nv_tco_cleanup() drops the reference. Since it is=
+n't
+set to NULL here like it is in nv_tco_getdevice(), a subsequent rebind atte=
+mpt
+could lead to a use-after-free.
+
+If no matching PCI device is found during re-initialization, the stale
+pointer bypasses the check and is dereferenced:
+
+drivers/watchdog/nv_tco.c:nv_tco_getdevice() {
+    ...
+    if (!tco_pci)
+        return 0;
+
+    /* Find the base io port */
+    pci_read_config_dword(tco_pci, 0x64, &val);
+    ...
+}
+
+Could this cause memory corruption when the underlying PCI device is
+hot-removed and the platform driver is rebound?
+
+>  }
+> =20
+>  static void nv_tco_remove(struct platform_device *dev)
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916170240.2086=
+046-1-vulab@iscas.ac.cn?part=3D1
