@@ -1,163 +1,146 @@
-Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9A0F3CAE93
-	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 09:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D16C74A8A2F
+	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 09:39:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789550895; cv=none; b=rF9xrIzo09kJLWB6s1l1ct6ShDixNqFNoqxZTEVdyGWWouGLFQQg4IX9WT64hmt0yunxGRIm16K5cxDTj0BAoSlcfWTB327tfZgRherfxxNHYYFf5ZdjvKWzbxG/yAf0Rj83UMVdr59/jFMyS1jsoVnVVZo+UVtwG43WJ5ISOhY=
+	t=1789551577; cv=none; b=j5OVAGLCqk/O2710xqZPc8ihuyvlasaIRmnXTxIC5Sgm4TeXSWavtflp25Zs1jJWac7f/6znu9PDDV20XHxmVGgHX+9YmYMk6Try+mPC73AdA3j4lR7TE3X0uRWyv7iGFT4rx80A3njLd2jeK+bmFbtbxcZTKg+Nb2N5Ttjevqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789550895; c=relaxed/simple;
-	bh=i8cb/65RfjdVKB1gNPZ0c4xcdU/dhNOfqYFalOWb0oA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YT+cSHCYR+7yGnvvSJ3VLqasACvVHke82Bxvif+NKwXZYFjbU+/yGsaG/ouZ00HPOt/YA488f6nTMk03LxGkmSODoEMg1H60soXOd0RwIRNZU5zn/piFuLxWAzFmDLSNZ25gZBpX1oLrdNNAOb6Av6uWt+DWCfOkKPlIWU5XK9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GQwWIRlZ; arc=none smtp.client-ip=74.125.227.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789551577; c=relaxed/simple;
+	bh=zNCmfBxQjE7eMMWgWhxZR6Qphj8bPhySbup6/eW9C9o=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ugj7yRtryAleYr/VF7jUvz/1/HRm6GcNoIbC3nW8bdmwt/PKld+U2t90+B33m+mkRRg4jGAmjDo6h1cnWQPBZLEmRoqQvbA8aoOtghHpVjrwOMRceDLKKkwYeam8XeEfjdaXPmq/qbkTKc8DRKrE8fOVKw716Y2MlKURTUdOMYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FFdu7rXD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GQwWIRlZ"
-Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-39b350c6920so707959a91.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 02:28:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789550881; x=1790155681; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Xo7H/CC3TMNfFUOdZ9uePQypBhksHgJvu4rQrR1pwFA=;
-        b=GQwWIRlZQYY3D8ju648c/49oU5qg+cp/0eCkGBvX/xO52Jkml8UCHuIh6p2auCJCY+
-         r64/+GERFfW39KXobTnaxXb4PJuIrA6KvkkqQq2sQDMX/uGRmFMZza/eGRwKBpPZ/bKS
-         TudLWL78xUrL+tbxfXFp1myjZt7t4UU08c8Msk8kfkIo30ubMWYHXPRCJc8imXNFBY76
-         f9YUPR7cPvti0hm+GleB7vbTmhm91c2gOKqzUlXZMUen8j22hS3OhOHD6CpOSzsfrQmL
-         UDxj7g45LgooajZVuFYJqxaNGxWo2Cr30yklMfDPvBKqH4w37vKUyQx26pnuurUBe3T6
-         ceFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789550881; x=1790155681;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Xo7H/CC3TMNfFUOdZ9uePQypBhksHgJvu4rQrR1pwFA=;
-        b=hXcLM7L9uCBhwJKqb4COjfihpSv3kcn7AWwvcFVPH1pL9X7KFrzS8JcxjC8XEfsnWK
-         VBQSONMo17EAMa5rh5MTQf66NhjHR3oPACSH63nk1RYwZ5ghJq/moHaF0AjsjJrrMIP0
-         LriZMpDbvpxD9zf1wbelvfvVjUk1qv3lCOccetB976pGLPnWgyFrMwMYOJvaOXVo02au
-         l4vk78kk3ZgEPFW/o+9JxhlsEQy42ZUByo5cUMKIgjQO1yXi34qv1VBnARv8tb06uJtv
-         Pz+YBiidHw6f1iaGB6g/8Roibu8Al5XxySZ5J2cK/KEu22Yggzcl8GkcL09vJCeoOBJ9
-         LnAA==
-X-Forwarded-Encrypted: i=1; AKwUvBwddjF3km960RvJdib/GDCqz57vLU8XYWolCQD02FSI+V6sJxjT7wtGJ/5jkx8l68fnpCtAUr0obi284UmMxA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mfP3O0KJwRpsI/Cm6OlTZkGnbBmdhttw8mR+zzFcmqcheGw4jR
-	4uIMOBGmobpgpDRv9JbbjjP9os9oMWzVouIch97VJ0uOFLjz3XjcoJg=
-X-Gm-Gg: AYBFou0Fp7F6dEFvhED3Od70OeM98eNBVDhdzytl7DQ8UgUkX17iBQk/tTHfZIjhMjG
-	MvOPA0d9l+kKIUuWZOpwbPFr7O3BBzy3aEui6GUglMDCcPpWOMJqQpF2hKu/EzixUByf/ix+/sf
-	PEFb1Hvz6Z6OlqqwoHQbj0z2Gx3MoG2sYTWRBPYNjD3XmkYOhPPBxHhAvrazZSrLbkJz4rwHHnT
-	TPc106OihjN5UE7Ru7pdp/tkVvefx3Qi493sWiG+xDggIiX7V1k0dOevcQ5YyXl/0j+JunA1UEE
-	rLrwnm7OwqWVGBsvoeNmmXCGJ7Qat9sfc50E3xafNQYYlpR9lC4b2cS5c5pqOWWDkIeFDAMJpcV
-	MNKvUJGyFa14Z0NKzqDv7tzg9o2G2DcR/rVPGQHYr1p3dip/yNiyH7Oyo+AenBu1pvqgHY3rtL7
-	UpqlF2jaOZB3N/QQ0wllrwTAmW3Be9di2C7b9rMFBkFCCHp9hUSrsSf+VotFg9xZSgWAXdZ2pU6
-	3S6DZSw+4nv
-X-Received: by 2002:a17:90b:2252:b0:39d:ec42:df69 with SMTP id 98e67ed59e1d1-39e1e4d3ff4mr4427894a91.20.1789550881491;
-        Wed, 16 Sep 2026 02:28:01 -0700 (PDT)
-Received: from DL2XHKPB4.dl.net ([103.63.104.162])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e1bb22ee5sm3784158a91.5.2026.09.16.02.27.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 02:28:01 -0700 (PDT)
-From: Triet Hoang <triet.hoang.dev@gmail.com>
-To: andrew@codeconstruct.com.au,
-	avifishman70@gmail.com,
-	tmaimon77@gmail.com,
-	tali.perry1@gmail.com,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: venture@google.com,
-	yuenn@google.com,
-	benjaminfair@google.com,
-	joel@jms.id.au,
-	openbmc@lists.ozlabs.org,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Triet Hoang <triet.hoang.dev@gmail.com>
-Subject: [PATCH] watchdog: npcm: Propagate errors from clock enable
-Date: Wed, 16 Sep 2026 16:27:53 +0700
-Message-ID: <20260916092753.187583-1-triet.hoang.dev@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FFdu7rXD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D49D1F000FF;
+	Wed, 16 Sep 2026 09:39:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789551566;
+	bh=b/9Iwl1NUNzpOzQSKk37cmxJYbSB5HRBLAjbgiOk+FA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=FFdu7rXDI021EZ1orln4D71UA+GWh+5k9XaqaybcYUEYgixE2eSIbwPJWW1S8LpDD
+	 oPu4ZBMJHN5Dpkmd7ro+h+1nd0MIVYY/W9UK64FFZSkQeZ/UC5qCk3r3AxWoQXcclN
+	 svlewJH4HOBM3NpBv4gsPQNBOhkZloZlg3kV04TTVyBaTqUyEXXvRQzk5hHCvx5FcV
+	 bMMf7NDI7LUK0wjSMnpUCxlbY2P0uKcky8arb5H+jdch0pdsM7j4bmMqpt2kMSCm4Z
+	 IIhQ5e4SHybk5ge5X1KYgqHcQ3nxkGNpMJdGSezQcF4SiTfJTp4xokHSpf5Rz113eQ
+	 G69wQQaxHjI5g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: npcm: Propagate errors from clock enable
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Triet Hoang" <triet.hoang.dev@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20260916092753.187583-1-triet.hoang.dev@gmail.com>
+References: <20260916092753.187583-1-triet.hoang.dev@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 16 Sep 2026 09:39:25 +0000
+Message-Id: <20260916093926.3D49D1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Check and propagate errors returned by clk_prepare_enable() when
-starting or restarting the watchdog. Also propagate errors from
-npcm_wdt_start() through npcm_wdt_set_timeout() and probe.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] watchdog: npcm: software timeout desync on start error causes unin=
+tended reset
+- [High] watchdog: npcm: aborting restart handler on clock error hangs syst=
+em reboot
+--
 
-This prevents the driver from silently continuing when the watchdog
-clock cannot be enabled.
+commit cc8288f5db182802c807c8255052dea000706adb
+Author: Triet Hoang <triet.hoang.dev@gmail.com>
 
-Fixes: 975b7f0fe669 ("watchdog: Add Nuvoton NPCM watchdog driver")
-Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
----
- drivers/watchdog/npcm_wdt.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+watchdog: npcm: Propagate errors from clock enable
 
-diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
-index 51348969bf49..0976a580b9f2 100644
---- a/drivers/watchdog/npcm_wdt.c
-+++ b/drivers/watchdog/npcm_wdt.c
-@@ -149,8 +149,11 @@ static int npcm_wdt_start(struct watchdog_device *wdd)
- {
- 	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
- 	u32 val;
-+	int err;
- 
--	clk_prepare_enable(wdt->clk);
-+	err = clk_prepare_enable(wdt->clk);
-+	if (err)
-+		return err;
- 
- 	if (wdd->timeout < 2)
- 		val = 0x800;
-@@ -216,7 +219,7 @@ static int npcm_wdt_set_timeout(struct watchdog_device *wdd,
- 		wdd->timeout = 2750;
- 
- 	if (watchdog_active(wdd))
--		npcm_wdt_start(wdd);
-+		return npcm_wdt_start(wdd);
- 
- 	return 0;
- }
-@@ -234,9 +237,12 @@ static int npcm_wdt_restart(struct watchdog_device *wdd,
- 			    unsigned long action, void *data)
- {
- 	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
-+	int err;
- 
- 	/* For reset, we start the WDT clock and leave it running. */
--	clk_prepare_enable(wdt->clk);
-+	err = clk_prepare_enable(wdt->clk);
-+	if (err)
-+		return err;
- 
- 	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, wdt->reg);
- 	udelay(1000);
-@@ -428,13 +434,18 @@ static int npcm_wdt_probe(struct platform_device *pdev)
- 	watchdog_init_timeout(&wdt->wdd, 0, dev);
- 
- 	/* Ensure timeout is able to be represented by the hardware */
--	npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
-+	ret = npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
-+	if (ret)
-+		return ret;
- 
- 	npcm_get_reset_status(wdt, dev, data, start);
- 
- 	if (npcm_is_running(&wdt->wdd)) {
- 		/* Restart with the default or device-tree specified timeout */
--		npcm_wdt_start(&wdt->wdd);
-+		ret = npcm_wdt_start(&wdt->wdd);
-+		if (ret)
-+			return ret;
-+
- 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
- 	}
- 
--- 
-2.53.0
+Check and propagate errors returned by clk_prepare_enable() when starting or
+restarting the watchdog. Also propagate errors from npcm_wdt_start() through
+npcm_wdt_set_timeout() and probe to prevent the driver from silently
+continuing when the watchdog clock cannot be enabled.
 
+> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+> index 51348969bf492..0976a580b9f21 100644
+> --- a/drivers/watchdog/npcm_wdt.c
+> +++ b/drivers/watchdog/npcm_wdt.c
+> @@ -149,8 +149,11 @@ static int npcm_wdt_start(struct watchdog_device *wd=
+d)
+>  {
+>  	struct npcm_wdt *wdt =3D to_npcm_wdt(wdd);
+>  	u32 val;
+> +	int err;
+> =20
+> -	clk_prepare_enable(wdt->clk);
+> +	err =3D clk_prepare_enable(wdt->clk);
+> +	if (err)
+> +		return err;
+> =20
+>  	if (wdd->timeout < 2)
+>  		val =3D 0x800;
+[ ... ]
+> @@ -216,7 +219,7 @@ static int npcm_wdt_set_timeout(struct watchdog_devic=
+e *wdd,
+>  		wdd->timeout =3D 2750;
+> =20
+>  	if (watchdog_active(wdd))
+> -		npcm_wdt_start(wdd);
+> +		return npcm_wdt_start(wdd);
+
+[Severity: High]
+Does returning an error here cause a state mismatch between software and
+hardware?
+
+Earlier in npcm_wdt_set_timeout(), wdd->timeout is modified before
+npcm_wdt_start() is called:
+
+	if (timeout < 2)
+		wdd->timeout =3D 1;
+	else if (timeout < 3)
+		...
+
+If npcm_wdt_start() returns the error from clk_prepare_enable(), the new
+timeout value remains in wdd->timeout while the hardware continues running
+with the old timeout.
+
+The watchdog core's keepalive worker will recalculate the ping interval
+using the new (potentially much longer) wdd->timeout. The hardware
+watchdog, running with a shorter timeout, could then expire and
+unexpectedly reset the system.
+
+> =20
+>  	return 0;
+>  }
+> @@ -234,9 +237,12 @@ static int npcm_wdt_restart(struct watchdog_device *=
+wdd,
+>  			    unsigned long action, void *data)
+>  {
+>  	struct npcm_wdt *wdt =3D to_npcm_wdt(wdd);
+> +	int err;
+> =20
+>  	/* For reset, we start the WDT clock and leave it running. */
+> -	clk_prepare_enable(wdt->clk);
+> +	err =3D clk_prepare_enable(wdt->clk);
+> +	if (err)
+> +		return err;
+
+[Severity: High]
+Could returning an error here hang the system during reboot?
+
+npcm_wdt_restart() is invoked via watchdog_restart_notifier() in the
+watchdog core to handle system reboots. The watchdog core maps any non-zero
+return from a restart handler to a notification value that aborts the
+notifier chain.
+
+This causes atomic_notifier_call_chain() to immediately break out of the
+restart_handler_list loop in kernel/reboot.c.
+
+As a result, not only does the NPCM watchdog skip its attempt to write to
+the reset registers (which might succeed if the clock was already enabled),
+but all lower-priority fallback restart handlers are preempted. The system
+will hang indefinitely instead of rebooting.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916092753.1875=
+83-1-triet.hoang.dev@gmail.com?part=3D1
