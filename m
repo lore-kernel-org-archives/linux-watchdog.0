@@ -1,146 +1,94 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D16C74A8A2F
-	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 09:39:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA51153B5E5
+	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 16:49:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789551577; cv=none; b=j5OVAGLCqk/O2710xqZPc8ihuyvlasaIRmnXTxIC5Sgm4TeXSWavtflp25Zs1jJWac7f/6znu9PDDV20XHxmVGgHX+9YmYMk6Try+mPC73AdA3j4lR7TE3X0uRWyv7iGFT4rx80A3njLd2jeK+bmFbtbxcZTKg+Nb2N5Ttjevqw=
+	t=1789577397; cv=none; b=tcz+ID65nVGbCPmigsgJjgw1nDM43wydScei7jzc22Qeky1+lK+0M3Cujd1JE6mIBuyMjUQWbQ3wfMZp7wJxQwLsxh5t7mfXZ+tgWhwivUR3y1pmOPfc64MCJ9yCVmX20rwMQveV6K8ecVd78gbeCB/I8aPFsG1Z0KCD52gKUxA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789551577; c=relaxed/simple;
-	bh=zNCmfBxQjE7eMMWgWhxZR6Qphj8bPhySbup6/eW9C9o=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ugj7yRtryAleYr/VF7jUvz/1/HRm6GcNoIbC3nW8bdmwt/PKld+U2t90+B33m+mkRRg4jGAmjDo6h1cnWQPBZLEmRoqQvbA8aoOtghHpVjrwOMRceDLKKkwYeam8XeEfjdaXPmq/qbkTKc8DRKrE8fOVKw716Y2MlKURTUdOMYI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FFdu7rXD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789577397; c=relaxed/simple;
+	bh=Ggb+PcHRJDo/Cz5nvBOFJMC2dQF5gLYbmIeM6Iqn8Mw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PWO2MgmPNYEOZ7QQc9KYK9HZ7iN3RjQsDZumNFuxflQaXNNJLKqB2AOeUXffZzx5Cej1s+qzTt+AEo0Jp2BV1UvErAQqpyF4V1Ue995e9PBN4h+TMYYPYkGtyMHfQ807gblItN1R3cF9UVRPPj1/k+1rXsanXtcbr0AebyD//y4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HHEKiZSq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FFdu7rXD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D49D1F000FF;
-	Wed, 16 Sep 2026 09:39:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HHEKiZSq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B17EC1F000FF
+	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 16:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789551566;
-	bh=b/9Iwl1NUNzpOzQSKk37cmxJYbSB5HRBLAjbgiOk+FA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FFdu7rXDI021EZ1orln4D71UA+GWh+5k9XaqaybcYUEYgixE2eSIbwPJWW1S8LpDD
-	 oPu4ZBMJHN5Dpkmd7ro+h+1nd0MIVYY/W9UK64FFZSkQeZ/UC5qCk3r3AxWoQXcclN
-	 svlewJH4HOBM3NpBv4gsPQNBOhkZloZlg3kV04TTVyBaTqUyEXXvRQzk5hHCvx5FcV
-	 bMMf7NDI7LUK0wjSMnpUCxlbY2P0uKcky8arb5H+jdch0pdsM7j4bmMqpt2kMSCm4Z
-	 IIhQ5e4SHybk5ge5X1KYgqHcQ3nxkGNpMJdGSezQcF4SiTfJTp4xokHSpf5Rz113eQ
-	 G69wQQaxHjI5g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: npcm: Propagate errors from clock enable
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Triet Hoang" <triet.hoang.dev@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260916092753.187583-1-triet.hoang.dev@gmail.com>
-References: <20260916092753.187583-1-triet.hoang.dev@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 09:39:25 +0000
-Message-Id: <20260916093926.3D49D1F000FF@smtp.kernel.org>
+	s=k20260515; t=1789577391;
+	bh=Ggb+PcHRJDo/Cz5nvBOFJMC2dQF5gLYbmIeM6Iqn8Mw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=HHEKiZSqg7+GyH1kW7u2Hjh6n954PQBWjugWOQSucOvoJpAfVng+ngPvsQ9NcH4mi
+	 xtk7OuOd/JleKPjNisP2KjwOjHIlYAmHsKORnWbSLqnopk/P8kruswK9aha5jKrh2h
+	 T5+u99gibJ/LLILgQgGSpKR/8Olwo6hpZbKotqNrJYNTrMVnF8YOJ9y+Y6i4ALwW4H
+	 C6w1r6Db2dXNgKyLToIc40EzB8gYnT8NftrmIEs6OAPDomnrsefuQKe0nCSYGQfS55
+	 ndgO1nZRsZEjKDvPuli5DD2CV2kvHzdB3pu0VtMl2TRvS1qfTm7mjpI/uYPSwFuoyo
+	 g+RkIzLA2y8Fg==
+Received: by mail-lf2-f13.google.com with SMTP id 2adb3069b0e04-5b5e4f16f15so1138907e87.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 09:49:51 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBz4UMVBSpy9tf+Epuj9NBaI1m9FnBK/5G/7dr7b2DGlGJo1oWAksAuv8VRLa1IzMDJk0Tl3+Ia4o/CrVbIU/A==@vger.kernel.org
+X-Gm-Message-State: AFuF++lnCMUhtckUkUNz0yL5wA0dSF2pNaP8RGA5UxaccjkXL4/ZQU3D
+	G9k2dwIA1r/ZRGpMZ7vDFQVV0QnN1FVYRBbd2VWslRMU5cfoL+VfbhHqGmlwHGBt6mTutSQbIL3
+	w45A3UgBq7H0CrG854uMWPtlvYGHDA+w=
+X-Received: by 2002:a05:6512:1595:b0:5b6:422:a61c with SMTP id
+ 2adb3069b0e04-5b8b666eb43mr1907989e87.28.1789577390371; Wed, 16 Sep 2026
+ 09:49:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260909132153.1596191-1-arnd@kernel.org> <20260909132153.1596191-3-arnd@kernel.org>
+In-Reply-To: <20260909132153.1596191-3-arnd@kernel.org>
+From: Linus Walleij <linusw@kernel.org>
+Date: Wed, 16 Sep 2026 18:49:37 +0200
+X-Gmail-Original-Message-ID: <CAD++jLnHa+1e0N8V0znwzeTZSX1Y5YDAa=cVKSYjeFpZM0o_OQ@mail.gmail.com>
+X-Gm-Features: AcwNN1Whb6PQ06lQN_GxsWNtotsS8LqxjoSrqgaYpOWlLWlGsW2D5EFYiCtujyY
+Message-ID: <CAD++jLnHa+1e0N8V0znwzeTZSX1Y5YDAa=cVKSYjeFpZM0o_OQ@mail.gmail.com>
+Subject: Re: [PATCH 02/14] mfd: remove unused rdc321x southbridge support
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
+	Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+	Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
+	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, 
+	dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org, 
+	linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, 
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] watchdog: npcm: software timeout desync on start error causes unin=
-tended reset
-- [High] watchdog: npcm: aborting restart handler on clock error hangs syst=
-em reboot
---
+On Wed, Sep 9, 2026 at 3:22=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wrot=
+e:
 
-commit cc8288f5db182802c807c8255052dea000706adb
-Author: Triet Hoang <triet.hoang.dev@gmail.com>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The rdc321x was a 486-class SoC developed by RDC. While RDC's later
+> products closely resemble the DM&P Vortex86 product line and are still
+> sold under both names, I checked the datasheets for those and found that
+> the GPIO and WDT blocks on them are incompatible with the rtc321x.
+>
+> Remove this driver, as there is no way to run Linux any more on the
+> older chips after i486 support has been removed.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-watchdog: npcm: Propagate errors from clock enable
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-Check and propagate errors returned by clk_prepare_enable() when starting or
-restarting the watchdog. Also propagate errors from npcm_wdt_start() through
-npcm_wdt_set_timeout() and probe to prevent the driver from silently
-continuing when the watchdog clock cannot be enabled.
-
-> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
-> index 51348969bf492..0976a580b9f21 100644
-> --- a/drivers/watchdog/npcm_wdt.c
-> +++ b/drivers/watchdog/npcm_wdt.c
-> @@ -149,8 +149,11 @@ static int npcm_wdt_start(struct watchdog_device *wd=
-d)
->  {
->  	struct npcm_wdt *wdt =3D to_npcm_wdt(wdd);
->  	u32 val;
-> +	int err;
-> =20
-> -	clk_prepare_enable(wdt->clk);
-> +	err =3D clk_prepare_enable(wdt->clk);
-> +	if (err)
-> +		return err;
-> =20
->  	if (wdd->timeout < 2)
->  		val =3D 0x800;
-[ ... ]
-> @@ -216,7 +219,7 @@ static int npcm_wdt_set_timeout(struct watchdog_devic=
-e *wdd,
->  		wdd->timeout =3D 2750;
-> =20
->  	if (watchdog_active(wdd))
-> -		npcm_wdt_start(wdd);
-> +		return npcm_wdt_start(wdd);
-
-[Severity: High]
-Does returning an error here cause a state mismatch between software and
-hardware?
-
-Earlier in npcm_wdt_set_timeout(), wdd->timeout is modified before
-npcm_wdt_start() is called:
-
-	if (timeout < 2)
-		wdd->timeout =3D 1;
-	else if (timeout < 3)
-		...
-
-If npcm_wdt_start() returns the error from clk_prepare_enable(), the new
-timeout value remains in wdd->timeout while the hardware continues running
-with the old timeout.
-
-The watchdog core's keepalive worker will recalculate the ping interval
-using the new (potentially much longer) wdd->timeout. The hardware
-watchdog, running with a shorter timeout, could then expire and
-unexpectedly reset the system.
-
-> =20
->  	return 0;
->  }
-> @@ -234,9 +237,12 @@ static int npcm_wdt_restart(struct watchdog_device *=
-wdd,
->  			    unsigned long action, void *data)
->  {
->  	struct npcm_wdt *wdt =3D to_npcm_wdt(wdd);
-> +	int err;
-> =20
->  	/* For reset, we start the WDT clock and leave it running. */
-> -	clk_prepare_enable(wdt->clk);
-> +	err =3D clk_prepare_enable(wdt->clk);
-> +	if (err)
-> +		return err;
-
-[Severity: High]
-Could returning an error here hang the system during reboot?
-
-npcm_wdt_restart() is invoked via watchdog_restart_notifier() in the
-watchdog core to handle system reboots. The watchdog core maps any non-zero
-return from a restart handler to a notification value that aborts the
-notifier chain.
-
-This causes atomic_notifier_call_chain() to immediately break out of the
-restart_handler_list loop in kernel/reboot.c.
-
-As a result, not only does the NPCM watchdog skip its attempt to write to
-the reset registers (which might succeed if the clock was already enabled),
-but all lower-priority fallback restart handlers are preempted. The system
-will hang indefinitely instead of rebooting.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916092753.1875=
-83-1-triet.hoang.dev@gmail.com?part=3D1
+Yours,
+Linus Walleij
