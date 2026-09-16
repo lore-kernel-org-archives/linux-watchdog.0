@@ -1,152 +1,163 @@
 Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C4F6499F1F
-	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 09:10:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9A0F3CAE93
+	for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 09:28:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789549847; cv=none; b=g7De9B0kpwISSaCDnv6ZxpH3kkQBl7YmRLZ504U6gXOLXoYNKkNl3+IsrtkadnuzgterQmPymBNtSA/lTf0/LzUMh8sNLGdDjCcHnFtwrRy1WrekCcWV49yYd1lnQPn48EAxazOnLEIR28YsyMk0KEBIyaiDyC0P8e6VqxHA0Y4=
+	t=1789550895; cv=none; b=rF9xrIzo09kJLWB6s1l1ct6ShDixNqFNoqxZTEVdyGWWouGLFQQg4IX9WT64hmt0yunxGRIm16K5cxDTj0BAoSlcfWTB327tfZgRherfxxNHYYFf5ZdjvKWzbxG/yAf0Rj83UMVdr59/jFMyS1jsoVnVVZo+UVtwG43WJ5ISOhY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789549847; c=relaxed/simple;
-	bh=3m8JJ1UvTsz3BQhYE1mRiTRldZYqLYNhWFgPWZwH3XY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fLSKESE3L8xqPYmlFEKd/e6A/fJBDD3pJF2yYJiyq21fIhsoMhZZzVOihLIf3YClmYuyS8Hi2QCdKU1gO53XZqQOVuIYw+PhHUDiM0bJXx17/YsK1i8XboFHJSr1SkiYQdKv8BuHTFe3CTxOQAdxLZBU3wqe7UEjJVNeEa767sA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QHPkDKvF; arc=none smtp.client-ip=74.125.227.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1789550895; c=relaxed/simple;
+	bh=i8cb/65RfjdVKB1gNPZ0c4xcdU/dhNOfqYFalOWb0oA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YT+cSHCYR+7yGnvvSJ3VLqasACvVHke82Bxvif+NKwXZYFjbU+/yGsaG/ouZ00HPOt/YA488f6nTMk03LxGkmSODoEMg1H60soXOd0RwIRNZU5zn/piFuLxWAzFmDLSNZ25gZBpX1oLrdNNAOb6Av6uWt+DWCfOkKPlIWU5XK9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GQwWIRlZ; arc=none smtp.client-ip=74.125.227.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QHPkDKvF"
-Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d8fe517774so8553475ad.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 02:10:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GQwWIRlZ"
+Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-39b350c6920so707959a91.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 02:28:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789549833; x=1790154633; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/vRZGld0s5BRieikp7QTZk4DGusz7CwbDabPlhDtn+4=;
-        b=QHPkDKvFki4hKd6PFO5KLwjJV0gFPeJdsfI7rn84vhfoyoswQzaRxEshQnqFgSKhkg
-         RAk/MNuC3xa2zv4Nke5SSHUjlX9vhl302L1ggcfXMjyWUe/Cb4IDxXr034WWWU8zBtNS
-         UnuBmcbIqhFJvNjYL+3iiHVhWvJa/yucux3IhMU5I66GHtGUdlLVY69lZxsv99akaeiZ
-         5Ru7W/nXeqHjI1LnBkWirwWT/FlrVnUQYnnZ5x2XWt5cRrp9n2TyAdzZw9f+71+AdEVJ
-         5jJ5Bzf79tylSOJI+r074us2N0h15hHVZfwz2LI9hA7IbHPFhEs+qDvljERUEK8cBFr1
-         kLLw==
+        d=gmail.com; s=20251104; t=1789550881; x=1790155681; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Xo7H/CC3TMNfFUOdZ9uePQypBhksHgJvu4rQrR1pwFA=;
+        b=GQwWIRlZQYY3D8ju648c/49oU5qg+cp/0eCkGBvX/xO52Jkml8UCHuIh6p2auCJCY+
+         r64/+GERFfW39KXobTnaxXb4PJuIrA6KvkkqQq2sQDMX/uGRmFMZza/eGRwKBpPZ/bKS
+         TudLWL78xUrL+tbxfXFp1myjZt7t4UU08c8Msk8kfkIo30ubMWYHXPRCJc8imXNFBY76
+         f9YUPR7cPvti0hm+GleB7vbTmhm91c2gOKqzUlXZMUen8j22hS3OhOHD6CpOSzsfrQmL
+         UDxj7g45LgooajZVuFYJqxaNGxWo2Cr30yklMfDPvBKqH4w37vKUyQx26pnuurUBe3T6
+         ceFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789549833; x=1790154633;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=/vRZGld0s5BRieikp7QTZk4DGusz7CwbDabPlhDtn+4=;
-        b=Ky96Ec8Z3seL3s5WrxPnyMPSSUl7JB/+lGT4IJxuzI63QBrILg/SHIcqX3oTXr2GoY
-         kexuvj6zZhy0U12pj16uWAMFw3Q1/IE96pk1iT7pZZTTlYgQs8ew21XcK3L5UDl2KQ8X
-         DZiP7wrfk/lUG6C98b4VJI91T17J4fZTdZV0lJrhLDleUauDo0IwqiUgrcxYF6PZrBcv
-         B5QymzCGdYTi6lQ0XRhh5QY1iq1YIDE5PNVz5Gqs12d5+RzpJBwewPzQ7MhovMEVlBfJ
-         HfJlTyvfZq0+EvMZNsyXhwnUk5NGRdlPKdJM3Im4WfA+NuwRfTeW2ric8pKNReWYJRfz
-         psBw==
-X-Forwarded-Encrypted: i=1; AKwUvByhhgw9wRHHrPayy4K+edGnyTihwdg5nxTiFhPrZCrY6s37YjYqcFAJedDyw29V4BuxS4h/lvpu8Rzgw/PX7g==@vger.kernel.org
-X-Gm-Message-State: AFuF++lMiwbZ2KIIubfrQK6AqmcH0W7t40WKFZgZgYBSe1OYDcnHn5Wp
-	50ymwBxEzIQM5bvCU17u4Jv/8KlTznj7K0mh2IHL0yV7jF/kwgDg8ctDN8Pgk1fj
-X-Gm-Gg: AYBFou27fnC4SMo1EiSFM42euCXkYhZhwi9jQevyHN+eYlZR0d/QnQ1WOFIsq7lL7Md
-	P5r9Hky0jWSzZ7thsVjZsxxp/NYHPe++9I69Ta6WptRppx9HpBpHYj7n5K/ZXTAApUq/8IKLLv3
-	wR7c28xo5HRVUay/EUIWn4BnjHCgb6ADU1UzIk4ckrX7iar3Yt9bKzOz4pwC19xd5mjoGzcs7TQ
-	S+/92ARiNmjSeCHXL2Q6SP82XZbWGwZ51c3z0OrIurj5UNcntc+nPBMUXmI3Wwa27fW1dWoVARh
-	adOG9ydM54/HGL83Cmm7QXfS+tcTt0V4KItuNwEW787sqvI1FHExbqi4XHk9UPo/5EFl6lMbhLM
-	AmoaCLyYH6mwIgRhz2rGH8+piJIUUSFjbKgye1XCc31pE8HlBmm1CPjObJbgTorHzv1Oy503LlC
-	uoK5+SZlojpUdeGsbgkHKn5sPvK0URvbU0TGv0RDFBt4nmor8izOqr0siKPChRY//iqTBrS9H+X
-	T5PW3ZMX0kEQIips/LZj71KLUaeWS2TcyscNSSg1+YJnaOi
-X-Received: by 2002:a17:902:d2c1:b0:2dd:6665:9ff7 with SMTP id d9443c01a7336-2dd8e7b8854mr35937705ad.22.1789549833094;
-        Wed, 16 Sep 2026 02:10:33 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bf5af6593sm5966813eec.25.2026.09.16.02.10.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Sep 2026 02:10:32 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <ad0db51e-ae83-445c-b604-f445138204ae@roeck-us.net>
-Date: Wed, 16 Sep 2026 02:10:31 -0700
+        d=1e100.net; s=20260707; t=1789550881; x=1790155681;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Xo7H/CC3TMNfFUOdZ9uePQypBhksHgJvu4rQrR1pwFA=;
+        b=hXcLM7L9uCBhwJKqb4COjfihpSv3kcn7AWwvcFVPH1pL9X7KFrzS8JcxjC8XEfsnWK
+         VBQSONMo17EAMa5rh5MTQf66NhjHR3oPACSH63nk1RYwZ5ghJq/moHaF0AjsjJrrMIP0
+         LriZMpDbvpxD9zf1wbelvfvVjUk1qv3lCOccetB976pGLPnWgyFrMwMYOJvaOXVo02au
+         l4vk78kk3ZgEPFW/o+9JxhlsEQy42ZUByo5cUMKIgjQO1yXi34qv1VBnARv8tb06uJtv
+         Pz+YBiidHw6f1iaGB6g/8Roibu8Al5XxySZ5J2cK/KEu22Yggzcl8GkcL09vJCeoOBJ9
+         LnAA==
+X-Forwarded-Encrypted: i=1; AKwUvBwddjF3km960RvJdib/GDCqz57vLU8XYWolCQD02FSI+V6sJxjT7wtGJ/5jkx8l68fnpCtAUr0obi284UmMxA==@vger.kernel.org
+X-Gm-Message-State: AFuF++mfP3O0KJwRpsI/Cm6OlTZkGnbBmdhttw8mR+zzFcmqcheGw4jR
+	4uIMOBGmobpgpDRv9JbbjjP9os9oMWzVouIch97VJ0uOFLjz3XjcoJg=
+X-Gm-Gg: AYBFou0Fp7F6dEFvhED3Od70OeM98eNBVDhdzytl7DQ8UgUkX17iBQk/tTHfZIjhMjG
+	MvOPA0d9l+kKIUuWZOpwbPFr7O3BBzy3aEui6GUglMDCcPpWOMJqQpF2hKu/EzixUByf/ix+/sf
+	PEFb1Hvz6Z6OlqqwoHQbj0z2Gx3MoG2sYTWRBPYNjD3XmkYOhPPBxHhAvrazZSrLbkJz4rwHHnT
+	TPc106OihjN5UE7Ru7pdp/tkVvefx3Qi493sWiG+xDggIiX7V1k0dOevcQ5YyXl/0j+JunA1UEE
+	rLrwnm7OwqWVGBsvoeNmmXCGJ7Qat9sfc50E3xafNQYYlpR9lC4b2cS5c5pqOWWDkIeFDAMJpcV
+	MNKvUJGyFa14Z0NKzqDv7tzg9o2G2DcR/rVPGQHYr1p3dip/yNiyH7Oyo+AenBu1pvqgHY3rtL7
+	UpqlF2jaOZB3N/QQ0wllrwTAmW3Be9di2C7b9rMFBkFCCHp9hUSrsSf+VotFg9xZSgWAXdZ2pU6
+	3S6DZSw+4nv
+X-Received: by 2002:a17:90b:2252:b0:39d:ec42:df69 with SMTP id 98e67ed59e1d1-39e1e4d3ff4mr4427894a91.20.1789550881491;
+        Wed, 16 Sep 2026 02:28:01 -0700 (PDT)
+Received: from DL2XHKPB4.dl.net ([103.63.104.162])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e1bb22ee5sm3784158a91.5.2026.09.16.02.27.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 02:28:01 -0700 (PDT)
+From: Triet Hoang <triet.hoang.dev@gmail.com>
+To: andrew@codeconstruct.com.au,
+	avifishman70@gmail.com,
+	tmaimon77@gmail.com,
+	tali.perry1@gmail.com,
+	wim@linux-watchdog.org,
+	linux@roeck-us.net
+Cc: venture@google.com,
+	yuenn@google.com,
+	benjaminfair@google.com,
+	joel@jms.id.au,
+	openbmc@lists.ozlabs.org,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Triet Hoang <triet.hoang.dev@gmail.com>
+Subject: [PATCH] watchdog: npcm: Propagate errors from clock enable
+Date: Wed, 16 Sep 2026 16:27:53 +0700
+Message-ID: <20260916092753.187583-1-triet.hoang.dev@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] watchdog: msc313e: Propagate error code in resume()
-To: Tzung-Bi Shih <tzungbi@kernel.org>,
- Triet Hoang <triet.hoang.dev@gmail.com>
-Cc: sashiko-bot@kernel.org, linux-watchdog@vger.kernel.org,
- sashiko-reviews@lists.linux.dev
-References: <20260912164221.966851F00893@smtp.kernel.org>
- <20260916044557.74124-1-triet.hoang.dev@gmail.com>
- <aqpA4xln77xgBjs9@google.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <aqpA4xln77xgBjs9@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 9/16/26 00:10, Tzung-Bi Shih wrote:
-> On Wed, Sep 16, 2026 at 11:45:57AM +0700, Triet Hoang wrote:
->> Sat, 12 Sep 2026 16:42:21 +0000 Sashiko wrote:
->>
->>> [Severity: High]
->>> This is a pre-existing issue, but does leaving the watchdog framework state
->>> flags intact when the clock fails to enable cause a system crash?
->>>
->>> If msc313e_wdt_start() fails, the clock remains disabled, but WDOG_ACTIVE
->>> and WDOG_HW_RUNNING are still set. The Linux PM core ignores device resume
->>> errors and proceeds with system resume.
-> 
-> Another example that Sashiko complains either way.  See also v2 [1].
-> 
-> [1] https://lore.kernel.org/all/20260828162703.9F9DF1F00A3E@smtp.kernel.org
-> 
+Check and propagate errors returned by clk_prepare_enable() when
+starting or restarting the watchdog. Also propagate errors from
+npcm_wdt_start() through npcm_wdt_set_timeout() and probe.
 
-I'll just take v3. If the watchdog fails to start there isn't much we can do
-anyway, so we should not bother too much about it.
+This prevents the driver from silently continuing when the watchdog
+clock cannot be enabled.
 
-Guenter
+Fixes: 975b7f0fe669 ("watchdog: Add Nuvoton NPCM watchdog driver")
+Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
+---
+ drivers/watchdog/npcm_wdt.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+index 51348969bf49..0976a580b9f2 100644
+--- a/drivers/watchdog/npcm_wdt.c
++++ b/drivers/watchdog/npcm_wdt.c
+@@ -149,8 +149,11 @@ static int npcm_wdt_start(struct watchdog_device *wdd)
+ {
+ 	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+ 	u32 val;
++	int err;
+ 
+-	clk_prepare_enable(wdt->clk);
++	err = clk_prepare_enable(wdt->clk);
++	if (err)
++		return err;
+ 
+ 	if (wdd->timeout < 2)
+ 		val = 0x800;
+@@ -216,7 +219,7 @@ static int npcm_wdt_set_timeout(struct watchdog_device *wdd,
+ 		wdd->timeout = 2750;
+ 
+ 	if (watchdog_active(wdd))
+-		npcm_wdt_start(wdd);
++		return npcm_wdt_start(wdd);
+ 
+ 	return 0;
+ }
+@@ -234,9 +237,12 @@ static int npcm_wdt_restart(struct watchdog_device *wdd,
+ 			    unsigned long action, void *data)
+ {
+ 	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
++	int err;
+ 
+ 	/* For reset, we start the WDT clock and leave it running. */
+-	clk_prepare_enable(wdt->clk);
++	err = clk_prepare_enable(wdt->clk);
++	if (err)
++		return err;
+ 
+ 	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, wdt->reg);
+ 	udelay(1000);
+@@ -428,13 +434,18 @@ static int npcm_wdt_probe(struct platform_device *pdev)
+ 	watchdog_init_timeout(&wdt->wdd, 0, dev);
+ 
+ 	/* Ensure timeout is able to be represented by the hardware */
+-	npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
++	ret = npcm_wdt_set_timeout(&wdt->wdd, wdt->wdd.timeout);
++	if (ret)
++		return ret;
+ 
+ 	npcm_get_reset_status(wdt, dev, data, start);
+ 
+ 	if (npcm_is_running(&wdt->wdd)) {
+ 		/* Restart with the default or device-tree specified timeout */
+-		npcm_wdt_start(&wdt->wdd);
++		ret = npcm_wdt_start(&wdt->wdd);
++		if (ret)
++			return ret;
++
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+ 	}
+ 
+-- 
+2.53.0
 
