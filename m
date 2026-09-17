@@ -1,76 +1,76 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB79A286D60
-	for <linux-watchdog@vger.kernel.org>; Thu, 17 Sep 2026 00:27:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22AF3318BB8
+	for <linux-watchdog@vger.kernel.org>; Thu, 17 Sep 2026 00:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789604846; cv=none; b=nMuKlgi8/aKcm8a5c+6pdJRILP6mVL0U8W2lSywrJ5PErCRCDQ9QA2v5nx1ce7tXFpziOkcGPP7eEQtbJizFwNIO3lhOG+8EXAfWiDZSkwfbUeOcjqwv6/bCr47eJzNeRoVplBcRDiVChtj/fZUFhywGoMCr/ek58ffaR+UI0nI=
+	t=1789604881; cv=none; b=ldmriejfr0gUqRr/BEYq9mbe4ehJ19oZKT/EPhUGlU/gN0qc0obyEd5FYD48/2+Z5HXyAdQ8hGn2x6ZcpCWmhY1LcpOPWBGAtH9b54Xt6JjJwkxMlLdNuGu11b0mL+AIZTGQSLjf3oebZzdkAmOh0QqU8nqQvx2WxS4XZRr5DXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789604846; c=relaxed/simple;
-	bh=urNLt+MFcXo1zGxLLMXC6gh7qBMMOtWww0XawOrSdn8=;
+	s=arc-20240116; t=1789604881; c=relaxed/simple;
+	bh=9FgMLbEt/sXyQcNribkC7l0KNZOAkXosmxtmyUflEYQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J4/3+j4MW61n/2si1mouPOSsiY/dcEaLrwa6i1njYYWXYtHwah3JRLOPB6578NhvK6oRzzRiHUdGB1+Wfh4IIdi35r3bt8x5RjroDGQNrkqmhYZNCh9f6P+wIV90bjr4HPGAFaU3zC+fnAAtJuDVT75i2EcfctjqLABpmCu99F0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aI1T46P9; arc=none smtp.client-ip=209.85.214.180
+	 Content-Type:Content-Disposition:In-Reply-To; b=Bhcjg1Tkp8yWedbp16bEZORDOovxK6Pm7DoGgxNgTuXyHttgAeMwI8O1bbHbbC3bdEPGX8+Qmzqm5s+EAR7MKd06wrmKXG8NxZVpCEvqw4XyHB2MtWxI28VJl46NVsTmUXM0letDvvB6wq8y75LWv4rio+I0QeZkYCoU52qu/qQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LJgeciLe; arc=none smtp.client-ip=74.125.227.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aI1T46P9"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2db710396ffso1660005ad.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 17:27:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LJgeciLe"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccb1a990so198660a91.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 17:27:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789604844; x=1790209644; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789604879; x=1790209679; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=JUtBGOjWkr3LDSuw8nQ/LMjNHkzqLk7G9FmrmWa6kSg=;
-        b=aI1T46P9ittCMDXf3Gz4wsUiD+zgPE/Ey19CQpVwmBvXeTkCYgkAhKoR/UM7lbyRlo
-         mpcQTN/TF7S/iHWGZm4RrLQzB/FbSzQ0yrmw7xGNMODN863QJmw5uvvmjWEaQGD4f5OU
-         EWIGYGX7aSs6wpOFquXvFx3L29Ze9/SIRpX6S97oiTJhMbAYCjmXgyw4ZtQtc6Ss1aWj
-         YwuI45FahE2G97c0oaSPNMwaTiympNaL6LvmpKSB91xzBHNN6cGcHismMxPCRLn0ejYu
-         p7odNL/e1tdegraNWWy5LVV12t9Fko78PepK/tSdaos38FsEkTR002zpQsWCe1hANmcm
-         fKGQ==
+        bh=tmkJQLUc+UOHMTg0w7B4y5XSpy6y1Yvw1LbiiPABaEo=;
+        b=LJgeciLe213JjUYHt1ofecbn/A0QICj3sI4Xcr76xpr9KnAA9yGD2ZY4LgytAmHF5T
+         E0sWivnTFtWTDIjoQy5Qm70xJH4BPaFVVXGd5knukxtVw2ClRfrd2TAloLhOmSAR4TJ8
+         0Jae5x0nZ67xscwzRQnUS39//zS7JD9agVjEYWvRVSVxq8gox5RZ6KuHiKUtvyGcGRT1
+         dIWleeQzt+q88bwFTanW6v8QOzrARjHe16QfuV/6j4pT4TqywMZg8STcswFDtRudkOnL
+         0jbMuWOBCSDYwr4xdX9cPgp+9oS/STjsvbIIOcTS74FILHAnARO0DP1wNmOauVsrYou1
+         W24w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789604844; x=1790209644;
+        d=1e100.net; s=20260707; t=1789604879; x=1790209679;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=JUtBGOjWkr3LDSuw8nQ/LMjNHkzqLk7G9FmrmWa6kSg=;
-        b=edRqV6sJrGl3wnYJrUkGRXekZDonh/ZRV/c81kgKdN/Yvqxshh2mPFR1bRzNed5Fl3
-         TIy1s8JnuC3DJ9LtRcATzEigphVZWp3+6vmxr06vkV2qbT/ZQhbT64cYcF8DeAxrMFx9
-         5VJRXLikgJhuwslYCu3kt+ixEvrCSpybrXtLxBGtEkTyUplobglyQcJRV/OX0ioSswHm
-         pjP7f9XnvmheIWHsktyCMo/ZHR8xxOUFg6hGDkrT5qBixSWTaiVn50DdBz9r45PlE185
-         k9PaPURielL+ZaE2GEoayaYfDKpHOnf4Sz0VBaQ7wv4ONq+IoZLvm45GzFMx5eTBDKDV
-         N+Iw==
-X-Forwarded-Encrypted: i=1; AKwUvBz9FRNOZxO2EQDBMLnU/5r2wIWe9HYzQfndRkVvc9+JITCYU7b5q8LWfdtsBmz+UOX4d+hS+fIGjK/q+1iOYA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mKuZMMhRfjlgqXDGd5LsjWuntH0y9GhZqSdrT07HeylB21751v
-	XeCqguwVEHdvgFtsSQL/tod6WmcwtBoh0cmmhEcj/IpWhSa3nBg8Hyn3
-X-Gm-Gg: AYBFou0TuR+WpP7AC/uIhNOzfr1TrTNanGpyxtGt0F0g8KLLENDVML88R0q20g6wf0o
-	QL2fvwh6k7WuYn4em5cwZzHzNeM7APp2i+W0VX9o0LbkYpfwSza3QXDq9Xvy/ivlGAIqwk7zih1
-	GlaNJTGR80Fjvl04foQvh5NRx1gmeVjZQlTw/6mAYlrhUtZaJsD2vyLFnCju5UwgV1qUNeGedYR
-	rXRQb2cCnGYU3EKL7rE/a1/ewd5HCv9DBOhq1DWlcJ+Pd1k5MUsdud3g6rDpgZ5vwyxk8HmpfuZ
-	im9Ihkb/GfaCL5uuOCdFWpfXGt37x1OCXmc9eun/lEx+PH31IAORygeowEXEQyEcGBE4+uPkPEC
-	CrfR2ahBBJEP/wZv96hvmMaoapEL54XVGMdNei15a8+eGD/JmYZO+P7QRW9OrUhdS22UAR47vYb
-	GrnH3825Aw0NzBt1auIMuutjvodLDZXfUm4NgH6crxTAdasMtOkfpXZHIA/44JxgSUA0WFhz5Yk
-	95hQOAFDG32
-X-Received: by 2002:a17:903:2344:b0:2dd:6a63:4476 with SMTP id d9443c01a7336-2dd9c8c778cmr20583725ad.10.1789604844108;
-        Wed, 16 Sep 2026 17:27:24 -0700 (PDT)
+        bh=tmkJQLUc+UOHMTg0w7B4y5XSpy6y1Yvw1LbiiPABaEo=;
+        b=Ee1u7RnSkjw3IYeghV/aw/2c/ujOghWQ2r7UcWaBSNLVdf5mIjP1AQuIhlmTTiHPor
+         1Hr0OdQ2+coPirqGBfkGIDAqsgHjq8HnxbSLA+MVazuCtn9df/6nSiQyKKX75IrroIoO
+         B+UJtaO3JROZNPzTa5gvRiEojQJ2iDI9USqo0SLpazldAQ1tcL6mWG8+qdfif3ENZSfW
+         XEnr/gXaQykN5xDjAG7BZqrwnjIaoIpXIr74vLZ8aECA3k4cknG0nBVt5+/WlcO6WMcv
+         TnlwFHFZCnk1FVXIfj3alCa99HP7WPfg867a1JTp+SnXEtqIV2hBNT00lbxfhBIy7r+U
+         uy6g==
+X-Forwarded-Encrypted: i=1; AKwUvBxKXQNmq4i+XlZ/whSZgY7SzExWae2EgL05caaig9kr4bKcomuNSPWqR91zWrJ5nu7gF6c2ndVvSBx0eD319Q==@vger.kernel.org
+X-Gm-Message-State: AFuF++nSBCnkmb4kW3zGPsP9beviUXRAD02t514YcUspH/3dyAVRlBpc
+	yU7USqZPDdMbJXKazA43CTCfUs2/IfToRFU4pMiPQ6MM1eaOTIhq7gRv
+X-Gm-Gg: AYBFou24aC9FwVQWBsf56v2OrQOs8uKIxy76cPjwzWc0sbFdGN8s94A6oSft+XbrPOU
+	y+qA9g5eHco4milOOkT5DRbpfR7tVrVzSUaCyDSZtXjX5aDa06/oYuCVgfqTDPOZWpp6Pmia+AN
+	wyknrDJchxbdztXVPbpCMbzuDRIn+zIJckdCs3Nn6Qgj99SOW/8SgoPMtfDUbvvgJL6HEXbRxzW
+	0oIK1p1b6tb8U+KExIUcN6c00VQrHdqb1aiAqJM0D7ehDzpIPL94lr7zWVCm3lzAAL/5doPh1r8
+	AyXFIoUVSaFUTqsebl/+LCApVFlH6AAWH7hwE4qiyKufcQPHwUCih0rPnFcsEX8S6gi7jHtme0g
+	4zfgD4xp2PhqBA8ZeInlDdiFuJBgcxgR2sA0cRJdzEBfIYzZe7nV6nSIrEuXW/QXOaXDL7TI1sy
+	BvcOcrEuAXPjVohW6tvzsO8fhlyN/7FyRBnfVIwUjClEknOxUzIak8oXtGGXaT44OrXX3Q+yCqz
+	t5b0lex7w5JzyOSyxcM5b1H
+X-Received: by 2002:a17:90b:3842:b0:39e:3ce1:d22f with SMTP id 98e67ed59e1d1-39e3ce1d970mr721394a91.16.1789604879311;
+        Wed, 16 Sep 2026 17:27:59 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd89f338a9sm18257635ad.83.2026.09.16.17.27.23
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e3617443asm1948689a91.9.2026.09.16.17.27.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 17:27:23 -0700 (PDT)
+        Wed, 16 Sep 2026 17:27:58 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 16 Sep 2026 17:27:22 -0700
+Date: Wed, 16 Sep 2026 17:27:58 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Tzung-Bi Shih <tzungbi@kernel.org>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Baruch Siach <baruch@tkos.co.il>, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] watchdog: digicolor: Avoid division by zero
-Message-ID: <cbb9a732-dcda-4665-b714-13a3d36752c8@roeck-us.net>
+Subject: Re: [PATCH 2/3] watchdog: rtd119x: Avoid division by zero
+Message-ID: <dc85b026-c81f-4b41-98a6-e6ef842c20eb@roeck-us.net>
 References: <20260913064851.8239-1-tzungbi@kernel.org>
- <20260913064851.8239-2-tzungbi@kernel.org>
+ <20260913064851.8239-3-tzungbi@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -79,18 +79,13 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260913064851.8239-2-tzungbi@kernel.org>
+In-Reply-To: <20260913064851.8239-3-tzungbi@kernel.org>
 
-On Sun, Sep 13, 2026 at 02:48:49PM +0800, Tzung-Bi Shih wrote:
+On Sun, Sep 13, 2026 at 02:48:50PM +0800, Tzung-Bi Shih wrote:
 > clk_get_rate() could return 0.  Avoid a division by zero panic.
 > 
-> Since get_timeleft() cannot propagate errors, check the clock rate early
-> in probe() and cache the rate in the driver data as it is unlikely to
-> change at runtime.
-> 
-> Fixes: 336694a01dae ("watchdog: digicolor: driver for Conexant Digicolor CX92755 SoC")
+> Fixes: 2bdf6acbfead ("watchdog: Add Realtek RTD1295")
 > Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-> Acked-by: Baruch Siach <baruch@tkos.co.il>
 
 Applied.
 
