@@ -1,76 +1,76 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0D3931B130
-	for <linux-watchdog@vger.kernel.org>; Thu, 17 Sep 2026 00:26:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB79A286D60
+	for <linux-watchdog@vger.kernel.org>; Thu, 17 Sep 2026 00:27:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789604764; cv=none; b=TgOXh5BVV2eOMSe8YCRAvBMx85FcNRWJvTrOEo4ACrYZKYtZuVkbcIVY1xynq2wAZ0BQBxbaXKR9pwRY6ociM7Pamxo2CIJFy2ztxzobd2CxjFoItKhyup/lUl/aWdwaglqK8qndfKYVSt7MiWH2c3YjK3YweX6JYIUulQCD6x4=
+	t=1789604846; cv=none; b=nMuKlgi8/aKcm8a5c+6pdJRILP6mVL0U8W2lSywrJ5PErCRCDQ9QA2v5nx1ce7tXFpziOkcGPP7eEQtbJizFwNIO3lhOG+8EXAfWiDZSkwfbUeOcjqwv6/bCr47eJzNeRoVplBcRDiVChtj/fZUFhywGoMCr/ek58ffaR+UI0nI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789604764; c=relaxed/simple;
-	bh=5b/u82wL27/Fu9PH2a97FNdOABh4pOizTMteEoxSlJY=;
+	s=arc-20240116; t=1789604846; c=relaxed/simple;
+	bh=urNLt+MFcXo1zGxLLMXC6gh7qBMMOtWww0XawOrSdn8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nSA+4pDlKVnWbmcL22UfS8MD//cWTAeBc6Gw1MEVSdsM/8b3d/3ShJr/P2an7FaX1iXRI80K1q7U5Vx139tzTQG1wcf7mltHG2xPdZHbYVQac7BO8h9PVYtYW3389iebmEW8Xai+AxsslEvYN+H3xkm4DE7SqqLeKmPVo6hfszc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j7IQBgPL; arc=none smtp.client-ip=74.125.228.12
+	 Content-Type:Content-Disposition:In-Reply-To; b=J4/3+j4MW61n/2si1mouPOSsiY/dcEaLrwa6i1njYYWXYtHwah3JRLOPB6578NhvK6oRzzRiHUdGB1+Wfh4IIdi35r3bt8x5RjroDGQNrkqmhYZNCh9f6P+wIV90bjr4HPGAFaU3zC+fnAAtJuDVT75i2EcfctjqLABpmCu99F0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aI1T46P9; arc=none smtp.client-ip=209.85.214.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j7IQBgPL"
-Received: by mail-pz2-f12.google.com with SMTP id d2e1a72fcca58-85469d249c5so193565b3a.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 17:26:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aI1T46P9"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2db710396ffso1660005ad.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 16 Sep 2026 17:27:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789604762; x=1790209562; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789604844; x=1790209644; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=vV88gSyI1c3ZYT2h6e0lSF5RM8fB6PlCcIwJXe36LlM=;
-        b=j7IQBgPLjn9sH0nV2YvmCk6T2O2+TXlNsEyPEGYiRAwXEDeUO4+RwOQLwZnua0Bgk+
-         oO4B1NnOarcDEGX5DywGc7yhbfC/15WtUOrEIvt8iGp9pJq7p4RXMITE0onw3QS3zoo0
-         8X+xPaA/cKJk5OVZX6Z/SzS2J+mUMUHI93b70jbiMsbuzSCVDrzy3hrVbceTBaJfVO4C
-         rsWKGiYiJUl6oLibqw8Mbbe5Xg/9beBxjp3Np5KHkItCZ9C36gKe86M2GPkMPwvgPbOM
-         BX3uJIShx5bfXFvg6XLIbO2Wh2HxmU+8KDrDZLIX8i/6/RM1VRYs+j68uuIN97ZJHkJA
-         tncg==
+        bh=JUtBGOjWkr3LDSuw8nQ/LMjNHkzqLk7G9FmrmWa6kSg=;
+        b=aI1T46P9ittCMDXf3Gz4wsUiD+zgPE/Ey19CQpVwmBvXeTkCYgkAhKoR/UM7lbyRlo
+         mpcQTN/TF7S/iHWGZm4RrLQzB/FbSzQ0yrmw7xGNMODN863QJmw5uvvmjWEaQGD4f5OU
+         EWIGYGX7aSs6wpOFquXvFx3L29Ze9/SIRpX6S97oiTJhMbAYCjmXgyw4ZtQtc6Ss1aWj
+         YwuI45FahE2G97c0oaSPNMwaTiympNaL6LvmpKSB91xzBHNN6cGcHismMxPCRLn0ejYu
+         p7odNL/e1tdegraNWWy5LVV12t9Fko78PepK/tSdaos38FsEkTR002zpQsWCe1hANmcm
+         fKGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789604762; x=1790209562;
+        d=1e100.net; s=20260707; t=1789604844; x=1790209644;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=vV88gSyI1c3ZYT2h6e0lSF5RM8fB6PlCcIwJXe36LlM=;
-        b=22mCDJrBwzR2bULhm9SbZisHG85kB9CcJj+WBdMzoBD2sz3N5xKB2m7Ra6hPMrG2gd
-         4Q6SoK8k3yESOURigKDWQINcJNH3uKfju9pmBdYkuzzHmKI0C0fHk63ay/Gta5FaK6d4
-         6EcX3estNrF4Ews3LTFsE44/Stv3akff2E1U+BVskKK19/yL2tFC7bz76MUWGLz6RBPo
-         ioyMEHeP1MUnV/pzmAAgsAl5r5S3URVbeTF2B82Cr50XpdnfrldXVVZ5S7ESkDhuRtPo
-         Dvp5pIvyDVVn4Ai/yuPzHMf0qIUVbqjoLfSUlpb4cXSFHSI+naih6kpUUzMfIyYznia+
-         7Tug==
-X-Forwarded-Encrypted: i=1; AKwUvByfu4jEqjiE5VK1b1l9rcvcebNI0z9A5JGJV/aVDv7tWWdH22UuJ4Ob6LslN0DIQ4vpWetdGrLlvOQty3rR3Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++nMtDoLZ//cpjX/Jv1Ux1iRyD/vX/xw4pFed6cY1F/K77cUOgUA
-	F4M3t+8PdlvVX/mIPtnm4tvOPK17nx8ZdTPuAD5ZWywLAVSC9kktm3eR
-X-Gm-Gg: AYBFou1tJ7h15HVGmuQLlMWRRVyDmOKfcFqJ45CV3COfnyU3ilBqdTmuxI65GCzMqT9
-	x4RpXcXdSH09u3r/kyUjd8E0XjADN3LO+0v7NDJfqAPCNxIFlous+GDraiGWiezlVKd4tkNnKUi
-	Sqf5IqytJjc1VLTHld1b3laULMmzauYOp+01V1iaU6zEp1NMJbr5EW3rdFwJ08gyAukMSL6dvt8
-	UpZCjIbTdwrwQm2drIXQcnjv6d0A9unIvfy9cUVJPsEFYLWr6Of9mhOOVgYZrcOY78z3EJE+A0a
-	UNm0o20hjNpMtDez55ZDo6LPFuroYjmEoEJJjDMbrmeHDuJBJE7xfHb8fxZCzrV6TY20DxN+k+o
-	iIbOlDeZJWK6DNe7PVfAJxCp2ji+a6XI3UNp8KE7dfMEoUjwKlJfev4z6rc8yAZl1S6c062+0MZ
-	f+NQfTzb6HuO/y1a/yciGJzA1tVU1XkKcsiggxWuQFVxuqMmYq0/sfU9cB7UBsvh6xgGGwukNMX
-	BeAYlU0ffSJ
-X-Received: by 2002:a05:6a00:440a:b0:870:c2db:da40 with SMTP id d2e1a72fcca58-87239a9dce3mr9776123b3a.24.1789604761569;
-        Wed, 16 Sep 2026 17:26:01 -0700 (PDT)
+        bh=JUtBGOjWkr3LDSuw8nQ/LMjNHkzqLk7G9FmrmWa6kSg=;
+        b=edRqV6sJrGl3wnYJrUkGRXekZDonh/ZRV/c81kgKdN/Yvqxshh2mPFR1bRzNed5Fl3
+         TIy1s8JnuC3DJ9LtRcATzEigphVZWp3+6vmxr06vkV2qbT/ZQhbT64cYcF8DeAxrMFx9
+         5VJRXLikgJhuwslYCu3kt+ixEvrCSpybrXtLxBGtEkTyUplobglyQcJRV/OX0ioSswHm
+         pjP7f9XnvmheIWHsktyCMo/ZHR8xxOUFg6hGDkrT5qBixSWTaiVn50DdBz9r45PlE185
+         k9PaPURielL+ZaE2GEoayaYfDKpHOnf4Sz0VBaQ7wv4ONq+IoZLvm45GzFMx5eTBDKDV
+         N+Iw==
+X-Forwarded-Encrypted: i=1; AKwUvBz9FRNOZxO2EQDBMLnU/5r2wIWe9HYzQfndRkVvc9+JITCYU7b5q8LWfdtsBmz+UOX4d+hS+fIGjK/q+1iOYA==@vger.kernel.org
+X-Gm-Message-State: AFuF++mKuZMMhRfjlgqXDGd5LsjWuntH0y9GhZqSdrT07HeylB21751v
+	XeCqguwVEHdvgFtsSQL/tod6WmcwtBoh0cmmhEcj/IpWhSa3nBg8Hyn3
+X-Gm-Gg: AYBFou0TuR+WpP7AC/uIhNOzfr1TrTNanGpyxtGt0F0g8KLLENDVML88R0q20g6wf0o
+	QL2fvwh6k7WuYn4em5cwZzHzNeM7APp2i+W0VX9o0LbkYpfwSza3QXDq9Xvy/ivlGAIqwk7zih1
+	GlaNJTGR80Fjvl04foQvh5NRx1gmeVjZQlTw/6mAYlrhUtZaJsD2vyLFnCju5UwgV1qUNeGedYR
+	rXRQb2cCnGYU3EKL7rE/a1/ewd5HCv9DBOhq1DWlcJ+Pd1k5MUsdud3g6rDpgZ5vwyxk8HmpfuZ
+	im9Ihkb/GfaCL5uuOCdFWpfXGt37x1OCXmc9eun/lEx+PH31IAORygeowEXEQyEcGBE4+uPkPEC
+	CrfR2ahBBJEP/wZv96hvmMaoapEL54XVGMdNei15a8+eGD/JmYZO+P7QRW9OrUhdS22UAR47vYb
+	GrnH3825Aw0NzBt1auIMuutjvodLDZXfUm4NgH6crxTAdasMtOkfpXZHIA/44JxgSUA0WFhz5Yk
+	95hQOAFDG32
+X-Received: by 2002:a17:903:2344:b0:2dd:6a63:4476 with SMTP id d9443c01a7336-2dd9c8c778cmr20583725ad.10.1789604844108;
+        Wed, 16 Sep 2026 17:27:24 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-872025dd04csm1926956b3a.60.2026.09.16.17.26.00
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd89f338a9sm18257635ad.83.2026.09.16.17.27.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 17:26:01 -0700 (PDT)
+        Wed, 16 Sep 2026 17:27:23 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 16 Sep 2026 17:26:00 -0700
+Date: Wed, 16 Sep 2026 17:27:22 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	mikew@google.com, priyankag@google.com, wim@linux-watchdog.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sp5100_tco: Fix pci_dev reference leak in
- sp5100_tco_init()
-Message-ID: <8df16733-9a20-45eb-89b5-c396244f0062@roeck-us.net>
-References: <20260916170511.2086199-1-vulab@iscas.ac.cn>
+To: Tzung-Bi Shih <tzungbi@kernel.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Baruch Siach <baruch@tkos.co.il>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] watchdog: digicolor: Avoid division by zero
+Message-ID: <cbb9a732-dcda-4665-b714-13a3d36752c8@roeck-us.net>
+References: <20260913064851.8239-1-tzungbi@kernel.org>
+ <20260913064851.8239-2-tzungbi@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -79,21 +79,18 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260916170511.2086199-1-vulab@iscas.ac.cn>
+In-Reply-To: <20260913064851.8239-2-tzungbi@kernel.org>
 
-On Wed, Sep 16, 2026 at 05:05:11PM +0000, Wentao Liang wrote:
-> sp5100_tco_init() stores the PCI device matched by for_each_pci_dev()
-> in the global sp5100_tco_pci and keeps its reference for the lifetime
-> of the driver, but neither sp5100_tco_exit() nor the error paths of
-> sp5100_tco_init() call pci_dev_put(), leaking the reference on driver
-> registration failure and on every module load/unload cycle.
+On Sun, Sep 13, 2026 at 02:48:49PM +0800, Tzung-Bi Shih wrote:
+> clk_get_rate() could return 0.  Avoid a division by zero panic.
 > 
-> Drop the reference when the platform driver or device registration
-> fails and when the module is unloaded.
+> Since get_timeleft() cannot propagate errors, check the clock rate early
+> in probe() and cache the rate in the driver data as it is unlikely to
+> change at runtime.
 > 
-> Fixes: 15e28bf13008 ("watchdog: Add support for sp5100 chipset TCO")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+> Fixes: 336694a01dae ("watchdog: digicolor: driver for Conexant Digicolor CX92755 SoC")
+> Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
+> Acked-by: Baruch Siach <baruch@tkos.co.il>
 
 Applied.
 
