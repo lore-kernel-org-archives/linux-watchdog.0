@@ -1,69 +1,69 @@
-Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F9E251C057
-	for <linux-watchdog@vger.kernel.org>; Fri, 18 Sep 2026 17:32:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D41516171
+	for <linux-watchdog@vger.kernel.org>; Fri, 18 Sep 2026 17:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789752748; cv=none; b=V3erhXGp52pZReYXRJHBXFESZJuj7rJxWb32PkkecV6O6oITChyaAIgYESbrPBUeSRKbOwUNRKsgYbqlwMbcnI6VitC/Hbkcng4O17Z+ZeWqJHpl9wnyvQFyHapl2OffaK3fCH6rsDXPiulXdw4xSb7FN0sTB4tbxa2IZF08aP8=
+	t=1789753190; cv=none; b=ojZVX0l6c+NEPuBt5YKX5ME11PNNvzo9n/APTm4xRXZ4GaRdqRlWWUZL0JT83nn6SiOIDXDtRVxQWdB/jOMrxst4zsdwhMbSFr03aiDoXyv5TYxsi3m44/t4tAnXEJN9xk3fq7uoimUqtncF0zYS1fnZRQQfD6yB8OWnla9XYxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789752748; c=relaxed/simple;
-	bh=6FfrmzjH54GEcJ1wWK2iIQb91lI6OlRWrtkK0i6oGQ4=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=eftKNnKAvr64dAwStdUREHanqJh/L+0hgZVgL5oDwaJAXYIiAf0X51+7eKUYY3b0DpOI8DOqOsAI98U/cwOyjaqiI1GXrU+WAoIY9k8KABuVAMn2+0STiFV6q2lFBuMBJqTYFsESs8ZTP9D+peMovELa2oCinhpY/J1idegxmMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y0a8hqOj; arc=none smtp.client-ip=74.125.227.141
+	s=arc-20240116; t=1789753190; c=relaxed/simple;
+	bh=MDiWz/AWqwWs96s+XjfNuGuDwtzStFIrTIMZMFLPOvo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rvs+a6Gtkw2Eu/OrLp7Dt7HGoFucLV7Ua1ymjCSlFpfCLkUJffEnmy2YjurEgK9qu8lKafa84Hl3XGVi5qAIdamjU+cPWJgWMkY/fG8xmXREUUDfQywvkYhkjLdNn4LP4jKZ5Nh76AzzpbYzuLtmJ2nWrfx3rcasRCl9Mos8+9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LYctSQ5e; arc=none smtp.client-ip=74.125.227.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y0a8hqOj"
-Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-39d654f02baso965870a91.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 18 Sep 2026 10:32:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LYctSQ5e"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-39b31b4281eso1118330a91.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 18 Sep 2026 10:39:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789752732; x=1790357532; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt
-         :content-language:references:cc:to:from:subject:user-agent
-         :mime-version:date:message-id:sender:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=GBzAIA75tY6+1ABqxWJzAnAi665MvkZni2otJtamYAI=;
-        b=Y0a8hqOjSpKfMvcts1WbdVVBbRVjZEtNxApeWheJ/K5qEtz/KckIyjlgbQMCR94Yz0
-         sg+TomiPVw7Yk2wnXYXaQQPRszYK4gD5Sb/aQQ7ncrupdCD81CSA1YoqrRSEdM/+kMBl
-         Y+ruEcV1KZXGTC/OqEUrXPeWj1eopkytFZX9uX/KVlBWKY+g+4LsPRUcYfz5NtrA8PI/
-         5KpzV4ZAyIiFnhqjGpbJ76XvuWZicIv2BLETGz2FfmeUYqYuBh7rW8kwyYz97X+VM6lg
-         CQCUEavsDvS0HruBHZ1YOLOHSUo1cl1gl3Jnbk/x8WkiI6WpLds6pPI+d5ZHuCkPugFJ
-         RsTA==
+        d=gmail.com; s=20251104; t=1789753188; x=1790357988; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=D5Ib5GKimOnmndCsEnEMx37Z4fKeBAXUAyL8zUhE3/s=;
+        b=LYctSQ5eamvwAu1wqb4pieNFVBhr2nkmwhSZuNq+4xlX53Wv8LDzZyl2wWDABI9fc9
+         zeDSa15Kje7Ld3qtk69zhZvJcTQ6AC0b8JzxkdPujDJrGj7AAEuWCWc102ebcPibjUT5
+         HTKjXAizAkqkBlAkmn9vXJwz/hqujvqcZbi/oLQZ9HNi3STnPky6rd5zkqGI84FZLz2j
+         oDq9bEG8sdtaVhCV39O5HQR8GXrtrQAGuVQD1e1poZWos3remaCEZZq1MbpmB89EPqJN
+         vI9KKlVPQhUKXuXkuGAJh0VDVUzu9zg98U+2/4pOWIld+OXjP8XDtGUwjqeQfiiC3hzF
+         AKfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789752732; x=1790357532;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt
-         :content-language:references:cc:to:from:subject:user-agent
-         :mime-version:date:message-id:sender:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=GBzAIA75tY6+1ABqxWJzAnAi665MvkZni2otJtamYAI=;
-        b=2BJyXq3RaZ5Se1aocKry/hzO0zdpFmCiiys3bghorzu4RivlmzRLtAFXyPBvddqAaj
-         H8viik2zZ5CRQSBEniy6eGk6nXDYP+KQkgHBg/zh6pGFWKS7hqYFfTqPBHyAYSvYLynC
-         PVODazLjFQJRxWhfQK2Ke5Reng/+gy21enEtCOB/TwxmSTho+i0QNFjGtiD+mW0WBqST
-         not2R5OJ+BVcLGnm1yLfcRQ8cKzCigEYhksN8PH/LEMW1lL5MBI33Caoqq0iMx2pdsrF
-         zknwU+gmUJOAJcBuSFRddiKBSCYYk5seWTDdeXaPyldpn83D+iVwYrza7oNASLHCu/FQ
-         BD3A==
-X-Forwarded-Encrypted: i=1; AKwUvBwvc0ANc+/EGE0dKFxCVMwMPf54clCZRSr/UmjH/t6yHbkkTLJxvcCeraU/UJH1uonTO9hqzaNo3EZC83k50Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++kEVcj3/CPFLisHRgSrEdUmjK+cOy1IxQLM/KOWamvP+JvmgUee
-	C0yVM+vLZ4ZQeLxmBaHwrhwqNLZgvzvwMdWtq+03QbpOphfZwUXWzTnW
-X-Gm-Gg: AYBFou3tz/Sbm9WkmGF/TZrkjJcWAxEtLxC4rKsrmPMRB8zgXMNUDVFnJM9OqzjHY7/
-	Xg3xfJfeTUafgqzBbkTjCgDoLDEmiO5zFx1O/B/SaGZZwFVPrrqaT6TSl2Xf5McBmFwPMUXmVtK
-	rKaqJza9n1yowwKW1X+PXWBUydfbb3ECPrZKjpjZIchxWdvyClxCnHy7Vefl+Vojk7HzjUAlEq0
-	J7TdwjywVy8KC5ztQ3R47TL+YNK+WSgym7cFB+57GXdJjPCRKwqRyXhvMII8SRG33qwjtSa11ae
-	UvBqSpQxp4tJwUiR6wVx4ZY27H8Zjmx0jfPmskpfPqlGYgxSOUkBwqKBKmU1tTw3rhUGC8Pt2pk
-	GmC1/mnjXxWTsUuFoxjRWM62GPshVenOWM6rP0HWUTVqTPQ0YdLF64NEU4kG8X81JilM2IAnb1N
-	Uy6awc7x3DZTm99Y2oX6+7D1bWkSvTNkj5j+rx9P3s1U21BMC0lJvWZN/g8ttNZsTOh8E1beD07
-	sztv2I+vz8Q77FCRbSOAmXcBbn4l8KaHlb8lgOt5YXMaAtg
-X-Received: by 2002:a17:90b:2f47:b0:39d:eca2:5c81 with SMTP id 98e67ed59e1d1-39e54b19f9fmr7592828a91.8.1789752731861;
-        Fri, 18 Sep 2026 10:32:11 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1789753188; x=1790357988;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=D5Ib5GKimOnmndCsEnEMx37Z4fKeBAXUAyL8zUhE3/s=;
+        b=rbBYIylW0+J41otVmE6TAYIACloUTL+wcgaCpu0DrOTweQaGc2WVxzKhFP9iBqgxMA
+         R5pjZPXIdpcLuMMXifWgaYcyStPr1GCjpEuPO5fw1j9wokK0oBl+XLP94fF1w8kQ8wH7
+         XN/iBKb1GN+CjJqeCFPRo2Zhfq5QbSaYhktMR/K9GGg2R/hGxe9uGI0vouD6bFyXd7aF
+         Bixfi5HQqXjTsVydi4KAgmPF0vXvLcnlRCP7BrmbcE0VlEYNutOmm3xl5vyRAh128y0p
+         RzbZ+sy1kVZkKRsz+Qq0JUmMTSyoIllZC9fJQExPV80Wecg6ho55wZvfILX5SWxa1eY5
+         78sQ==
+X-Forwarded-Encrypted: i=1; AKwUvByU9ojviLLpIq9zTKKpJVpr9oc/WB+SJclHLgB80FmPx+sKTndmGWx/6g0AvFAtUAULRuRbah4vgf/pgtFr7g==@vger.kernel.org
+X-Gm-Message-State: AFuF++k6q7tVG6nP0YuDEkdeUZ2uFZcieM24nPMC+ZFA2PQJIQ8gpkrM
+	TpsKdFVXDUZ6aMlGdb/lZ0Z6mgJEsnVrimKM2IefHa3kwo3PX34v3XVj
+X-Gm-Gg: AYBFou3H8XMoK1cnPIAMFsJFvla/NBpSHWvamhXDVIwuaSaAJdm9Q9FT//33LBF3Lqt
+	pfdOLQWywmX0bNBbacjseBN8n45jBq7t56D6i+VkarltxsAM/m5iXhyHyLttjCje2+H/A9zcIXK
+	6oCazWySEwHx+hmVFtLRi3OZOEureqb03Lxjr8I/H/y3iztgLDeOEUEAMu27eESQhptxP4C9NFY
+	GXSs4Gm10dHN/GykllpfpHNoC6tzFuEGBhfIInqdj1hnLxr8IBFsSiR/g395FVAK5koR01bPn6L
+	VsZTqGjadr8oqehpfS/+vwI8yym2H2zgc/Il9D1f82FNBuCxFuYIQGjX48sWc+U4ILZwkEYAnRe
+	+z4unENDU/6MKFsaU8rdKkfWk+VQK4oqZ+ZHlgfH00vg9DUw8RkK5fLA5rgqY1hWlSLUMfvAEt5
+	9KQaSMUw0GnVviNHQMMb1YU72I/MEDgAk9qWX5QYZClfKlGmIbNps0UNUGg7jRBkIeLlwGe+byY
+	yfkX8PTqyOdt4lBRl60zcgnJ+9iudsOaZs4cNLl4DaY84l1
+X-Received: by 2002:a17:90b:3eca:b0:39e:6a7f:1dc6 with SMTP id 98e67ed59e1d1-39e6a7f2209mr952403a91.34.1789753187862;
+        Fri, 18 Sep 2026 10:39:47 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e6c37c8e7sm465970a91.9.2026.09.18.10.32.10
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e6ca86d83sm441741a91.6.2026.09.18.10.39.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Sep 2026 10:32:11 -0700 (PDT)
+        Fri, 18 Sep 2026 10:39:46 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <a81ad111-43e7-4afa-8b2f-f75f5b47115a@roeck-us.net>
-Date: Fri, 18 Sep 2026 10:32:10 -0700
+Message-ID: <a73c5d5d-dd64-4061-83cd-0a1cdcc2db4d@roeck-us.net>
+Date: Fri, 18 Sep 2026 10:39:44 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -71,13 +71,27 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [GIT PULL] watchdog fixes for v7.3-rc4
-From: Guenter Roeck <linux@roeck-us.net>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org,
- "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-References: <20260918162041.18444-1-linux@roeck-us.net>
+Subject: Re: [PATCH v4 5/7] watchdog: rzv2h: Add syscon support for WDTDCR
+To: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
+ Magnus Damm <magnus.damm@gmail.com>,
+ Michael Turquette <mturquette@baylibre.com>, Stephen Boyd
+ <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org,
+ Prabhakar <prabhakar.csengg+renesas@gmail.com>,
+ Biju Das <biju.das.jz@bp.renesas.com>,
+ Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+ Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20260817192540.423994-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260817192540.423994-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <87577cdb-7f1d-4a9f-8a61-ff1f272234d9@roeck-us.net>
+ <CA+V-a8vVtjALarck6PE3it1si2hNbveZWoGjTaTUW68Q6yYjcQ@mail.gmail.com>
 Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -121,76 +135,48 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260918162041.18444-1-linux@roeck-us.net>
+In-Reply-To: <CA+V-a8vVtjALarck6PE3it1si2hNbveZWoGjTaTUW68Q6yYjcQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 9/18/26 09:20, Guenter Roeck wrote:
-> Hi Linus,
-> 
-> Please pull watchdog fixes for Linux v7.3-rc4 from signed tag:
-> 
->      git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-fixes-for-v7.3-rc4
-> 
-> Thanks,
-> Guenter
+Hi,
 
-Hmm, that was supposed to be copied to linux-watchdog@, not linux-hwmon@.
-Sorry for that. Copying now, and, yes, I know, I'll to fix my scripts.
+On 9/18/26 08:18, Lad, Prabhakar wrote:
+> Hi Guenter,
+> 
+> On Thu, Sep 17, 2026 at 2:12 AM Guenter Roeck <linux@roeck-us.net> wrote:
+>>
+>> Hi,
+>>
+>> On Mon, Aug 17, 2026 at 08:25:38PM +0100, Prabhakar wrote:
+>>> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+>>>
+>>> On RZ/T2H and RZ/N2H SoCs, the WDTDCR (WDT Debug Control Register) resides
+>>> in the second register region of the CPG/MSSR block. Since this
+>>> multi-function block is shared with other peripherals, it is exposed via a
+>>> syscon regmap interface.
+>>>
+>>> Look up the SYSC regmap using the optional "renesas,sysc" property and
+>>> derive the WDTDCR offset from the watchdog instance index.
+>>>
+>>> Retain the existing MMIO-based access method when the "renesas,sysc"
+>>> property is absent to preserve compatibility with existing DT's.
+>>>
+>>> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+>>> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+>>
+>> Can I apply this patch without the other patches of the series ?
+>>
+> I posted the v5 series here addressing Sashiko's comments.
+> 
 
+Sorry, I was getting confused. I somehow thought they are different series.
+
+Do you plan to send v6 to address the issues reported in v5 ?
+
+Note that Sashiko no longer reports pre-existing issues in public,
+so those will be out of scope.
+
+Thanks,
 Guenter
-
-> ------
-> 
-> The following changes since commit fd73f4a6659897191fa0d40695fe370925dd3780:
-> 
->    Linux 7.3-rc3 (2026-09-13 14:38:02 -0700)
-> 
-> are available in the Git repository at:
-> 
->    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-fixes-for-v7.3-rc4
-> 
-> for you to fetch changes up to 7cb575b71ab98194d2e040bded3a7281e089c5ed:
-> 
->    watchdog: da9063: fix suspend/resume handling of HW_RUNNING watchdog (2026-09-18 08:10:45 -0700)
-> 
-> ----------------------------------------------------------------
-> watchdog fixes for v7.3-rc4
-> 
-> * da9062, da9063: Fix suspend/resume handling of HW_RUNNING watchdog
-> 
-> * digicolor, rtd119x, and rzv2h: Avoid division by zero if clock rate is 0
-> 
-> * msc313e: Fix premature reset during timeout update, and propagate error
->    code in resume()
-> 
-> * sp5100_tco: Fix pci_dev reference leak in sp5100_tco_init()
-> 
-> * starfive-wdt: Fix runtime PM leak in starfive_wdt_pm_start()
-> 
-> ----------------------------------------------------------------
-> Li Jun (2):
->        watchdog: da9062: fix suspend/resume handling of HW_RUNNING watchdog
->        watchdog: da9063: fix suspend/resume handling of HW_RUNNING watchdog
-> 
-> Tzung-Bi Shih (5):
->        watchdog: digicolor: Avoid division by zero
->        watchdog: rtd119x: Avoid division by zero
->        watchdog: rzv2h: Avoid division by zero
->        watchdog: msc313e: Propagate error code in resume()
->        watchdog: msc313e: Fix premature reset during timeout update
-> 
-> Wentao Liang (2):
->        watchdog: sp5100_tco: Fix pci_dev reference leak in sp5100_tco_init()
->        watchdog: starfive-wdt: Fix runtime PM leak in starfive_wdt_pm_start()
-> 
->   drivers/watchdog/da9062_wdt.c    |  4 ++--
->   drivers/watchdog/da9063_wdt.c    |  4 ++--
->   drivers/watchdog/digicolor_wdt.c | 13 +++++++++----
->   drivers/watchdog/msc313e_wdt.c   | 16 +++++++++++++---
->   drivers/watchdog/rtd119x_wdt.c   |  7 ++++++-
->   drivers/watchdog/rzv2h_wdt.c     |  7 ++++++-
->   drivers/watchdog/sp5100_tco.c    |  6 +++++-
->   drivers/watchdog/starfive-wdt.c  |  2 +-
->   8 files changed, 44 insertions(+), 15 deletions(-)
 
