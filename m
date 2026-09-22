@@ -1,95 +1,139 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+Received: from mail-pz2-f41.google.com (mail-pz2-f41.google.com [74.125.228.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 935D83F0AB8
-	for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 12:35:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 794FF55C33F
+	for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 13:28:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790080560; cv=none; b=GQFqS2rq+G4CCAV0/Q9a903o6dkzuoYC6m4VwMYX4x6jXMByyLLEQx5Sw1rRVP6icd0TGp+T4sruAUeDYWmc54Unf/48gsc28/XeaYiOuVeYMwomUxac8mn5fU5MYTVYlb1n59OpS8tokxHrS2lGz9iISiy+J7vaajWoS1d/JCc=
+	t=1790083728; cv=none; b=ASWb5JRAAUBj4g6GVlk8jj8BvEQckNEgp6IkV4fewamlubWo9124/gFPB9kJ7MvrEtgbqpi/nOzqyjM/ciOWJN2yv8j2cq96dtHo7lgLN2vZKIjtifNdt8627a/JwjgUvHEHhlrGDrfFX6eYOpKu47e5ncz5fgjFCHxJv0OftHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790080560; c=relaxed/simple;
-	bh=FHcE3cZ6fwiMxVpjYkw+FYvWo6dydU6bYcNdLdIYu54=;
+	s=arc-20240116; t=1790083728; c=relaxed/simple;
+	bh=b3ykcdzu5139p8lLJR0aJjrtvtqRBGOs4S9A4CZdy80=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kmY3KlEz5Jd5n0T1PZXCo3laeZaP8qwd3l3LLBUgRBQG6ocpl/AIpYz9HdVAyx5j9wjOUEBj/4gASC5ITevHq72oFGVH98CqTtUTXfndIG/gYHs0XdvheY/a0wrxw7HkHuyXOXat3P1Lq6AnrW9L7NJ7174l0nKIxhpVOK3A40o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=C9Q1dLPl; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KRQ1pf0htUOrp3b44ga3/zAPMgxWcY4fWXgWZ9FjaY76SdvEC9U1ci/u9/7Tni6kbnYHuNlYAaoL9k5MkKcDcXWh6nhG6FNH8X6eWSCnD/+o+Vj2PxwrWTQWdfGVJDy45thFUjPMZ1uWzccuE/WrO1Q0zeefmKmXRdQC+6yOYMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lxq+FRxQ; arc=none smtp.client-ip=74.125.228.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="C9Q1dLPl"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e64ccso29633675e9.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 05:35:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lxq+FRxQ"
+Received: by mail-pz2-f41.google.com with SMTP id d2e1a72fcca58-8692a8568e9so3546681b3a.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 06:28:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1790080557; x=1790685357; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=FHcE3cZ6fwiMxVpjYkw+FYvWo6dydU6bYcNdLdIYu54=;
-        b=C9Q1dLPlTIqKTQXe4iQtNDUzZAlq2GTJ2d8qKPzvB/DAXYTioASUz3akGBtO7GbGJW
-         q7bmos8QtDnMiMlmiZzziW4Bq5LbD5n8meCGy7ttIUY4yRN6YqLYw4wOXnd0IaOiAOcM
-         gvv10G47j61rSKzhIyW36r6dkrRD9M8kOHqsYl0Se/Cr2ElQFN79Qwp1cGw9yDiOGJpx
-         yiaWLUkjrX9wjOBlFDPjCwPpVUhsHnIp5hDL1VV9r+WO27fyMTbn2utt8/KnBWWKdPfe
-         bYYh2WaTtcSfQRRE4x/yBJ/7bATe0xwNAqM/N0LPP3G7+HByHKQc7g66bESKhn27XYmX
-         Fk4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790080557; x=1790685357;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1790083725; x=1790688525; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=FHcE3cZ6fwiMxVpjYkw+FYvWo6dydU6bYcNdLdIYu54=;
-        b=0aAU+0hQurSykFvoVYk3RDobMUvxcvoNxr08e8r9gCFKiWVUfhGj6p8yDsFanhFRuN
-         4baVWl+MkGYf06P1miUV8Az4gW5KjNUSjh25HvtWKugZhzn9dmzrlG7cFO+llvS3VBPD
-         uqDearVkeZ+AUCuXUrPFgsd+mrM3opSPlewyaFjKG7wkErsqILuAufub4+bdYrV9xrMX
-         sYx3dm2PAaaA/CRS5vdS98vZXmo3TwqAM7P7cCVCZOh7+f+FjFXfZO72W7O6j2rSZB3i
-         Gt4amoVFno1B1xqxgCJbRD5TLSyLBuEd//StxszW+67UycFQREYgI3vX/mn/YawUO0OF
-         DfKw==
-X-Forwarded-Encrypted: i=1; AKwUvBzNyBF0RlI16d0Ja6W39Dxw7VkeNXhLyEfnPQWjcofdjaldDuQd6E4KTrMMeMDiJxpi4Vxuw5m9ez79RmTvWg==@vger.kernel.org
-X-Gm-Message-State: AFuF++mmGXj3EpMZiKtlDWSFYxMu4IRXLfbCOkT8iftX4le1eYzxkitl
-	P/AEWSZgFiNbuQBYffuA3uHtCiw8jE6wYnwwgnj45RNJORZGnHj6L6XA7wqPK9TbvHQ=
-X-Gm-Gg: AYBFou3SSDnF5peVtmtgD+9xz5l56TBxRSX/4rIS5guzJ6gft3aAKg0hngRrmjr/9Vy
-	8x/7L7mqTsbUvxFbId6/vFP//FeIC/xxri+FwvDj+sADikuQR2cdY1Itd4V7j52hazSTURbysog
-	Sn9fk6SjxPamuH8FvFfN7ViKvccY5a2HwPnMDL3sSxy2fxYDv6R9ZjbBlY/MBkNem32sMSjThRI
-	FrO6NCatxfPl52MDqApZgv9gbK/odicvolopBivQ7S71hP9fYyaeAubw2FoXuSKHvKm/1kqlucu
-	hpQQHFFfl/oDJX7O3/O/2Uy9WRyDSZ5wyHnRXx7+3uv79X6M8/gJdK3N5OEtbLkll3ABpcNlk0L
-	pk7TFSL/fSZxWhkGvpEhQNdS2X8N73xlo3LXXS1xyKOYsP+t5I+p9wEKAIDOfvJX0QFo5ikh+Qz
-	m0VYHDu/L9CN5VxMHiDhQCT1WMk2DfvFES8Xa7lC2OkmT6PsK01NjAVCm22SHwK46GbASbvinH
-X-Received: by 2002:a05:600c:154c:b0:49f:c451:b4ab with SMTP id 5b1f17b1804b1-49fc5743c34mr186953035e9.29.1790080556773;
-        Tue, 22 Sep 2026 05:35:56 -0700 (PDT)
-Received: from pathway.suse.cz ([176.114.240.130])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fdad40b32sm41331985e9.9.2026.09.22.05.35.55
+        bh=B6eUa3MEmKBKqWKJ7eHJvPbt6Q+Vwkf3VRBTTs/7k78=;
+        b=lxq+FRxQVS15moXqWve64Z/vTsn+U+UMWsGUGQOZBIxeWtyg+uhCVQEHUQezCrlNzM
+         tkkzt32uqw26bvfWblQ2tElEZ4+K9pQAIF9cIcqNCBvVRfGCmGBYKT2ovt8pE5kr60W5
+         Vh4Z+3ybb1qoiIk3pqTI+rBuWJEhbd2Uvt7sMtW3UqZwUhPj8DchDEQT1EVOZrtmDTK0
+         dAH8eBZfrAqSauy4XdpeGoN7ofHbDDuYNeWZg+8KD5GRgNnbKbu96IFGNrchuern5YCe
+         ih6uxZgfqHd0ezDc9OUal8M9M5B57PluwftMxzHyhiACc8LAol7u8i93G6CrbM5ZMk2c
+         1Tpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790083725; x=1790688525;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=B6eUa3MEmKBKqWKJ7eHJvPbt6Q+Vwkf3VRBTTs/7k78=;
+        b=QDCU9ZZTHiCPbJTZF5cMb4t9kKvFSrWMjM0cPwU30ecm9nnx1GWICEPNrbUePbH4eL
+         W2+UKWl3iC/kjz0uZcVPuMnZdPiBTE5/ZxkLMpPd1CLVEOspBODbUgKYwOlVayfwVWbU
+         qWyE8yJ6Yl2b9Z8/zPAVxU5npibUWOI9cyiXaP5fUx5Q5Esr+VZbW8HQC7eTa6JwHsdZ
+         HekPXNv3rmqhDrS7+yACcyH+nXHxhmhgnPxP17yHzN4uqViuRMDg7fjcwopCiWFsZebV
+         7QbuhCKjKmZ4NFeDFfrvj1NzMj8We5p6Xyan3Ec69H/jML/4wOQBkHGiMmrfPIWU8y7o
+         g3NQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzC0X3M2JCa2nSb2SbfMvWf5f0JL/5jrbQ2e3JZH0pzB+N30938zCa6VFY4Vh2PCQ4D3XSXEenqum79oT8wdQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lnUnLeFAnF8Y8WelzqY7cWYND0uDPN4TKLdkDkLjjGmO02XFNn
+	sZnhJYTw4ApYn9vm3q/WA2yGKRywdf9Ag69U8g3gJGFzB7+8v0N8CuC2
+X-Gm-Gg: AYBFou1kidCfr8aQrYmF9G44WBHRu28tNOl14lTdP7mFQAwFbcD4RV8lzpGQWPwVoNJ
+	hIWEmPFDBCCW2xJVcpZAcV2vMa+zoDCIdR2oeEvT87CSMuKYqHRiGhjYCTsXWbJpoUKnQLvzcpf
+	ZYOAcyubOsAt2obrFdjIQ3pcRYc/9/7vKBhzdO38KmAkuUsnLsYNOZ1Gq1wSUFkRqnLpmWbB7o0
+	jjItMT4E8egDDPECSBkcIwuz4TXZ9i4prndI/KAB7G+UqCIdGefrFiNhFwuE+5W5/jBHKV8jQhZ
+	+6N6uBZ5vhHhKZhWn/qSNlgPncl1MEw3p3pAxF3/eaHRW5IFhyYYs5r/C65wPnIfdUX2sGkQ1Wu
+	EfugIWxcbjnoR/rZpBlBvOW1FhDPWuq4qgCMSPFMLV4tZO77ZuoA/3o3HjDu8fKj4fb8rPtEEvl
+	I9ij9vBl9izYL0rhcslQDOwcolEebn9NmLq5Ces8mmznumwm8JpIGTP9HCclDcAQ9elveOZTEdL
+	X4EHiYIr0KI
+X-Received: by 2002:a05:6a00:a115:b0:879:ffd9:1286 with SMTP id d2e1a72fcca58-87c81ebbbacmr1272041b3a.8.1790083724286;
+        Tue, 22 Sep 2026 06:28:44 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-87c32fa89absm852763b3a.46.2026.09.22.06.28.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 05:35:56 -0700 (PDT)
-Date: Tue, 22 Sep 2026 14:35:54 +0200
-From: Petr Mladek <pmladek@suse.com>
-To: Bradley Morgan <brads@mainlining.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Jinchao Wang <wangjinchao600@gmail.com>,
-	Craig Lamparter <craig.lamparter@hpe.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 0/6] panic: fix panic_force_cpu= redirect races and
- NMI bypass
-Message-ID: <arJ2KqCA7aBgt71r@pathway.suse.cz>
-References: <20260916182957.7788-1-brads@mainlining.org>
+        Tue, 22 Sep 2026 06:28:43 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Tue, 22 Sep 2026 06:28:42 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: =?utf-8?B?5p6X5r+s5ZOy?= <m18667909625@163.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] watchdog: use kstrtouint to parse
+ softlockup_panic=
+Message-ID: <e5bc7dc4-3faa-491f-9c8d-62afe0be0bbd@roeck-us.net>
+References: <20260921064143.81420-1-m18667909625@163.com>
+ <7b91e8cb-d068-484c-9a9f-2c19cb37f5ba@roeck-us.net>
+ <20260922060000.10086.1-m18667909625@163.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260916182957.7788-1-brads@mainlining.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260922060000.10086.1-m18667909625@163.com>
 
-On Wed 2026-09-16 18:29:51, Bradley Morgan wrote:
-> The panic_force_cpu= parameter redirects a panic to a specific CPU so
-> the crash kernel runs there. The redirect code in panic_try_force_cpu()
-> had two races and an NMI bypass, all found by Sashiko. This series
-> closes them and kills one more hack that the rework turned up.
+On Tue, Sep 22, 2026 at 01:50:40PM +0800, 林濬哲 wrote:
+> 
+> simple_strtoul() is deprecated. Replace it with kstrtouint(). A bad
+> value now leaves the variable unchanged and produces a warning,
+> instead of being silently clamped.
+> 
+> __setup() handlers return whether they handled the option; there is
+> no way to propagate parse errors, so the handler simply returns 1.
+> 
+> v2: warn on a bad value and return 1 instead of returning the parse
+>     error, which __setup() handlers cannot do (Guenter Roeck).
+> 
+> Signed-off-by: Lin Junzhe <m18667909625@163.com>
+> Assisted-by: AI coding assistant (disclosed per kernel AI guidelines)
+> ---
+>  kernel/watchdog.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+> index e5134ad7b663..7f8c904554a9 100644
+> --- a/kernel/watchdog.c
+> +++ b/kernel/watchdog.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/irq.h>
+>  #include <linux/irqdesc.h>
+>  #include <linux/kernel_stat.h>
+> +#include <linux/kstrtox.h>
+>  #include <linux/kvm_para.h>
+>  #include <linux/math64.h>
+>  #include <linux/mm.h>
+> @@ -422,7 +423,11 @@ static unsigned long soft_lockup_nmi_warn;
+>  
+>  static int __init softlockup_panic_setup(char *str)
+>  {
+> -	softlockup_panic = simple_strtoul(str, NULL, 0);
+> +	int ret;
+> +
+> +	ret = kstrtouint(str, 0, &softlockup_panic);
+> +	if (ret)
+> +		pr_warn("softlockup_panic: bad option string '%s'\n", str);
 
-IMHO, this version is ready to go. It would be great to fix the commit
-message in the 4th patch but I think that Andrew could do the fixup.
+Hardly any other __setup function warns here, and I do not see the point
+adding it here.
 
-Best Regards,
-Petr
+Guenter
+
+>  	return 1;
+>  }
+>  __setup("softlockup_panic=", softlockup_panic_setup);
+> -- 
+> 2.54.0.windows.1
+> 
+> 
