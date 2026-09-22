@@ -1,125 +1,132 @@
 Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16DE5616B8
-	for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 16:02:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80CAD577E2D
+	for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 17:19:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790092959; cv=none; b=QFN4wZ43+QUatg3i2HYG9hEsMzr9oJYAQHSAEu56NkFk66HtZHB9qewV68Ep/EBUw78RIEJb6lYBqGcbTfh8SLErB8CTYPDQvREQBl7suPE7DARA6wj1JopqVvKQDPssCp2jIVzzliFG3c5cPhPqbs7V08Fb2JuiZyqo5Mt9tlY=
+	t=1790097596; cv=none; b=YA08gdoB+dMTfDydx0pFrB6UcWGiVD+dxFntEzVbbmsRx0ZSxRmL2p83f8EXEmNusdM44dLy0tcYY++I8HGYqRiH9v5BnfikHTqbskAyMEvmqo5HkF1vth2oixHlT8V0oAz3vWit0Bgd+YugwzfhrY5Kgx5af+cvYSInDl9CS+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790092959; c=relaxed/simple;
-	bh=5Nc0E6uhwpOLhJ5EtHZx20sCq0FgvYX46L8SSfikNeM=;
+	s=arc-20240116; t=1790097596; c=relaxed/simple;
+	bh=6wTYl3fPn9nlTqWjvYm7Nq+9tWOEygh9IVzIKdiR2oA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a0HohCypR9jkwYrTIKqWp7pEnJ403h1atl8+9xI7ZhBIm+lJ5AFeCdBcnoaA44nor2UgU63FYWN/hHIaTjUhortCiBBvivAGiKUjtLPVHsZxjySMUpx5v5Wn8HwvITyJiFKIDn6uzwifxecb7+TwU5iSZirtXK42PqWowmJFOkY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kAWVTpG6; arc=none smtp.client-ip=74.125.227.141
+	 Content-Type:Content-Disposition:In-Reply-To; b=bkueuY3hnDq2bJFZA2O9Ls/CEE07LVnYptGiXpFQIivAl0hFuJDmudQQzDEyad+yQwAFN4XNJserhvyhyBDatp8jtpQwfGtJGGb6WYrAxLMPjkagg/T/Ng4ordydURt5S7nWHuf7xPlZonRAihtWOJXC+A1ktgO0M7RBVSj+qSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R3fpi2YG; arc=none smtp.client-ip=74.125.227.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kAWVTpG6"
-Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-396ccc09d65so55431a91.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 09:02:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R3fpi2YG"
+Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-396ccb65437so100408a91.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 22 Sep 2026 10:19:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790092957; x=1790697757; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8E+kKwSqex3XXbBNJuLlbTD55wWaphcALCZWnc93Tss=;
-        b=kAWVTpG61PfZEqBghapa4FkH+n0/je7fAbyKOffmykoRIVutLO3HoKdrV/aM5TzBD0
-         ZcJoi3xSUUnIH2l6ehWzMwzIjpQ+LM/AOnRDp84l6tvEtRIkJWxYEOn5qBZWm6WRWVdN
-         UI8vSOEFDetuQZFR3frcxzLzsZmeKMx/M+IpJxPJIVuK9pxBTTI4fDu6g2H4rEIUqUBK
-         HeFPcpj/acQ4GPzOcFSNLLCwF2VvcVxjFxQ8TitM9N5QOuKLucytqnXYq9LrxK+IDpDm
-         Z/SW0tX66S+udVCrzB/n5JRj7R7qZ8YPlTiYekUNMItUsomwPWdKawBTCrqoghcxNQNp
-         wf/Q==
+        d=gmail.com; s=20251104; t=1790097594; x=1790702394; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=zCRq4hnTSVTOASY3u8FUiAUCCMw+X4n90vfRzUKE6C0=;
+        b=R3fpi2YGR1iw8Px21lKPuJxQa3xYXCv9Mpn2pp7nvZTr5cx5S8aK5HbtF3oqZWIFQM
+         RMZ3C0IacF5arX5aUdVWDSlMSotuYQA4Op5VFEMGn055iG+3zTrz5B/Kf8iog9lSXhZZ
+         B157y2CkT0mf/XtYGvnhueJQMfUPdVjeLDGegSgXKkejeOexHV8Jc5oDbrKf3Z2qa4mD
+         hts7qgawAiOZuCKQsdQAw5yKxpocn841NQ5Hu1VNYbKlO1f/HGPcNH19kCYQ/UPmaqF9
+         OYKbnmqRDwKR6tzbt0XUMzLli1e6tFFAlATxO9QSteifnJPhfcdMvKQ7lvc6fqOdrGg/
+         xkkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790092957; x=1790697757;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=8E+kKwSqex3XXbBNJuLlbTD55wWaphcALCZWnc93Tss=;
-        b=SPQgf8G0Ez5QVk5yUT8UK4549LxOuntzBrMYY+EORRAMkJf4CiTq5AnP3BEnBkP3Mw
-         tepwi5qvO+hXvp/hCQUfXRzUxjX72SSWGw2dA6t5PBPPnOHacdokBERiDgzl+K8plrFH
-         chT1+EOL7ygCYxitqYWNIbH3LC1HKxfaF0vfAqAG5P1z6WaABxDvBPEx66IO2aZStGMa
-         NqqK7llaJTCTfpm1KTTOQi9YsDEkMpbp+L2kdiheKzyUBT+2NaAsia10zM/k/FY4aaLu
-         prmsjwOv9qQx5RQH9VxHsVjhjmhUYSkWABxmgGFhmf7BMj1EcsjQOGNmtO0vbyp/5vYV
-         Ps+A==
-X-Forwarded-Encrypted: i=1; AKwUvBwXak/jpmYM6cuQnahs+7tX+f7BCUThW3Rpuh67g3j+Xc1hAKy+1uQj1BhsvrW2gdt8hL4F0KTTGpXnlhedLw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lYcQqaMqxOu26/MyRWmsBSJf7qR+XT8eu+L1SPYjtpWNHM2fi8
-	jnYxL2M6Mczz2uc9OkuwpTMjA0hmJ5km8/xX/c8F6JP4nVhQjGuJ7+s6
-X-Gm-Gg: AYBFou32k+uHep2WtDl8amTqUTHn8NYPLkxiDIV5ZimsuFd4BLW2Bs/yeXb8YohhGRd
-	/b+4QlwqvpqjBF6RImx7fMXP1fCRXX6V9VsIR/JOPRq4YGGcuPrWUNor8+hCTZ1Ob1Gr3yuCE0Z
-	JK6fYe4WSwQWMDoYUKbKqm0DBST+6se9Cn7kmjM90FOweUpe7G7zVwhk96q6VmPDBI3VardjMOP
-	tcKZSRh2nCayM++DJZep6JX3ByX+FXy/65VhfMfIjQ4toiTYso8e7WUhHPIWj2AWhV1f1m+MiET
-	ibDyyVn+vKt3GAsvh4XV1IkAWosJNrYpx13JUWwY/r/8zmmogeGEm5uFAJhw2tOBso5hsY23t5u
-	Y9Hn8Xqr8KUSWqkj0lrJlBYZ54iSQBFM8t800a2zPVYVoFjYD+DwoJMWMpKc7A70LCm2TLp1uJV
-	/1BgJLutC+msUiYEOhmEFyD/U+XIDjWFNdckyPunifiklMw1o4tTnhYCujYguo9taA0PRnSP700
-	2UKaFo+BTMg
-X-Received: by 2002:a17:90b:5826:b0:39e:6c68:c777 with SMTP id 98e67ed59e1d1-3a073234153mr1714050a91.45.1790092956933;
-        Tue, 22 Sep 2026 09:02:36 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790097594; x=1790702394;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zCRq4hnTSVTOASY3u8FUiAUCCMw+X4n90vfRzUKE6C0=;
+        b=XHFR5YIe2dR+FU/DX8dVD9Xa3BjxUbKt3yXN9P6wv24L58sTssXvaRbkQlGW37ObSz
+         V/L+0kSuSQQmbvZFNUNaR4VmWi/MEQVJ0sAXYJCDRycT7JDPwxfueM3Xd+rdWAA0w6kR
+         /7aPh4B2ssptTrwGv1+DGUVefnyQCOspxZkcCuDFJB9x7dOQYJ0CsHx4gdn7iFd0ZJKp
+         q1JC3MS9GCrORtRsvSui8D7ga77Iyga7TG3IaSt3DpVFKe870USQO8c9nu78NURFvI30
+         iQ51nIcwR0sJbYxJO8UAbo7iZB9D/5lqvs0qoFfayPcLFmlhrP2/yaI9QknzQddvU8eU
+         N71Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxRpw/dwCdsNs1UMbh5cFpMsIIN4zhoR1ifE3NQQDz8+oBjPC8N8NEFijiFOGUdW3TkZOfzalIdz8Dia31zeQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++mlmriXS72G/JMB+hxVTkFQKg/SpuYiU2hPVcHS74TtYBIbRUyI
+	M1/3FRd84kPwh8dr1Tn8EGLYQyDmGqBH6rBQ/AI5Gu5+OKnA3NpeSM1x
+X-Gm-Gg: AYBFou0ysIIMIW3WbILMECTDlCj1hsGf1622zayWoPKA1Qv+9ng5Ar99qwSdrkFnbX1
+	RKC4ZtH83xk00BDSC+RveACHNo7HwtH3WvnNqESXNmK+Hwz3JVx8NoCSXChi5xbzUfXIDw5zGLf
+	RQOlE5MwzsYzubeJSO3898H11Q15gSabejBiyOxTogVS7UTvU9mmfwX9Hydfvtm5+lMAaO2VKjV
+	eYAWT7E6XNku4wxeQOm5X1wwgwO+74meqb90SaCXqN7TVzXU9mpnfiXBmFvNziJTq0E2BGaXyvR
+	ONnrfoX+iLQV3YS8pvShQqf+inCuVl++MWkjGF4etw/U8Eye8vERLEKIktk5J37Rq527QjQL7Ky
+	8zU0L7mK4/c5Y2GZRGRqety+Z7cMZ0BU0S/Vijo8lPjLFvUrUA8oaAeLQJldk3aDyI/xd8/671j
+	k7u6E0Qf+dZMfUxzZ7q06IYDxz4HyOv+BVb0S6GpwUccxAmNjrY7c3bpIblh1p0dqIrmXerOgX1
+	QJZQpRfsNgfpA==
+X-Received: by 2002:a17:90b:2b4c:b0:39e:1ff0:331b with SMTP id 98e67ed59e1d1-3a07e4f7b61mr128059a91.2.1790097593735;
+        Tue, 22 Sep 2026 10:19:53 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a07db882a5sm109505a91.1.2026.09.22.09.02.36
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a07ddaf4f5sm336767a91.4.2026.09.22.10.19.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 09:02:36 -0700 (PDT)
+        Tue, 22 Sep 2026 10:19:53 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Tue, 22 Sep 2026 09:02:35 -0700
+Date: Tue, 22 Sep 2026 10:19:52 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: =?utf-8?B?5p6X5r+s5ZOy?= <m18667909625@163.com>
+To: Petr Pavlu <petr.pavlu@suse.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] watchdog: use kstrtouint to parse
- softlockup_panic=
-Message-ID: <f2d5714b-6277-436b-9be7-f5cff30c7b76@roeck-us.net>
-References: <20260921064143.81420-1-m18667909625@163.com>
- <7b91e8cb-d068-484c-9a9f-2c19cb37f5ba@roeck-us.net>
- <e5bc7dc4-3faa-491f-9c8d-62afe0be0bbd@roeck-us.net>
- <20260922153000.10086.2-m18667909625@163.com>
+	Ian Abbott <abbotti@mev.co.uk>,
+	H Hartley Sweeten <hsweeten@visionengravers.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Rudolf Marek <r.marek@assembler.cz>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Chris Snook <chris.snook@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Andreas Noever <andreas.noever@gmail.com>,
+	Mika Westerberg <westeri@kernel.org>,
+	Yehezkel Bernat <YehezkelShB@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Duncan Sands <duncan.sands@free.fr>,
+	Chas Williams <3chas3@gmail.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>, linux-watchdog@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+	intel-wired-lan@lists.osuosl.org, linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] watchdog: Replace __MODULE_STRING() with
+ __stringify()
+Message-ID: <940e0763-9de3-4d55-90cc-8289d5525b17@roeck-us.net>
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-1-c18766690185@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260922153000.10086.2-m18667909625@163.com>
+In-Reply-To: <20260922-module-string-v1-1-c18766690185@suse.com>
 
-On Tue, Sep 22, 2026 at 10:49:52PM +0800, 林濬哲 wrote:
+On Tue, Sep 22, 2026 at 03:32:21PM +0200, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 > 
-> simple_strtoul() is deprecated. Use kstrtouint() instead; on a parse
-> error the variable is now left unchanged instead of being silently
-> clamped.
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
 > 
-> __setup() handlers return whether they handled the option and cannot
-> propagate parse errors, so the handler simply returns 1.
-> 
-> v3: do not warn on parse errors (Guenter Roeck).
-> 
-> Signed-off-by: Lin Junzhe <m18667909625@163.com>
-> Assisted-by: AI coding assistant (per kernel AI guidelines)
-> ---
->  kernel/watchdog.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-> index 420f08140713..69cd5ebb4929 100644
-> --- a/kernel/watchdog.c
-> +++ b/kernel/watchdog.c
-> @@ -423,10 +423,11 @@ static unsigned long soft_lockup_nmi_warn;
->  
->  static int __init softlockup_panic_setup(char *str)
->  {
-> -	int ret;
-> +	unsigned int val;
->  
-> -	ret = kstrtouint(str, 0, &softlockup_panic);
-> -	return ret ? ret : 1;
-> +	if (!kstrtouint(str, 0, &val))
-> +		softlockup_panic = val;
-> +	return 1;
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-This is not v3, it is a patch applied on top of a previous version,
-and it unnecessarily introduces a temporary variable.
+Applied to watchdog-next.
 
+Thanks,
 Guenter
