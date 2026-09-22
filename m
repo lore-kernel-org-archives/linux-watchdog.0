@@ -1,64 +1,59 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55305314D1F;
-	Tue, 22 Sep 2026 13:41:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9C903BBFB6;
+	Tue, 22 Sep 2026 14:42:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790084516; cv=none; b=lhghbITxvN5UZJ5/DEbH8nhnQdFzDwcPS864xPN4S9aTUKQLluttb7n4vb4rjqTdHYflTcBOLoYQwEQ/S3nt+iLv6yxBX6q3ZJJnn0ja4sH73B7KNELGS0F1UVDD4ZEAlKP73G0+ATQp8e2yH2XJ4ofcJ4d8B4RAt5dZ8MEqhM8=
+	t=1790088142; cv=none; b=DpLbg/MvxDIDxRM3sxjsQWqruQUjXN0cnh2Qk6aOZvbtxNf9gdII7KsnGRpQqXWJNnhvgtPdK/6Bf/JcGzau49/LDRpZzKYUDI4Ymd9jLXmqVWNLn2YyVoR2AkSnXoXhlkuSnzhjiz3iadM+RgAqQeTxNV2KOjbr0PhSpl53Tk4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790084516; c=relaxed/simple;
-	bh=ILA5v9L32uI+8ck5fK7HD/3c37VVSiX06f80Px9fkH8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AmpRvhtjSDVIQV0Ar/9+VOzZgBhMGdSz/B+KZMkfQ2cWLtNAOyE9GIcor6xmj9azPr1bVOPDUUbzlmT7zfhMXQYgQjya3wW8x8MG5ooi2hBbUorPET+OH0o68MihlJde8qB8gC22bvwgVs0/Zfo8fowRAvYR03u0Gkh0J+GyBiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MVbyo82C; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MVbyo82C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC0B1F00898;
-	Tue, 22 Sep 2026 13:41:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790084515;
-	bh=ILA5v9L32uI+8ck5fK7HD/3c37VVSiX06f80Px9fkH8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MVbyo82ClgfUhwSMC+AelL7s2H8ljc7ku5Hb5xJXGqvfJjrCbXz+ZvnOkpCxBjWPi
-	 ryLMt3NyKZY0sOY2KG1Dn+3olv760W4cC8/nqGaCYmBUQYQY30Aa/a5s0+7htLGDUF
-	 RrYZxIpKyiAJDaYSUfXPFmFvp2S10lOXJpR197QIIW5R42t45IyBnAWXqTTg8lR10V
-	 wJuKXktgbUYo98SuNNI3HE+Pf0Y11V/aI4FaFlhtXoQzfJrw7+w6/Z9jS88GPMjVfN
-	 dVy0OrrgxDxYjdRrA/3wInfpkxlZNhBK56GhJY63bfcMMZRdmdOx5Ag5pNvKiPEO/G
-	 0ux8JQs3vExcQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with
- __stringify()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Petr Pavlu" <petr.pavlu@suse.com>
-Cc: linux-modules@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-serial@vger.kernel.org, linux-rtc@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
-References: <20260922-module-string-v1-0-c18766690185@suse.com>
- <20260922-module-string-v1-2-c18766690185@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 13:41:54 +0000
-Message-Id: <20260922134154.ACC0B1F00898@smtp.kernel.org>
+	s=arc-20240116; t=1790088142; c=relaxed/simple;
+	bh=8XWsRdIFUSABcQNvjha7hbsJNP1sQGmpZpslRSpb820=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=OdtKL8vxCgf9RZrE/KYtK5rRwpMMZnWxpH7m9Nx973OZTxqpQutBux/yLbxdRgPSj/4kVx/BqKEKEDEgNhqj53Qv5QfwIy6eq28Yd2DhuG6VFk2HH5VnUrGuHl45VcDmI22yiPUq5nas68pyTxVADz1JhLPvMQAN95wCGqtKiNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.helo=mail.mainlining.org; arc=none smtp.client-ip=5.75.144.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.helo=mail.mainlining.org
+Date: Tue, 22 Sep 2026 15:41:52 +0100
+From: Bradley Morgan <brads@mainlining.org>
+To: Petr Mladek <pmladek@suse.com>
+CC: Andrew Morton <akpm@linux-foundation.org>,
+ Jinchao Wang <wangjinchao600@gmail.com>,
+ Craig Lamparter <craig.lamparter@hpe.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v7_0/6=5D_panic=3A_fix_panic=5Ffo?=
+ =?US-ASCII?Q?rce=5Fcpu=3D_redirect_races_and_NMI_bypass?=
+In-Reply-To: <arJ2KqCA7aBgt71r@pathway.suse.cz>
+References: <20260916182957.7788-1-brads@mainlining.org> <arJ2KqCA7aBgt71r@pathway.suse.cz>
+Message-ID: <6FCE58E3-B367-4258-8852-EB04335F9590@mainlining.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
-> MODULE_PARM support for older modules" [1] in 2002-12. That change also
-> moved it to the graveyard section at the end of linux/module.h
->=20
-> Replace the remaining uses of __MODULE_STRING() with __stringify() in
-> preparation for its removal.
->=20
-> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+On 22 September 2026 13:35:54 BST, Petr Mladek <pmladek@suse.com> wrote:
+>On Wed 2026-09-16 18:29:51, Bradley Morgan wrote:
+>> The panic_force_cpu= parameter redirects a panic to a specific CPU so
+>> the crash kernel runs there. The redirect code in panic_try_force_cpu()
+>> had two races and an NMI bypass, all found by Sashiko. This series
+>> closes them and kills one more hack that the rework turned up.
+>
+>IMHO, this version is ready to go. It would be great to fix the commit
+>message in the 4th patch but I think that Andrew could do the fixup.
+>
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Akpm? Up for it?
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922-module-str=
-ing-v1-0-c18766690185@suse.com?part=3D2
+>Best Regards,
+>Petr
+>
 
+--- Thanks!
+"I'm not a very positive person" - Linus torvalds
