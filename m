@@ -1,66 +1,88 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED42A46C844;
-	Tue, 22 Sep 2026 23:22:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28C4D2E229F;
+	Wed, 23 Sep 2026 09:46:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790119361; cv=none; b=fKFkSVL1dh6tcY3WoDVHe4Hm7YfKA35mHvnmZiYmoTvqJAlV/f2oQAXnFUw6TVx09GF0vnG3yDj837W7Bv2gHNIOEfv/l5b6bm56PMP656mE/aJYTacAkP+kEY0VlXX0PCpFcVSvU/jOCb4/MYF5F1NCSydz6FvkpwPpbG5OOSs=
+	t=1790156775; cv=none; b=ufy6oV+AlzpdJr6oExqIYAU4evtCkUTudr4HmGA6lvpaY9OwB0eu9ob5uMWaIvWuYcxGvnkYjvLZFB+r1XPKyLI1K9nGdL6CzAK5UTycdGcxO+mwdbGrHaeHz7fWocqTaNrnLup0FC6KWW/5mDZVzYPx56x6v4HdEEF6o44c/dQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790119361; c=relaxed/simple;
-	bh=PgefHW6QVEmndI6Pen8dca81L1s3Qu0KxcXBfMzPXEE=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=TJzY86iFP2AYPCTV6njvnrs8tUF6z7xhhq7GT9FONg1uqy2SGvHb2zbd0xIwLVV9NuNVI5jHKZ4mVetfsWBzadgA/U/xI7jxzGZ0A1w373n3p8jR2D4v2wHvXcaKsqm2VmizH1Xs0I28HXV8Dd14oHMIQS0Px2yHPhyk5ICF8kk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=TMayVCBU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790156775; c=relaxed/simple;
+	bh=PMVYgZO8cP6y5ckMpLn+PFVGTgT8mBDdbyL2LKP5ON4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tAjIfh8a1HxTLBj5q1eqsP3ejsTNnGrkBzMWrKidFEAQXJcsy52lCfd4excAMKRtDYv6PlY3knRUipLtan5hNOKpFXURG2SWgdyAvA7nkuBWwYheX0Ngp1oMsYXivL3g+3o4M8o2GyVqXarefsyK32n2E6MFkhzqb/JHwgq9pIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=M/D1iPoF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="TMayVCBU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9791F000FF;
-	Tue, 22 Sep 2026 23:22:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1790119359;
-	bh=wKBWlI33FhDSPg+OguzLJJtT0RSFclrc6CAnfnG4Gpg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=TMayVCBUUn2+3j7CQaLgmKWABkGrgi7VvoY7sV0yzsczNJz7RhDIMQJ+hqSyfa7Nw
-	 TB/Ew/ajk/y+dOqwHcEZpP56tiwTQAe22/ZhB4gdkVHgRQBpqB9JhvFZvnnIHCc+la
-	 ru7gS9EfY9+i7FMZ2kIXX0ehv0gP5uKad8V900j0=
-Date: Tue, 22 Sep 2026 16:22:38 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Bradley Morgan <brads@mainlining.org>
-Cc: Petr Mladek <pmladek@suse.com>, Jinchao Wang <wangjinchao600@gmail.com>,
- Craig Lamparter <craig.lamparter@hpe.com>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
- linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 0/6] panic: fix panic_force_cpu= redirect races and
- NMI bypass
-Message-Id: <20260922162238.5779a90e2d34853fc9fcc323@linux-foundation.org>
-In-Reply-To: <6FCE58E3-B367-4258-8852-EB04335F9590@mainlining.org>
-References: <20260916182957.7788-1-brads@mainlining.org>
-	<arJ2KqCA7aBgt71r@pathway.suse.cz>
-	<6FCE58E3-B367-4258-8852-EB04335F9590@mainlining.org>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="M/D1iPoF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D0A1F000FF;
+	Wed, 23 Sep 2026 09:46:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1790156773;
+	bh=T6Qi8YPK1RXqDrx7q/dk8raUpjNTcrjbKdaAJ9D+O7U=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=M/D1iPoFzrqn2W6mcgJ1LRF5Focn/2Y/OUIg5hYwYiMMSR8CT5ZIZD6NWIRtkXhk3
+	 oujVm9FkeETC48xHPmtDrloCMSOmZ/vL27gXOV2pX36pL3yyN4jfhW6fI28IWXFgQc
+	 0QzjkhcjfBTTo3h+lTK1ooSJmJ+pUx4b6t4Eufug=
+Date: Wed, 23 Sep 2026 11:39:59 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Petr Pavlu <petr.pavlu@suse.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>,
+	H Hartley Sweeten <hsweeten@visionengravers.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Rudolf Marek <r.marek@assembler.cz>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Chris Snook <chris.snook@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Andreas Noever <andreas.noever@gmail.com>,
+	Mika Westerberg <westeri@kernel.org>,
+	Yehezkel Bernat <YehezkelShB@gmail.com>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Duncan Sands <duncan.sands@free.fr>,
+	Chas Williams <3chas3@gmail.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>, linux-watchdog@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+	intel-wired-lan@lists.osuosl.org, linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with __stringify()
+Message-ID: <2026092352-demote-rewire-6df6@gregkh>
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-2-c18766690185@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
 
-On Tue, 22 Sep 2026 15:41:52 +0100 Bradley Morgan <brads@mainlining.org> wrote:
-
-> On 22 September 2026 13:35:54 BST, Petr Mladek <pmladek@suse.com> wrote:
-> >On Wed 2026-09-16 18:29:51, Bradley Morgan wrote:
-> >> The panic_force_cpu= parameter redirects a panic to a specific CPU so
-> >> the crash kernel runs there. The redirect code in panic_try_force_cpu()
-> >> had two races and an NMI bypass, all found by Sashiko. This series
-> >> closes them and kills one more hack that the rework turned up.
-> >
-> >IMHO, this version is ready to go. It would be great to fix the commit
-> >message in the 4th patch but I think that Andrew could do the fixup.
-> >
+On Tue, Sep 22, 2026 at 03:32:22PM +0200, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 > 
-> Akpm? Up for it?
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
+> 
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
 
-Done, thanks.
-
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
