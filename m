@@ -1,108 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from cp2.siel.si (cp2.siel.si [46.19.12.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7228849E12F;
-	Wed, 23 Sep 2026 11:05:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C934349B1EE;
+	Wed, 23 Sep 2026 11:17:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.19.12.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790161528; cv=none; b=JhMKFidqPb5tiJYnl2twRD00GHrYwhs0gcXRpza8S3pGzc9NYhoW+WC3VDwy3Xjg90cBbRI3xAxiDGlkRKUYVyGS259xvH9kaANXBZ2bRvQ3vC55hDGzIWtXPYjzUDC8ap4/UVGutyXEbwwqsglj/kxGX3OeD+b5ySIzbtdItFk=
+	t=1790162246; cv=none; b=cOZJ8jisOdJBLJSwDVohJyK1Gr4pfQX1Tq7MzOvgG7BDhZy39cxtARQwP0yxG6eZrsmUHYMFOgPi9IzbVK4ov/yJx9L+eBftK/88JYUWoFRpmaxLRJdnAQwig3iox6KtcQpwbojG2ZuRK4sZ4aQyXblc6uOFwpqwrzOs9qPrY7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790161528; c=relaxed/simple;
-	bh=BG1LmYBJycGlKHga2vrOYqUq3jgnoVTEd0ZyQF+IuZw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=RhXID9JvlwTKkHWGgh0pG8+zu4MFwGN9K5g+pOxeLCSvvxY9qeFY88JrOyEt2SionVX1Q8Y6GSzF8cqdoRYkJZ8SgIM+pC5bgSTKJzsYB0WjItZOXs6NfJY+3DDVLi89Jd18rR5wljaJ+D6IIYXXVa14R88e28mUpUJu4fty6cA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Krh++msq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790162246; c=relaxed/simple;
+	bh=2+omdqyn+5i8zEgTKuHWQg1tTbCMYOp4CLE9fbUVb3E=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=pPVf6NTpilwIxVbBhEt0/RPBwfUW448BPeupt+YfOaBMuUfs82YO/WtrWGYs5CsQis+DBkDnp/F3xwbudD7qiH2pwEWjvG5wSmu7q1Qls4Qwrbl9ySx3FqYYzH3HPZDl8ahItfnwP/8MIehdf/N2DE9Jiu/34JKCBuN/WfYZqYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=norik.com; spf=pass smtp.mailfrom=norik.com; dkim=pass (2048-bit key) header.d=norik.com header.i=@norik.com header.b=KTmreRC6; arc=none smtp.client-ip=46.19.12.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=norik.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=norik.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Krh++msq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7CC1F008A0;
-	Wed, 23 Sep 2026 11:05:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790161519;
-	bh=VjMgowPyf5El8SVb8JYGwulnTmp0N7MctuHOd2JswAQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Krh++msqfLEB0KIsbN2fUSgby5I7F2mnfLMh8rv5LNfAdOxC4GFNW9oOBDg+Y+Q4y
-	 imSUx0yS/EuY+5Rkk/L9eJ63MEyEI75mMThtkVPPUw7OSwAgl53AjUbikwDWya/PiV
-	 T7L9TKpY+x2SYfce+Sv8e1ZoN0BbHOPmMyL5UdhHtP0Ucxl1aWkbMo3cu0anQ7nFTl
-	 YyQ9ZKENsWrk8UN/kNaOBMPQ8Q4zLW7JBCqodbCssA7bCay1GGUOgoOd155LuMf1uR
-	 +9HfrNTZQ9//3tdGeQn4ItBsdyudNBOhqjWEpUtoTN3Q4JsOopQguxMvMWYD1+09uP
-	 f7Z/hz54SLorA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 7/8] arm64: dts: renesas: r9a09g077: Use CPG/MSSR
- syscon for WDTDCR access
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, wsa+renesas@sang-engineering.com, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260923104054.3324830-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
-References: <20260923104054.3324830-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260923104054.3324830-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 23 Sep 2026 11:05:18 +0000
-Message-Id: <20260923110519.1A7CC1F008A0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=norik.com header.i=@norik.com header.b="KTmreRC6"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
+	s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Unsubscribe-Post:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=bl7tym+Lu2vHHOzs+uUoc+3f+eTV2ZLmnuMsx9CFWy8=; b=KTmreRC6RhFR0elJA8L3YCgyQt
+	nZcEtodFvJX+Wj1eVQmyh8vtM9u63htAdESzqmNjtQVKgxHOY7nMTQFEaRWCzduTNKbJgh/Eeptv2
+	7GeYpyC4dS3UoWwpH/ajhrx60RFKYcj/XV+G+OZ6Dk2DUIPIVLPZ+dLe2eHCAncvYuInxjriNdiBl
+	3vPQ2OzVdlaBIHfx+UOTO+USK0RRPgbmBskM0DrF3+lKBfS1tnVPI6kB6NkSgdf6SqNyauL4ldqCn
+	eQFw0ygB0tG2qhMsl2H+c5hy8C7XHTDbDZcjFwj86hGHGoZsqlvCpIJDy+v1KeyIQ/P7b3XZ9ytvi
+	2UP7q1KQ==;
+Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:43182 helo=localhost.localdomain)
+	by cp2.siel.si with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100)
+	(envelope-from <primoz.fiser@norik.com>)
+	id 1x9KyZ-0000000A1qw-2Q0k;
+	Wed, 23 Sep 2026 13:17:22 +0200
+From: Primoz Fiser <primoz.fiser@norik.com>
+To: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Lee Jones <lee@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	mfd@lists.linux.dev,
+	linux-watchdog@vger.kernel.org,
+	upstream@lists.phytec.de,
+	andrej.picej@norik.com
+Subject: [PATCH 2/4] mfd: da9061: make register CONFIG_I writable
+Date: Wed, 23 Sep 2026 13:17:17 +0200
+Message-Id: <20260923111719.2032012-3-primoz.fiser@norik.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260923111719.2032012-1-primoz.fiser@norik.com>
+References: <20260923111719.2032012-1-primoz.fiser@norik.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cp2.siel.si
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - norik.com
+X-Get-Message-Sender-Via: cp2.siel.si: authenticated_id: primoz.fiser@norik.com
+X-Authenticated-Sender: cp2.siel.si: primoz.fiser@norik.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] probe: watchdog driver perpetually fails to probe due to invalid s=
-yscon target
---
+From: Andrej Picej <andrej.picej@norik.com>
 
-commit 4e5d24eec602a0526d0eac3d1f59b54aa0dd4798
-Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Make the config register CONFIG_I writable to change the watchdog mode.
 
-arm64: dts: renesas: r9a09g077: Use CPG/MSSR syscon for WDTDCR access
+Signed-off-by: Andrej Picej <andrej.picej@norik.com>
+Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
+---
+ drivers/mfd/da9062-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The WDTDCR registers for wdt0-wdt5 reside in the second register region of
-the CPG/MSSR block. This multi-function block is now exposed via a unified
-syscon regmap interface.
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 32dd24483ee0..c987e533824d 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -427,7 +427,7 @@ static const struct regmap_range da9061_aa_writeable_ranges[] = {
+ 	regmap_reg_range(DA9062AA_VBUCK1_B, DA9062AA_VBUCK4_B),
+ 	regmap_reg_range(DA9062AA_VBUCK3_B, DA9062AA_VBUCK3_B),
+ 	regmap_reg_range(DA9062AA_VLDO1_B, DA9062AA_VLDO4_B),
+-	regmap_reg_range(DA9062AA_CONFIG_J, DA9062AA_CONFIG_J),
++	regmap_reg_range(DA9062AA_CONFIG_I, DA9062AA_CONFIG_J),
+ 	regmap_reg_range(DA9062AA_GP_ID_0, DA9062AA_GP_ID_19),
+ };
+ 
+-- 
+2.34.1
 
-> diff --git a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi b/arch/arm64/boot=
-/dts/renesas/r9a09g077.dtsi
-> index 40494159831d8..ad5189d55cef2 100644
-> --- a/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-> +++ b/arch/arm64/boot/dts/renesas/r9a09g077.dtsi
-> @@ -327,61 +327,61 @@ channel1 {
-> =20
->  		wdt0: watchdog@80082000 {
->  			compatible =3D "renesas,r9a09g077-wdt";
-> -			reg =3D <0 0x80082000 0 0x400>,
-> -			      <0 0x81295100 0 0x04>;
-> +			reg =3D <0 0x80082000 0 0x400>;
->  			clocks =3D <&cpg CPG_CORE R9A09G077_CLK_PCLKL>;
->  			clock-names =3D "pclk";
->  			power-domains =3D <&cpg>;
-> +			renesas,sysc =3D <&cpg 0>;
-
-[Severity: High]
-Does the cpg node have the "syscon" compatible string?
-
-Looking at the cpg node definition in arch/arm64/boot/dts/renesas/r9a09g077=
-.dtsi:
-
-		cpg: clock-controller@80280000 {
-			compatible =3D "renesas,r9a09g077-cpg-mssr";
-			reg =3D <0 0x80280000 0 0x10000>,
-			      <0 0x81280000 0 0x10000>;
-
-Because it lacks the "syscon" compatible string, and its driver does not
-manually register a syscon regmap, won't syscon_regmap_lookup_by_phandle_ar=
-gs()
-perpetually fail and return -EPROBE_DEFER during the watchdog driver probe?
-
-Furthermore, if it were treated as a generic syscon, the generic driver only
-maps the first memory region (size 0x10000), meaning max_register is 0xFFFC.
-Since the WDTDCR offset is calculated as 0x15100 + n*4, won't all register
-accesses be rejected by the regmap subsystem as out-of-bounds?
-
->  			status =3D "disabled";
->  		};
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260923104054.3324=
-830-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D7
