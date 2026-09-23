@@ -1,65 +1,65 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95D63481FAF
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 10:41:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 225DC49892D
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 10:41:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790160076; cv=none; b=m50/yYxxTV+mH97vXsMUqnCmsPdtD5fOf8NxAoju7IBA95yvNcSnmSa0o3j2W/NLQvp91lAzRDd1MHCzgmGToL6MKVd7FlxVKaiYxVh9H3hIsS+PEoX9IRxmI9bvkeqjlLjGs7bL1aeP4esqPVXA8IAd4zAvtsKfMxdwNH2JPYg=
+	t=1790160078; cv=none; b=spI5lSxzST5AAVvk5G1V6yINDkBHV4mNVjg9Cxq4UezepHcXNNH6eRkuV8bIaFw4dkJcdOerEw5UVULgFavS1+awElTRXVm3SZtvcI8vwtn++PadQtyqzYPnkNdlWsLIl0r+j9AZw9vovBBdWlpNqOiKPmEzXHZXJPQoaSls3OA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790160076; c=relaxed/simple;
-	bh=JPq1K/TtYhGpO+h9McDLSD5P9OgM/Hgg+AidAGB5kZ4=;
+	s=arc-20240116; t=1790160078; c=relaxed/simple;
+	bh=zrebjrYHLxlkcLbOWhLADCVn448m5K5z0EZUcGG0+0E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DmLhRBz9LC3gjZh6VCt2uvCnj0Ua9RhTP/HE8KhVjWCtqv9EUy3atZj5VCPorA+PDWq91ryRrUnnG2orhaZ17J3eAYpf4PdKRqU6RINYHdpUXxNocz9FufmPP16hSq+CKGPnE5Db8Isol3io+wj11Mh44nV5hr6jW0f5gGAM7ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IYUL9gIP; arc=none smtp.client-ip=74.125.225.76
+	 MIME-Version; b=n0NTXOD5LnNWPabdPVx+b01241ILZeJ3HMCGjQ5Ys6K1R19MLLYdsMXMLwEnhHa3VlidKMfiJRJ877QM/L0WgR2ZUgPhfJLlFdNe4GlVel8b1ZNCDeC5te4AdPRIpEh+FYMCVHEakao6zKc5tEMS59u0nGQfu3ejqAaXeFZGOGc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bj9mLHOT; arc=none smtp.client-ip=74.125.225.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IYUL9gIP"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-485933b2522so643510f8f.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 03:41:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bj9mLHOT"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49e620fa473so4389215e9.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 03:41:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790160060; x=1790764860; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790160061; x=1790764861; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hfcYaXdQ4JhprU1bLeofN4mzB3OfwntG7DvJN30DUis=;
-        b=IYUL9gIPYJqMH6ta6UmGeCGhk8DIsHHAzbYofqCLJvUcJd1cGFPZ1pmRwg6BQ59q1W
-         hE2e0h0expbETv8Dbh3Ykf6PjAp4Dh86GNT1GKS3AsHGBmp+VlW7r0N6o7+0+PvE9+P0
-         AlYpOU3zgyCZlcNPLEThtBr5KSYBmvbf2IzoKvbY8leIFR5k+aQBfcdgd4E2QlSGOyX3
-         esmrHSVIqwUliWW5BR0TacEIngcloE9S3B+LFoW+wtnGxr/0zoFnXeIEmSAuSyoqg/4V
-         1gYc+O4fEdZExcqLBePgCguiixv2YpTL7FNOKXEL7M6GVQ/N8v/6Tridf2BtEPLjaa7O
-         M3Lg==
+        bh=Ix3tO+d9OZKaRLRpGMWc7HAXEvurMPfFvhpnn2QHvZs=;
+        b=Bj9mLHOTsWcq1mlqYhEDwsulSgdRbgCRu8/8iaA1wliFOoVt2mziwustNaO0W9CNdc
+         UyjvOofDNHi2b31xFLrYTe5wraaZnpUayJRwdGFZeuDt1b6hSYlr+vNkBTPoHXbMqZsh
+         8HR4s9eLKSsnELfJvPz2/AzX7vEv8o0/IyKHI/p5xqaUzKYNb/RE5Gkv29cnMafZBhf7
+         S2jAZZPFa5JKEmo8d0VAq9WkgvkBJncpMCZD0oJfcpKvuW3MuoHkGLUACTc4GSS4y+BA
+         ylzynqK36LXH5o61vadQtu3LVhfpKdqDCXY20WQU7JckqAxIijZCEVdnhEpZpekSOpzm
+         fc4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790160060; x=1790764860;
+        d=1e100.net; s=20260707; t=1790160061; x=1790764861;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=hfcYaXdQ4JhprU1bLeofN4mzB3OfwntG7DvJN30DUis=;
-        b=ujovI4uyFpe3G/P9nHiZnUCotDleaFmA+ZdTdIKwXYv+SngeCbQ/Ag/iTw6bNf8Ffy
-         TrKHIBpZ7Tdhly95N7j2y1pdfJrrtqhbouE3YKKs4WUnxMmSIjOlJATiao/ygREKBb3W
-         Ku9Sbfj/YVk+a7czNfvuRHsMjtqp3XPPyHk5Q/eOmtjM/pWFjRM4P6iZN8FV4P8q4Oln
-         vEJMv3bh0Kh5fbt79BEdbHsmKrfSVxAK5BPVyF2VwatkZB/R7/Vqyb6A6NrVfaCcmwCK
-         6jVNolrhclY7rZYf2m0kUqcITwelETRpGklS5XUoXTxlQcQ70RRJ8hNE72kA7SnCN8Fr
-         p+vw==
-X-Forwarded-Encrypted: i=1; AKwUvByt6J3eYMOrbbjbSLAxySxR0xLIVfuSky2Z+9LXu2zzp2iYs+ljZ4rc2tRN3aJhQ1t5VVKBUkK44GXZ1/+wog==@vger.kernel.org
-X-Gm-Message-State: AFuF++lYr0pUBvSKRq++UzISxRGe7deocXf+4iUmiaBY8mwB9H2mGfmH
-	8UGLejTjQQLh/nbko+6lpZJxVgCalvK2FDCAaGUSrWXlxMCPmFWyA+IK
-X-Gm-Gg: AYBFou3nbUAjAYg5uTAmF/sxet5QVxvg5YKCEOW//EoMR04e6JGzJQjM3v14JGhqnuY
-	Qx/Bkj+wcJy9dgfXTImjHrldqLtB1M++f80c3AcGnwuwF+/VvEyBTjlLOKgnexdjN1xPHwN81iU
-	WS1MwqZLshVCJHxlckyK+eX4JcwHomTw0sOr4+Ii2is6ZsMu4ul6rcVSpFZM8ZupaLWqSe5TCzD
-	ynJi9bKLtWWRwaryLmUOp7h4marDDTYmiGAZK8kebb5JUHjAJRxlq0T+21GlGumWGXlE2Q1d3TL
-	EzpuIo+DdVCbbNSPXUQVe43Xx37kQdO8VRSLcI8wPOIBhqQ3W5CXdvPRbKaBHe8hgmlJ8KtNoRu
-	RGD0JjjqGMLSLp/9TQhkNkd7w8Xg0CUFWD/nX6g2A/jeUk9GoNovg+lDKH2+wNTLzTi4MS8RBbJ
-	CiV9YsSHZ6f7LOu6cvyOwSZy7DwiPpc77BG7MQw6qCfJgtBfSFSLZk8crQHXf800yAn/33HKCAo
-	4kMUCIylavGH9hcRSD9HzSk3CAj4xPddq9rhqp69X4ql9foXrXTgX3U9OQNWyiWV5IJ6guyiUiq
-	HZCFC2/aIwu4SghK5OE=
-X-Received: by 2002:a05:600c:3b21:b0:49f:bd3c:bc25 with SMTP id 5b1f17b1804b1-49fdf25486bmr26346245e9.32.1790160059852;
-        Wed, 23 Sep 2026 03:40:59 -0700 (PDT)
+        bh=Ix3tO+d9OZKaRLRpGMWc7HAXEvurMPfFvhpnn2QHvZs=;
+        b=xGApX+dcrYVZnlvGIi3JOzIjVxTSWb0BVnq8Fh/kf+ByE0lbZK40fIFu2yFyYiRN97
+         VM2bp9R/x32ViMbkUovckcB9GMrgiK+JHIR/yTNej+FTS58gyk9D45MOfIK7PfM1uwHi
+         K0OvdPINCR7WjiAsTT49m5lD/xUN7kkOR8dgdK5G+ml8MLZEod6JlCxcCqsHMt0EthKM
+         xAEPBY+CgQkq69mkUD4tBAwZzHYPRJ6PipuGTM3yyh0xmcvJMPY1wVFhRNiwhrreh0lX
+         TSZxQ6+I954a1plaNrkKJ9IiLcyOLdg2jcpak3UYrQ2qBahCFCB+rtO+vXCmHXsSO6oA
+         rs6Q==
+X-Forwarded-Encrypted: i=1; AKwUvBzTUsun4HhxbzSeJcL4yBV0CJSZBicoPxpW/sslPSKNjVVn6julnFK2vcxix35uFlDNG2rV2GKDxm2X5OaC8Q==@vger.kernel.org
+X-Gm-Message-State: AFuF++mA1VDa5KEo6lOiNZKGGUJ9koKarZvnto58JLYyPvdjpnasG7jF
+	ZW7ALVdRntvKXMe+8saExouMTpR1s+9VmF84b7KidX7fCLX7kVHLFeRt
+X-Gm-Gg: AYBFou3ZeXQpXOZj+FKhSFFD8XiEqB/JoPvdqx75Ax6clTF6H7ppZOYTkp7G8q1EIgD
+	ZdB/zYp+iamtc98k1rVEvPwCOsL5KTwanVw2JG2ajLe6qoN/Fv+g+0nkbCEU3rWRf8SyHfpQML6
+	Rc4f43YKMIfr6s04yH1oUAm/tMNW9JTfaT9FN6Xmgro4jrJ7pcUdqNc9Qb+gsgYROtEuX8cXaT3
+	o6xElCkwfa4ajr6XC22eQjMKW7rdBfg5rpunGml17aA/HEVtSN25GYjic2RU1k5HXQ6i5u6gYGq
+	cahEp7qsXUUKk+zHPOrOtupFBGnYyLOcZre1B2MbX1D+3Q+82SvGaFRYeX+4W71d2lLvCBklC6+
+	CCNSq/KyAze3UfBr/MhOa7Gh4vU3vYa0ZdwgsUavdNGhNjm7QWIyvVN+5tvKbasQXulZvUaHqZI
+	R6KqnA/eJVAbt5EhR5dauIKqvqiJi0cyS1Z6ibfeHeQfmzswKeGBSYQ/c4TVk4dtdttO/pX538F
+	jNY7ti9RhgnuSI/4ZHCIR58vrVIYxluFHPLRIesS5LUyqE+uiO6gTga5QtwcAV3ASVzGceUID0e
+	0HXeo18+
+X-Received: by 2002:a05:600c:1396:b0:49d:93c:d903 with SMTP id 5b1f17b1804b1-49fdf135413mr28275625e9.20.1790160060973;
+        Wed, 23 Sep 2026 03:41:00 -0700 (PDT)
 Received: from iku.Home ([2a06:5906:61b:2d00:885e:6ade:cc5e:a35e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fde1acb91sm65170415e9.15.2026.09.23.03.40.59
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fde1acb91sm65170415e9.15.2026.09.23.03.41.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2026 03:40:59 -0700 (PDT)
+        Wed, 23 Sep 2026 03:41:00 -0700 (PDT)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -78,9 +78,9 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
 	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v6 1/8] watchdog: rzv2h: Use pm_runtime_put_sync()
-Date: Wed, 23 Sep 2026 11:40:47 +0100
-Message-ID: <20260923104054.3324830-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v6 2/8] watchdog: rzv2h: Drop enabling clocks in the restart handler
+Date: Wed, 23 Sep 2026 11:40:48 +0100
+Message-ID: <20260923104054.3324830-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260923104054.3324830-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260923104054.3324830-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -94,45 +94,71 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-pm_runtime_put() may trigger the idle check after pm_runtime_disable()
-is run as part of devm_pm_runtime_enable()'s cleanup action, leaving
-runtime PM active.
+The watchdog restart handler runs from do_kernel_restart() with
+interrupts disabled and after smp_send_stop() has halted the other CPUs.
+Calling clk_enable() from the !watchdog_active() path takes the clock
+framework's global enable_lock. If a stopped CPU held this lock, the
+CPU executing the restart handler can spin indefinitely and prevent the
+watchdog from resetting the system.
 
-Use pm_runtime_put_sync() to ensure the idle check runs synchronously.
+Keep pclk and oscclk enabled for the lifetime of the watchdog device by
+using devm_clk_get_enabled() and devm_clk_get_optional_enabled().
+Remove the conditional clock enable/disable operations from the restart
+handler so it does not acquire any clock framework locks.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 ---
 v5->v6:
-- Used pm_runtime_put_sync() in rzv2h_wdt_stop() function.
+- No change
 
 v4->v5:
 - New patch
 ---
- drivers/watchdog/rzv2h_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/rzv2h_wdt.c | 19 +++----------------
+ 1 file changed, 3 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
-index 83540dd9a37b..057b890de0b0 100644
+index 057b890de0b0..ee1649e0edae 100644
 --- a/drivers/watchdog/rzv2h_wdt.c
 +++ b/drivers/watchdog/rzv2h_wdt.c
-@@ -174,7 +174,7 @@ static int rzv2h_wdt_stop(struct watchdog_device *wdev)
- 	if (priv->of_data->wdtdcr)
- 		rzt2h_wdt_wdtdcr_count_stop(priv);
+@@ -191,22 +191,9 @@ static int rzv2h_wdt_restart(struct watchdog_device *wdev,
+ 	int ret;
  
--	pm_runtime_put(wdev->parent);
-+	pm_runtime_put_sync(wdev->parent);
+ 	if (!watchdog_active(wdev)) {
+-		ret = clk_enable(priv->pclk);
+-		if (ret)
+-			return ret;
+-
+-		ret = clk_enable(priv->oscclk);
+-		if (ret) {
+-			clk_disable(priv->pclk);
+-			return ret;
+-		}
+-
+ 		ret = reset_control_deassert(priv->rstc);
+-		if (ret) {
+-			clk_disable(priv->oscclk);
+-			clk_disable(priv->pclk);
++		if (ret)
+ 			return ret;
+-		}
+ 	} else {
+ 		/*
+ 		 * Writing to the WDT Control Register (WDTCR) or WDT Reset
+@@ -291,11 +278,11 @@ static int rzv2h_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->base))
+ 		return PTR_ERR(priv->base);
  
- 	return 0;
- }
-@@ -268,7 +268,7 @@ static int rzt2h_wdt_wdtdcr_init(struct platform_device *pdev,
+-	priv->pclk = devm_clk_get_prepared(dev, "pclk");
++	priv->pclk = devm_clk_get_enabled(dev, "pclk");
+ 	if (IS_ERR(priv->pclk))
+ 		return dev_err_probe(dev, PTR_ERR(priv->pclk), "Failed to get pclk\n");
  
- 	rzt2h_wdt_wdtdcr_count_stop(priv);
+-	priv->oscclk = devm_clk_get_optional_prepared(dev, "oscclk");
++	priv->oscclk = devm_clk_get_optional_enabled(dev, "oscclk");
+ 	if (IS_ERR(priv->oscclk))
+ 		return dev_err_probe(dev, PTR_ERR(priv->oscclk), "Failed to get oscclk\n");
  
--	pm_runtime_put(&pdev->dev);
-+	pm_runtime_put_sync(&pdev->dev);
- 
- 	return 0;
- }
 -- 
 2.55.0
 
