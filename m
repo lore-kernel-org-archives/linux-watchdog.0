@@ -1,106 +1,205 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-oa2-f9.google.com (mail-oa2-f9.google.com [74.125.231.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 093803876BE
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 21:19:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFBEC3B8405
+	for <linux-watchdog@vger.kernel.org>; Thu, 24 Sep 2026 03:10:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790198351; cv=none; b=EBogFrPqBYHtw0JAhOj3KHhMBTc9GVPqgdufJTnk+6Sqx8NvbuJkaETf0nXPxnYIjWBNdH58bRLSD4d6akxvOiZWKgWA6wlSgAhu6vuELwBuBmCG6kBCSb/W8h/UuHOeNXyqemTTJXi2Yks3pMJYqCa38fTHNrAtcQCsO0jplF4=
+	t=1790219452; cv=none; b=OBEL15fqJBG7oloxDFPDXtAfnZMC+Si3riVtX34KfWciQ0pxbdlYI/6u2dlsUMas4WDMaC9x7ODO754zWia/mOsdVW8I9+fUcheD+scC3+Ww6YBwqF8l3qvmgLzB7dNYr4AiBstH788JZ/YN+gxdv8LGJrPI1mtpKkqokQ+AsMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790198351; c=relaxed/simple;
-	bh=ZcbP3QeuLjyfA/MWPpI4xMkSD/R2NEkFhR/DwOlavZ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DlpExm/RMwf8prGlhPqTMKS7VeBsKV7sGNOPSBg+WM6DkJwg99xMWSUE20mEE8wrbG6igyOFikohAJqNOu2pXOyOpj43BG4rb4c8s1nkadLjN/JH+6I+5MPha4nMAGHdNjWmdgepji0nn5VtGsJB09mc+AzYBdOU2rZsZNXasEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EAqepXK+; arc=none smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1790219452; c=relaxed/simple;
+	bh=Wv/Q/eibR9/8UNWYWEXMi5HVbkom6Ngkl4aD5jL1RW8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=eZaFL2lL2mwdSmhfT0ipIouPKNYevIVCeqYt1EBe4Jr38PlLCCU2fjtdD4ti8938TwunszGTJ23zmj7NxtRP8x3v+lSp4UNlN8kDS0Ed7ZDCcP9Wz8pGE6Z+QnzP9jAac/y0lsKMJYjYMd/XgK9OcHYD5kFHz3BAqI6OsgBfqEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AMtTSHHa; arc=none smtp.client-ip=74.125.231.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EAqepXK+"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d747ee1f9bso7588715ad.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 14:19:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AMtTSHHa"
+Received: by mail-oa2-f9.google.com with SMTP id 586e51a60fabf-47bd4bcc3e2so740005fac.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 Sep 2026 20:10:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790198342; x=1790803142; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=mvwR1H5066c3VfNVVSSHz0oGUtnFFfkwQhyCaKNQI9w=;
-        b=EAqepXK+ivUp1djsVH7gQb2y16ForKGGc2L1H1ROfrfTF3lw/SE94TuQ6gluhqEEmU
-         jWJS7auLvn+Qjx2i6r14+sKc0dq/LDjKJoBspxwlEbczdmfv0UvHdYdfsdTunFI7EZ8s
-         UJtnSI2eG3XEtqNfxOj9qJVaKjW6c6xp2ODbK8J+qAGdJbyoPUCQHieqFNcn/E7er28l
-         Zy7RF6juD5wa6BdG3/ypDxoZVXmpaJdPaILCuWpNWOe1g9czALUSEDEyWtGiQg+uRI84
-         3umQKoogRxkrab/tkNbasH4CA5BlFcKpCuZbNMsjmw+LUYTYFlQMJPk8xEnSQW152qL3
-         IGkw==
+        d=gmail.com; s=20251104; t=1790219450; x=1790824250; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=weznhsdlOq6RIl6RLEBM2onzEOR0sehn1VqOBbe70/Q=;
+        b=AMtTSHHanAtlihvBFZRy4nae8dcfP2WXjv4X5kKeD5YKBpWq8162AwR0UkZsLX11v+
+         MCG/EpsKOOccoSvy71DmJU2UBK/0vyCS89W8nlEOmK3SyCdpCV9k6ydhoJaHdck263Bu
+         pVpceuTwi1OJPxzN9FQ/5exlqjkESk3VUPXOnU0wNQAdr1Touf+bhZFzKNiNCDnSqalo
+         vIg8VlgLixqgEr0scuvXOqCGgs7YETBm/Jlxe5jr6BEvaUO3MXKcCRR+TTvVK8Yot1Vb
+         xo5BcjMtEzJtX5rLNmcDJsOcEy3ldKgcjYBH1Ify6zzPqIJE3Zty2WBvjI4j8ZLwvWM+
+         scXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790198342; x=1790803142;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=mvwR1H5066c3VfNVVSSHz0oGUtnFFfkwQhyCaKNQI9w=;
-        b=Ske9ELqqZEJCt4s++xyn/w1b+6LPFXOjNeZVG6zWitMLBtxH696L8Bs+xjzCbQv1XO
-         E4ogURmZQ5MjUBKxSFjEMq5WItmFeekK4pepfMEXEZdz/XAaPlLNhYst6AyfwXxlnrXM
-         7UDIAn3JmFAJLda07PAykp5NZ9LST5PgE4ONVtvDEPu9E/EgZ9apg86R4Y3DKdY7zK7n
-         xKfDiorDSctZ469mx10EIyZq3Cwk78Jqd2gzQQCsdC3JZ7DkQ0kVsFMC5w6nSEyc+Il8
-         sbhkzq4TGEW0HnGuzPOYq6JU8XlD7/nIQK8wwYar/bivBuVjgHuaQINbxQ5LEkjkt9DM
-         Qvww==
-X-Forwarded-Encrypted: i=1; AKwUvBxp+dBlK1yjFQXYkXDp7rctKpCf1E7BUhiX5grBpj3bmRG0RrvODMQRwPOY4v+S6SyVLSqoxcX+AA/1H9YzjA==@vger.kernel.org
-X-Gm-Message-State: AFuF++k7LFr9xfYk3Cnh8t+Zoz5thszkiFlQpdjpA0VSJ5jvj0B9/1uD
-	w7uu/shlyJVN5n7dQoF+xjbwer2nDPecq9WyZjK6S41BvlClVAAz5t2h
-X-Gm-Gg: AYBFou3c1JFm+mfgHhuxbWtZLh7mXy2CNeIeN2t4X/0FihMs13j5Xpk52h/niA7CGGd
-	pPFMEXB/H7DwwMTqeVg6wuha+VIyF42ZSaGm/VY+nGONrMNCZY6mGO2KET5VZ1VcP+dbPeJcI/b
-	jaEJowC2tFGLIl90RkLehEQnQTHvHCinfqpMVnlXHPUVrORZx+c5EmRYVvrj34ysY6tN0NEtIa+
-	v9LCwtv6mkhayKf+2WsOyZzel+We993toVA/Rla/zsWU2RnjaWqImN9G/hG0ak9rtOBqxDoBjbb
-	rftoZs69R9H6LGGWeBOe/HsIEFsYB4GgF2JkcWuCfF8zr+tn/qwYWh+hsLce1J++NvpIA6vUx3t
-	SKt7GVgL0NtbAuOi2Q6QaM2hwO+iDangxBGPh3Ba/vXYh2d8Aa3dF+PyrSbE4ww61fbmLBDQbGl
-	W5PLBEM33HVyd4hik2MoiegiRZpT5dYajBzvCizCfQSR7oe/G3M75BDHlBXORCTYgfECZHMxVnj
-	L89L+6nfOkr
-X-Received: by 2002:a17:903:1b6c:b0:2dd:c100:7cc7 with SMTP id d9443c01a7336-2df7dd74741mr2847775ad.67.1790198341935;
-        Wed, 23 Sep 2026 14:19:01 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2df6a5ee5efsm16486245ad.63.2026.09.23.14.19.00
+        d=1e100.net; s=20260707; t=1790219450; x=1790824250;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=weznhsdlOq6RIl6RLEBM2onzEOR0sehn1VqOBbe70/Q=;
+        b=yixddLxPRNUWzIVwD88dg2hVbJTYwMSVT9KROcQIF2FuTkE1q9QbykaeMsttDXlj2b
+         ymFIpBDhsBOBUp3lDpDat94DzeIQ7zMQXMBfwCZAUF8OKoGkh0toLXpIV05JrPk/iUN2
+         Q+8gMybpIVtgyhavyy3EL//Ast3u7/gnIabGs2zHHn992Vsh+712QZZm2Ae6jmrrRENk
+         w9lOy3+akfz2oeLOXnOWFlqAy6ivXYvlFWBrAll49t0bm9jfxBXN37iK+OUdBXvmhhG3
+         kWVBco4WaoAHI4a2uj3HapBXykSwag/jcieAaD808bSlG1O6MlH8rAplg6gCe5ZY9smV
+         2oZg==
+X-Gm-Message-State: AFuF++myHxyUBpScpOlyg1Sr4+hlGZdLEfdPzZzunGpVrbMtV7lPKi0F
+	fXUwcBBiMp+dkkhl8bTM9bpQf5ep/ithuAPRWjFmOQY9FaYhbpAQzetG
+X-Gm-Gg: AYBFou13/8E43nrpZN6DJg4B55UPvIyD6IlGEgXWgchByBBKPJHeUYcqDIAm5bRvhnX
+	S9yTXjf6B/Bdl3XEO7oOsJiWLMNJsJ8CZGV0Gl0BFkTSHVdOKH3tM7SeIqm9dvegb1Zv9bSxV1J
+	3jdzabBcUChTx2iCrnJhL/Yedc/W2p2bMMiTYSovPpgelTwmCp32NzWW3Y6SkzObn029W5uH6wM
+	jvTrH8bO8GRAI8DlExnjtlT3jHZV1tjXGfNOBHdka4kyyxbR7IkeZxlCswGHpP3TQhTtiz1ZPuM
+	5R2b90VbNi5KlU0BJmyfsKTyCECHK1istKHwsmHJBDQUpX8yvhzL//uveMmE3vQSPXaBzQhZnmS
+	opZC+o4V+3jWEpGdBJJqf/Q7ILmZcInPARdoXqi2GIlA7G506RlUbBbotX9zVC8TismhMdqIx0y
+	m5Ubji7qds85b7nFE4vtvskutfJ2DGu96UeJk706LDjKNiF7Y6Hp+YBlSfcL6Kbr0LGw==
+X-Received: by 2002:a05:6808:c187:b0:4b9:e6ab:d07a with SMTP id 5614622812f47-4d72cb39b25mr1219299b6e.26.1790219449792;
+        Wed, 23 Sep 2026 20:10:49 -0700 (PDT)
+Received: from [192.168.18.164] ([2600:8804:5716:d800::2620])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4d5c4bf8e14sm3893842b6e.14.2026.09.23.20.10.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2026 14:19:01 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 23 Sep 2026 14:19:00 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH v6 4/8] watchdog: rzv2h: Propagate WDTDCR access errors
-Message-ID: <999bd947-4f7f-4615-9ef3-c33b85182027@roeck-us.net>
-References: <20260923104054.3324830-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260923104054.3324830-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        Wed, 23 Sep 2026 20:10:48 -0700 (PDT)
+From: Ryan Brue <ryanbrue.dev@gmail.com>
+Date: Wed, 23 Sep 2026 22:10:41 -0500
+Subject: [PATCH] watchdog: mediatek: Apply the driver's mode to a watchdog
+ left running
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260923104054.3324830-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260923-rbrue-suez-upstreaming-mtk-wdt-dual-mode-v1-1-0970852315e4@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3NQQ6CMBBA0auQWTsJ1kipVzEsih1woi1kplUj4
+ e42Lt/m/w2UhEnh0mwg9GLlJVUcDw3c7j7NhByqwbSma505oYxSCLXQF8uqWchHTjPG/MB3yBi
+ Kf2JcAmFnzz3ZsbduclBzq9DEn//qOuz7D4S6ytZ6AAAA
+X-Change-ID: 20260923-rbrue-suez-upstreaming-mtk-wdt-dual-mode-6758e7b879f9
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ "freddy.hsin" <freddy.hsin@mediatek.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+ Ryan Brue <ryanbrue.dev@gmail.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790219446; l=4049;
+ i=ryanbrue.dev@gmail.com; s=20260906; h=from:subject:message-id;
+ bh=Wv/Q/eibR9/8UNWYWEXMi5HVbkom6Ngkl4aD5jL1RW8=;
+ b=u/GAfKCmgfS6yqJtSJBYgi0CdZm5MqDZ1SAsZGK9ZcrBpAZEMAT3l9eouuHXlc8qWODTBEB1Q
+ XFRXWn46T0VArMVB7GfAKkxDnqc11EQrfVB1wPFyafDxWf9KgzaTvYJ
+X-Developer-Key: i=ryanbrue.dev@gmail.com; a=ed25519;
+ pk=KsUvVaP//v/2q+ZBuacc7cLbsyEYn+AD71Sn28oZWKo=
 
-On Wed, Sep 23, 2026 at 11:40:50AM +0100, Prabhakar wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> 
-> The WDTDCR helpers access the register directly using readl()/writel() and
-> therefore cannot report failures to their callers. WDTDCR is located in a
-> shared syscon region and will be accessed through regmap in a subsequent
-> change, where register accesses can fail.
+When the bootloader leaves the watchdog enabled, probe only marks it
+running and sets the timeout, so WDT_MODE keeps whatever the bootloader
+wrote. The Amazon Fire HD 10 (2017) bootloader leaves dual mode with the
+bark IRQ enabled, and no pretimeout is configured, so each timeout only
+raises the IRQ and restarts the count: with the 20 s timeout systemd
+sets, a hung system was reset after 37.95-39.76 s, and after 18.25-20.92 s
+once IRQ_EN was cleared by hand.
 
-For real or just theoretically ? If for real, warranting the quite
-substantial and invasive error handling code in this patch, this
-really needs to be explained further.
+Program the mode as mtk_wdt_start() does, which also applies
+mediatek,disable-extrst and mediatek,reset-by-toprgu to a running
+watchdog; read those two properties first.
 
-Thanks,
-Guenter
+Fixes: bbece05c0d3a ("watchdog: mtk_wdt: Remove mtk_wdt_stop() in probe() to prevent the system freeze and it doesn't reboot by watchdog problem")
+Assisted-by: LLM
+Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
+---
+Found on an Amazon Fire HD 10 (2017), an MT8173 board that is not upstream
+yet. Its watchdog node has no interrupt, so no pretimeout is set up. The
+timings in the commit message were taken from the host side of the USB
+link; with this patch a hung reboot resets after 18.35-18.45 s (n=3).
+
+It is based on v7.3-rc4 but it also applies cleanly to watchdog-next,
+where "watchdog: mediatek: acknowledge pretimeout interrupt" moves
+spin_lock_init() ahead of mtk_wdt_init(), so calling mtk_wdt_start() from
+there is safe on both.
+---
+ drivers/watchdog/mtk_wdt.c | 43 ++++++++++++++++++++++++-------------------
+ 1 file changed, 24 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index d9c30e4c80e3..b12ea113b63e 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -285,19 +285,6 @@ static int mtk_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 	return 0;
+ }
+ 
+-static void mtk_wdt_init(struct watchdog_device *wdt_dev)
+-{
+-	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+-	void __iomem *wdt_base;
+-
+-	wdt_base = mtk_wdt->wdt_base;
+-
+-	if (readl(wdt_base + WDT_MODE) & WDT_MODE_EN) {
+-		set_bit(WDOG_HW_RUNNING, &wdt_dev->status);
+-		mtk_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+-	}
+-}
+-
+ static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
+ {
+ 	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+@@ -338,6 +325,24 @@ static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
+ 
++static void mtk_wdt_init(struct watchdog_device *wdt_dev)
++{
++	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
++	void __iomem *wdt_base;
++
++	wdt_base = mtk_wdt->wdt_base;
++
++	/*
++	 * The bootloader may have left it in dual mode, where a timeout only
++	 * raises the bark IRQ and the reset comes one timeout later. Apply
++	 * this driver's mode instead, as mtk_wdt_start() does.
++	 */
++	if (readl(wdt_base + WDT_MODE) & WDT_MODE_EN) {
++		set_bit(WDOG_HW_RUNNING, &wdt_dev->status);
++		mtk_wdt_start(wdt_dev);
++	}
++}
++
+ static int mtk_wdt_set_pretimeout(struct watchdog_device *wdd,
+ 				  unsigned int timeout)
+ {
+@@ -440,6 +445,12 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_drvdata(&mtk_wdt->wdt_dev, mtk_wdt);
+ 
++	mtk_wdt->disable_wdt_extrst =
++		of_property_read_bool(dev->of_node, "mediatek,disable-extrst");
++
++	mtk_wdt->reset_by_toprgu =
++		of_property_read_bool(dev->of_node, "mediatek,reset-by-toprgu");
++
+ 	mtk_wdt_init(&mtk_wdt->wdt_dev);
+ 
+ 	watchdog_stop_on_reboot(&mtk_wdt->wdt_dev);
+@@ -460,12 +471,6 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
+ 	}
+ 
+-	mtk_wdt->disable_wdt_extrst =
+-		of_property_read_bool(dev->of_node, "mediatek,disable-extrst");
+-
+-	mtk_wdt->reset_by_toprgu =
+-		of_property_read_bool(dev->of_node, "mediatek,reset-by-toprgu");
+-
+ 	return 0;
+ }
+ 
+
+---
+base-commit: 93f51579e7df248780214094418f205253383cc5
+change-id: 20260923-rbrue-suez-upstreaming-mtk-wdt-dual-mode-6758e7b879f9
+
+Best regards,
+--  
+Ryan Brue <ryanbrue.dev@gmail.com>
+
