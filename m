@@ -1,51 +1,34 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 124AC2E7165;
-	Fri, 25 Sep 2026 09:57:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CD1536A35C;
+	Fri, 25 Sep 2026 10:16:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790330222; cv=none; b=r6b1rvjp4uXwxlopfvoQnjsjTOzQVhqnMbbF64ISuiGFUhPW+Mvdnk/Jw0/tKViK4PgarPrLTul5rMMBt6CZmV4IXI7s3u4Me8DT7JXgxbU999+VGUkT7QxPHFYapfJmeE+ZjJvT9+ES9WMtzec+KtFfwRE/iZeqJSeE6HE+VyY=
+	t=1790331395; cv=none; b=GXNOevl7iiXL9ufrqpSS0mlazRpKMTf20hKQIoLckQ4Pxmj7pAsTrf9RU7IV7g7qsQJcdw+X4igfH7DOZDWqIrngTQr4uaEYx59mqr9CxQTIKNzeWqGe2BFkrR4AMWRzpSOaTXqPcOMs2gGKk6TA6Rnf1Byb4YySGzM5OdnS+aE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790330222; c=relaxed/simple;
-	bh=RFkzEkH/pTrprYA0V564zxkPwGY1QFaLSdmuR9IK8tg=;
+	s=arc-20240116; t=1790331395; c=relaxed/simple;
+	bh=6sQjTl0h2YynQNsljBKq/SldxiED4mREqj3QZmkKDNA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bM9dY7PHzF5gcpQZz5Q4wXqvZL+PwnupfhkWHJakkF9pziOdCCxQaPrAYdi3TmiSarIE/XY91rH5Rh0CVNSaw41X7fhe1kyStf/PN/ZOmT9guIERX45DYNJT3hBTL4OFSqjmz8tkfFxDaWXolZAqFlMNfUvYA2RIVFDH+5lrcL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WrbXD5eU; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=s/20aHkUrlRK87D2WC5/btqZ280K9LxKitBnyYWEBtEDW9W7jwlLYVUTxg08tvf0Zh8NzAbfUKjrlRkOKv6ZrtBPSeNcVrKqoFbo6vGduz8BMRvQTQiQoHIf764nnMQjqG9n171UMJJufKDyK80E3EfXgO7pVlrfnvRdn7NfEzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WZSV2KrV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WrbXD5eU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1790330221; x=1821866221;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=RFkzEkH/pTrprYA0V564zxkPwGY1QFaLSdmuR9IK8tg=;
-  b=WrbXD5eUwFbFZsIPlS7qwb3VVINmS6xSfh40IHXJ7ToQsm0cacMragvL
-   QXo5PTSt8ECu8oNSHad5uNOIA5I0NoXKfQE3fM2IEvJnO3WFQQ8SZARZi
-   W8TmHIDi27KsP3pfqeZu5hZAc21ARlgtqPt1LWHqJOjvg3SmmvvJpP6ls
-   Fa/49Ubzm4kD27PZLMS5LxJwyt6D1ARpcXXoPyVhpAysNyqYR63LF0pN4
-   wN+Gyx1NGq8TRopvK9pY8yjUOXS5K2VYiUQZ4VMyEKLtZSR1ET00acu2T
-   PUTXwy/H9YXIcBPkUjELm3ClTrsbHu1SIYxer/sCDkX2hmWTtHX0/tR05
-   A==;
-X-CSE-ConnectionGUID: NzTHglFjQ429gPWwl9m84Q==
-X-CSE-MsgGUID: 84iPzlHERcu5kdmHzwFAAw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11915"; a="101640317"
-X-IronPort-AV: E=Sophos;i="6.27,122,1787036400"; 
-   d="scan'208";a="101640317"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2026 02:57:01 -0700
-X-CSE-ConnectionGUID: iuXnh6rdSPysbnNxiqRMHw==
-X-CSE-MsgGUID: 1dKCGk7BS4CQlO0D0rpNlg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,122,1787036400"; 
-   d="scan'208";a="270769027"
-Received: from mkosciow-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.27])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2026 02:56:56 -0700
-Date: Fri, 25 Sep 2026 12:56:53 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Lorenzo Pieralisi <lpieralisi@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WZSV2KrV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2723F1F000FF;
+	Fri, 25 Sep 2026 10:16:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790331394;
+	bh=Htdeexyfqui6yBn8pJU/UKqiEIPQ6aeL2MArnxM27yU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WZSV2KrVGl3YQXdwQ0GOKP/uUWoB1odeW567eyoQ63pSoEH/KVP8CBuLOD4iLmkhj
+	 vHko5XlwfS3mq1Jo5Il+ItolyLS0HPXeQvBXkt8yXolnC9jqWJlojS6fdCZV5ivxqs
+	 3uo1KsaEN/fX7vUnVwrO0XmKQ4OwXwof9KzO2fC544tG63jk+3TYYEd6XeWYHTw+hE
+	 MeINCKoErVD7xtiMarBSJl3jxUosmP6a/5cUQjCurirMhBEuWPtvEvpZDC/DozU4/6
+	 S6B4gtTwIBS8AkyaNQEMvW/YVdXnk2eeO9ZF58oXdaKNc6Tgt4MzbrM3+8o4uBE6xw
+	 jl/UPPQL/c55w==
+Date: Fri, 25 Sep 2026 12:16:26 +0200
+From: Lorenzo Pieralisi <lpieralisi@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
 	Daniel Lezcano <daniel.lezcano@kernel.org>,
@@ -62,11 +45,12 @@ Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 06/11] ACPI: GTDT: Convert SBSA watchdog to IRQ
- properties
-Message-ID: <arZFZf0p30jEHGsD@ashevche-desk.local>
+Subject: Re: [PATCH RFC 03/11] driver core: platform: Add static ACPI nodes
+ IRQ retrieval/mapping code
+Message-ID: <arZJ-jqd1hXqVYgz@red-moon>
 References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
- <20260925-acpi-static-table-irq-probe-defer-v1-6-2c62125d0085@kernel.org>
+ <20260925-acpi-static-table-irq-probe-defer-v1-3-2c62125d0085@kernel.org>
+ <arZEx0113s0bbkXJ@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -75,45 +59,43 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260925-acpi-static-table-irq-probe-defer-v1-6-2c62125d0085@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <arZEx0113s0bbkXJ@ashevche-desk.local>
 
-On Fri, Sep 25, 2026 at 09:48:05AM +0200, Lorenzo Pieralisi wrote:
-> SBSA watchdog IRQs might be wired to interrupt controllers that are
-> probed after the SBSA watchdog is probed and therefore the IRQ mappings
-> cannot be carried out at platform device creation but deferred to
-> SBSA watchdog probing through the platform_get_irq*() set of APIs.
+On Fri, Sep 25, 2026 at 12:54:15PM +0300, Andy Shevchenko wrote:
+> On Fri, Sep 25, 2026 at 09:48:02AM +0200, Lorenzo Pieralisi wrote:
+> > ACPI static fwnodes types are not contemplated in the current
+> > 
+> > platform_get_irq_affinity()
+> > 
+> > implementation that is there to retrieve and map IRQs for a device.
+> > 
+> > Add fwnode_irq_get() to platform_get_irq_affinity() for static ACPI fwnodes
+> > to overcome this shortcoming, enabling IRQ retrieval and mapping for the
+> > ACPI static fwnode type.
+> > 
+> > Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> > Cc: Danilo Krummrich <dakr@kernel.org>
+> > ---
 > 
-> To do that, stash the GSI number, trigger, polarity into standard
-> properties attached to a software node that is attached to the
-> platform device ACPI static fwnode, allowing the SBSA driver to
-> retrieve those properties and map the IRQ when the SBSA driver
-> is probed.
+> Same about the Cc list...
 > 
-> Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-> Cc: Hanjun Guo <guohanjun@huawei.com>
-> Cc: Sudeep Holla <sudeep.holla@kernel.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> ---
+> ...
+> 
+> > +	if (is_acpi_static_node(fwnode)) {
+> > +		ret = fwnode_irq_get(fwnode, num);
+> > +		if (ret > 0 || ret == -EPROBE_DEFER)
+> > +			goto out;
+> > +	}
+> 
+> This even doesn't sound right. If you know this is an ACPI-only feature what
+> the fwnode has all to do with it? Call the respective ACPI-oriented function.
 
-Same about the Cc list...
+Yes, you are right, it is a last minute change since I noticed that just
+calling fwnode_irq_get() without guards would catch previous failures so
+it makes sense to do it on specific fwnode type (with is_acpi_static_node()
+exported also for !CONFIG_ACPI).
 
-...
-
->  	struct resource res[] = {
->  		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
->  		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
-> -		{},
-
-Side note, even in the old code the last entry should be rather DEFINE_RES().
-Because some APIs, such as resource_size() will not work on an 'empty'
-resource.
-
->  	};
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Thanks,
+Lorenzo
