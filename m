@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CD1536A35C;
-	Fri, 25 Sep 2026 10:16:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C76493D4E;
+	Fri, 25 Sep 2026 10:30:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790331395; cv=none; b=GXNOevl7iiXL9ufrqpSS0mlazRpKMTf20hKQIoLckQ4Pxmj7pAsTrf9RU7IV7g7qsQJcdw+X4igfH7DOZDWqIrngTQr4uaEYx59mqr9CxQTIKNzeWqGe2BFkrR4AMWRzpSOaTXqPcOMs2gGKk6TA6Rnf1Byb4YySGzM5OdnS+aE=
+	t=1790332216; cv=none; b=HIPH4vB2T0skZSUFbyGn/0ilQ6ahYBLTOHeRfgTX2t7WtLnt6HvDm4Hv/IohO9h7DvXjN37r1Q5sm5534yOfbEpDk4HqknswrmyiepcBDW8rXkqpKeV7hL3a8fqDVDPz4FlrY3EiQAFVHNm9zJiUbxreVsrkntTkPtZT/UuXtbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790331395; c=relaxed/simple;
-	bh=6sQjTl0h2YynQNsljBKq/SldxiED4mREqj3QZmkKDNA=;
+	s=arc-20240116; t=1790332216; c=relaxed/simple;
+	bh=G38+9Xi1BL5x3HemPTXAYafBVSe9mK5t4PCHwW9U/+g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s/20aHkUrlRK87D2WC5/btqZ280K9LxKitBnyYWEBtEDW9W7jwlLYVUTxg08tvf0Zh8NzAbfUKjrlRkOKv6ZrtBPSeNcVrKqoFbo6vGduz8BMRvQTQiQoHIf764nnMQjqG9n171UMJJufKDyK80E3EfXgO7pVlrfnvRdn7NfEzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WZSV2KrV; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=T4C4POeeCdRem7tpP15VRVyBMMboNjxjtOc6j0SEXsx9paNeP+gxcSqoaagLgdRA6hcnRojfTBgFJN0hdelDeQ4tTzcZ0BbvUSIggA/dKk43/wghbtSbYO/+vC1o+BUKV0Yfa/I3LINdWdIbrv17rOmYqxu6yOEmyWiT+Oyjlz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I/PC1qgX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WZSV2KrV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2723F1F000FF;
-	Fri, 25 Sep 2026 10:16:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I/PC1qgX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDABB1F00893;
+	Fri, 25 Sep 2026 10:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790331394;
-	bh=Htdeexyfqui6yBn8pJU/UKqiEIPQ6aeL2MArnxM27yU=;
+	s=k20260515; t=1790332214;
+	bh=u0UNCp5jO3JC5Gl7IqvtlCZ2BmcuD3WupLp9PnEdBrA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WZSV2KrVGl3YQXdwQ0GOKP/uUWoB1odeW567eyoQ63pSoEH/KVP8CBuLOD4iLmkhj
-	 vHko5XlwfS3mq1Jo5Il+ItolyLS0HPXeQvBXkt8yXolnC9jqWJlojS6fdCZV5ivxqs
-	 3uo1KsaEN/fX7vUnVwrO0XmKQ4OwXwof9KzO2fC544tG63jk+3TYYEd6XeWYHTw+hE
-	 MeINCKoErVD7xtiMarBSJl3jxUosmP6a/5cUQjCurirMhBEuWPtvEvpZDC/DozU4/6
-	 S6B4gtTwIBS8AkyaNQEMvW/YVdXnk2eeO9ZF58oXdaKNc6Tgt4MzbrM3+8o4uBE6xw
-	 jl/UPPQL/c55w==
-Date: Fri, 25 Sep 2026 12:16:26 +0200
+	b=I/PC1qgXUGnaE4DvqOgsMbPQTZn2nVuMsNNnif3JLU7v5NloNltpDdIV8iSK/TZmb
+	 +mh2Ck91xOwSKHSDdKxXVz+yyj9whQWuVYYfiwRqhDyH+faUYY18Z5YIrBpkrNRMP/
+	 uNQQSf5eQE0TVTsS8LXy/Nosl63JqRWVc6SrqVl6KnrUsRYWFCbxqae0EI3G+ypZ2H
+	 ZQCIEgAXl7BfPtcdBhc7/IQz4+BQz+gu6/Hd/EeX6nhIQcmXdxpAvbN6U8LddkyeKn
+	 x7NaFqcK4ooeA/eUN0TRkoaionFpY5Uf7ceIDpt8lo2PUceZQJUiFPLkrU1u6m6nc5
+	 mUqEOB9Hh9sPQ==
+Date: Fri, 25 Sep 2026 12:30:07 +0200
 From: Lorenzo Pieralisi <lpieralisi@kernel.org>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
@@ -45,12 +45,11 @@ Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 03/11] driver core: platform: Add static ACPI nodes
- IRQ retrieval/mapping code
-Message-ID: <arZJ-jqd1hXqVYgz@red-moon>
+Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
+Message-ID: <arZNL9BnTGK0Klwc@red-moon>
 References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
- <20260925-acpi-static-table-irq-probe-defer-v1-3-2c62125d0085@kernel.org>
- <arZEx0113s0bbkXJ@ashevche-desk.local>
+ <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
+ <arZDwutoadki7tiZ@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -59,43 +58,90 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <arZEx0113s0bbkXJ@ashevche-desk.local>
+In-Reply-To: <arZDwutoadki7tiZ@ashevche-desk.local>
 
-On Fri, Sep 25, 2026 at 12:54:15PM +0300, Andy Shevchenko wrote:
-> On Fri, Sep 25, 2026 at 09:48:02AM +0200, Lorenzo Pieralisi wrote:
-> > ACPI static fwnodes types are not contemplated in the current
+On Fri, Sep 25, 2026 at 12:49:54PM +0300, Andy Shevchenko wrote:
+> On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
+> > To describe and map GSIs for firmware nodes created out of ACPI static
+> > table entries in a uniform way it is required to define some standard
+> > properties and attach them to ACPI static fwnode as secondary nodes.
 > > 
-> > platform_get_irq_affinity()
+> > Define properties names to describe GSIs and their trigger-mode/polarity,
+> > and implement an irq_get() callback for static fwnodes so that core code
+> > can retrieve and map IRQs for ACPI static fwnodes in standard manner.
 > > 
-> > implementation that is there to retrieve and map IRQs for a device.
-> > 
-> > Add fwnode_irq_get() to platform_get_irq_affinity() for static ACPI fwnodes
-> > to overcome this shortcoming, enabling IRQ retrieval and mapping for the
-> > ACPI static fwnode type.
-> > 
+> > An empty stub for property_read_string_array() is also added, so that
+> > the fwnode_irq_get_byname() interface falls back (through
+> > fwnode_property_read_string_array()) to the secondary
+> > fwnode to grab the "interrupt-names" property.
+> 
 > > Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: Bartosz Golaszewski <brgl@kernel.org>
+> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Danilo Krummrich <dakr@kernel.org>
 > > ---
 > 
-> Same about the Cc list...
+> Same here, please avoid polluting commit message with the Cc list.
 > 
 > ...
 > 
-> > +	if (is_acpi_static_node(fwnode)) {
-> > +		ret = fwnode_irq_get(fwnode, num);
-> > +		if (ret > 0 || ret == -EPROBE_DEFER)
-> > +			goto out;
-> > +	}
+> > +static int acpi_static_fwnode_read_u32_prop_index(const struct fwnode_handle *fwnode,
+> > +						  const char *propname,
+> > +						  unsigned int index, u32 *value)
+> > +{
+> > +	u32 *values;
+> > +	int ret, count;
+> > +
+> > +	count = fwnode_property_count_u32(fwnode, propname);
+> > +	if (count < 0)
+> > +		return count;
+> > +
+> > +	if (index >= count)
+> > +		return -ENOENT;
+> > +
+> > +	values = kcalloc(count, sizeof(*values), GFP_KERNEL);
+> > +	if (!values)
+> > +		return -ENOMEM;
+> > +
+> > +	ret = fwnode_property_read_u32_array(fwnode, propname, values, count);
+> > +	if (!ret)
+> > +		*value = values[index];
 > 
-> This even doesn't sound right. If you know this is an ACPI-only feature what
-> the fwnode has all to do with it? Call the respective ACPI-oriented function.
+> Use standard pattern, id est
+> 
+> 	if (ret)
+> 		...
+> 
+> > +	kfree(values);
+> 
+> You want to use __free()
+> 
+> > +	return ret;
+> > +}
+> 
+> I believe the whole approach is suboptimal, if you wish get indexed value (but why?)
 
-Yes, you are right, it is a last minute change since I noticed that just
-calling fwnode_irq_get() without guards would catch previous failures so
-it makes sense to do it on specific fwnode type (with is_acpi_static_node()
-exported also for !CONFIG_ACPI).
+Why what (that's what the irq_get() interface requires ?) I agree it is
+suboptimal - the whole point of the series is an RFC on using properties
+to store GSI number/flags, then how to read them we will optimize it
+when/if we agree that's the approach to be taken.
 
-Thanks,
+> it needs to be retrieved as that in the guts of ACPI. Allocating memory for the whole
+> array to retrieve a single element is simply wrong.
+> 
+> ...
+> 
+> > +#define ACPI_IRQ_PROP_GSI		"linux,acpi-gsi"
+> > +#define ACPI_IRQ_PROP_GSI_TRIGGER	"linux,acpi-gsi-trigger"
+> > +#define ACPI_IRQ_PROP_GSI_POLARITY	"linux,acpi-gsi-polarity"
+> 
+> Oh... This sounds like a big ugly hack.
+
+That does not help much I am afraid.
+
+What's a ugly hack ? Property names ? Using properties for this purpose ?
+
+Again, it is an RFC for this specific reason and I mentioned that in the
+cover letter, thank you for your inputs.
+
 Lorenzo
