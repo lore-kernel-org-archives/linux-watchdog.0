@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 011CD396565;
-	Fri, 25 Sep 2026 07:48:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E0F1449997;
+	Fri, 25 Sep 2026 07:48:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790322496; cv=none; b=lawZxCXYgzKmrlzD5Avhq3NUMtuE3czn87AdPQt8OPFORIQN37++vVT8ABvBC2rB8On6cYifT9BTPfnz7HFMHbQnWXOqHw37guMnjSnyx+hZh9uoLrTjurRnaI6thVfqSy9sNSNGPYL/e6k8JgPI9UK1BsvgT9ddEs25LIXevnw=
+	t=1790322501; cv=none; b=pCxjFKnYriXL5WtIDiXJ7cPL/SE+Nw3gplCMY2ccit00a1/+gmnnHhc0P94Uq0cGUHQ67hbg/UKBPGJ+H8igykEhTvDo5SstEIEXxjaytdPgdFn0pit/Xy/QNrxZwB3D3Lw/vgqK2eWeLBX8FBZEFMCRfV3qSqV7qvh8ccW6/vk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790322496; c=relaxed/simple;
-	bh=SCHiXFdq6KEtcx5hSoM38EazV3GUoVg4pkxUdXCDRts=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=r+xi4h/u97WGbd4nB5ls8iCJ29qpekCHMfQW/6yo0Xn2fCuo4L4Zdo0S+TtUjDF7oD1yWjxME2mjPoZWH8kkUd1U99fzqKzpgaFdo8vThN6chJK6lEwHutl06mj7mDS8jEEfPz1a4wtAPCGzkKFCuwLoSBxdMSLNVK8lrJ6tMDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k6/gWjyJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790322501; c=relaxed/simple;
+	bh=EMIPLRBMei4Zbcu9YR/n8KjREbq8tJBDG72/MPfUCLk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=HAZhF1Ff5Fr1QGUGEDtlOsrsbg4k7Q5fR9aTbg8G9gxO5ZftwjXCEJaDICnpTfyCmnKVUob9YRNBIGxlecmFc/7Xz0PUKPULfacImkA39nrwpOlptghB9cLF2ZHfA3L0pYyWBGH86+PhMOhA3fDF3+0vMVEnJH2ThN64Uub/F/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W+Xea86y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k6/gWjyJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95351F000FF;
-	Fri, 25 Sep 2026 07:48:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W+Xea86y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595131F00893;
+	Fri, 25 Sep 2026 07:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790322494;
-	bh=vl10PLh4YCEMYuVn95R7Yn6YMorNMjxNfr83ppRhiKY=;
-	h=From:Subject:Date:To:Cc;
-	b=k6/gWjyJcALTAmN4nMuUepNHeDDwULRUDA7JG5mVJrUzIBomVL4dMkXoQqY9hMBH+
-	 13vj0OjjmjLLxNos+PE5p+3Jjjg1ZzA/DCiqJAth0qwBeXI/SQ55d0xTajkQp5/AEg
-	 3dI+eqw4s8qRmX/ByVv7nWRqI+8gXf+rQm9uY7/Koyt4WmQmoqYLX7Yvf0gpgaWa1g
-	 dLJAROnU8ss5A9qcfc9vMFohI6cexXCZAwl/6/d1A2KhvQqFlFN8Ol3eqJ/6dt3hWS
-	 sTqXYc14jNrBl7OraYO5YvKDhOqfnlA/uI2B3QFS+vOR+e3pwwQe3olwQw3ZASMlh2
-	 A/PeO26kjMW3Q==
+	s=k20260515; t=1790322500;
+	bh=FHWMNT3PPvKZVD3OrrYw2bJ/4OkVhqGq7qA3NsaEVms=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=W+Xea86yoT/vqZxhkS2jDSThHP1mQgJVf5EKnlFjUQ3ifH4w3YeCFBP1W8z24XjjX
+	 K4GX8MYCHcQmUxfjEuYiDhbt69ojn9HnJQ3JHqugAgCXDEvz4pAv9kViHktUPnZv0q
+	 s3s/lLp5y4D5Nz4DbddcepTtJekk8EBoIiqkdUGNwHSIN1W0Y9xbt22e5zMv8HGbLn
+	 //KGSvWItTHo0iDtvW+MiXqbEVzFpknqzP+eWEoyJl3haLbvIwoleQws7OFWkj6ZmE
+	 ktAg0icGIByE0XJvSIPBP0k8x87FriRZMg9pxHQE/W853xbYIEOL28V8ciCam6YNvu
+	 vPCtm9NYoH0cA==
 From: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Subject: [PATCH RFC 00/11] ACPI: ARM64: Implement IRQ mapping probe
- deferral for static table devices
-Date: Fri, 25 Sep 2026 09:47:59 +0200
-Message-Id: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
+Date: Fri, 25 Sep 2026 09:48:00 +0200
+Subject: [PATCH RFC 01/11] ACPI: irq: Return -EPROBE_DEFER on missing IRQ
+ domain
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -38,10 +38,9 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWNQQrCMBBFr1Jm7UCNkhK3ggdwK11kkqmOSBsnq
- Qildzfq8j0+7y+QWYUzHJoFlF+SZRorbDcNhJsfr4wSK4NpjW2d2aMPSTAXXyRg8fSoA31i0ok
- YIw+saB25zlLszC5C7STlQd6/jwucT0fo/zLPdOdQvnVY1w/uzzKeigAAAA==
-X-Change-ID: 20260924-acpi-static-table-irq-probe-defer-69b976bd723d
+Message-Id: <20260925-acpi-static-table-irq-probe-defer-v1-1-2c62125d0085@kernel.org>
+References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
+In-Reply-To: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
 To: "Rafael J. Wysocki" <rafael@kernel.org>, 
  Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>, 
  Daniel Lezcano <daniel.lezcano@kernel.org>, 
@@ -59,125 +58,50 @@ Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-watchdog@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>
 X-Mailer: b4 0.15.2
 
-On ACPI ARM64 some platform devices (ie SMMUs, MPAM, MMIO MEM timer) are
-created when the respective static ACPI table (GTDT, IORT, MPAM) entries
-are parsed and the platform device resources, inclusive of their 
-IRQ number are stashed in the platform device resources to be used by
-device drivers at probe time to retrieve the resource values.
+acpi_register_gsi() might fail if the IRQ domain a GSI belongs to has
+not been registered yet by the respective interrupt controller driver.
 
-For IRQs, this works well as long as interrupt controller drivers
-managing IRQs for those devices are probed before the code creating
-the  IRQ mapping out of static table GSI numbers is run, in that the
-interrupt controller drivers create the IRQ domain that allow the actual
-IRQ mappings.
-
-So far, that's always been the case on ACPI ARM64 systems given that
-IRQs were routed to the GICv<5 interrupt controllers (wired and MSI)
-and those controllers drivers probe earlier than any code creating
-GSI mappings out of static ACPI table entries.
-
-With the advent of GICv5 - wired IRQs (former GICv3 SPIs) can be routed
-to a GICv5 IWB; the IWB is modelled as a device and its IRQ domain
-is created when the IWB driver probes - that might be later than
-the device drivers for platform devices created out of static ACPI tables
-probe, resulting in failures to map the IRQs because the IRQ domain is not
-registered yet so the IRQ mapping cannot be resolved.
-
-This RFC series aims at solving this issue and should be used as
-a starting point to build a solution and hopefully get some feedback.
-
-PATCH 4 is a fixlet, I included with the series since I noticed
-while updating the arch MEM MMIO timer driver.
-
-Herein below, some technical details behind the patchset decisions
-and questions to be addressed.
-
-================
-Misc design info
-================
-
-The main idea behind the patchset is relying on software nodes
-properties to allow static tables parsing code to stash GSI number,
-trigger and polarity (and possibly its "name") into the device
-secondary firmware node so that the device drivers can retrieve
-their values in a uniform manner when the device drivers probe,
-the same way it is done on OF.
-
-I converted IORT table platform devices to provide an example of
-what it looks like and check whether that's the right direction of travel.
-
-The secondary software node are linked to the primary ACPI static fwnode
-that are already created for IORT platform devices.
-
-A question I have about this approach is that resources for a given
-device are stored in separate data, struct resource for MMIO address
-space and secondary fwnode for IRQ properties.
-
-I am not sure either that using software node properties for this
-purpose is the right approach.
-
-At least, by creating "standard" properties we can make the parsing
-uniform, instead of relying on a per driver platform data to stash
-GSI information as it is done for the arch MMIO mem timer.
-
-I decided to handle the arch MMIO timer conversion differently as
-a point solution. Converting the arch MMIO timer to software nodes
-would require creating an ACPI static fwnode per-frame and would
-complicate things for not much. Instead, I just stash the GSI
-number and properties in static data per frame (that exists already,
-struct arch_timer_mem_frame) at GTDT parse time that can be
-used by the driver later to map the GSI when the MMIO timer driver
-probes.
-
-acpi_register_gsi() was augmented to return -EPROBE_DEFER to handle
-a missing IRQ domain and therefore enabling probe deferral.
-
-The fwnode API was augmented as well so that device drivers can actually
-retrieve IRQ numbers using standard platform device APIs:
-
-platform_get_irq*()
-
-when the fwnode itself is an ACPI static fwnode value.
-
-I tested this on a GICv5 FVP model by re-routing MMIO timer, SBSA watchdog
-and SMMUv3 IRQs to an IWB and checking that IRQ mappings and probe deferral
-work.
-
-Feedback more than welcome.
+Return -EPROBE_DEFER in this case so that the mapping can be retried
+later by deferring the probe for the driver that requested the IRQ
+mapping.
 
 Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
 ---
-Lorenzo Pieralisi (11):
-      ACPI: irq: Return -EPROBE_DEFER on missing IRQ domain
-      ACPI: Introduce irq_get() for static fwnodes
-      driver core: platform: Add static ACPI nodes IRQ retrieval/mapping code
-      clocksource/drivers/arm_arch_timer_mmio: Dispose IRQ mappings on probe failure
-      clocksource/drivers/arm_arch_timer_mmio: Implement arch mem timer deferred probe
-      ACPI: GTDT: Convert SBSA watchdog to IRQ properties
-      ACPI/IORT: Convert IORT devices to IRQs software-node properties
-      watchdog: sbsa: Handle IRQ probe deferral
-      iommu/arm-smmu: Add arm-smmu IRQ mapping -EPROBE_DEFER handling
-      iommu/arm-smmu-v3: Add IRQ mapping -EPROBE_DEFER handling
-      perf/arm-smmu-v3-pmu: Add IRQ mapping -EPROBE_DEFER handling
+ drivers/acpi/irq.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
- drivers/acpi/arm64/gtdt.c                   |  90 ++++++----
- drivers/acpi/arm64/iort.c                   | 250 ++++++++++++++++------------
- drivers/acpi/irq.c                          |   6 +
- drivers/acpi/property.c                     |  69 +++++++-
- drivers/base/platform.c                     |   6 +
- drivers/clocksource/arm_arch_timer_mmio.c   | 123 ++++++++++++++
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c |   8 +
- drivers/iommu/arm/arm-smmu/arm-smmu.c       |   6 +-
- drivers/perf/arm_smmuv3_pmu.c               |   3 +
- drivers/watchdog/sbsa_gwdt.c                |   2 +
- include/clocksource/arm_arch_timer.h        |   4 +
- include/linux/acpi.h                        |   4 +
- 12 files changed, 426 insertions(+), 145 deletions(-)
----
-base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
-change-id: 20260924-acpi-static-table-irq-probe-defer-69b976bd723d
+diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
+index e4293458bf61..d1f1938c83bf 100644
+--- a/drivers/acpi/irq.c
++++ b/drivers/acpi/irq.c
+@@ -52,11 +52,13 @@ EXPORT_SYMBOL_GPL(acpi_gsi_to_irq);
+  * @polarity: polarity of the GSI to be mapped
+  *
+  * Returns: a valid linux IRQ number on success
++ *          -EPROBE_DEFER when the domain was not yet registered
+  *          -EINVAL on failure
+  */
+ int acpi_register_gsi(struct device *dev, u32 gsi, int trigger,
+ 		      int polarity)
+ {
++	struct irq_domain *domain;
+ 	struct irq_fwspec fwspec;
+ 	unsigned int irq;
+ 
+@@ -66,6 +68,10 @@ int acpi_register_gsi(struct device *dev, u32 gsi, int trigger,
+ 		return -EINVAL;
+ 	}
+ 
++	domain = irq_find_matching_fwnode(fwspec.fwnode, DOMAIN_BUS_ANY);
++	if (!domain)
++		return -EPROBE_DEFER;
++
+ 	fwspec.param[0] = gsi;
+ 	fwspec.param[1] = acpi_dev_get_irq_type(trigger, polarity);
+ 	fwspec.param_count = 2;
 
-Best regards,
---  
-Lorenzo Pieralisi <lpieralisi@kernel.org>
+-- 
+2.54.0
 
