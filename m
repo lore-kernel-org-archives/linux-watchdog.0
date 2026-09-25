@@ -1,49 +1,49 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF21D488227;
-	Fri, 25 Sep 2026 09:45:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A894486656;
+	Fri, 25 Sep 2026 09:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790329523; cv=none; b=JMjlUCK8uaRmvRAD6BiwA+W9MzmodRpxxp9o4IJgnybNiyTuxqTCPyc+qst0DutyjM/znY38Z9MNHStDanrRBHK5G+7cpQULbzoqsCN4pKCvhxkyObFGvN4ZjLGgWzzuDEKao3DO+2Sk1+Mda445X4CM3WGwNfRIGauTv1kSORw=
+	t=1790329804; cv=none; b=Zm3bIBOF29mZZiAUuQ/Xy/CE46wMunXEVaK3WeLYQkuj3L0B51zLAlhKTqBPGveb5PHcAvRSngIZTwUvEpmrx556Sn88J8VVEm+8lLdiaRnLmH9STfSa3GSGQTgc68IlqjVLODv2SFSTaXeCeSBV5EJzBtl8herK/4lukeW5XMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790329523; c=relaxed/simple;
-	bh=u03sCXgRX7pcyePoPYi95dX0Tff82Nq1OTABJ1meNc0=;
+	s=arc-20240116; t=1790329804; c=relaxed/simple;
+	bh=sjQO25DPF6I4YR81FfUFsr7AZEkXc7WRPqKWMV/gMyM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lQNacCrx/RolKWkLHFkeCaeofkkSWmT5J3TMNlkiY4WeagTPmkZ0Gi26GIQJ9FCoihD6g4CCI+5Rc9G0ci4gqNR19c4H3etxbPaWRQDu7zbzHu4dzO5XdhFr35NWy22nT/7PRtbUnE4Uly120W+4xw6rY6cWL/Ve7tuHqsf1p+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f1nmoBxH; arc=none smtp.client-ip=192.198.163.19
+	 Content-Type:Content-Disposition:In-Reply-To; b=kwtWI4+YllbEhjoFfr93KFE7Tibh43ngjI3EmKLE+/k/FgO3ZSvUODc24R8i082SzefSKsknRM66SFBGZVvYyaYdY3OrqQXjNyiXMVZUqNQxx5MdhPag+wuom6cok/XzFOjw2RaUN9pCmOavnzJdfyePKesTX7Rq3wWmGF63pAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mfwDOgND; arc=none smtp.client-ip=192.198.163.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f1nmoBxH"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mfwDOgND"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1790329521; x=1821865521;
+  t=1790329802; x=1821865802;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=u03sCXgRX7pcyePoPYi95dX0Tff82Nq1OTABJ1meNc0=;
-  b=f1nmoBxH6kK+qiwur8BkUgvRtWP2QTgTaa6cX7eRhpsRVmy1PMwsfV6U
-   3ZbahELlgc0V68L3EjGaOT5tU75kXCXuomYRKRQ5pjcz2gEslAVkTHUn1
-   wP1SGsfRR5k0FxmwmJuUuRf/SJVVd0ubp7R0tBX6SRgJKQ1yMIDlMmgo/
-   721kW4+7dyUHeCKVtBuGOVtVChnDcbYMo5VyAAYuMxIX/3HTuqxZfr5A0
-   /lVRnZZFPOxMrCQRsEIdqdGSu80lgnZs1PuAKy3VHNKdOO7ZOhQ64S0b6
-   5Pc7sAts5NWVO6YJUkejnYXFdTZl2es0DlkZDi+xaOtzUCDTclS6ngLmg
-   Q==;
-X-CSE-ConnectionGUID: 7o7ZgGCVRl++1vGNaEIW1w==
-X-CSE-MsgGUID: Q/HoOFrGQ2iBfirJ1SFEGg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11915"; a="90019980"
+  bh=sjQO25DPF6I4YR81FfUFsr7AZEkXc7WRPqKWMV/gMyM=;
+  b=mfwDOgNDTu6fsfYWun5QcnlSnzvuM5qRrtOwdywwfvEG/WEfcqSWlDDM
+   8sGCuRMxPpWChlmI0c8A4m6Px+EVtK0mWwNxHTIMTHn95iM806rCWDanV
+   jP+88jas1pZAKOLOrK009NTfrbj4LmoO1/ubHDJ+n6uk/2ID2DovnC6rA
+   KXqsUMYt9Ig9P5PQNSozgezr3jq12GSm3QCOBAMRtNvDpsjOjdX1tDpfc
+   BwBlqnrkKblewQHtw2fVLHfdst1c26YqCFOY9mrQgptpaDjZbs6FV+qwh
+   02rk7hDMh7kzUH96E5aYEIog1b0gGi2RtJS9LI1dj/Oy8WG0tkCRvAhZN
+   w==;
+X-CSE-ConnectionGUID: 8TGLQSQmRh2CtzxZSlDbgw==
+X-CSE-MsgGUID: Ep6sfsxxT5Wl1AgmVcZ9/w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11915"; a="90239315"
 X-IronPort-AV: E=Sophos;i="6.27,122,1787036400"; 
-   d="scan'208";a="90019980"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2026 02:45:20 -0700
-X-CSE-ConnectionGUID: wdn0TnkBRpSrePz8THZskQ==
-X-CSE-MsgGUID: lcRbf3LGT5+3e3PDRzZSIA==
+   d="scan'208";a="90239315"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2026 02:50:01 -0700
+X-CSE-ConnectionGUID: 9ntgpx47RhiHdVDXWx7L6A==
+X-CSE-MsgGUID: 4KMb9J06Q0Cu0ER0QdxE1w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.27,122,1787036400"; 
-   d="scan'208";a="277458396"
+   d="scan'208";a="273850092"
 Received: from mkosciow-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.27])
-  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2026 02:45:15 -0700
-Date: Fri, 25 Sep 2026 12:45:13 +0300
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2026 02:49:57 -0700
+Date: Fri, 25 Sep 2026 12:49:54 +0300
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Lorenzo Pieralisi <lpieralisi@kernel.org>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
@@ -62,11 +62,10 @@ Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 01/11] ACPI: irq: Return -EPROBE_DEFER on missing IRQ
- domain
-Message-ID: <arZCqRJHaCp-pgWI@ashevche-desk.local>
+Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
+Message-ID: <arZDwutoadki7tiZ@ashevche-desk.local>
 References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
- <20260925-acpi-static-table-irq-probe-defer-v1-1-2c62125d0085@kernel.org>
+ <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -75,32 +74,79 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260925-acpi-static-table-irq-probe-defer-v1-1-2c62125d0085@kernel.org>
+In-Reply-To: <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
  krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Fri, Sep 25, 2026 at 09:48:00AM +0200, Lorenzo Pieralisi wrote:
-> acpi_register_gsi() might fail if the IRQ domain a GSI belongs to has
-> not been registered yet by the respective interrupt controller driver.
+On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
+> To describe and map GSIs for firmware nodes created out of ACPI static
+> table entries in a uniform way it is required to define some standard
+> properties and attach them to ACPI static fwnode as secondary nodes.
 > 
-> Return -EPROBE_DEFER in this case so that the mapping can be retried
-> later by deferring the probe for the driver that requested the IRQ
-> mapping.
+> Define properties names to describe GSIs and their trigger-mode/polarity,
+> and implement an irq_get() callback for static fwnodes so that core code
+> can retrieve and map IRQs for ACPI static fwnodes in standard manner.
 > 
+> An empty stub for property_read_string_array() is also added, so that
+> the fwnode_irq_get_byname() interface falls back (through
+> fwnode_property_read_string_array()) to the secondary
+> fwnode to grab the "interrupt-names" property.
+
 > Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-
+> Cc: Bartosz Golaszewski <brgl@kernel.org>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-
-You may keep the Cc list under the '---' cutter, so this noise won't make
-the commit message. The email will be still send to the respective people
-and someone can harvest it in the lore archive if needed in the future
-(when commit gets accepted).
-
-Note, you may keep that part in your local Git tree (in the commit message)
-and handle with `b4 trailers`.
-
 > ---
+
+Same here, please avoid polluting commit message with the Cc list.
+
+...
+
+> +static int acpi_static_fwnode_read_u32_prop_index(const struct fwnode_handle *fwnode,
+> +						  const char *propname,
+> +						  unsigned int index, u32 *value)
+> +{
+> +	u32 *values;
+> +	int ret, count;
+> +
+> +	count = fwnode_property_count_u32(fwnode, propname);
+> +	if (count < 0)
+> +		return count;
+> +
+> +	if (index >= count)
+> +		return -ENOENT;
+> +
+> +	values = kcalloc(count, sizeof(*values), GFP_KERNEL);
+> +	if (!values)
+> +		return -ENOMEM;
+> +
+> +	ret = fwnode_property_read_u32_array(fwnode, propname, values, count);
+> +	if (!ret)
+> +		*value = values[index];
+
+Use standard pattern, id est
+
+	if (ret)
+		...
+
+> +	kfree(values);
+
+You want to use __free()
+
+> +	return ret;
+> +}
+
+I believe the whole approach is suboptimal, if you wish get indexed value (but why?)
+it needs to be retrieved as that in the guts of ACPI. Allocating memory for the whole
+array to retrieve a single element is simply wrong.
+
+...
+
+> +#define ACPI_IRQ_PROP_GSI		"linux,acpi-gsi"
+> +#define ACPI_IRQ_PROP_GSI_TRIGGER	"linux,acpi-gsi-trigger"
+> +#define ACPI_IRQ_PROP_GSI_POLARITY	"linux,acpi-gsi-polarity"
+
+Oh... This sounds like a big ugly hack.
 
 -- 
 With Best Regards,
