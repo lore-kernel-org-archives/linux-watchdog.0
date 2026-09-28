@@ -1,182 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp71.iad3a.emailsrvr.com (smtp71.iad3a.emailsrvr.com [173.203.187.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 261594E3ED9;
-	Mon, 28 Sep 2026 16:15:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E44194EBAF6;
+	Mon, 28 Sep 2026 16:26:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.203.187.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790612154; cv=none; b=kKHK3Cc0J6Qk4kvQ2nis3OxjN0S+fKrSrCYidn5KnRKfwmccwD4RwqoWof3iqAhfou0ATD2t0HjZ7G1S/XtHishzpXU/qAqhFsdPKlWTuPnKCnarBbOujkEGr9gaR0lYLwFxs8iHwegUv9LfZgc90mOgWjo6EYYUlYXaQidJZRs=
+	t=1790612806; cv=none; b=jvc9JQ/FNmXBC3ZzkZIlg2FBnS4k2BmR7QKqIUYonafR3WO5yC35JgRs5jShXeBk/8eeqe+/zCEw6Cg0SgVvKoRi/Z/b4ZsXl1TGxnob001jdLO4832eYdrAtYwuecyfKRS/a+m/ER9hRc/uTPjuVrOSSA3ZKz9fYe5HY5tTDlY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790612154; c=relaxed/simple;
-	bh=NBi35zgVWB8MqkxkWlsVFiB0wIq4HnqVXz0vrvfr3U4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pyxLxBx8QxSk4Lfn3Tn53BYCSyw8tJQD5dBeRWKipGgMHcmjJi35hr4e9WbS2B6fLf8kv/cqhVMWaJG71eqh9teBOyuPJxPYm4EqNGGif9xQ3+ZvIF5fmq+3+X1J1TSKJaqngNBHqX+YeFZU71pY7dKqSarGN9+q11sUEL6RSFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E7TBTail; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790612806; c=relaxed/simple;
+	bh=dcfqKy8RuwJf19ZxcNaKgTpq2Zkz6O8a3A4laJuSYfM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=haU7jckcY+8/MfJ3wr81dqoIqS0ryguJAG3rRU+Ermr59D65B7d86805euUx9Rl412L73nBlA8mnM12UEVQ4pdvNDST3IXFeuiNyRw7/M7YIvchvlTgkPnOhHY5ulXz4uKYPY5z1i5QWlWulzI3X2wUMK1vbAelKbOR7heGzrh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mev.co.uk; spf=pass smtp.mailfrom=mev.co.uk; dkim=pass (1024-bit key) header.d=g001.emailsrvr.com header.i=@g001.emailsrvr.com header.b=knMpqU6M; dkim=pass (1024-bit key) header.d=mev.co.uk header.i=@mev.co.uk header.b=dAAx1Q/7; arc=none smtp.client-ip=173.203.187.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mev.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mev.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E7TBTail"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B11C1F000FF;
-	Mon, 28 Sep 2026 16:15:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790612145;
-	bh=l63NqOrmYS7OWhnyJ46rzvQOga2GpeIrimZGoJ6BZws=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=E7TBTailbJXOF3b09WyFbluQXA60619reCTcV7CQ8hJeZCyDd6THls1fDs19vu297
-	 rR8SB4jBUdSOQTOpSseq0eWB41RvN0qZxgmRWpVKttlRSOeEIH2zcQaW2s1qEQs69+
-	 7GHhCbXYaYZwxllF7ZgNBetbO0b5OTBSLiFcOwWXoZ70fNgQIn9EVOG7QvsjSN86h9
-	 bR9/gaur1nLKsyx/xu1xCgSsZcueblotdLbcBhLHDeKYXMNEY3/kvd0/mYVIRkENTn
-	 OTrF6qIVtKG2xPxWS4ltlL1jAN4ULI0HH5IKQvP7EWRacMLtO9t5xcrqInQ+Ur/f3K
-	 t5632UFq8n2PQ==
-Date: Mon, 28 Sep 2026 18:15:37 +0200
-From: Lorenzo Pieralisi <lpieralisi@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Hanjun Guo <guohanjun@huawei.com>,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
-Message-ID: <arqSqcoWAkhy-8do@red-moon>
-References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
- <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
- <arZDwutoadki7tiZ@ashevche-desk.local>
- <arZNL9BnTGK0Klwc@red-moon>
- <arZS4vwxps01dGb7@ashevche-desk.local>
+	dkim=pass (1024-bit key) header.d=g001.emailsrvr.com header.i=@g001.emailsrvr.com header.b="knMpqU6M";
+	dkim=pass (1024-bit key) header.d=mev.co.uk header.i=@mev.co.uk header.b="dAAx1Q/7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=g001.emailsrvr.com;
+	s=feedback; t=1790612291;
+	bh=dcfqKy8RuwJf19ZxcNaKgTpq2Zkz6O8a3A4laJuSYfM=;
+	h=Date:Subject:To:From:From;
+	b=knMpqU6Mk0kmP+ISs7Cok7X4ebagiVtXT1NiP8qiqgH159TGzqgxajWFaZpSo70uz
+	 X4JvLjhst970T9CuQ/B1UK7DDj94fUZ9D0EuIcMXbSMkMJeSP20XqvG8xys/G508W2
+	 FOaJU8N23FUYtqhMknHHcQaVfBr5pD0xTp3BApkM=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+	s=20221208-6x11dpa4; t=1790612291;
+	bh=dcfqKy8RuwJf19ZxcNaKgTpq2Zkz6O8a3A4laJuSYfM=;
+	h=Date:Subject:To:From:From;
+	b=dAAx1Q/7P23kXEJJmdf1NGwU5hwBxkB9RRRgCV8DxfO9tKEKn3op87rBbKCtMQxor
+	 A7xRjYnmS2/wTvYLr7pPA1i+MhM1dZVN9lyPAynl4YEL0TQoXXoZQxmf7SdxwFhpQQ
+	 4DXajLwgB0+U+CoG1uD67D8LZvzt6Rhe9+Cdueqc=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp17.relay.iad3a.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 02B6C23DAD;
+	Mon, 28 Sep 2026 12:18:06 -0400 (EDT)
+Message-ID: <efbb4382-45eb-41a5-afe3-6c359714aa89@mev.co.uk>
+Date: Mon, 28 Sep 2026 17:18:06 +0100
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <arZS4vwxps01dGb7@ashevche-desk.local>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with __stringify()
+To: Petr Pavlu <petr.pavlu@suse.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, H Hartley Sweeten <hsweeten@visionengravers.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Rudolf Marek <r.marek@assembler.cz>, Andi Shyti <andi.shyti@kernel.org>,
+ Chris Snook <chris.snook@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Andreas Noever <andreas.noever@gmail.com>,
+ Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat
+ <YehezkelShB@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>,
+ Chas Williams <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
+ Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
+ Aaron Tomlin <atomlin@atomlin.com>
+Cc: linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+ netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
+ linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
+ linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-2-c18766690185@suse.com>
+Content-Language: en-US
+From: Ian Abbott <abbotti@mev.co.uk>
+Organization: MEV Ltd.
+In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Classification-ID: 15bec65d-5b3a-44b5-8eff-f2a711d4e1ec-1-1
 
-On Fri, Sep 25, 2026 at 01:54:26PM +0300, Andy Shevchenko wrote:
-> On Fri, Sep 25, 2026 at 12:30:07PM +0200, Lorenzo Pieralisi wrote:
-> > On Fri, Sep 25, 2026 at 12:49:54PM +0300, Andy Shevchenko wrote:
-> > > On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
+On 2026-09-22 14:32, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 > 
-> ...
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
 > 
-> > > > +static int acpi_static_fwnode_read_u32_prop_index(const struct fwnode_handle *fwnode,
-> > > > +						  const char *propname,
-> > > > +						  unsigned int index, u32 *value)
-> > > > +{
-> > > > +	u32 *values;
-> > > > +	int ret, count;
-> > > > +
-> > > > +	count = fwnode_property_count_u32(fwnode, propname);
-> > > > +	if (count < 0)
-> > > > +		return count;
-> > > > +
-> > > > +	if (index >= count)
-> > > > +		return -ENOENT;
-> > > > +
-> > > > +	values = kcalloc(count, sizeof(*values), GFP_KERNEL);
-> > > > +	if (!values)
-> > > > +		return -ENOMEM;
-> > > > +
-> > > > +	ret = fwnode_property_read_u32_array(fwnode, propname, values, count);
-> > > > +	if (!ret)
-> > > > +		*value = values[index];
-> > > 
-> > > Use standard pattern, id est
-> > > 
-> > > 	if (ret)
-> > > 		...
-> > > 
-> > > > +	kfree(values);
-> > > 
-> > > You want to use __free()
-> > > 
-> > > > +	return ret;
-> > > > +}
-> > > 
-> > > I believe the whole approach is suboptimal, if you wish get indexed value (but why?)
-> > 
-> > Why what (that's what the irq_get() interface requires ?) I agree it is
-> > suboptimal - the whole point of the series is an RFC on using properties
-> > to store GSI number/flags, then how to read them we will optimize it
-> > when/if we agree that's the approach to be taken.
-> 
-> Why to have indexed APIs. The callers usually do not want a single item from an
-> array, they want all of them or a big pile (exception is the array of strings,
-> but we have matching functions for that).
-> 
-> As per approach, this patch is against device property and I don't think we are
-> going to agree on the approach taken in *this* patch.
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Acked-by: Ian Abbott <abbotti@mev.co.uk>
 
-Coming back to this, what is needed here is a way to stash the GSI number,
-flags and name in stardard storage (like OF nodes IRQ properties, ACPI objects
-_CRS, etc).
+-- 
+-=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
+-=( registered in England & Wales.  Regd. number: 02862268.  )=-
+-=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
+-=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
 
-To give you some background, I thought about adding an array of:
-
-GSI [number, flags, name]
-
-to the ACPI static fwnode itself. Then basically the irq_get() API has got
-all the information it needs from the primary fwnode; while doing that I
-thought that this might have been a bit like reinventing software nodes
-(granted, software node properties are ways more general that what I suggest
-above and I don't expect any other property to be ever added to static fwnodes)
-that's why I put together the series as it is, precisely to understand what's
-best.
-
-When you say "against device property", what do you mean precisely ?
-
-I suppose you mean that this approach goes against software node properties
-usage guidelines ?
-
-Anyway, again, it is just to provide some context, we are talking about
-a bunch of platform devices, it is nice to have a generic solution but
-it has to be simple enough too given its scope, I understand very well
-your concern with this approach as-is - it is there to find a way
-forward together and show what the problem is.
-
-Thanks,
-Lorenzo
-
-> > > it needs to be retrieved as that in the guts of ACPI. Allocating memory for the whole
-> > > array to retrieve a single element is simply wrong.
-> 
-> ...
-> 
-> > > > +#define ACPI_IRQ_PROP_GSI		"linux,acpi-gsi"
-> > > > +#define ACPI_IRQ_PROP_GSI_TRIGGER	"linux,acpi-gsi-trigger"
-> > > > +#define ACPI_IRQ_PROP_GSI_POLARITY	"linux,acpi-gsi-polarity"
-> > > 
-> > > Oh... This sounds like a big ugly hack.
-> > 
-> > That does not help much I am afraid.
-> > 
-> > What's a ugly hack ? Property names ? Using properties for this purpose ?
-> 
-> Yes, properties started with "linux," for some core functionality.
-> Yes, using properties for this also doesn't sound right. I think the problem
-> here is in the table specifications or somewhere that deep. That's why we
-> ended up in this series.
-> 
-> > Again, it is an RFC for this specific reason and I mentioned that in the
-> > cover letter, thank you for your inputs.
-> 
-> And here we have a discussion started :-)
-> 
-> P.S. Looks like I was too quick to jump into this thread. I will wait for
-> others to share their view on all this.
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
-> 
-> 
