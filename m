@@ -1,132 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E14185304BF
-	for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 13:59:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F99D4ED1AA
+	for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 14:30:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790690400; cv=none; b=Te4VVqQ9sCcZmv2jhWIukLR2zQtpNSh+X5tBRG7MANhb3afmtcH3zObGFF/fEHSjm5n2nSn0LA42JehzLS5/EffU4x+44NxaYWmcPMblgc4yURKmbmrFP1gUK4jdQRTFDiDV1/94ywrhpPR+btNYm7rSlG60B+kby3M20X+m8nE=
+	t=1790692250; cv=none; b=V9Y5MSnetlIgASTrQqz8ufqKwyUkxxy9ewTUN5tz50vp6dfmflWwno2/f2l50acrm9FBYFbgxYzDXbgYUldJgX0nvjEUHoT91quwNfds5RMzcIqeoRH1LjEKhLAbUsS3PKjxb1sLja+IKuooq3sp7kqqyfwU00ee8p5Lv8X5hwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790690400; c=relaxed/simple;
-	bh=U8/HRgh5fO66Lrb4edmeCWx5ypNRvwU30R3EgTxyilY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KUgBa0SuTzP003OjmVnN1UpY8qGV5R0AQ5NfDxlJ6OmZGhePH3S5mnaNJdet+ECuZA/K6PcVgyLZQlRgek5h2il3DMc4PJAKMIF683w6FrfnNiv2q5yQaC3huQErDy+IJIzn9IDrK1AeZiHD+u1Xb/O+ZPp5VpeJ6THHpyw/erc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G7oLRgL5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790692250; c=relaxed/simple;
+	bh=G7QQkmIKC2lGrKZ5tfytjSH5NrVukmc2HJN3t1pyljA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ALgg7kSH+6Mw8/cKqyZkL2mBIOcFKZ0V+4WWHTV4Zq7TPci91nuXcGStcXX7celnc5JSshjRT5QXY7giaA8OJeVBY3suQBqljacjS5fFWV0yUUNZN9TlosM/s7A9msaIIciebFG16fWt3aLLHph011a690GKupPYRMc9Oonames=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SrUyZRxQ; arc=none smtp.client-ip=74.125.228.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G7oLRgL5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530611F0089B;
-	Tue, 29 Sep 2026 13:59:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790690398;
-	bh=cO7d3OSiA3AMEYNTJn7SHGXEUaQg1M9S8PAP8Q6cy9k=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=G7oLRgL5AtYvq3NM2IDpC2WSPFnOupheEsy0emAZFMkuARs5VgvUtatPHIbEihNUD
-	 dRQRsaBKfD6nitmmEsaFA4CxpMCLMHSFuvxrBxO897xcflJBAp8qkwJCYZLIqPwF9d
-	 hNwGZa5Eejdw7qfpEmH/DuesYBgopzZe+vi1y/y4msdUOowglkbjKt/EBnk2Pq7Vbb
-	 CiaSrubn3BSSeS86rZXG2fsm7Y+Z1TowhehtDmlTQCBZIFUDuAjCn9Hj6T7gBXILJ6
-	 rzUZ7bwxB6jSK4m6VsumHanW6dlvptZmuJOjpTlW8c0RtanINpzIcx0GYnm3S1xqeX
-	 64IwiW93c6FHg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/8] watchdog: core: Stop pretimeout hrtimer on suspend
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guenter Roeck" <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20260929134635.2567137-5-linux@roeck-us.net>
-References: <20260929134635.2567137-1-linux@roeck-us.net>
- <20260929134635.2567137-5-linux@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 13:59:57 +0000
-Message-Id: <20260929135958.530611F0089B@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SrUyZRxQ"
+Received: by mail-pz2-f12.google.com with SMTP id d2e1a72fcca58-8693af0d7c4so2476704b3a.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 07:30:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790692248; x=1791297048; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=T5fThRaAeC4PijpUZrzJoCsJvkJiyaRM31urT3RRI00=;
+        b=SrUyZRxQlz6DcA7DSShkr9QKseRWN1xhUWIAvv5puLUgd8r2XTf26s9T+y9vAqya7O
+         VAqrYTd4LAJpmP/upjvcn8cBxOyzxjn6GZP0DQfXiDwi1EaYSlcdvc7fMj3rfcm7qVJs
+         tZ2hR+V0Km6v4zQbKeLsYzW/SVv0KeXLsyO0oLumZ7rpM1Kpr/6yDCLyPCfdMC7AtOGe
+         DPnYSq9cd39SMgjoXv0F44ne/u0/jZppuQ2OwNZwyrZIjqrC0CM+7yvRDawuWXDwdPm7
+         oDyl45yhxlYsuhRNWz6uvkT22wCPidZ5mq7Im1XDfW4qylVmIJAirg6Rxq8CB/nE0GEQ
+         HIgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790692248; x=1791297048;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=T5fThRaAeC4PijpUZrzJoCsJvkJiyaRM31urT3RRI00=;
+        b=2e5Xx6X6GP7y2AhP0WHyn0NtOLksBIEViCSyVBceEHzZIMDpi9y1eT4IR9lXDx/gbH
+         IDMP91ant4FW/dCmW1gh+W0KUzuOlhAnnZ2w4qyJ+CyOLiqSh7zsU4MWbIZRnGwevNUr
+         Hdnkpp1gT/IDvK7XnFVOFnlAYIhtaKzH4mMgbthdu41H8eAwlmMs4RDO2felC9Vs4Eve
+         q1olYGmCjdCCbyEjgCln0ceCfDC4QZCNW2UMs37l8CwBwPZYCNZ3G1BedUK3x518m/ei
+         QKIrd5DMgZepnf2j6ukTzPsSUQVHZ7eZcZQPWVo/c2SoT7BUKwvMR/UC+hB8Ehl/jvt5
+         0p2w==
+X-Forwarded-Encrypted: i=1; AKwUvBx/T1VId+MCuXncEoHcWGe944u91bLsWD9bS9FLlK6Sl5Ou0IkruZDZzRTwmEGUSLBtx0gzPIm7n1Ew53LVgg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mR8Iu7EHsDdaqJdxG6iqN0462KULhcMI5pXNnkk+JFwzJLvEiD
+	M8E/dL0o7ya8rLmNGbrIby7/qDBJwONCNPXmSth8e8CStZOoo0vgNbwfjToR8Jid
+X-Gm-Gg: AYBFou36twYxh+7WST0LZxM8Kip72W1nXXhGF1PBIOQ4DL31AbNROmGApw0drfal8Of
+	K9k9LYpqRm4iN2E2R1arf08MmuDpd5cuFNXH+ClRyEhaBjr08PfxRTd8/yTPJsVfm18cqvTfbq5
+	+3QMDEPJUlEjfMDCHJ2EB4efyCYVxNMCY93bYrfW8OhPJpwy+fywfa9cQ+b/tEzofz+av2/T9sC
+	F5NTBvAJI0Yh1BGTbIQrS7FSs0KGYPRCSy0RuTWiq08sEJXAY/jrYdQiCIoUFtGZJd6QBqS5fSX
+	INzLHX+rgl1ha4a610oLYyOmneuQH2WsH9cu6P+Uwtfl8SVKGVlp8Oa3MrLaLEItBgwxaF+RzqC
+	Kv+853+WriGAApc58vy3RpPbD+NB1NpzpYtP4B8LFAQG1no2VDK+skXw83HtBwd3TE7vlSozmtn
+	reyuY8ulzZErPYSNUaIuQXYwTP1IY77KJn1boyXBZNGUL1xlP1TIyvOyLojGg+gQOkLW9ltO5XY
+	e3abjN6SaZN
+X-Received: by 2002:a05:6a00:1954:b0:880:fe7b:bc55 with SMTP id d2e1a72fcca58-880fe7c018emr8553594b3a.56.1790692248496;
+        Tue, 29 Sep 2026 07:30:48 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8868c9d0c9fsm14045b3a.42.2026.09.29.07.30.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2026 07:30:47 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Tue, 29 Sep 2026 07:30:46 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Cc: sashiko-reviews@lists.linux.dev, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH RFC 08/11] watchdog: sbsa: Handle IRQ probe deferral
+Message-ID: <232e1daa-e57c-454f-9029-03d2405bb4af@roeck-us.net>
+References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
+ <20260925-acpi-static-table-irq-probe-defer-v1-8-2c62125d0085@kernel.org>
+ <20260925075726.B0A6B1F000FF@smtp.kernel.org>
+ <d9102e7e-a69a-4ad5-aa38-c2cbd9d98496@roeck-us.net>
+ <aruAQ0qOGU6W2NhS@red-moon>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aruAQ0qOGU6W2NhS@red-moon>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] watchdog: missed software pretimeout on resume due to timer desync=
-hronization
---
+On Tue, Sep 29, 2026 at 11:09:23AM +0200, Lorenzo Pieralisi wrote:
+> On Fri, Sep 25, 2026 at 06:46:31AM -0700, Guenter Roeck wrote:
+> > On Fri, Sep 25, 2026 at 07:57:26AM +0000, sashiko-bot@kernel.org wrote:
+> > > Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> > > - [High] watchdog: sbsa: system reset due to unserviced watchdog on probe defer
+> > > --
+> > > 
+> > > commit 82d6b6d0cf8ddd44758931db5360cd8439795f6f
+> > > Author: Lorenzo Pieralisi <lpieralisi@kernel.org>
+> > > 
+> > > watchdog: sbsa: Handle IRQ probe deferral
+> > > 
+> > > This commit handles probe deferral when mapping the IRQ for the SBSA watchdog
+> > > by returning -EPROBE_DEFER.
+> > > 
+> > > > diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+> > > > index e04d42cc7774d..f4491409caf5d 100644
+> > > > --- a/drivers/watchdog/sbsa_gwdt.c
+> > > > +++ b/drivers/watchdog/sbsa_gwdt.c
+> > > > @@ -352,6 +352,8 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
+> > > >  
+> > > >  	if (action) {
+> > > >  		irq = platform_get_irq(pdev, 0);
+> > > > +		if (irq == -EPROBE_DEFER)
+> > > > +			return dev_err_probe(dev, irq, "failed to get ws0 interrupt\n");
+> > > 
+> > > [Severity: High]
+> > > Does returning here during probe deferral risk an unintended system reset?
+> > > 
+> > > If the bootloader leaves the SBSA hardware watchdog running, the driver
+> > > correctly detects this via status & SBSA_GWDT_WCS_EN and sets
+> > > WDOG_HW_RUNNING.
+> > > 
+> > > Because we abort probe registration here, the core remains unaware of the
+> > > device and will not ping it.  If the deferral period exceeds the hardware
+> > > watchdog timeout, won't it expire and trigger a reset?
+> > > 
+> > > Previously, if platform_get_irq() returned -EPROBE_DEFER, the driver fell
+> > > back to single-stage mode (action = 0), and successfully registered the
+> > > watchdog, allowing the core to immediately start servicing it.
+> > > 
+> > Looks like a valid concern to me.
+> 
+> Right. Just to understand the issue (forgive me the stupid question), isn't
+> there a time window where this can happen then even without IRQ probe deferral
+> taken into account ?
+> 
+Sure, but the window is (potentially much) smaller.
 
-commit b401093697a53f53413364d61f3bff8840d84ffc
-Author: Guenter Roeck <linux@roeck-us.net>
+> What's the best course of action then ? Ignore -EPROBE_DEFER and treat it
+> as failure (basically, dropping this patch ?) ?
+> 
 
-watchdog: core: Stop pretimeout hrtimer on suspend
+"treat it as failure" is a bit misleading. The code will continue but
+without interrupt support. We have two options: Either drop this patch and
+accept that interrupt support may not be available, or find some means to
+avoid the problem. Other than dropping interrupt support in that case, the
+only other idea I have is to initiate a delayed worker and retry to get
+the interrupt periodically after -EPROBE_DEFER.
 
-This commit stops the pretimeout hrtimer during system suspend and ensures
-it is correctly restarted on resume if the hardware watchdog is running. It
-also prevents the timer from starting while the watchdog is suspended.
-
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_=
-dev.c
-> index d652d6e137c43..f1d14ac433fd9 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-
-[ ... ]
-
-> @@ -1350,6 +1351,8 @@ int watchdog_dev_resume(struct watchdog_device *wdd)
->  	clear_bit(_WDOG_SUSPENDED, &wd_data->status);
->  	if (watchdog_worker_should_ping(wd_data))
->  		ret =3D __watchdog_ping(wd_data->wdd);
-> +	if (watchdog_hw_running(wdd) && !ret)
-> +		watchdog_hrtimer_pretimeout_start(wdd);
-
-[Severity: High]
-Could this explicit restart push the software pretimeout out of sync with t=
-he
-hardware counter?
-
-If the watchdog is past the open deadline, watchdog_worker_should_ping()
-returns false. The kernel intentionally stops pinging the hardware watchdog
-so it will reset the system.
-
-When suspended and resumed in this state, __watchdog_ping() is skipped, but
-watchdog_hw_running() remains true. Since ret is 0, we restart the pretimeo=
-ut
-timer.
-
-Does this assume the hardware counter was just reset to now, artificially
-delaying the software pretimeout beyond the actual hardware reset?
-
->  	mutex_unlock(&wd_data->lock);
-> =20
->  	return ret;
-
-[ ... ]
-
-> diff --git a/drivers/watchdog/watchdog_hrtimer_pretimeout.c b/drivers/wat=
-chdog/watchdog_hrtimer_pretimeout.c
-> index 49a05ea60c979..5c88e6467994b 100644
-> --- a/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-> +++ b/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-> @@ -31,7 +31,8 @@ void watchdog_hrtimer_pretimeout_start(struct watchdog_=
-device *wdd)
->  {
->  	if (!(wdd->info->options & WDIOF_PRETIMEOUT) &&
->  	    wdd->pretimeout &&
-> -	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout))
-> +	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout) &&
-> +	    !test_bit(_WDOG_SUSPENDED, &wdd->wd_data->status))
->  		hrtimer_start(&wdd->wd_data->pretimeout_timer,
->  			      ktime_set(wdd->timeout - wdd->pretimeout, 0),
->  			      HRTIMER_MODE_REL);
-
-[Severity: High]
-Since hrtimer_start() here uses HRTIMER_MODE_REL, the timer is always
-scheduled strictly relative to now.
-
-If the hardware watchdog was last pinged before the suspend cycle, it will
-reboot the system at last_hw_keepalive + timeout.
-
-If the elapsed time (which includes the suspend duration) exceeds pretimeou=
-t,
-will this relative timer be scheduled to fire after the hardware reset occu=
-rs,
-causing the pretimeout event to be completely missed?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929134635.2567=
-137-1-linux@roeck-us.net?part=3D4
+Thanks,
+Guenter
