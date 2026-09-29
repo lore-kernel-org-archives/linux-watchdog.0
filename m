@@ -1,65 +1,65 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E511D5208CA
-	for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 10:50:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59BC54EA39C
+	for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 10:50:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790679052; cv=none; b=EGVprA0Bz/iV7EtEVwYO7ahksGhftyxNqkSPNde7WSRNBO/IbmCvV5qEHgR0/XT3T5lA6nEKqSbzdLmqEbMjQ8N8gqnJYCGjPf8fiP6nv93ktgoAxZUYOzJSeGFBsF3OBCqSvY7+TVi10zuSrt33160assZQrDU6aTKcZ99D1ds=
+	t=1790679056; cv=none; b=EErWBQn98n5gjFQQrCE4poTQA2w4v98VRAcgZ7F+BthCuioRnlGBuJrFtm544IUM2pdroUf5l0LIKlo42RgZk0Uho9nq2FJXkEQRivi8v2153Z5gc8yCXzMdZJbMjc9E4AuLWs7N38WW1hMLoZt2fa8fBSthH/wrVNmNTws48gc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790679052; c=relaxed/simple;
-	bh=24VJL4yr71yDjFK19B91jRLLCZCsRy4Ks9vH5rORZX0=;
+	s=arc-20240116; t=1790679056; c=relaxed/simple;
+	bh=yEBiC89OR3qXvDQDCPsvt3vnd76aREcYsfSAe/oYJqM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qUT5y9oWnP6zh/AByLzEenvNujCioUrm8WFdofC9qnpuxFCYDnRsQr6tKI8yR/YDjH+psm/O/Sh/PgHjFnyazMEHhGe40YdE63ZTBFLFCuKTC+PZJTRz4wYl8Fhs9Suaz4FY9SzsxmDnEWosuAv0jzOyr3GCp8U9zFH/KpTKCVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OtehukGn; arc=none smtp.client-ip=74.125.225.76
+	 MIME-Version; b=fDoXC0mSmxNNDmUaqUcMBeOQJxFFFv4vm2k95WyasyyLw7B2nGyy/J32nKfXU7QJ99h9oh9OzCxZ8spKQSd2Ma6nMPeCt8ZzZCr4CigIAirQMxkqft6D4YeSRAaRuASgGPpLr38kj3H9ZzCaPJiVOUXBZW4n8myLmJezEzQe68M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MmBgauqP; arc=none smtp.client-ip=74.125.225.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OtehukGn"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-482f635552aso3160851f8f.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 03:50:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MmBgauqP"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49fe8bf173aso21261465e9.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 03:50:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790679038; x=1791283838; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790679039; x=1791283839; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=TRZBWbdx2V+lf3HeAagoP8lmXsSParpAXBpfb0Sv3U0=;
-        b=OtehukGn9KxWSCiqayr5219Uscq6hSCHyeC2BaRNzBVSXArCaiANl3+diBNX4G32UV
-         Ixu5l7k+rd2QR8VWU6k7pBVIAYGjEIFWSZ5Weg8baIZQNJSVWvQrnbcGSfQ1FYFZAk4f
-         yxE6vSsdjPwiEXZvJiOcX7QJAoedGPyi8lXqe4cQ3bGQkKZWiD1fk3T11tRukPEaaQXt
-         kLlMbbesUlbSUhXX0AeA+Nzw7r9je8GnGrqk3RaoVjYuYcxMLPUMh3e1LfPfhHBuSzJo
-         1zzk3sndv64ToDf8bzz5TClovmh60MFE9mPywD1vbgJClJxOUmkba4MPkbGUQge0fEaf
-         Li/A==
+        bh=I9o2g8NAo8BLROcpDMeEoV80HGh5uA5p5XCke07A0uI=;
+        b=MmBgauqPf5DoL3EuA5ugwMqKxCx9+fnMEX/8c11Dv8Q4OTrqhN7gn2Q5S0jVVn1KX1
+         vYIJk8yTXv3WnHSprzu44vY4OgxL2d/aknXRa7wMXDGk3xCF022CYNGFW+C5OiIT3pmL
+         VqHMLsUiwrcmkU6RvzYiyN3o36m6JLmDdbRKsfG3ewbZpve6+lTt22yhMbmVk1DIA0fw
+         HJFs4UahZUbrzWkdZEyKW3jilheo13RfuD5dfC0eqIDTnLbLTU6eWRqFNf7LdeMMV9Cf
+         qLxHzaL3aISxb8zhb8xDfESA90U0hQ/gYrXY9IaUXMN2xSWy9vpc9kj7Rill/IwTWxNZ
+         hYiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790679038; x=1791283838;
+        d=1e100.net; s=20260707; t=1790679039; x=1791283839;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TRZBWbdx2V+lf3HeAagoP8lmXsSParpAXBpfb0Sv3U0=;
-        b=IphfPlD1qdWiKTbnFo8G2j1Gh8gQxXx5Qdksb7YyRF0HUFUu1R8KymZwuwUNqGWy9U
-         1uBT9wRzpdfkFutPQa9Dc4IQhyDdtFUJwuBsBC+38wFIgg4n3BHkDSIG9J4rDf1PP2pS
-         1Ek6yvoI8oj89ze79/LxY9ntZ50A0jgE3XB4AqQuximqZkrX2M8JEeCzsE9188geByw/
-         BVnakCQH/QuGZ1fRu6C1RFkZYQ3hqPja6qsRgKyrOcrHorHNOEeTyMdObtZ4BBN0aiG4
-         miwHVIud4dy/vRcbK6GbdMWEd3ZtGpVFf/Vq9z8ROQ8aSIrNvvM9Weh/MXg2kc5Zleg9
-         gHhg==
-X-Forwarded-Encrypted: i=1; AKwUvBzNw3TznhH3vbAhmgwq+9Sr9TmjvJKTas8TdYdWS+BZBQQytSnBsAb6ZKurvfUqdIPxdXB2ZDqoYGS8wl11oQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++lN7jFYbmpnj1xdVxchokzTDxzjYZWVWOCvp1Wz33v/xVv91IUU
-	ULQ4GemWE43/Pj0KPykUZ651UocJzUVGWPxtwuwQGAf6TNw0JtlKx/n8
-X-Gm-Gg: AYBFou2NUjfnB/ql4jX6iVrYWwTqE/WD8Cn+SSjlW/8Hn1rRtbK4Yv3Gw+VhpDt5OpY
-	sc+yg6nDfCx4XgKl7nDoL8JKmbhTfq8YXQgv7gIj6tU2bwTsk9xCKoqZg3qUm+cHaJ5c/c6jcWk
-	ibqR8Ts53bxyzt3KjnBjRAl8s0hRONA0+4YGmB4MsvKuqYb93edSeEVp9qR7ymKTwB73pez5PDw
-	I3ase0jRhSJBTZIyvuoeo+NXgIedGWVN7BcpK9oAIAH2Xf9axTqvntuAoluPgn88w6rLywEoCM4
-	P5JRKUeGSNl3AtWA1i0A5ZNCn8ZxldjCRn655WVAKZsmecUwePqf+v2YyrBA6f79sYVbtPbOgVb
-	eIm0aLipP6M6zhF1KktBBmHzLq/OEWAW12z4ZS+T+a8jKrW0BDPX53lzRAPfcYl4/QduBkJTuEe
-	8L5+Jh0C4icvcOgx7d1jO75tsZC+gm7RwnqySTUbng1VytD9AIUq7t2lBfFy+vI/1V3kVW+YeCs
-	c14dv3FX3avS8pJOpxHWvFojJ53EOif95bjJBGDlY82ObfeHr/2ABHi+M1DOwRV9cPLPQQCpCq8
-	6xpiKeAxANYqwKiqdx2Q8ZGRx/ol
-X-Received: by 2002:a05:600d:848f:10b0:4a0:bc9:28c6 with SMTP id 5b1f17b1804b1-4a00bc928f3mr39671375e9.34.1790679038306;
-        Tue, 29 Sep 2026 03:50:38 -0700 (PDT)
+        bh=I9o2g8NAo8BLROcpDMeEoV80HGh5uA5p5XCke07A0uI=;
+        b=QpkwYkvQtL9mC70It4ZogVUHYxhXn32jPGq1/dI/I8bSxneFtzx9AAkqknZCxhfsc3
+         lCwUz2QNr5jiYWZPk5Aav9pMR4uo2V7aP+efMKlFqTiRgD/5EiXHhfU4m5v8XbV7QpkB
+         7B6m1+MLPQfGQys0y3IgW5v46cKyvXi9CIQzJsddVt7XljNp+aVzoBN+N0sypQvg7YvD
+         JBHTJqj695MS34rBblbiKKH3sxGs5VnDg7XiTHixsQTeiANd8Xrj5VdOvctY3Souwj0h
+         f5WEmbCOYT/AQw01af2Rd6QRIp0vIcoflJiKwgU1YmSvgyES8tGzlXQykVhG6bqEP/ZI
+         EwPQ==
+X-Forwarded-Encrypted: i=1; AKwUvByeulST+/5HL10fLmTdohHX1GJuEkHWMTfEsX/AJ8unSUivXdyRqT4Me9DwX8KMpAAPDeiehAMdtm2N1ZXm4w==@vger.kernel.org
+X-Gm-Message-State: AFuF++ko/Ele+90KfOjYZIbxdASklvYI/tygAaX/POY+yBEyEzpVJmHg
+	UV0s2GkLSXZUkPh0YWpDdTuQ1n9d+EXqNi30rUl8qnkn4l9TCrXGU5rZ
+X-Gm-Gg: AYBFou0ob8dS+Pa7hcA4eRehw4r8qxyedhh6zXcEc9uyQwr2A7RAbh6+gh2Kud+/vab
+	hA54hgdDJkYfFg7sThHg47auXPiUknVL/2ckSeyrgpel7egH4JJRsMo7as5iNVOHTpS6o1yUF/b
+	N/dX3ZLHqgymjEM7c77GQessM7oFUGovgfd5/n2jf3s+UnGObBGviFUJM0qJy9Xp3Tp/Bf5q2n6
+	I51zygY+t6Uv0Qbp2IUBUgCLTKd4XpPb/BfdgeiijbYZbjR+bbi6BeO9SttnSHeUQrE5TWnhqCu
+	Rx0FGRLbglYZuKzCtwS3k8M8jZaINdi5xB/vCRUoEpIwscOQmLuHxKfJV2N6Pq880BQ9SZ+SjmK
+	ZN2ZhJrZJzNow4QfYANDcbd5M93H+Sef5XZShBhUbOqedNAq4zvEp4DX2pf27CaatDcQVIwf1+M
+	BQ4tyfP1zqpoVK2WtEVwH+rxZXlRMMKMLYQB1wDCpbG7hPMVPgcpThpBKn52TFoWSaH/AMJIcFn
+	bE6dsz5EIz33i0YAtpIKn3Cc2KNLLo+kkzmnWxsMmZoXB9e68frLHCRdTlAWfMYN4j8LtLr1YyB
+	cxIwX41YNd1Mtv2UqDXto/i+ZJhL
+X-Received: by 2002:a05:600c:6291:b0:49f:ffed:2cb with SMTP id 5b1f17b1804b1-49fffed033bmr120811245e9.6.1790679039014;
+        Tue, 29 Sep 2026 03:50:39 -0700 (PDT)
 Received: from iku.example.org ([2a06:5906:61b:2d00:10d5:21e1:1aae:c9d8])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48af5058c52sm3516303f8f.19.2026.09.29.03.50.37
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48af5058c52sm3516303f8f.19.2026.09.29.03.50.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 03:50:37 -0700 (PDT)
+        Tue, 29 Sep 2026 03:50:38 -0700 (PDT)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Geert Uytterhoeven <geert+renesas@glider.be>,
@@ -81,9 +81,9 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
 	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v7 3/8] watchdog: rzv2h: Drop enabling clocks in the restart handler
-Date: Tue, 29 Sep 2026 11:50:16 +0100
-Message-ID: <20260929105021.542730-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v7 4/8] watchdog: rzv2h: Drop WDTRCR_RSTIRQS define
+Date: Tue, 29 Sep 2026 11:50:17 +0100
+Message-ID: <20260929105021.542730-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260929105021.542730-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260929105021.542730-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -97,17 +97,7 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-The watchdog restart handler runs from do_kernel_restart() with
-interrupts disabled and after smp_send_stop() has halted the other CPUs.
-Calling clk_enable() from the !watchdog_active() path takes the clock
-framework's global enable_lock. If a stopped CPU held this lock, the
-CPU executing the restart handler can spin indefinitely and prevent the
-watchdog from resetting the system.
-
-Keep pclk and oscclk enabled for the lifetime of the watchdog device by
-using devm_clk_get_enabled() and devm_clk_get_optional_enabled().
-Remove the conditional clock enable/disable operations from the restart
-handler so it does not acquire any clock framework locks.
+WDTRCR_RSTIRQS is unused, so drop it.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 ---
@@ -118,53 +108,27 @@ v5->v6:
 - No change
 
 v4->v5:
-- New patch
+- No change
+
+v2->v3:
+- Updated commit message to reflect the change in v3.
 ---
- drivers/watchdog/rzv2h_wdt.c | 19 +++----------------
- 1 file changed, 3 insertions(+), 16 deletions(-)
+ drivers/watchdog/rzv2h_wdt.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.c
-index f247e42d54f5..55ac11fcfcab 100644
+index 55ac11fcfcab..17c9e9a24ce2 100644
 --- a/drivers/watchdog/rzv2h_wdt.c
 +++ b/drivers/watchdog/rzv2h_wdt.c
-@@ -192,22 +192,9 @@ static int rzv2h_wdt_restart(struct watchdog_device *wdev,
- 	int ret;
+@@ -40,8 +40,6 @@
+ #define WDTCR_RPSS_25		0x00
+ #define WDTCR_RPSS_100		0x3000
  
- 	if (!watchdog_active(wdev)) {
--		ret = clk_enable(priv->pclk);
--		if (ret)
--			return ret;
+-#define WDTRCR_RSTIRQS		BIT(7)
 -
--		ret = clk_enable(priv->oscclk);
--		if (ret) {
--			clk_disable(priv->pclk);
--			return ret;
--		}
--
- 		ret = reset_control_deassert(priv->rstc);
--		if (ret) {
--			clk_disable(priv->oscclk);
--			clk_disable(priv->pclk);
-+		if (ret)
- 			return ret;
--		}
- 	} else {
- 		/*
- 		 * Writing to the WDT Control Register (WDTCR) or WDT Reset
-@@ -292,11 +279,11 @@ static int rzv2h_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->base))
- 		return PTR_ERR(priv->base);
+ #define WDTDCR_WDTSTOPCTRL	BIT(0)
  
--	priv->pclk = devm_clk_get_prepared(dev, "pclk");
-+	priv->pclk = devm_clk_get_enabled(dev, "pclk");
- 	if (IS_ERR(priv->pclk))
- 		return dev_err_probe(dev, PTR_ERR(priv->pclk), "Failed to get pclk\n");
- 
--	priv->oscclk = devm_clk_get_optional_prepared(dev, "oscclk");
-+	priv->oscclk = devm_clk_get_optional_enabled(dev, "oscclk");
- 	if (IS_ERR(priv->oscclk))
- 		return dev_err_probe(dev, PTR_ERR(priv->oscclk), "Failed to get oscclk\n");
- 
+ #define WDT_DEFAULT_TIMEOUT	60U
 -- 
 2.55.0
 
