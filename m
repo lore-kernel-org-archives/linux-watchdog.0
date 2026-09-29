@@ -1,72 +1,72 @@
-Received: from mail-pz2-f39.google.com (mail-pz2-f39.google.com [74.125.228.39])
+Received: from mail-pz2-f41.google.com (mail-pz2-f41.google.com [74.125.228.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB73652941F
-	for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 13:46:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.39
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D322452CCD6
+	for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 13:46:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790689602; cv=none; b=kuLe7RT397Cv0NGP9PZ9gmUKt98A0AEE8yVPxf9jYo9mqDPfU74BuqH0hOjlErJ2FIj1LX+5he3kWwX1SU71uUh5nfQRdPE6vEMsknDWN+Np7jmBNdcP6h3RuSow8nchaVsc4/Ka8lCaUX/LMQVTqWN9sleHmYvlETPRwHTTtpk=
+	t=1790689603; cv=none; b=tuRqNfwBm26PyphqcAqK4Ildt/B6zm35/HkOJnO1V/bktqUD3AySQdy4i3EaDbwBdM5Rpr01gl1N7Fzx2Tdd5JGBE9RvCZ9CSt/55K5wg36n7w8cUCw7ts3TAeo9bxoblN+eNoX5xVKzhMq968BOHRL5Fr9nDjouor3pP1EjWm4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790689602; c=relaxed/simple;
-	bh=OAa9q3cLSXiQRNEW5TTriDBPc2WeM0+6aZ5sQ78+8oc=;
+	s=arc-20240116; t=1790689603; c=relaxed/simple;
+	bh=wpDlTr/QWpQupJUNMM2wALQN8Uyz1bY9/O7nko4Cg6E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p2lK4GMc/YW/duS6IXTjtJH3y/XRm1DEvLvnJFYL567vRhio7ruazJVp+mFAXv6Rzm+oFfSlEVD4+JBG9r8DagbG/6hkqzS/AhoUZB8e2Mmd30uwn6cg/tFWEHS39O2jV+E/mrgvPZdJAVeO9ztLd1RKjXv+k1VwjS3LAUIr4SU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PKEjwuSJ; arc=none smtp.client-ip=74.125.228.39
+	 MIME-Version; b=DpWFqUcTLY7GpyRJCju8khu2xqRYxpU6xchewzDQxPJjvnHDrEGjOXSdPWjI3DQw7CTCO5FcNGUQUf5s5iWpXq0pQJbto3NuyP6RpSAlS92B2pYZyDkxq8D1/2zcyIz3cg56Yi3lEUIEDCZjgAdAqcnvGe61Jc5pqvufm2d9BpM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dpWjgzRJ; arc=none smtp.client-ip=74.125.228.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PKEjwuSJ"
-Received: by mail-pz2-f39.google.com with SMTP id d2e1a72fcca58-88098db8dcdso1735301b3a.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 06:46:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dpWjgzRJ"
+Received: by mail-pz2-f41.google.com with SMTP id d2e1a72fcca58-8631d0023daso2118753b3a.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Sep 2026 06:46:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790689600; x=1791294400; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790689601; x=1791294401; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=5jqeHUL/psHLhdPSpjDim9qXNo79pNu/OJu0wzPweus=;
-        b=PKEjwuSJjaNQoTXEatXjqroND8IP2A48huJyh6SnK5AUU7eae8UlTMY79Wt5GdG83N
-         1TdC5Htg+65N0BrMVSFdwpWgzhwapkT+Nf18F7AGDZ8wkStwRgoQP2FiZkDH+2rBgpjx
-         ttlfXH0uqWNTEW+NbqlUWHV/iJYEKsi54yTdkiHUhf2vPcf2CT/9eJdsQKIFHWRcQPgb
-         WVpBfRUlh8KfRQMiXHwjdybUaNM2Rw82dvTi9PL3ZrXo3CdYSYVO82EzN6IvEu+jpNGj
-         DpM8rU/iztQ86jABM/vrf8YyN9NFLqDG+oppS/jhBLgVKZcAnHotDs4bunte/rJCjaze
-         NFJg==
+        bh=MNjMUkShSGX1g13GJX2GC8qsPlf5nslC/UppE0cymdg=;
+        b=dpWjgzRJxWBt25CJ7MDPmv2EvOZlGpzhiW50HMsLTZYvPvqPTCVZ3wEFbqVH4Kxn8a
+         BYq4vLqUtb81tSz4TncWVHSo5xjUdLYsJUlvYdjCjk00lfkxHel4x5yQfuE0x0ed+DRJ
+         y8jg4hjtXbg0R1Rfa62Eymh78kRibVpZC+MwMweg7i0IA7hTn/MeNADYmUYRcXfbS54Q
+         w4dG0Y0jzhkOQZX531X7XaYgPZSJ/Vv4NRbEVWkigWKiJUgdwOSgOjaBWcC/2AAoj/cA
+         en6/laIpx+LFpYZqeVx6ySNWcQSoA+diqAi5Iop9YRT4gBclUu8wqBHO0pevWIjzy/AN
+         geXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790689600; x=1791294400;
+        d=1e100.net; s=20260707; t=1790689601; x=1791294401;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=5jqeHUL/psHLhdPSpjDim9qXNo79pNu/OJu0wzPweus=;
-        b=0pbgGKS92ubT5kqFxJMuMJELL0sya3UAL9rAlFx6aB9nbZaHxqW2y63VMeZqE/qLN4
-         SaIOGNgd6Abv0/UlrQfZyQY26JuqbaS719hB9wcul5qPVl/u3Y1JDiOrGBb0xzdsOvlE
-         +xuBbkJtluqAVeuYLYlT58sCxAIia8zoxH9Sgcs14KwIQgXoWVj9s49Pok0yeGZGvMBE
-         igv699bY+vxjRufdFGJ/3fJ9FeOeU6O1MebAETGa1TCbwvTnZo5dUd9OugPuio6hivCA
-         wtopS4/EsjJVHJ3oYjsWU3pASBYkS0OFXHcBWGbmup8JUwSJu8D+zsmoNn2CmOPqFRlD
-         ljgw==
-X-Gm-Message-State: AFuF++kzsp0jLsEyFE5JCPSUCSz2Hd/33ZDTq5AjCfRVQEYVeNDTRkig
-	liqm/NoXU/6umEjbVlF8X+WkQPyn9ScwPAUq18/YhUS5/j/gN5OzL9dLhEZK5Ca4
-X-Gm-Gg: AYBFou3o4I7X1cLbpP9CwfPfirmun7iPkizI0YRNJo3WGCC7naUQGZC7g03dPTDQ8vn
-	ri2EcQQ6VQoKpXXorO9Wa2EB8DKaMr8ElfwsoDG/QYVPQIkEYBiyoR8fyYkP9vEcrbOb8TqYOnk
-	QylQj6qKtkTb98e9TPov9NUWZtGYyUIBNAVOwvHGdEcgqvnwIU+vkYB9L1DuJukzxjQqoPDbJ5o
-	QItdTBMAChfDj7XkGTZARm/sb0WZAg62eBVW7C4rzZR1hjv1Fj5fbQ+VOuxvgqJy3Q5W2y9lEFN
-	ZY2hcJwpUeU7lp6Z6EqJ1hUv4cFwy25vrMwoHed9a40tQzmKAAjcHu3+SrQsqW5Etfclhug4GJq
-	24hYEnHJN5PwKuofwx2jQ5nUSRNexNdJX40qPdqNQq4KIY5HrBjAKOqe0JZmAZYfLgrKsVJa8XH
-	7VWPtx8zpeFJzqrkmMfi0gaNdCR22ijhN5F5gybJBER2C+PWWQo0Y7IJXXC7FycHcvqElI8emLq
-	M98vV61c1B6
-X-Received: by 2002:a05:6a00:90a7:b0:86c:f33d:e3d6 with SMTP id d2e1a72fcca58-87e9a614f86mr11516942b3a.9.1790689599866;
-        Tue, 29 Sep 2026 06:46:39 -0700 (PDT)
+        bh=MNjMUkShSGX1g13GJX2GC8qsPlf5nslC/UppE0cymdg=;
+        b=Q1+Vsh8vjkEWSaLaH7Yn3DYCbNxlw3DhlRf4L5x/1ANYbv8AkO+fJ8OUhSdAcyq6Sc
+         0qgXixRHXLvhIcakCQcO/DjBie+Fi0dpJkdbHfaUe5fNZrKh0oKf4D5uB9VltsuhACSg
+         JXUwGlm1UUDvOlJj0dOHP0Qj1ubs3Yrnlok8WCawlbFTRjH3oSUBxRK1PyGbTUEOOu64
+         70jQ6HKYP3WNqN1NP8DL1BQ8ixB7DjKktz+SJvOWbJIBHCZj4JBS0GMgfiIJBAo/bWaX
+         34heVh2JkWCMgzqyM++eFYqI6G7dmBAJOQ8gYS6jF9bC5cKLOEX2jtpbtaMa/2VMNc22
+         5TDw==
+X-Gm-Message-State: AFuF++mj8bj1H/VC1WbssTSspen+2tc35H+isVULq6mzW33gUW/D53w/
+	i2wwRgJyqvqzvLUpWku7WU4+bclBtvd9Gx1D2WgEPOZ15+c3D5WfwYvJg/dCgKos
+X-Gm-Gg: AYBFou3v0/TwvAJuBgmEeObJxQcbFVWCY49GFp73soTmn6sg52YWQWHQu1h5oYyDJcd
+	p4ucLAKBR9+V+3WaarlO8Lq/dMxVQ+Oy52/RdPlQfWgkLD2v1KTkSP+flD3Zc4rDpWWZMd6ieXc
+	vqViCw2mQEwsE3IYiBPYR45KeWZB/71QgTDnlqeUZ3ltGWOxSfhwS5FmZ+oZmbOPPeB7+gjTIbL
+	6bfu+6tkp67YoVGvjTNyhBb8Mi07kMR1A8LdMP4Ny98EVVf7XKhKpA0Oav5RDC3lo3zoBJ9PFFd
+	O77/HSApwd3GDewgsO/BY0MlcxEMFRNe8XNxrmVqObrD29QgUCPUdJ+sWaGkzPg3R2AA4p9HeV4
+	NS/d6j54x7glIo1nPtD0uWRw7CtvhByCzkBlu0ExLsRpIwUm5dL1GPEa2YzlUqQfNmmy71verGe
+	FIAD0nsYsc+jm4H8NzQgKFB4fISjOtFvfssBw27Q1sgvR7b0nm+9ltg9MHnX94RovHi5d/WvPsw
+	oAgaP83yx37
+X-Received: by 2002:a05:6a21:3994:b0:3cd:8bba:824f with SMTP id adf61e73a8af0-3de0e70bc28mr13563549637.4.1790689601101;
+        Tue, 29 Sep 2026 06:46:41 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-885e28d7d23sm944357b3a.56.2026.09.29.06.46.39
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc7cf5a2f74sm474872a12.10.2026.09.29.06.46.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 06:46:39 -0700 (PDT)
+        Tue, 29 Sep 2026 06:46:40 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 1/8] watchdog: core: Clear wd_data pointer on errors
-Date: Tue, 29 Sep 2026 06:46:28 -0700
-Message-ID: <20260929134635.2567137-2-linux@roeck-us.net>
+Subject: [PATCH 2/8] watchdog: core: Add missing locks
+Date: Tue, 29 Sep 2026 06:46:29 -0700
+Message-ID: <20260929134635.2567137-3-linux@roeck-us.net>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20260929134635.2567137-1-linux@roeck-us.net>
 References: <20260929134635.2567137-1-linux@roeck-us.net>
@@ -78,71 +78,146 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In watchdog_cdev_register(), if device registration fails after the core
-watchdog_core_data structure is allocated and assigned to the persistent
-watchdog_device structure, the function frees the data but leaves a
-dangling pointer.
-
-During device registration, watchdog_cdev_register() links the newly
-allocated wd_data to wdd->wd_data. If a subsequent initialization step
-fails, such as the watchdog_kworker validation, dev_set_name(),
-misc_register(), or cdev_device_add(), the function cleans up by freeing
-wd_data via kfree() or put_device(). However, it fails to clear the
-wdd->wd_data pointer before returning. Furthermore, if cdev_device_add()
-fails after misc_register() exposed /dev/watchdog to userspace, a
-concurrent open may hold a reference to wd_data while the caller frees wdd,
-leaving wd_data->wdd dangling.
-
-Fix the problem by clearing wdd->wd_data on all error paths during
-watchdog registration, and clearing wd_data->wdd under wd_data->lock if
-cdev_device_add() fails.
+Add missing locks to watchdog_open(), watchdog_cdev_unregister(), and
+watchdog_set_last_hw_keepalive(). Also protect old_wd_data with its own
+lock to prevent its modification while in use, acquiring wd_data->lock
+before releasing old_wd_data_lock in watchdog_open() to avoid a TOCTOU
+race, and keeping misc_deregister() outside old_wd_data_lock to avoid
+lock ordering inversion with misc_mtx.
 
 Fixes: b4ffb1909843 ("watchdog: Separate and maintain variables based on variable lifetime")
 Assisted-by: LLM
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/watchdog_dev.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/watchdog/watchdog_dev.c | 42 ++++++++++++++++++++++++++++-----
+ 1 file changed, 36 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index e8c1fcb53c56..ed5b35184271 100644
+index ed5b35184271..50224877ff49 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -1033,6 +1033,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 	wdd->wd_data = wd_data;
+@@ -55,6 +55,7 @@
+ static dev_t watchdog_devt;
+ /* Reference to watchdog device behind /dev/watchdog */
+ static struct watchdog_core_data *old_wd_data;
++static DEFINE_MUTEX(old_wd_data_lock);
  
- 	if (IS_ERR_OR_NULL(watchdog_kworker)) {
-+		wdd->wd_data = NULL;
- 		kfree(wd_data);
- 		return -ENODEV;
- 	}
-@@ -1046,6 +1047,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 	dev_set_drvdata(&wd_data->dev, wdd);
- 	err = dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
- 	if (err) {
-+		wdd->wd_data = NULL;
- 		put_device(&wd_data->dev);
- 		return err;
- 	}
-@@ -1066,6 +1068,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 				pr_err("%s: a legacy watchdog module is probably present.\n",
- 					wdd->info->identity);
- 			old_wd_data = NULL;
-+			wdd->wd_data = NULL;
- 			put_device(&wd_data->dev);
- 			return err;
- 		}
-@@ -1084,6 +1087,10 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 			misc_deregister(&watchdog_miscdev);
- 			old_wd_data = NULL;
- 		}
+ static struct kthread_worker *watchdog_kworker;
+ 
+@@ -869,17 +870,32 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	int err;
+ 
+ 	/* Get the corresponding watchdog device */
+-	if (imajor(inode) == MISC_MAJOR)
++	if (imajor(inode) == MISC_MAJOR) {
++		mutex_lock(&old_wd_data_lock);
+ 		wd_data = old_wd_data;
+-	else
++		if (!wd_data) {
++			mutex_unlock(&old_wd_data_lock);
++			return -ENODEV;
++		}
 +		mutex_lock(&wd_data->lock);
-+		wd_data->wdd = NULL;
-+		wdd->wd_data = NULL;
++		mutex_unlock(&old_wd_data_lock);
++	} else {
+ 		wd_data = container_of(inode->i_cdev, struct watchdog_core_data,
+ 				       cdev);
++		mutex_lock(&wd_data->lock);
++	}
+ 
+ 	/* the watchdog is single open! */
+-	if (test_and_set_bit(_WDOG_DEV_OPEN, &wd_data->status))
++	if (test_and_set_bit(_WDOG_DEV_OPEN, &wd_data->status)) {
 +		mutex_unlock(&wd_data->lock);
- 		put_device(&wd_data->dev);
- 		return err;
+ 		return -EBUSY;
++	}
+ 
+ 	wdd = wd_data->wdd;
++	if (!wdd) {
++		err = -ENODEV;
++		goto out_clear;
++	}
+ 
+ 	/*
+ 	 * If the /dev/watchdog device is open, we don't want the module
+@@ -909,6 +925,8 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	 */
+ 	wd_data->open_deadline = KTIME_MAX;
+ 
++	mutex_unlock(&wd_data->lock);
++
+ 	/* dev/watchdog is a virtual (and thus non-seekable) filesystem */
+ 	return stream_open(inode, file);
+ 
+@@ -916,6 +934,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	module_put(wd_data->wdd->ops->owner);
+ out_clear:
+ 	clear_bit(_WDOG_DEV_OPEN, &wd_data->status);
++	mutex_unlock(&wd_data->lock);
+ 	return err;
+ }
+ 
+@@ -1085,7 +1104,9 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
+ 			wdd->id,  MAJOR(watchdog_devt), wdd->id);
+ 		if (wdd->id == 0) {
+ 			misc_deregister(&watchdog_miscdev);
++			mutex_lock(&old_wd_data_lock);
+ 			old_wd_data = NULL;
++			mutex_unlock(&old_wd_data_lock);
+ 		}
+ 		mutex_lock(&wd_data->lock);
+ 		wd_data->wdd = NULL;
+@@ -1131,9 +1152,12 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
+ 	cdev_device_del(&wd_data->cdev, &wd_data->dev);
+ 	if (wdd->id == 0) {
+ 		misc_deregister(&watchdog_miscdev);
++		mutex_lock(&old_wd_data_lock);
+ 		old_wd_data = NULL;
++		mutex_unlock(&old_wd_data_lock);
  	}
+ 
++	mutex_lock(&wd_data->lock);
+ 	if (watchdog_active(wdd) &&
+ 	    test_bit(WDOG_STOP_ON_UNREGISTER, &wdd->status)) {
+ 		watchdog_stop(wdd);
+@@ -1141,7 +1165,6 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
+ 
+ 	watchdog_hrtimer_pretimeout_stop(wdd);
+ 
+-	mutex_lock(&wd_data->lock);
+ 	wd_data->wdd = NULL;
+ 	wdd->wd_data = NULL;
+ 	mutex_unlock(&wd_data->lock);
+@@ -1208,20 +1231,27 @@ int watchdog_set_last_hw_keepalive(struct watchdog_device *wdd,
+ {
+ 	struct watchdog_core_data *wd_data;
+ 	ktime_t now;
++	int ret = 0;
+ 
+ 	if (!wdd)
+ 		return -EINVAL;
+ 
+ 	wd_data = wdd->wd_data;
++	if (!wd_data)
++		return -ENODEV;
++
++	mutex_lock(&wd_data->lock);
+ 
+ 	now = ktime_get();
+ 
+ 	wd_data->last_hw_keepalive = ktime_sub(now, ms_to_ktime(last_ping_ms));
+ 
+ 	if (watchdog_hw_running(wdd) && handle_boot_enabled)
+-		return __watchdog_ping(wdd);
++		ret = __watchdog_ping(wdd);
+ 
+-	return 0;
++	mutex_unlock(&wd_data->lock);
++
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(watchdog_set_last_hw_keepalive);
+ 
 -- 
 2.45.2
 
