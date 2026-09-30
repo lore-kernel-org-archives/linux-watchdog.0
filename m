@@ -1,86 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf2-f12.google.com (mail-lf2-f12.google.com [74.125.229.204])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBD2D30ACF1;
-	Wed, 30 Sep 2026 21:46:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68D6041A92A
+	for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 23:17:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790804784; cv=none; b=Ssg7DO1tmnk3V7RL2/v05bg8LckHBV/cy5XRq3x2FwZQyUVDhjNdvSB5WY/442biDRCKB51QSlZ/Nt5chKKaBypbGgNZYNu7s2cXnv080s8U/bHdehcxxD+F5caWw+7QxWzYHJ3/0U6vA1JCjM7WkUzGDVIR6/h43GQlYLpM5EQ=
+	t=1790810281; cv=none; b=XydFl2MQ5Tzkzht0imv4ye2JyVXXPknzAhssVgoz3unornSxe6dFL06VcLVQbNsN8KM0EMvf2DIEP6gPqEOtk65IJiPFu0Whj0FiNHLApSpqnStWbFTwypMa7WiwdntZMun+/vwHhhlxGU6eSq4hFbtMk1kWNOSz0Aokqb10EXY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790804784; c=relaxed/simple;
-	bh=3iuEjO2MpK0D95af1nsWvN600i/DZSAMF6zrFFAr3/E=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=racB1tnhwG7oQw58z87i7hfRoTZbqH6IpyOmGZk89JGxo2pulqbTEjtjKvcf7ZAVG81U8k8U7E7hQZ5FeD+S66MDbi5yXJz46BsQ4p2LxrEWuGaaZeS6VT7Q7WD0XfOJBTKhLZoRYueOsQaX3h1aPhH9kmFX+dMB/jkidLHZbCQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ooFvwKMj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790810281; c=relaxed/simple;
+	bh=MQVYYLbltUu3gM+x2chnL6/HZHcYyjfddY/XCJbMqzk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QFnsf6CshOVO0x5NeY45ugLKqf2m/9V/brxkpvWLcilo9dCTtBiYpWyU+mWsiDiXPRz/9nJKlBmvcHTYbKYZcsDGGZSaxwKRDbYICBe4OanbDbQFSltmvOHR2aWnND19AAgm5GXMpUzaFEhEM/Ux++ERz4x1hOJFf26PMLnLZuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=bbNm1bcZ; arc=none smtp.client-ip=74.125.229.204
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ooFvwKMj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5FEE1F000FF;
-	Wed, 30 Sep 2026 21:46:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790804782;
-	bh=ldMOrQjh0P5/jcFu0TzEsRwLwVAqyKDcS37asFhMWNY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=ooFvwKMjCPrhFufbh/VTKIh1OGcN4OomhCW9dRuQTQBObPjNCTFjyX3hWncitgwYO
-	 +8yhpdZcACJNvEadcSpOrtOSNIxPZ0V5jFuu65mTRIVaBoyZ88qs0+wX4w6v1IfGkj
-	 qkGq/hjXHMLwMr+3kmxm/vrc+ch42wltCRJH3Q+WLMxo4UCo5wV9QUdb0gXthcDWnv
-	 hWWAgi8Y102z0tSiuFVQDBkFIREMzlpshwLuZoYlTMqbsfuRXmgKfs0apPxpvMOVBD
-	 Hwaw81h2p5RBikr+KxbxJ8B8xxzuIpRSBbTqfphOjp6Cj50f9QXBZ3sTSe7dmaX6xn
-	 P9GfZcBm7PL+w==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Doug Anderson <dianders@chromium.org>
-Cc: Marc Zyngier <maz@kernel.org>, Mayank Rungta <mrungta@google.com>, Wim
- Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
- Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, "Kirill A.
- Shutemov" <kas@kernel.org>
-Subject: Re: [PATCH v3 1/5] genirq: Synchronize in-flight handlers during
- NMI teardown
-In-Reply-To: <CAD=FV=WE-Wn60zTn=nsq4qLis_zjncrS37fND6ehtpuvxYp+DA@mail.gmail.com>
-References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
- <20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
- <87fqzp8jex.ffs@fw13> <87wlt13zj1.wl-maz@kernel.org> <87v78l6oha.ffs@fw13>
- <CAD=FV=Wdqn7UiuRy1VY-qH+JYChLTEQgmj2q6Q=FBjCZ+5eo1A@mail.gmail.com>
- <CAD=FV=WE-Wn60zTn=nsq4qLis_zjncrS37fND6ehtpuvxYp+DA@mail.gmail.com>
-Date: Wed, 30 Sep 2026 23:46:13 +0200
-Message-ID: <87o6deh0pm.ffs@fw13>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="bbNm1bcZ"
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5ba379d8804so1944704e87.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 16:17:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1790810271; x=1791415071; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=MQVYYLbltUu3gM+x2chnL6/HZHcYyjfddY/XCJbMqzk=;
+        b=bbNm1bcZLW/4PhXvUVqT3GSWJEzzmfBnklS2Ag0bpisyIN2//R5Q2chIxjpvtWln8g
+         4A+V+lSUxtB3af2JmF77n3u3ahNxVDFrF2+kgZCiwCULPokQCRnrjFeoTbYtyZQAMnXG
+         fYp67UhIEqERjDu2jW2iFgaRn/2sO52cjoisA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790810271; x=1791415071;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=MQVYYLbltUu3gM+x2chnL6/HZHcYyjfddY/XCJbMqzk=;
+        b=hl8JJtiW1i65h9LyfHIjiKCZmbgsb23Cc03qQsDhBBHgyFmI5LSVGkDNglBdZqo8Yn
+         pIVzV5+pKGaFPZhW9LtAYc1zNFSw71jnGvKm+fXm6c/Q7jJZ2rOUyRiMH3cZw2BgDk2M
+         uQoIMu8/7GnGmfX0gjE0jfvRdTd91YH7SVR0snon8X5HlhzGe8qbI9Utwbx9bdDqxl/L
+         ZsZcf4+etp+Bdys/EBfKZrj0TzbBPY0TWF/gMz5QfvQtlV+IUACcm/jKB9mV8cc/+NKI
+         ANCVnfn6VHEc+COWK0tSTVRZ9LFFacCPsBAgqmtahN4yQMusrSN/qmkWXeFlE5Rz6RdC
+         TI1w==
+X-Forwarded-Encrypted: i=1; AKwUvBwyTPLodhLaGKElZ03EQScFfBuE7FNLydPbFQyVDyV8lYOGuSTk6XFamrPcwjxeE8gn8DsvoqLbpvOTV1hBlQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLLHF2492oWmJwvfub73XwaV/IiA18FBQuifPl/3ko67ID3BMfx
+	uJxBPtEDYi9piqXNrB778nCxPMp8rtVtO+h3wuopJ5GH+N8SY3YC7lFoYZdsr5QEy/VZCiO4r/i
+	mb6S42A==
+X-Gm-Gg: AYBFou0ds8JGgbcj+VTVmxbHfr7IvFxLPUSJL0VHZbPfo8NpZkl+2rBVIWMBNYfSy0H
+	RzQ+9gqyL0tqFTJneZLZjWkPQl6ibzxqmc8hiQuLZ1tc3D7P78/J3o2BKLN/N6eoaqJzLbUsmEk
+	cu2Ayv8qYzG6oNmiCONAVNKe2hotfrw8fNA//E7ybzquP2YNQxWUbBS060dhxXdYQH4ecCX02hS
+	h1Tv0Bfny1Sgj+dSB/1sKYXGD7wCouEPqd7jCXG+9Oor8NbeQEPNkHOoDaB1LOqGvQTwuBR+1h4
+	0qfvtZBoJ5VIFuYmlvKR2c+jlUjswoPrilpvoKcWH+DNROkLzCjsyucNcTrDwFO13zWfSnPNwjL
+	Z4D46sGMgOLYButJ2/x99gECQPf8Bx65HnbTHR7b6JYyBT12EOgplaiswNoxCIHsMrdNuog+z0B
+	4rMn350lXnzqe/eb1mmxBHzIezd49+X84NwmjoR5KSQibxhKZn/vX10qhHpXyRh9KsaGRLu8MWh
+	vUSZYMa01Yh7LdHa4Cdb6wVkeMsB708PjHBCbQ=
+X-Received: by 2002:a05:6512:1390:b0:5ba:3888:7055 with SMTP id 2adb3069b0e04-5ba406119ccmr1279362e87.48.1790810271413;
+        Wed, 30 Sep 2026 16:17:51 -0700 (PDT)
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com. [74.125.225.141])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5ba42faa60esm280572e87.15.2026.09.30.16.17.48
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Sep 2026 16:17:50 -0700 (PDT)
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e721b5503so55054475e9.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 16:17:48 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBwe4446UBYy8FTgCCGtByp9A315fMkKIKJgF6pCUKbpFIjyE49irSDyh3czlsDjW8fH+tQSK/6+LsBF5fGMyQ==@vger.kernel.org
+X-Received: by 2002:a05:6000:2885:b0:487:9a8:9f31 with SMTP id
+ ffacd0b85a97d-48b025295ebmr5666042f8f.41.1790810266894; Wed, 30 Sep 2026
+ 16:17:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20260902-qcom-wdt-nmi-series-v3-0-f3999362a9ea@google.com>
+ <20260902-qcom-wdt-nmi-series-v3-1-f3999362a9ea@google.com>
+ <87fqzp8jex.ffs@fw13> <87wlt13zj1.wl-maz@kernel.org> <87v78l6oha.ffs@fw13>
+ <CAD=FV=Wdqn7UiuRy1VY-qH+JYChLTEQgmj2q6Q=FBjCZ+5eo1A@mail.gmail.com>
+ <CAD=FV=WE-Wn60zTn=nsq4qLis_zjncrS37fND6ehtpuvxYp+DA@mail.gmail.com> <87o6deh0pm.ffs@fw13>
+In-Reply-To: <87o6deh0pm.ffs@fw13>
+From: Doug Anderson <dianders@chromium.org>
+Date: Wed, 30 Sep 2026 16:17:31 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=VuSEzHw8JJsTXuGEEe-w_T=_w6ycsqpzpNWDHxMqyJdQ@mail.gmail.com>
+X-Gm-Features: AclHuK_lONYIi2Rjd5xeZvJ8IkAtljr3_IbRPhmnlL1GcuMTyl7rym8vZ20aZcw
+Message-ID: <CAD=FV=VuSEzHw8JJsTXuGEEe-w_T=_w6ycsqpzpNWDHxMqyJdQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/5] genirq: Synchronize in-flight handlers during NMI teardown
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>, Mayank Rungta <mrungta@google.com>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	"Kirill A. Shutemov" <kas@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 28 2026 at 09:14, Doug Anderson wrote:
-> On Fri, Sep 4, 2026 at 8:26=E2=80=AFAM Doug Anderson <dianders@chromium.o=
-rg> wrote:
->> On Fri, Sep 4, 2026 at 8:11=E2=80=AFAM Thomas Gleixner <tglx@kernel.org>=
- wrote:
->> > Of course this is a regular global interrupt otherwise it couldn't be
->> > requested normally. So this sets IRQF_PERCPU (it has to otherwise
->> > request_nmi() would fail), but that looks like a hack to me.
->>
->> At least on GIC, promoting a regular global interrupt to NMI (or
->> pseudo-NMI) level is possible, and Mayank's use case here seems
->> legitimate. Any suggestions you have for making this look less like a
->> hack are appreciated! :-)
+Hi,
+
+On Wed, Sep 30, 2026 at 2:46=E2=80=AFPM Thomas Gleixner <tglx@kernel.org> w=
+rote:
 >
-> Throwing an extra plea out here to see if we can make forward
-> progress. IMO being able to make watchdog driver "bark" interrupts run
-> at NMI (or pseudo-NMI) level is an important thing to do for
-> debuggability of the kernel. It sounds as if there are no general
-> objections to the idea. I guess the next step is to make this look
-> less hacky. Is that something we could send patches for? Any hints for
-> what you'd like this to look like would be greatly appreciated.
+> On Mon, Sep 28 2026 at 09:14, Doug Anderson wrote:
+> > On Fri, Sep 4, 2026 at 8:26=E2=80=AFAM Doug Anderson <dianders@chromium=
+.org> wrote:
+> >> On Fri, Sep 4, 2026 at 8:11=E2=80=AFAM Thomas Gleixner <tglx@kernel.or=
+g> wrote:
+> >> > Of course this is a regular global interrupt otherwise it couldn't b=
+e
+> >> > requested normally. So this sets IRQF_PERCPU (it has to otherwise
+> >> > request_nmi() would fail), but that looks like a hack to me.
+> >>
+> >> At least on GIC, promoting a regular global interrupt to NMI (or
+> >> pseudo-NMI) level is possible, and Mayank's use case here seems
+> >> legitimate. Any suggestions you have for making this look less like a
+> >> hack are appreciated! :-)
+> >
+> > Throwing an extra plea out here to see if we can make forward
+> > progress. IMO being able to make watchdog driver "bark" interrupts run
+> > at NMI (or pseudo-NMI) level is an important thing to do for
+> > debuggability of the kernel. It sounds as if there are no general
+> > objections to the idea. I guess the next step is to make this look
+> > less hacky. Is that something we could send patches for? Any hints for
+> > what you'd like this to look like would be greatly appreciated.
+>
+> I think the objections have been layed out in course of the discussion, n=
+o?
 
-I think the objections have been layed out in course of the discussion, no?
+I guess I'm still unclear on one key question: if we post up clean
+patches that allow promoting global interrupts to NMI (or pseudo-NMI)
+level, would you be willing to review and eventually land? I got a bit
+of a vibe that you just didn't like the idea in general, but maybe I
+misunderstood. I just want to make sure Mayank doesn't spend a bunch
+of time trying to solve this problem if it has zero chance of actually
+landing.
 
-> I'll also be in Prague next week for both Plumbers and ELCE, so I'd be
-> happy to discuss this in person if that helps.
 
-I'm going to be there, but I don't know about Marc.
+> > I'll also be in Prague next week for both Plumbers and ELCE, so I'd be
+> > happy to discuss this in person if that helps.
+>
+> I'm going to be there, but I don't know about Marc.
 
-Thanks,
+Great, I'll make sure to look for you.
 
-        tglx
+-Doug
