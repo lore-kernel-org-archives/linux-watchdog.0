@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A23234B1D1C;
-	Wed, 30 Sep 2026 11:53:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B21BF3546CC;
+	Wed, 30 Sep 2026 11:53:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790769199; cv=none; b=gmBoYLgxxKhDkTKi/g1FB27ku/341UyAJqGQ5cU6PTHi6AjmmJJFN/lUbHTu99ITsGk9A7GgU54SjG2GyVkQJs9z/Z7OPOOKmOH49q3HZHFKpCj6XSn8WdA0z6CbUEA7fWRhlgDvmaZEqYS8h3L2dZbZyA1LAW15rIYKSGQNQ7Y=
+	t=1790769213; cv=none; b=dqqQntfe0WHuC+J2XNTk137nwu3ySObIBFfzt6rstMFnXvFKFHKY21RK1V3W0dhvPNzLlItyAHBJmU/Xj0RmtlRHzEDLlP81pxMwKDkYrn+iyMzENX7E6KbcKCeJnTtKS41QlydYIupuMoOx0hyBemqhjPraXktWxJq1pTd4kLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790769199; c=relaxed/simple;
-	bh=IXy7nAPrgHsHSHbN0XM8CJJjfvqtiWirdKHp+2aM3dM=;
+	s=arc-20240116; t=1790769213; c=relaxed/simple;
+	bh=iTB6a+dJ0oZpMgHysKpzHZObemNLKuXXnjGBOgsP9OM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uYY3mA04L25QqI6dPhWtoStKwj5v+YxGypcO25KRloNWB7HN4Py3Et1pH+ZRpA1EfawAq7YK6oBLlkT6b9sMU839CjU6DbmNMHpI40yelhiguDCWXATjf5Rss+J/CiOEbMVSrz3btpWMEYlVsetEqW/9pInE+WmlAeK/zWBWLwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q0nFyCG3; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=n/tM+qjgFT/hMl4Gdu6ZN9tpPLB+pXHb+jnnMveesBDEY9jc/vP1e5BZsq79wChm8ykJ+Sxgiip5a6lXPF8FQuI5XaZfhPVSl8RpVevKxLWSBOZvBXQjKlwpw2+hYoK0ylUr3OmjomDFNCTq1arVgiWt7x/c1KYl349qCrqm9OM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G44yalhK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q0nFyCG3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F83B1F000FF;
-	Wed, 30 Sep 2026 11:53:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G44yalhK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D58211F00893;
+	Wed, 30 Sep 2026 11:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790769198;
-	bh=7TPl0oqAExPehZAQBAmMe7RLxQ48Ot/PMyhKwok1au8=;
+	s=k20260515; t=1790769209;
+	bh=nXC41ysyyS+PrcqM+upU5jwSRAm3wcckWpd6j18u/Ls=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Q0nFyCG3jvcvsC9ypooiecA8+tlxG7mGybWbJ2GPiRfKV83jFEgAPkIZZJHVkMm/s
-	 RCwu+MedIGoa5EDNn9vl2UYFzu2Eq/jFPs0D1dHN7oYQgseU7z0yJpAzXpz2DLxUY0
-	 ECs7k05EMRgGtId3Pqlvt2fZtb7lcnyYfbmJ1ADHV1wSRIhT/LTwG22eeNdFPWWS86
-	 hwbVrgqUTSzmelf472ZIv2zvUkE5IuZFy2IrQWDUifPDWgsm4JnyCiXMcyiBQx88QK
-	 PBbfcrbDn4eUejzsx13uEBcasplF2hgaD5PIz42aySt0QEMTq63q6gBmcAUFKK8fXR
-	 vfdYDejZem2uw==
-Date: Wed, 30 Sep 2026 19:53:15 +0800
+	b=G44yalhKFKJZQeVHWEP5Tm4329JuZy/W/Qr7jGA8FM4CnkRQDN9yzWx6P218zaqDU
+	 HjQsc8BV9cZ94G7kydQETPPawLKxbzVW8MOrlIZ+5AeZxdKBum6pAbwjUDFpq8TGmA
+	 Cxis/rzF9pQ8ZHme8ILV0ls9TRuR//AkB7ewxrMPNhwlqOjOYHrrp/acXegJszZ7ZV
+	 8J1KEJ9r368ySv2DufGOz8+0Mr47/Sdo6Gkr6xHCE1IsyHfNiRDsYkFGlkYF61lMJf
+	 9/3Btjj8GMOS5bY4Ku01oMpTQ3rU3cTqpjRQHAm/004yWrGoP1bd6BDSA5zZLRufz/
+	 lvMUvupW8hrUg==
+Date: Wed, 30 Sep 2026 19:53:26 +0800
 From: Tzung-Bi Shih <tzungbi@kernel.org>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/8] watchdog: core: Clear wd_data pointer on errors
-Message-ID: <arz4KygdnfldRJ18@tzungbi-laptop>
+Subject: Re: [PATCH 2/8] watchdog: core: Add missing locks
+Message-ID: <arz4NgR9yewNFvDY@tzungbi-laptop>
 References: <20260929134635.2567137-1-linux@roeck-us.net>
- <20260929134635.2567137-2-linux@roeck-us.net>
+ <20260929134635.2567137-3-linux@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -42,27 +42,15 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260929134635.2567137-2-linux@roeck-us.net>
+In-Reply-To: <20260929134635.2567137-3-linux@roeck-us.net>
 
-On Tue, Sep 29, 2026 at 06:46:28AM -0700, Guenter Roeck wrote:
-> In watchdog_cdev_register(), if device registration fails after the core
-> watchdog_core_data structure is allocated and assigned to the persistent
-> watchdog_device structure, the function frees the data but leaves a
-> dangling pointer.
-> 
-> During device registration, watchdog_cdev_register() links the newly
-> allocated wd_data to wdd->wd_data. If a subsequent initialization step
-> fails, such as the watchdog_kworker validation, dev_set_name(),
-> misc_register(), or cdev_device_add(), the function cleans up by freeing
-> wd_data via kfree() or put_device(). However, it fails to clear the
-> wdd->wd_data pointer before returning. Furthermore, if cdev_device_add()
-> fails after misc_register() exposed /dev/watchdog to userspace, a
-> concurrent open may hold a reference to wd_data while the caller frees wdd,
-> leaving wd_data->wdd dangling.
-> 
-> Fix the problem by clearing wdd->wd_data on all error paths during
-> watchdog registration, and clearing wd_data->wdd under wd_data->lock if
-> cdev_device_add() fails.
+On Tue, Sep 29, 2026 at 06:46:29AM -0700, Guenter Roeck wrote:
+> Add missing locks to watchdog_open(), watchdog_cdev_unregister(), and
+> watchdog_set_last_hw_keepalive(). Also protect old_wd_data with its own
+> lock to prevent its modification while in use, acquiring wd_data->lock
+> before releasing old_wd_data_lock in watchdog_open() to avoid a TOCTOU
+> race, and keeping misc_deregister() outside old_wd_data_lock to avoid
+> lock ordering inversion with misc_mtx.
 > 
 > Fixes: b4ffb1909843 ("watchdog: Separate and maintain variables based on variable lifetime")
 > Assisted-by: LLM
