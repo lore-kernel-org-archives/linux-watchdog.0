@@ -1,93 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF591457E7F;
-	Wed, 30 Sep 2026 07:56:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790754994; cv=none; b=cgxBpbU18vgfuo37OsCivsB1eMWlh4NXZxgDhRSdZs6RxC9+VvpXsi24/DPT+DlNlXzZ6Yb1fHCTUacMKdiTUsU3LPmfYZiGlJh89lkn7Y4HnDF9mgYQIrAcsJ8LPeqCK3/F53xSaI8DOIAUTtVBr3FQu1Osf/IQouW7OIeY2hM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790754994; c=relaxed/simple;
-	bh=qfBD7mkuKmouucL0LHWaXkROgW7LHPkYYRDsvYtBZNo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hjyfHMxZ6nGfHynllcm7Fu7MaZFEMuA4j2yjJz4ifvSa554OHtoBExWofTcBAsfGG/8rHDGE1LHiDHDyBo76PSx6OE378Ca8ZWKKI6htSFmyco8QfoLNJiGw6216QlkxM7x2ws2+Rth4Moq1zQDKNnPcpmQ3WpnzPTcJ9ii6fak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i89SYrP8; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B973B83F9
+	for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 08:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790757392; cv=pass; b=HcRJuvRAdGx4Nc8vTZB5GHUH1V1SLzZkoDSOovipNjWUJmxJK5PlR0QB2b3Q7MUp9ujB69wnGA5mOnn4wQGeSbmjruqAeTQBA4U8v1H/NCgy/3HFlH9MCwRxT1MPSkwQBeCZ2uEqQRr+4fY9ShBC2fsTxP4rEuEEG74qfutLzMM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790757392; c=relaxed/simple;
+	bh=HjdOFxmrol1vUnD9FKIi4UFta8BjlFpXjkromc99kSU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bUvAbstVsNr94oTw5gbNM6132ebvIqJBSiSBExU1Gy8dm1mJv4KtOT2e1kHyaTapjlVlUyuMSUD8Su3PGMdUnvzZRvECEtgVoTwzinVdNS91pNAb4dAJnYPzuFCeEQxlMNhOb/vbsCfZlEh3aikIqjTizF38AN+Yg0KSqE3zVzc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fPP9lv96; arc=pass smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i89SYrP8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4728B1F000FF;
-	Wed, 30 Sep 2026 07:56:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790754992;
-	bh=xL6M0dr5FX7bEZLB4pEnUkdcIL4YjSX8nLQPwIT5Zzo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=i89SYrP8uoUOW63arVdATXVuZH9y+kHuAUwU2N0UGVY94DWwNd2K7x/EKMapEQVv2
-	 IS3kZU8IQdtUbPMdMBwhZM6iXY4jKf0Fjfr+CLnKACgkbMqTegribBZxPXuGqW37SI
-	 V7Dy6PcWs6l1EKldjWnXwAcyB2uHLXgdmhUpIZDmeZ6RDMNVivQTbewanLOKGj0/Nw
-	 YZTyMxUhi5R0AW5hS+q9NUt6pU5Y9GQYUthgafm93QVh4LLtAMf0aoQJcmj+Qh7TKt
-	 A4xvaRF2ROzvt2xapbNlc1Xwjz+inDZ42dlbHzdFa5OS8rzLPfLvFJZ4lflr1SMC2F
-	 LPpBIT4uCLTBQ==
-Date: Wed, 30 Sep 2026 09:56:24 +0200
-From: Lorenzo Pieralisi <lpieralisi@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Ashok Raj <ashok.raj@oss.qualcomm.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Hanjun Guo <guohanjun@huawei.com>,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
-Message-ID: <arzAqMOmSVl_PzH5@red-moon>
-References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
- <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
- <arr3IhF0bwN4uzUP@hu-ashoraj-lv.qualcomm.com>
- <art5m5QPXAOAvkvW@red-moon>
- <arxZ7BAya5ntRi6t@hu-ashoraj-lv.qualcomm.com>
- <ary9AGmVWDuez7Ax@ashevche-desk.local>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fPP9lv96"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-4887d3c59ecso735503f8f.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 01:36:29 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790757387; cv=none;
+        d=google.com; s=arc-20260327;
+        b=JE5LGc267W4CNFvzRE6eaPTJ9VkpIkO+yC/GVGXOredgWLF71IsbpjxYlWEGul6SUx
+         htVqEOZEFtoKJAljU2IEJ8vp/CKoXO11t1zaPeVxSpU1q3PXtzEq8Zsa9hDAvS6M8sCL
+         1E3cZ/x/O0la9Vtm2UsnQEVNdDxGv0CfxnBMGB0KYsWXP9bihmV4N9RoPxMFUbNaOzLj
+         Bd3nJkK6TsUzKfu7TsShdjW9nZv+b4QfKtr2qNK4SYgsVJtIVwL6wTrkccTQJyV+ycQ/
+         RJmxNs0Lbj8KoYugWyOTRk0xa5FJbZJYW+FcQQz0vZyJra/E0BRMTaJ06DNsN+nk6kNt
+         Jr1g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=lZaIHzaOhcnhKP+I2Nw6s6CnueUSh0ItyVCxd7z2kOw=;
+        fh=gB45m5q4yPBpgPCP5jUdNk6hi/06qMfh4YrG8GrLVJQ=;
+        b=e1aaT2G3JUyvwf6krINP1wPkrpJfRGOt4Tv5fK4w70H1/6iG+amp+5tAmSl65JFOqL
+         nYbm02/jJ3xF2ttj/AQNomE9W8D6mTLjmW70KCLYPeolMwHeyUEETbTlX6gpohiiiDQ3
+         oV3oAtM7jTRXJdiZut2TQLU3CDEj7YHN7u5FKOGFq/gm1y2HwG/OYpAjoPPHi1gQ2gE3
+         RjO6MWYoDP2H5Sp3wxZbyQwSyO4Moyd4+oFiOt1jZNUSah5KYQymZzJQk+Vcqbs6WQ4X
+         U+/mlMsqXk8swZ6Ya3ElMk5eZugBEc0MvWFAgmes7HByA8jJNfM5ZOqlAaw+EfcoiTu7
+         otsA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790757387; x=1791362187; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=lZaIHzaOhcnhKP+I2Nw6s6CnueUSh0ItyVCxd7z2kOw=;
+        b=fPP9lv96gucxheuD/UTtuwMLtRAubDXO6WGg74NbhRj4tuAn4KBKQ+RWXrNeSi8GPI
+         mfCZqPOC4R3qYvxuSRl8a0qTaw6LpWt6Foq0S+81hAq5LsAf2W6PjsJZGfiSZl/4nSr9
+         GcwVDBW3HAa3HSoKBFbNd1v2cC6sgXo97nXeWmbDHwq6zOpW+ywSnscCG8VNMh86gfuM
+         q4QWhSJdmrkdfIww3F9Cgr9D/RneVfoD5dZNXEItcwosil4qsfSpZX8iUhKSQ1a2zgWF
+         cQO+Z6UJeYPAZnfg2nJPSsMhJ93/Wlc/sNjA/7JKIJo3KiN512Ar3cU8zlXufdC0pW1e
+         zlyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790757387; x=1791362187;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lZaIHzaOhcnhKP+I2Nw6s6CnueUSh0ItyVCxd7z2kOw=;
+        b=urch4r9nMuotfNYOs7Z+tRUJOC9pg4xTJLCGDg4yMVVLJSbpUwOI2j5G8rufd3AOf0
+         OVfGASdl4sNMv0oYTqgdIcLHxOw7mK6Czk2H8UUk+3sblEyYzqoR5BR5zCESuX/9SfDd
+         pQI6Jx2tBCdcwTvycRu6/RxPvCcfVzvV47FtDWE4dvLfAk47t9edRdsPS3VVNZ3I0Yr4
+         0nZ4KvhEQkTeWBlssGdYtkb5ZEDHg7lRimOFI29wHZX6f9cFsrexyRElD0fr9JOdaPmh
+         oXzKZwwSkbaW86H2jN0isdGHy0l/F4bAzyzqmW6ERWBPKEVBLxEiT/MPPmaluRgLHNCI
+         45yA==
+X-Forwarded-Encrypted: i=1; AKwUvBzm49Ichn/byfA5PxTxxawoBp4eFkD8SlET/KehuAwsVtpOU0jP6CdjYJQoE7QGAc5Z57iacnwwsdk7rAKk3Q==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ/OLdk6nCI/f9rZrLSl8CEs6a21zmmJwFEWdfyVA9P5Y9XaETb
+	QJehKGwdq4cs/AyB/uo0FVfbYHsHNFKDgH6dCjsJL8QCVtx5Liyu9GO4ftps+MqzbENDovG3dOa
+	jsoxcLpz9dzHakzyKvWJRgKQLuGNLCW0=
+X-Gm-Gg: AYBFou1zky7TTeBDDGPkCi58HXY7KWX1TRgWGcGOQiq597tbfrBlmdQBTZmpYJLRfiC
+	0rGEZ7L6EYpnKay4dqrnT1ImFQMEv97MNE/WIhbx3yjzks9NwtrbYTvpDlcK1JuN1DYvDySbGQV
+	5aPaVTogTr4sdP7KhzZntbYGs8YNxtr9V+wCZ3IXbeN3wZJUhPq3GEyLjNfPQSwd4lTl0rdFzdc
+	FZHkL6/p3SdibpbJMAgz/w7DPhV6CkA8h5hnwEi3TiiW1tlFyVLmaDRgnj+8LTWLMxyEhdEjUG3
+	NXBX7Sz8zXDUXK09F6MF2z7Nfp5gq9YeNWUKwRRnWEhvy7WSvyct4Hl424togLxhuz5Tw/P9hd3
+	6HOw0DMMFtkgrT3qdBah4DrjX6JvQzmBIB5oUNnJgYFHzYTzkMC9IBKeo0cakWzSIXhJQW1p+xw
+	==
+X-Received: by 2002:a5d:588c:0:b0:48a:f11e:6d5e with SMTP id
+ ffacd0b85a97d-48b024a6d19mr1630952f8f.11.1790757387095; Wed, 30 Sep 2026
+ 01:36:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ary9AGmVWDuez7Ax@ashevche-desk.local>
+References: <20260929105021.542730-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260929105021.542730-4-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260929110602.D533D1F000FF@smtp.kernel.org>
+In-Reply-To: <20260929110602.D533D1F000FF@smtp.kernel.org>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Wed, 30 Sep 2026 09:36:01 +0100
+X-Gm-Features: AclHuK8CCNO96WytW0FDoK4wkycLlbK69yfsHonOrEjdyZiIwv_YOfKHdgyoR20
+Message-ID: <CA+V-a8sNsgCP6icoYd8irORb9OGMAFG+RrgMOEtAiMoX9gFFdA@mail.gmail.com>
+Subject: Re: [PATCH v7 3/8] watchdog: rzv2h: Drop enabling clocks in the
+ restart handler
+To: sashiko-reviews@lists.linux.dev
+Cc: wsa+renesas@sang-engineering.com, conor+dt@kernel.org, 
+	devicetree@vger.kernel.org, robh@kernel.org, linux-clk@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 30, 2026 at 10:40:48AM +0300, Andy Shevchenko wrote:
-> On Tue, Sep 29, 2026 at 05:38:04PM -0700, Ashok Raj wrote:
-> > On Tue, Sep 29, 2026 at 10:40:59AM +0200, Lorenzo Pieralisi wrote:
-> > > On Mon, Sep 28, 2026 at 04:24:18PM -0700, Ashok Raj wrote:
-> > > > On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
-> 
-> ...
-> 
-> > > > > +	ret = acpi_static_fwnode_read_u32_prop_index(fwnode, ACPI_IRQ_PROP_GSI_POLARITY,
-> > > > > +						index, &polarity);
-> > 
-> > For each of the above calls for read_u32_prop_index() the allocation,
-> > copy a value and does free it. 
-> > 
-> > Instead you could read the whole array, and just get each value and
-> > discard it once? 
-> 
-> This was my question as well. But I formulated it differently.
+Hi sashiko,
 
-Same answer (and actually two properties are enough), yes that should
-be done, if using software nodes is the way to go, which does not
-look like, that's the whole reason behind this series, understanding
-where to stash GSI numbers, flags and names. It is a working proof
-of concept to get this debated and resolved, hopefully next week at LPC.
+On Tue, Sep 29, 2026 at 12:06=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [High] watchdog: unintended system reset during suspend due to permanen=
+tly enabled clocks
+> --
+>
+> commit 465743d35253a3a281f9ce8cea373ed0c3ae3e5a
+> Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+>
+> watchdog: rzv2h: Drop enabling clocks in the restart handler
+>
+> The commit drops dynamic clock enable/disable operations from the watchdo=
+g
+> restart handler to avoid deadlocking on the clock framework's global
+> enable_lock. Instead, it keeps the peripheral and oscillator clocks enabl=
+ed
+> for the lifetime of the device using devm_clk_get_enabled() and
+> devm_clk_get_optional_enabled().
+>
+> > diff --git a/drivers/watchdog/rzv2h_wdt.c b/drivers/watchdog/rzv2h_wdt.=
+c
+> > index f247e42d54f54..55ac11fcfcabd 100644
+> > --- a/drivers/watchdog/rzv2h_wdt.c
+> > +++ b/drivers/watchdog/rzv2h_wdt.c
+>
+> [ ... ]
+>
+> > @@ -292,11 +279,11 @@ static int rzv2h_wdt_probe(struct platform_device=
+ *pdev)
+> >       if (IS_ERR(priv->base))
+> >               return PTR_ERR(priv->base);
+> >
+> > -     priv->pclk =3D devm_clk_get_prepared(dev, "pclk");
+> > +     priv->pclk =3D devm_clk_get_enabled(dev, "pclk");
+> >       if (IS_ERR(priv->pclk))
+> >               return dev_err_probe(dev, PTR_ERR(priv->pclk), "Failed to=
+ get pclk\n");
+> >
+> > -     priv->oscclk =3D devm_clk_get_optional_prepared(dev, "oscclk");
+> > +     priv->oscclk =3D devm_clk_get_optional_enabled(dev, "oscclk");
+>
+> [Severity: High]
+> Does switching to devm_clk_get_enabled() and devm_clk_get_optional_enable=
+d()
+> prevent the PM framework from fully gating these clocks during suspend?
+>
+> By permanently incrementing the CCF enable_count by 1 here in probe, it a=
+ppears
+> that pm_clk_suspend() will only drop the count from 2 to 1 during system
+> suspend, leaving the clocks physically enabled.
+>
+> If the clocks remain running while the system is suspended and the ping w=
+orker
+> is frozen, won't the hardware watchdog counter inevitably underflow and t=
+rigger
+> an unintended system reset?
+>
+The driver doesn't currently support dev pm ops so I can't test this
+scenario. My current intention is to add syscon support so for now
+I'll drop this patch and revisit it when adding pm ops.
 
-Thanks,
-Lorenzo
+Cheers,
+Prabhakar
