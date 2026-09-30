@@ -1,132 +1,110 @@
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E350F36D9E7
-	for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 03:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08E843EEAC2;
+	Wed, 30 Sep 2026 07:40:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790738725; cv=none; b=NdtZ8Ctq9wSV9LVHXqB0A8Ary1BOIVdLTn3x0NN69WXlh5tQlUQg6r+UJcMssTPyMpgNt/bf6SXDgfM87+loNAaaEYpEgAWvuDOT94VSJdafXw9XLhwnAeIzqUe9OEFk5S7+Y7G97HL81JTB4quR/Yd9tU6SfRnvGUpC7XGSa2U=
+	t=1790754058; cv=none; b=tdC0z6m71dmD9YNPXOROG80ldYONYEWPxC8D6LvrTuRgF5QC2TiWdrlNqPgZ5+IYaJg4whuFcJ/OegZaQkTDMp9I46hSTEKleaWlqniqN/Z9kZ5EJAZ57KA6WIsePCptE3m/1aiftSoSlZi2yCVRKABU0LDBU5EEluEbvoPiPCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790738725; c=relaxed/simple;
-	bh=X93RA5rgWCekk+Xsp5aOujEMtC+NO/2XlXgFmidXf8A=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:Message-ID:MIME-Version:
-	 Content-Type:References; b=HJl7A70zWMHKAt/jX8rWmaB5hxP/OgCtwX9/IN/CwhvTj5tXZ0K4nEUuK4CZCTJMvzns3q+B8W3nl9jzryIn02peBtAGZJcGDmf+8U1aXIPyCSYWhSRr4MwvbsWTpWkZ2HCZ8dHeZcMx6hGuChDV2ROykIASinwPfXvJNoZwUIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=YJ/7lv1N; arc=none smtp.client-ip=203.254.224.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1790754058; c=relaxed/simple;
+	bh=DB/gpgguVjDIuVwtjp6SLVEmPbEKy+QEiu2yF2ynW1A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bztQ0jw0FYlwRi9DeCM0fqShsntGlD+eAllbqrB6hupzuc1ueJzhWehISoPtsTF3HVrjFsy/Pk9nNL6hGUVNXAzJAKhxGceByyjXyYAPE8BxlqWLHvoj3tPjQn1iTGM2bayb0iWj2g0sLg/r74teQmw5ginhout5rLIEhWwpEVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kHZjVW8o; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="YJ/7lv1N"
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20260930032520epoutp026d26d64a92e76da2374d528ca6456c71~Z_2DjWOVd2428424284epoutp02m
-	for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 03:25:20 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20260930032520epoutp026d26d64a92e76da2374d528ca6456c71~Z_2DjWOVd2428424284epoutp02m
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1790738720;
-	bh=qV/9he1CawIScaCGwp9M2kCWY31FQD0hOy1LYFGRfWQ=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-	b=YJ/7lv1NTqkHWVZJBDhKZGIA6PI9CmYxFlGMYE3ZLIjz9PSymQqjaJJXw8+e1jNOO
-	 iQUVkyHFIu62a3ZiIVITzpGd5v3jOIa/YrZWD0KhNwtIL995PUH908SvuXnNQszqPR
-	 qJeHKVJrLJjI3TWIMTpxE4CYlBhmBfIJwgTOLMxg=
-Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPS id
-	20260930032519epcas5p3ad47f970405abdcfcd06ac7290b08725~Z_2DDEJ9F0907109071epcas5p3Z;
-	Wed, 30 Sep 2026 03:25:19 +0000 (GMT)
-Received: from epcas5p1.samsung.com (unknown [182.195.38.95]) by
-	epsnrtp01.localdomain (Postfix) with ESMTP id 4hvgR1131Jz6B9m4; Wed, 30 Sep
-	2026 03:25:17 +0000 (GMT)
-Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-	20260930032516epcas5p4d193b18297c922226d567018e738bf41~Z_1-jov4d1681816818epcas5p4X;
-	Wed, 30 Sep 2026 03:25:16 +0000 (GMT)
-Received: from INBRO002756 (unknown [107.122.3.168]) by epsmtip2.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20260930032514epsmtip2aff10d7c9cb83aa870b567b932aff677~Z_199F3SY1916719167epsmtip2P;
-	Wed, 30 Sep 2026 03:25:14 +0000 (GMT)
-From: "Alim Akhtar" <alim.akhtar@samsung.com>
-To: "'Krzysztof Kozlowski'" <krzk@kernel.org>, <peter.griffin@linaro.org>,
-	<robh@kernel.org>, <conor+dt@kernel.org>, <linusw@kernel.org>
-Cc: <linux-samsung-soc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<linux@roeck-us.net>, <hajun.sung@samsung.com>, <wim@linux-watchdog.org>
-In-Reply-To: <4cc0ca7d-82ae-493d-ac15-478cdd8f0e08@kernel.org>
-Subject: RE: [PATCH v2 1/2] dt-bindings: watchdog: Add Exynos8855 watchdog
- compatible string
-Date: Wed, 30 Sep 2026 08:55:12 +0530
-Message-ID: <13f401dd508b$4fac48b0$ef04da10$@samsung.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kHZjVW8o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1790754056; x=1822290056;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=DB/gpgguVjDIuVwtjp6SLVEmPbEKy+QEiu2yF2ynW1A=;
+  b=kHZjVW8oodDY6PItDfdr4PoRAluLD5yfIx0lWfsJ+8fcKN6gqFYbN9v+
+   VjsmzAgsS8DmgrGs6t0wB5dQjWFwCY21B4tWFGRQ3BNrozhnwPae3mRQc
+   C7+s9HUmUHlkPT8ps0JSkEGr0Iy+38OH/vZq9JlTPLzXvo1k92XnqkyQ1
+   8++gtezw9Yh6AyWfOFTFnISgmjy0mqX2TKovAcDqLuTuJ1Xr2uXMnsk3R
+   jtpgGtxNv/XYXAHHWNfuk9z493OsiGKzZyX8ggu76nvTFLYZHfgW2AgUI
+   HOeDJ4Fo3K+/VuKSr3xVjWjYwcCHxwwrF0g3TtNa4PldR76DnFp4azG8E
+   g==;
+X-CSE-ConnectionGUID: n8MudpWdShWK3kVSiY6MjQ==
+X-CSE-MsgGUID: kBGBOJ9FRnuG9hema3Gkrg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11920"; a="95295666"
+X-IronPort-AV: E=Sophos;i="6.27,132,1787036400"; 
+   d="scan'208";a="95295666"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Sep 2026 00:40:55 -0700
+X-CSE-ConnectionGUID: ypcLuiZ5TTK7EuilGWHtuw==
+X-CSE-MsgGUID: w/Puch9LTca83ohyI/ylog==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,132,1787036400"; 
+   d="scan'208";a="278960059"
+Received: from spandruv-desk1.amr.corp.intel.com (HELO localhost) ([10.245.245.137])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Sep 2026 00:40:50 -0700
+Date: Wed, 30 Sep 2026 10:40:48 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Ashok Raj <ashok.raj@oss.qualcomm.com>
+Cc: Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Hanjun Guo <guohanjun@huawei.com>,
+	Sudeep Holla <sudeep.holla@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
+Message-ID: <ary9AGmVWDuez7Ax@ashevche-desk.local>
+References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
+ <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
+ <arr3IhF0bwN4uzUP@hu-ashoraj-lv.qualcomm.com>
+ <art5m5QPXAOAvkvW@red-moon>
+ <arxZ7BAya5ntRi6t@hu-ashoraj-lv.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQGT+8p9vB0AkaS/QifuXnNLP8ZDSgH+CJFiAV/CSEW3XjBwgA==
-Content-Language: en-us
-X-CMS-MailID: 20260930032516epcas5p4d193b18297c922226d567018e738bf41
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-cpgsPolicy: CPGSC10-543,Y
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20260927150938epcas5p33b7d0495f8d9a8e84bf5f09c66e757fb
-References: <CGME20260927150938epcas5p33b7d0495f8d9a8e84bf5f09c66e757fb@epcas5p3.samsung.com>
-	<20260927152738.3673504-1-alim.akhtar@samsung.com>
-	<4cc0ca7d-82ae-493d-ac15-478cdd8f0e08@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <arxZ7BAya5ntRi6t@hu-ashoraj-lv.qualcomm.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
+On Tue, Sep 29, 2026 at 05:38:04PM -0700, Ashok Raj wrote:
+> On Tue, Sep 29, 2026 at 10:40:59AM +0200, Lorenzo Pieralisi wrote:
+> > On Mon, Sep 28, 2026 at 04:24:18PM -0700, Ashok Raj wrote:
+> > > On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
 
+...
 
-> -----Original Message-----
-> From: Krzysztof Kozlowski <krzk@kernel.org>
-> Sent: Sunday, September 27, 2026 10:41 PM
-> To: Alim Akhtar <alim.akhtar@samsung.com>; peter.griffin@linaro.org;
-> robh@kernel.org; conor+dt@kernel.org; linusw@kernel.org
-> Cc: linux-samsung-soc@vger.kernel.org; linux-kernel@vger.kernel.org;
-> devicetree@vger.kernel.org; linux-watchdog@vger.kernel.org; linux@roeck-
-> us.net; hajun.sung@samsung.com; wim@linux-watchdog.org
-> Subject: Re: [PATCH v2 1/2] dt-bindings: watchdog: Add Exynos8855
-> watchdog compatible string
+> > > > +	ret = acpi_static_fwnode_read_u32_prop_index(fwnode, ACPI_IRQ_PROP_GSI_POLARITY,
+> > > > +						index, &polarity);
 > 
-> On 27/09/2026 17:27, Alim Akhtar wrote:
-> > Add the 'samsung,exynos8855-wdt' compatible string to the Samsung
-> > watchdog device tree binding documentation. The Exynos8855 watchdog
-> > nodes use two clocks (bus clock and source clock), require
-> > samsung,cluster-index and samsung,syscon-phandle properties, similar
-> > to Exynos850 watchdog implementation.
-> >
-> > Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> > ---
-> > * Changes in V2:
-> >  - Fixed Sashiko review comment
-> > 	- [Low] dt-bindings: watchdog: missing comma in
-> > samsung,syscon-phandle description
-> >
-> >  Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml | 6
-> > ++++--
-> >  1 file changed, 4 insertions(+), 2 deletions(-)
-> >
-> > diff --git
-> > a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-> > b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-> > index a32c47831577..3f8c3e56ea07 100644
-> > --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-> > +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-> > @@ -25,6 +25,7 @@ properties:
-> >            - samsung,exynos5515-wdt
-> >            - samsung,exynos7-wdt                   # for Exynos7
-> >            - samsung,exynos850-wdt                 # for Exynos850
-> > +          - samsung,exynos8855-wdt                # for Exynos8855
+> For each of the above calls for read_u32_prop_index() the allocation,
+> copy a value and does free it. 
 > 
-> 
-> Just drop the comment like we did for 5515.
-> 
-Sure, will update in next version
+> Instead you could read the whole array, and just get each value and
+> discard it once? 
 
-> Reviewed-by: Krzysztof Kozlowski
-> <krzysztof.kozlowski@oss.qualcomm.com>
-> 
-Thanks for your review. 
+This was my question as well. But I formulated it differently.
 
-> Best regards,
-> Krzysztof
+> > > > +	if (ret)
+> > > > +		return ret == -ENOENT ? -ENXIO : ret;
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
