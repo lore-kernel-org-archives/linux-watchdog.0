@@ -1,158 +1,144 @@
-Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CFF7349CC1
-	for <linux-watchdog@vger.kernel.org>; Thu,  1 Oct 2026 03:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790826254; cv=pass; b=Q857IdBHbL41AqkO7lhDSyEDVBdVQWdNcdbGLns5EFQPEz4ytOLtvlZP3v/rHEQTGhU4byoduE41Gt9BQ56nb1mbB6VY31/45OO4uCrTyMyMp54X5FeyBxwLan4F4OpbS+bMTPi1rqgrNtpa0fyAZa/Xgj3XDCAnT/8X+Wdi7cw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790826254; c=relaxed/simple;
-	bh=LrQWUWcyoDeObLLAUc8VHSE0FIeAJ25asgQVsl+itso=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fdwmu3O2d2ZEJiwEL8mP6j75WrXFqdlvndj20eElbGPte24QYZjom6EQ4/NSWmsWPfw/hvuP5FZO1y2leq2ShGmeSmWytaEvWr/BNX1Inv+bfqQyMXvgsPyy/tpcb6Km8/UGZTw2gb6PMNQ7h5xSgTxMFPmMar1C8RPqHm6RPOE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o9Jc1zxA; arc=pass smtp.client-ip=209.85.210.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD48236B939;
+	Thu,  1 Oct 2026 05:33:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790832835; cv=none; b=WumAS4OXRgEI+xo9RKkKrVc4IbJ0d+F5sbb7TKMApQSuhaoQcAp3JGz+Xw5NAsC/dq7lKkpvabufnl081hYaUxCj7v0ZbNAXrDz/NFTZjGEiUWdXeoNR21Jdc3Rm8gMiJhfuZmgrgBPDbaGAolkNT8lwfKKWhEqPBtDWMW42kTc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790832835; c=relaxed/simple;
+	bh=xQZ497d+HhDuuM8vCfEmcL4SOGRIrTN8Gv5eIVAK6ac=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VYEqJHkloHopBWbmvURLiwWzdlG2+s+KUEOwMW94ixpadQxrOQSKDbYzmRn/f1+QpTi80NW6uITS5zPA4XT3vzMBpbKZC3qtEbqmdQTG8XdBCCJo64D+RWggeR8+dwHkEjh5rA7loFYdCXraxt5544Lo5qjQ2YykjKbqlOjfARU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iKowb3ue; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o9Jc1zxA"
-Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-8198a3a54d7so2272034a34.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 30 Sep 2026 20:44:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790826252; cv=none;
-        d=google.com; s=arc-20260327;
-        b=K8JmfWS3bOwbdQrBAO/UiCy/dyl1wKnSJ6/dVrn0BAPOt+Ls0LE6FxSdYKgKEca7/M
-         30/vXx7V6vymLdwBkkFzytBecpHi/XfEzijtzWlrIs9xuDdiTGvNJBGca6STXpjY+dPN
-         XZ4BwPHmcr/dk0Obn2n4vNTr8JejebVROeipiLKY4e4yTA+2dBTLs8Dx2xSeIIgaUFpB
-         9N1sM3RcpisHD7DWakwdy7Mnm5rMubLJ5+5dEotRzSJs4PCl8FIkePe3iKAblB+4FvXS
-         1H+vyDZcRoxlg6KKx9Ynx+dx2ck2N7mKumjzlBzpfEDVKCuNBOPgtYsrKERA5Mfd7C1v
-         PtNA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=w4ijuTp5svOtTgrjejnJF22Eh5tEOHO/CkeB5GXCR3I=;
-        fh=pfUtyhNH1Qp4TM+r6uLle38UkiFpzaQwQSlPIBx/0c8=;
-        b=acVdZ0QtSx04XJje7LZYGr0Nq0agwaPgLUwXNfHjSL80he/z5NRIyZGjMLyOBdG5ET
-         jqQp4T83L8Bq1etk9JmKNw8czNIr88eJ+ektCB1jiE6WxYNAQS89Y7heIvfOtpQ5iE/c
-         kSibGDAtaO2cfOCni6wHkztwLG+g5SYkW7QItqm7kwDMOKWycW3ojc4SCO4/LWnnDMyc
-         rIFoDxADHfTYMHBwqxaBnhoMEfxIguuUDbcZo6fy8PRD8jPR2Zu8Yhuq1SwJIZJ/wX4X
-         LDTCT/fH3SEu9kXloCOT+JEIX2K+VvjzmuMIUjBXPaHITEdUGpypX4LgqQ1uHRbDxiBm
-         mlVQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790826252; x=1791431052; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=w4ijuTp5svOtTgrjejnJF22Eh5tEOHO/CkeB5GXCR3I=;
-        b=o9Jc1zxAb92HTvsoBZV+o+DGs/vsigXorO3UyF0yWl6ETaIFoCdaWFcnYsKbkQIsiT
-         PqjlFb8c4gpi3qxABs1PJhN5O9fqNgVbB3FEeHladfxFP7uxut/9RI5eLgq80z/gDTXz
-         YzO1N1j3t3RhEiWsgzsfC1+QfVMhzwA9TdWarQxiLRJh/jrWizyXnzS1xNsP4JzdPoOV
-         Lz5yHWpPEKG6w/4Z+QGl6OMhEOkTsQO45UvDo4HNYWdlEWThIPQJU4x1TY7o/bJtnG8r
-         +F9nVVlDJqNwhNDhXvMvye6drzN4OVYWFwneF5FsTjsDTHh6kfh3hGxIBjLdI28s3Xq6
-         EiAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790826252; x=1791431052;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=w4ijuTp5svOtTgrjejnJF22Eh5tEOHO/CkeB5GXCR3I=;
-        b=kBilQos01D8jdQKhN9JU85btj5Dai7TfBVw1UP27jsTf42fxTEZfu7pbk/j9MeWhzA
-         G8exnpMWdBZL4T1tN2PutiyISX/y4W2Ed5cHEN9kHCukEcIMF2qeKzqHE2ex8C8Ls8JF
-         kGh3wWWu/ioJ/I6Cel1Olkt69Z2OdXy5+cTEJqSQuPJMTi+xM9xakBLTebVzBI92eKHL
-         M/WLNAbAct3404aZ8vp0+tqxo3HGA5VrARjj72lyb+g717dGN2/96OJ4KcY6URJgm4ka
-         Le/PhUAfGRJNgbPhwIFVkIX+66FDSPQTH7hIMu8uyzxN9gRfCsZUwsY22lcWyARA+7BU
-         8Ufg==
-X-Forwarded-Encrypted: i=1; AKwUvBzkMpj4l51ES5PWwh7OFdjDQQ2a5j6SwV9Kq+57ExXZuaKpJ8P2XN0WaAcWg2AHqKUeDpNw3GCOfP2hqJNGyA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lmfuR/SMRD70zj7kBn4SvKxLveZA/8KEzzS4x3rYQfcA2m/ZUT
-	W7Rslw7CTSrmIhQhuqg6+PJ7Xg+EXHF5llx4s9SuWbFJ8jzk3IQN0aXAhvExBkp5ZxwsnFTU1lE
-	vFbqUZYbpFFY1vNVIHc85iDSPZUX5lCCp5cXc8c8=
-X-Gm-Gg: AYBFou1pzUSHlAlYVBeCCSOUibXqlNT8xZkT8DoQ9gB7lEzXp2K05Mc4q44BdBgtpp8
-	+a40AHvoL07+eRM4UoG5hF/w+FOSiuaUCyrrATCBpTYUS5kZoQuR1NDl4Ud4zbmKzFBHFEtmBpF
-	Y4X1daiqqKue9RmbBjAJ4knM0p+UPmAgWEyxA8JlE6ozzlCdnhmg+fd6QonZDaU1BNJYMwkHSh3
-	A21QoXj91cyOB+lap2o3j/5h8V02GEFjvQ5qlgFNZNyKQGAFPH3/Am3yvKOhu249bAFpxkKIozN
-	/If+HY+sqAR0J2ZYue7Ng4TsA1JG9y3coOBSiNHWWCsnJGVOB6A2hWI1eHK7hrlwTh0=
-X-Received: by 2002:a05:6820:4cc7:b0:6d9:58a1:824 with SMTP id
- 006d021491bc7-6ddba7942ffmr1480642eaf.22.1790826251774; Wed, 30 Sep 2026
- 20:44:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iKowb3ue"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B4441F000FF;
+	Thu,  1 Oct 2026 05:33:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790832834;
+	bh=XzIL9ELeVWviaLS5qQOdrvNAit13ehfBWLt/6ES1lVc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=iKowb3uel/YkS9mPMqYn3L5unulPTq0RkxnzLywmLfrlQkoa84en5cnd8RXHbNIF7
+	 /UD94XUJ+m27a2kRXDcb8gC3kGKSWX2tGxKPBOcKsj75KW04Ysb6QHnWAOQW6PSIl5
+	 hgvMrEhHcYhfiWI5/q1O/nKlu8aRLukW6xgXVtY0c0EE06D/JNoFx1vhRvNOoZHZQy
+	 Y7/4xsdbHbOEDNmgT5kuvQYGcnhcc08Dnfrx844Rr+z8Ksf/KJWztyFXD7+rrdzAPK
+	 6QgIx9kC+y0HMHLBwg8BMIITsm8kl6pLGaeJSGKWW5/tn9Of9BwfwfcPoXMGqGA7hd
+	 FhkyWzKBfkyHQ==
+Message-ID: <ca5bd096-1322-4b7a-a10f-1fd960d4bf89@kernel.org>
+Date: Thu, 1 Oct 2026 07:33:46 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] dt-bindings: reset: mediatek: add MT7629 TOPRGU reset
+ indices
+To: Chuanhong Guo <gch981213@gmail.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org
 References: <20260926-b4-mt7629-toprgu-v1-0-c124bf9ac273@gmail.com>
- <20260926-b4-mt7629-toprgu-v1-1-c124bf9ac273@gmail.com> <20260929-spiffy-harrier-of-snow-b78e7b@quoll>
-In-Reply-To: <20260929-spiffy-harrier-of-snow-b78e7b@quoll>
-From: Chuanhong Guo <gch981213@gmail.com>
-Date: Thu, 1 Oct 2026 11:44:00 +0800
-X-Gm-Features: AclHuK9LNVBWetA4umqzLuoUjfCXVTn1WDE30aATZ75mv1-R3SpbZ9mzZOo88bg
-Message-ID: <CAJsYDVLimYZXk6mFrnsObCYFnK3HxqVJpuee+msnCi-GAUTXbQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] dt-bindings: reset: mediatek: add MT7629 TOPRGU reset indices
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <20260926-b4-mt7629-toprgu-v1-1-c124bf9ac273@gmail.com>
+ <20260929-spiffy-harrier-of-snow-b78e7b@quoll>
+ <CAJsYDVLimYZXk6mFrnsObCYFnK3HxqVJpuee+msnCi-GAUTXbQ@mail.gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <CAJsYDVLimYZXk6mFrnsObCYFnK3HxqVJpuee+msnCi-GAUTXbQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi!
+On 01/10/2026 05:44, Chuanhong Guo wrote:
+> Hi!
+> 
+> On Tue, Sep 29, 2026 at 4:44 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+>>
+>> On Sat, Sep 26, 2026 at 07:13:59PM +0800, Chuanhong Guo wrote:
+>>> Define all seven reset IDs documented in the MT7629 TOPRGU SWSYSRST
+>>> register: INFRA, ETHDMA, DDRPHY, INFRA_AO, CONN, APMIXED and CONN_MCU.
+>>> Use their register bit positions as reset IDs.
+>>
+>> If so, I say you don't need bindings then... but fine except:
+>>
+>>>
+>>> Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+>>> ---
+>>>  include/dt-bindings/reset/mt7629-resets.h | 9 +++++++++
+>>>  1 file changed, 9 insertions(+)
+>>>
+>>> diff --git a/include/dt-bindings/reset/mt7629-resets.h b/include/dt-bindings/reset/mt7629-resets.h
+>>> index 6bb85734f68d..828919eee298 100644
+>>> --- a/include/dt-bindings/reset/mt7629-resets.h
+>>> +++ b/include/dt-bindings/reset/mt7629-resets.h
+>>> @@ -53,6 +53,15 @@
+>>>  #define MT7629_PCIE0_USER_RST                        30
+>>>  #define MT7629_PCIE0_PIPE_RST                        31
+>>>
+>>> +/* TOPRGU resets */
+>>
+>> Didn't new bindings switch to continues indexes?
+>>
+> 
+> This is written for the existing reset driver in mtk_wdt.c. I don't
+> want to add a reset id remap when all the other SoCs in that
+> driver use binding ids matching their hardware bits.
+> 
+> Is this OK for existing drivers?
 
-On Tue, Sep 29, 2026 at 4:44=E2=80=AFPM Krzysztof Kozlowski <krzk@kernel.or=
-g> wrote:
->
-> On Sat, Sep 26, 2026 at 07:13:59PM +0800, Chuanhong Guo wrote:
-> > Define all seven reset IDs documented in the MT7629 TOPRGU SWSYSRST
-> > register: INFRA, ETHDMA, DDRPHY, INFRA_AO, CONN, APMIXED and CONN_MCU.
-> > Use their register bit positions as reset IDs.
->
-> If so, I say you don't need bindings then... but fine except:
->
-> >
-> > Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
-> > ---
-> >  include/dt-bindings/reset/mt7629-resets.h | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> >
-> > diff --git a/include/dt-bindings/reset/mt7629-resets.h b/include/dt-bin=
-dings/reset/mt7629-resets.h
-> > index 6bb85734f68d..828919eee298 100644
-> > --- a/include/dt-bindings/reset/mt7629-resets.h
-> > +++ b/include/dt-bindings/reset/mt7629-resets.h
-> > @@ -53,6 +53,15 @@
-> >  #define MT7629_PCIE0_USER_RST                        30
-> >  #define MT7629_PCIE0_PIPE_RST                        31
-> >
-> > +/* TOPRGU resets */
->
-> Didn't new bindings switch to continues indexes?
->
+It's fine.
 
-This is written for the existing reset driver in mtk_wdt.c. I don't
-want to add a reset id remap when all the other SoCs in that
-driver use binding ids matching their hardware bits.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Is this OK for existing drivers?
-I can also live with plain numbers in the device tree if that's preferred.
-
-Another option would be to include mt7622-resets.h for mt7629 dt
-as their TOPRGU definitions match exactly. But that would bring other
-unused mt7622 definitions into mt7629 dt, probably not ideal.
-
-> > +#define MT7629_TOPRGU_INFRA_SW_RST           0
-> > +#define MT7629_TOPRGU_ETHDMA_SW_RST          1
-> > +#define MT7629_TOPRGU_DDRPHY_SW_RST          6
-> > +#define MT7629_TOPRGU_INFRA_AO_SW_RST                8
->
-> Best regards,
-> Krzysztof
->
-
---
-Regards,
-Chuanhong Guo
+Best regards,
+Krzysztof
