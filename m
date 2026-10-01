@@ -1,144 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD48236B939;
-	Thu,  1 Oct 2026 05:33:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9CFB4F402C
+	for <linux-watchdog@vger.kernel.org>; Thu,  1 Oct 2026 11:25:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790832835; cv=none; b=WumAS4OXRgEI+xo9RKkKrVc4IbJ0d+F5sbb7TKMApQSuhaoQcAp3JGz+Xw5NAsC/dq7lKkpvabufnl081hYaUxCj7v0ZbNAXrDz/NFTZjGEiUWdXeoNR21Jdc3Rm8gMiJhfuZmgrgBPDbaGAolkNT8lwfKKWhEqPBtDWMW42kTc=
+	t=1790853924; cv=none; b=HPwt2fqFB9UK892xsvw0zZV2/f3sMKWJuFg4/nHRtqKczh7eSLKLL+TrJL2eGB3XQb4bucmdXsJ5xNAwRQlH1NTzpffhHidurBJaiJkvntTpi+RoR/zXGkBqlf5HLbqr8zS9KNVT6UtMPWaTVMrKV0rXj5dWvPLXRBk4SZ0ZXRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790832835; c=relaxed/simple;
-	bh=xQZ497d+HhDuuM8vCfEmcL4SOGRIrTN8Gv5eIVAK6ac=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VYEqJHkloHopBWbmvURLiwWzdlG2+s+KUEOwMW94ixpadQxrOQSKDbYzmRn/f1+QpTi80NW6uITS5zPA4XT3vzMBpbKZC3qtEbqmdQTG8XdBCCJo64D+RWggeR8+dwHkEjh5rA7loFYdCXraxt5544Lo5qjQ2YykjKbqlOjfARU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iKowb3ue; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790853924; c=relaxed/simple;
+	bh=vdk16+JiM+pun0h+NLwCZ9YhRB7PrCKjaNjUHkG8fsE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=W7Hyaf+2HgFfLLP1kUrY6F5dEYGgWEfSgWcOxgl9SA94VH0aB07jnLTwuZ6gdpprugtZApalnXmscbjrzqMOdVx3H86YZ5vEPK/X4tsp79dp34uh4a5NhD/Tu9wfGbYXMgY+GcsUspcNcK+cqJ1zC1bgmUS905El1ZWGivureEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BOfezKpn; arc=none smtp.client-ip=74.125.227.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iKowb3ue"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B4441F000FF;
-	Thu,  1 Oct 2026 05:33:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790832834;
-	bh=XzIL9ELeVWviaLS5qQOdrvNAit13ehfBWLt/6ES1lVc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=iKowb3uel/YkS9mPMqYn3L5unulPTq0RkxnzLywmLfrlQkoa84en5cnd8RXHbNIF7
-	 /UD94XUJ+m27a2kRXDcb8gC3kGKSWX2tGxKPBOcKsj75KW04Ysb6QHnWAOQW6PSIl5
-	 hgvMrEhHcYhfiWI5/q1O/nKlu8aRLukW6xgXVtY0c0EE06D/JNoFx1vhRvNOoZHZQy
-	 Y7/4xsdbHbOEDNmgT5kuvQYGcnhcc08Dnfrx844Rr+z8Ksf/KJWztyFXD7+rrdzAPK
-	 6QgIx9kC+y0HMHLBwg8BMIITsm8kl6pLGaeJSGKWW5/tn9Of9BwfwfcPoXMGqGA7hd
-	 FhkyWzKBfkyHQ==
-Message-ID: <ca5bd096-1322-4b7a-a10f-1fd960d4bf89@kernel.org>
-Date: Thu, 1 Oct 2026 07:33:46 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BOfezKpn"
+Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d747ec6188so31519075ad.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 01 Oct 2026 04:25:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790853922; x=1791458722; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qc8LVRsblFiIidnFYchNDrmFBxE22bEZYeYNxnC3+cw=;
+        b=BOfezKpn142TrzJAJ4Jc0lqdbYF90I5pHxF33DF7tW5K52boBgzv0Omwq16oQ5pCB5
+         FYg5LX1b7umFC3OI2XbIK5S4/ef0N90w7Q3skvTmByROFW4MiBikxvxOcUT5IzRwuOi6
+         584TL8rI0unFru/aLFGRzeG+PO0ytelEmE/kBYA9h5Tkal1BQy4Q30bJ7o3mIdi9XZKc
+         a1HQhcUoYVC705cnBamNkxqGs9slRUHbjqsoKzxlOdLf58uPDwpqYw6PpF9flufqOiRi
+         ocWpuRPiiQ2ybQ/bnG6WOSZojxKA5SDaMpxk0NPO9EHtxaJegVrAXt7yL0nG5ZaWzB9i
+         hbqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790853922; x=1791458722;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qc8LVRsblFiIidnFYchNDrmFBxE22bEZYeYNxnC3+cw=;
+        b=bGEuVHpf7Gsc+D/GUvMpKKKxlGSSBrvL0+Rw2sR173K85ObYbnsNH0vVwa0/6mVo63
+         tYGO5qHJIItzK7j+bD3Wu0A/mlh0b5wojL3mPYTtHeMj1DAqZCZ05ppvE+MyeLMQ3/eR
+         hDAsXrAr17lsmo1SZdlu9EiRjb4Od1JW8bjxzpqANvemzM5/fwFyoGFFUUH2jS0PdBko
+         0Shl1ZRHt+caU8eO5v68vkpBrE/KP/pdW9LPgmpLKDHRtmztV0uR1oGRZNHUmhX5uVcY
+         BFyiiG9B/uUVAFb0aANTYnQXT5lHC7U6d/mo/2pklDaFoJLLtZDheHGyQuDiRV28O367
+         41sg==
+X-Forwarded-Encrypted: i=1; AKwUvBzBxiQCxyhP2P0zwGaDM3KhesrlkP63hGIwMVULv+q2TM/mQjJ8+O3j0ckkeqCEFb14CM7NTLjtbEjhHsKUiA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYL1I9WbNu+a9LYbGN6peSwhxfgGA6Dcppcn953SaIzhzB2tgPg2
+	88zJNSiPm77E1D5YyTP1bSoT+T1kA147M+Xb/bGNE1xFOQMBddXA30W8Y8wq7cp9MaU=
+X-Gm-Gg: AYBFou3lmlPbVXWiRI0Z0AF+dWtSnEWyTdJ02jfuD70DedvYacB974MZdiCKLITLeNU
+	xZtnzto6tiO39i3rf+e8z1S/e4c7Z24ND9tAqSHlucTWb8cq1YWvZ4pRlT10kIv2lSZCvB5UiqB
+	gx2v8QlFfAg53wW4g8GkuDs4v0AwCF9MXaTAS+OMmGvmNXenX5D3KwUeIHCELM/FlAihXADAwpw
+	lssJVmLa4nnWsKSmtRYvIYU1iUnmM9fQdwBaX+L5PIQvZKtGCmAl2kuuks23orcHSwM6t2x4IeU
+	3AhmnZr100eiQNNJi2tQ53e6ZA4tMJjQ4XXmetAgI/R/EALNarxmRAisX760kLDcKKL3ifSyyvB
+	uCBgVS+IcxvNhKyq39ajh1rsUagG2MzR3MPdTeHOst9AVIixmx1K/J5Aj81V+lj1cg8GbZ5yacS
+	LCCyi7J/vlEOKFN2CzU9vXD7LHGvG8AWAdLDFk5EnMfkJPITn/GwI2Y52w4x8bYHer/b3CD2M93
+	/QyVer3aBiG0fNdeS3opn7lmGKvEFgRChsJ/lPro691rfmiW30Boo4ptTeUf5ImbtpWUZJRnB/P
+	dEaV12Go/1U2swp3J+F229pP6Js41YzQa7ozOWBnBTtmbIbxS9WWoMEALLQ=
+X-Received: by 2002:a17:90b:2dc1:b0:3a4:cbc4:4a98 with SMTP id 98e67ed59e1d1-3a4d19143cdmr3582710a91.64.1790853922034;
+        Thu, 01 Oct 2026 04:25:22 -0700 (PDT)
+Received: from spider.bream-herring.ts.net ([103.6.151.236])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e300a90dc9sm9326275ad.18.2026.10.01.04.25.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Oct 2026 04:25:21 -0700 (PDT)
+From: Matthias Goergens <matthias.goergens@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	linux-hwmon@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] MAINTAINERS: name the hwmon-next and watchdog-next branches
+Date: Thu,  1 Oct 2026 19:25:18 +0800
+Message-ID: <20261001112518.3822560-1-matthias.goergens@gmail.com>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <d40a607c-af12-4e56-89e9-de2544b07143@roeck-us.net>
+References: <20260928105944.2186541-1-matthias.goergens@gmail.com> <d40a607c-af12-4e56-89e9-de2544b07143@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] dt-bindings: reset: mediatek: add MT7629 TOPRGU reset
- indices
-To: Chuanhong Guo <gch981213@gmail.com>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org
-References: <20260926-b4-mt7629-toprgu-v1-0-c124bf9ac273@gmail.com>
- <20260926-b4-mt7629-toprgu-v1-1-c124bf9ac273@gmail.com>
- <20260929-spiffy-harrier-of-snow-b78e7b@quoll>
- <CAJsYDVLimYZXk6mFrnsObCYFnK3HxqVJpuee+msnCi-GAUTXbQ@mail.gmail.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <CAJsYDVLimYZXk6mFrnsObCYFnK3HxqVJpuee+msnCi-GAUTXbQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 01/10/2026 05:44, Chuanhong Guo wrote:
-> Hi!
-> 
-> On Tue, Sep 29, 2026 at 4:44 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
->>
->> On Sat, Sep 26, 2026 at 07:13:59PM +0800, Chuanhong Guo wrote:
->>> Define all seven reset IDs documented in the MT7629 TOPRGU SWSYSRST
->>> register: INFRA, ETHDMA, DDRPHY, INFRA_AO, CONN, APMIXED and CONN_MCU.
->>> Use their register bit positions as reset IDs.
->>
->> If so, I say you don't need bindings then... but fine except:
->>
->>>
->>> Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
->>> ---
->>>  include/dt-bindings/reset/mt7629-resets.h | 9 +++++++++
->>>  1 file changed, 9 insertions(+)
->>>
->>> diff --git a/include/dt-bindings/reset/mt7629-resets.h b/include/dt-bindings/reset/mt7629-resets.h
->>> index 6bb85734f68d..828919eee298 100644
->>> --- a/include/dt-bindings/reset/mt7629-resets.h
->>> +++ b/include/dt-bindings/reset/mt7629-resets.h
->>> @@ -53,6 +53,15 @@
->>>  #define MT7629_PCIE0_USER_RST                        30
->>>  #define MT7629_PCIE0_PIPE_RST                        31
->>>
->>> +/* TOPRGU resets */
->>
->> Didn't new bindings switch to continues indexes?
->>
-> 
-> This is written for the existing reset driver in mtk_wdt.c. I don't
-> want to add a reset id remap when all the other SoCs in that
-> driver use binding ids matching their hardware bits.
-> 
-> Is this OK for existing drivers?
+Hi Guenter,
 
-It's fine.
+> If you want to be that explicit, shouldn't that also include the fixes branches
+> for both subsystems ?
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+It should, and a T: line can only name one branch, so the patch cannot
+describe your trees correctly.  Please drop it.
 
-Best regards,
-Krzysztof
+The motivation was Sashiko, which used to review against the default
+branch of the tree in T:.  Since 28 September it skips a default branch
+that mainline already contains and uses linux-next instead, which
+carries both your -fixes and -next branches.  So the problem the patch
+was meant to solve is now handled on the tool's side.
+
+Thanks,
+Matthias
