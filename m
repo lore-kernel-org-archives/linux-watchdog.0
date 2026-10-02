@@ -1,143 +1,130 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A072B3B8948
-	for <linux-watchdog@vger.kernel.org>; Fri,  2 Oct 2026 09:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0E646AEFE
+	for <linux-watchdog@vger.kernel.org>; Fri,  2 Oct 2026 09:45:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932843; cv=none; b=U47CP6GHdS7ZWiHB09SkjeWH/l4VqT3lmRllH+zO6bu2bxbs+VEiqXrYJeFRB4zvmUf96GoTyPZFIe1ZOl5yECB2r12hs+ZMtpkgTJm/Aqjd/AWLPvbKKtpV45R9B9BO0lM7XkbZYBKBVIx4eaXkLJBWpY768VBbGhs5KI0cH0c=
+	t=1790934338; cv=none; b=qBDwdhNvniH23F5/b71liU03sF59imiKY/tq9qGDvIWazArKgUpD3PfOeGj2OwMucSJ1TJEBQvZ3Mf4alVHw6HhYRCJA5bwuVDC9CuNO2Du5MLCIqU8GMbs97rCoYoGUTWbbX8tmsUt8ffrjYtGX0Q6acQqh8oCZKOvXgrqU0ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790932843; c=relaxed/simple;
-	bh=+HiGs7ic+G67g+jK6ihA8DwHby0KUl5GrLnvv3fDxps=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Pir/MnDT9w27NlKC7JOBjVOnj8tRifspYU+f7CpQIAQZMzCWY6KsskAWNywjyS+lg7k8aNbZOPl1knKssqs1oMABR4SOFXzC+5TA4DHHskCMPwOeKxYjUyNwuclJ/cHwJmviulP9DKUs+m2bvGc0lkRQgPkVJXp/LRtrUK3U5RE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=RsrDEX8t; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=KkHk/HYX; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1790934338; c=relaxed/simple;
+	bh=55BYKoYYSwy3bCN53a4FvbioXpDXA5/IUe+AN+5f4KU=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=BiE89m56xS8u2AWADzQ0WCibmlE1QFN2b0hcc8iyAAnlmOon8M08bsFFQ6Ck5qjhJqRhfWbt9XAU/dWdIeN89t4br2G8/qAKoASTiocP2MLGN04Zx0LcVYJ0J9guYBZ5GQ4JpOOE24zDNH5c6xKmBLyzlzRfVq0JkEIfySmCI0Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=d/arz8r3; arc=none smtp.client-ip=74.125.225.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="RsrDEX8t";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="KkHk/HYX"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6925jLsL438477
-	for <linux-watchdog@vger.kernel.org>; Fri, 2 Oct 2026 09:20:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=BEvD6iYviTx0ERjEtbXW1xNy
-	bpDy8Ge//Ongv2RbrMI=; b=RsrDEX8tfSN1k4qR7Mkz/rYSek0nBT/75bonCZIp
-	1QTD81buRrzX19IPc1/lX1lQwgla0bPdUhKe1DkPMkYO3xkQ5Js4Ode8N05rH5c8
-	GklCBEhQyYD6CjzHxSLoGTIgqMt6Ep8fEjcymTNjtoJFweDAAiLiYXlU4xEl3402
-	HmvmO5YiIuGjRZXAeHnsyj2F1S/eL0hwBxopyPAjjKr+hUXwVZ3OVUFA7c8mI4T+
-	FMvJAWrorIZaNwd5zvLRFs/nbO51zSQoBlXqYT5G5+baLqYf5q5m/iPUpDoPLNAc
-	9Cl96xd3JwGAdlhhh04WiDGBFOUF8TxWMHmX6TlP1Fem2A==
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h1sdcku0r-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Fri, 02 Oct 2026 09:20:39 +0000 (GMT)
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-93cb93c874bso262712885a.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 02 Oct 2026 02:20:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="d/arz8r3"
+Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48af9f88c95so1201364f8f.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 02 Oct 2026 02:45:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1790932839; x=1791537639; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BEvD6iYviTx0ERjEtbXW1xNybpDy8Ge//Ongv2RbrMI=;
-        b=KkHk/HYXgc6/N+B+dAb7RhFvVn0Ux02I3rAJ60byTGCfQUPxE7pSYVRE709m55WVPv
-         5fAjy6eUcbwv5yMo1MixCGJbnWi1Q8qC1PE+84+g5mwYUIA6qVby93N14iJ6IgLGHNmp
-         gq29m1nb0ruK4K9HdTfv2zHaG0DH5/Rqr33Q7jepuRgY6avlqBeZKwaQ7OjxfkKq2g06
-         q2qLYzW4BXO4WNJ9cdktdUdge5d01F7qXY6XjawO8tvZWihluych8bdbI1YGtglXVVc+
-         5Atzimv9OYVWCGN3SxpUjej8gAz6yvEOjK1rZk3mRdmVHtjaLzfjpbyD80OhU6VSwxo3
-         LgiA==
+        d=linaro.org; s=google; t=1790934335; x=1791539135; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=4vlDO63aq9Dc8BRT5ULZafGgVo4ARHfMSrbb3S7Yx7Y=;
+        b=d/arz8r3rWoHiNvZARzxTVa0btIO6dPQFba/bM5kLh/2nMlnFPE7QnoGn5+ncGiVmY
+         sybUxnlU6fB1QVyIJ+qDA6RI2+uFra5jeZjfCgLdWyKDopce/ANmFXO8Q8Ng0sVRGEpP
+         RUqFsOEDHCBBd0xtGbJK1PMuzZ1fl1lXxN7hWJhTN5bYIyg0VPHdi5vf9Jb5LahWlWT9
+         qN3lM4S+k0WpBmVWVocVAdaqUnV9+86qb+mfxAarOaALq0s3+zNRnOf+rm7caUB/zMDz
+         PVB+twMPu06CsYFibuOqpDMSh4k46ZH+m4ZnmQaIkpn7rMQs9+I4J8oK5FNGQ2WeXmQV
+         CsaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790932839; x=1791537639;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BEvD6iYviTx0ERjEtbXW1xNybpDy8Ge//Ongv2RbrMI=;
-        b=ui0yuvXIICzs4HzFfXMpi7QleWYq1J9QPZKIGmBf6/b/hZS8Nl5cQdlLjcscsffC9z
-         9CtUTJ/0i0xCMR4KyBGp+0E9cNc3VO1RwWahPwyYGoSUtRATty2wI/aPB58WC3tdjC/q
-         KbYnGwRftbLJuXlecIokodEtu0jeWFqiKTOZtdmtlyiMvhj1Os0diJFoeiGJF5bV0prK
-         6fF0AZpuyLJoYXqNQRbTmlMDv9k0zoSG8tOEooXO+x2R1r5tNoO2eL8wi0DS4thzt8WC
-         /Dk3uDulAQalJTX8HYs6KqpaS9HWtHRqJzg+yd5TG+bBykYXyKIOi1jDDvEy1GjNR3+/
-         7ThA==
-X-Forwarded-Encrypted: i=1; AKwUvBzbi1LddHAHIzJbogwqrt426zcicsGHkk25PLoGHRDspoAqBDIE1C4hVA8feLvpbQIM4jy+qF6jAt2VsmR1hg==@vger.kernel.org
-X-Gm-Message-State: AFuF++miMYTVUTdPYTsLakP1nx4mVKhwnimkXvvsa3J6mlWFJFyIXbIN
-	o5lbo8uWwC+bTG4/ZovG7QIOGVKz6pHHya6hC71B1uv5scUruRpCX99JmF0qV2jdNkr0QdDyWO4
-	/DcTY1uWtsVwApKttmI1gxIuDMSfe7J9A40qXHHrcmyi5v0lkKHD+Oe/F7iNuLhY2vr/Llg==
-X-Gm-Gg: AYBFou3oK+TyXtzxBIvtx2Nu0PzAE/tesKAsz2hcf12QFJcbPzfKnKfcXwg9lA2Bhj/
-	Y2OEmtBG+3hhX4VrYiKVcMd+aDv7dnFakJHTnzzbEJKg8NACG0H752GWHcV/Y3Vp/X18MYmAuB3
-	WII/DGrsq34CN3Ax+eaMX5YGM/W++SaSTfxQzlA0Nvf3B7SXWKzM6HWu4v1bHWFEmzhvC+ImclA
-	HOG3cheAkaoSj/UvJthVqW1hyfzAfjKPi+9EMdXOxb11VBRjOS6/JpRy22INnKTgTdr5W3qGuCp
-	1CJsp1cqIPcB5RX9JBUlhnjJmZHQGhPK1bdjLU2G0qvCce7/0ajh6o5hmnts2Act1OVng80Urmq
-	srPQyd/iJpOzYHHg=
-X-Received: by 2002:a05:620a:4406:b0:939:c7dc:8712 with SMTP id af79cd13be357-93cb5a5c9d6mr1029732285a.15.1790932838890;
-        Fri, 02 Oct 2026 02:20:38 -0700 (PDT)
-X-Received: by 2002:a05:620a:4406:b0:939:c7dc:8712 with SMTP id af79cd13be357-93cb5a5c9d6mr1029729585a.15.1790932838313;
-        Fri, 02 Oct 2026 02:20:38 -0700 (PDT)
-Received: from oss.qualcomm.com ([188.27.161.193])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a030326132sm48429645e9.0.2026.10.02.02.20.36
+        d=1e100.net; s=20260707; t=1790934335; x=1791539135;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=4vlDO63aq9Dc8BRT5ULZafGgVo4ARHfMSrbb3S7Yx7Y=;
+        b=E9FPqBy0814gaTFlmJfkTyeO4+LwPt5MKBJ+r3mughzGT9FEiZUFpMiUphEv87UFK2
+         IvBRKoiL5gc4kxSw8aa/ZlUfhUsp7oSmPxePCy6JpYdpVj+7gAMtRobma1Y42ilvzORe
+         Ej2CmgeQCXv+D9e1hrpq17D2qRR8jX7Gk8/lpitR9PYrt3Gci2rjYjC/przF7hnKWNFj
+         WZooF6xioS1NV4+8yQuU62kpn62aTyIL2YNE1qCI4tVfluTFtk9sAbn44VUysYi6J1KD
+         wzYNNX1h9Va48TJiSH+KzN8H8DJvwvBsr/XIKmBjgubC+7FOHgzz8WlNI/O3VfhlPtTz
+         a+5A==
+X-Forwarded-Encrypted: i=1; AKwUvBx/kSd1XokxY9lhF4Bp44YMMVmIFrZCgCgQvOhChTQriaT12lxnqhXVRLKyyA4UagQa/pAo46gV3OFraqZrLg==@vger.kernel.org
+X-Gm-Message-State: AFuF++nPvDtfHXD6vTBG8Xmfhblgor+YLaYFgtqrbE1l5Pn0HeSOLaRf
+	bHVyfKozRMuG5Ne36HVIvzCqKlOm3v4pBgxqkY8/nul7MS1AMMI463YquA3g2XQd5Mg=
+X-Gm-Gg: AYBFou3fii9amZbRUmrC3W085kuApu2kanlBIIqfsmV6xrFt9R5Wkuz4dIM5DLMKG1N
+	y32l+wjO2fJ/EgzajE0XjFjuUL4YoWopVa89RX42Nv8kGYP9H3M+jEN5dKL2pIQLuOqNjAjTfkE
+	vY3qiGFveGpARW/w2gRFFCfF2uVPDcbY+LYL4xIZDF9xs1U1HE9iqwuDJEnPk/cPpiKeyvpzhnW
+	VafPxKgmlGQUYshhd5O24YjIIsN9Brj7sJ2Z/1C8ENdvP2OJ8vtUcKF7KIKkfF+FQkr1bhQC+gT
+	BIwFX4dLXpqdtrmgoBGJ+j8Cp2jobu5AsUafGinyEYzDZZ5LeXTWxrFGDuZV7/Rs0UkM7IXt85O
+	Ag36dWuS86MjIJWGGLrfnjYtxI0jqhL88STbcmTzuRF7MPKLatKBGu3zRL+UMqVNzw3k2lPlUn3
+	thWHc130i1DZiKL8pHy8nUHc2zNJqoal2DkGiNdfVCvmjbyzegi9U21d43vFxhI3xCadvhqwvVz
+	s74YEYavkl0Ui1QAE0=
+X-Received: by 2002:a05:600c:1e24:b0:49f:ffa2:1c72 with SMTP id 5b1f17b1804b1-4a0275507d7mr36036905e9.11.1790934334415;
+        Fri, 02 Oct 2026 02:45:34 -0700 (PDT)
+Received: from arrakeen.starnux.net ([2a01:e0a:106d:1080:52eb:f6ff:feb3:451a])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a0280c8bb0sm72705635e9.11.2026.10.02.02.45.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Oct 2026 02:20:37 -0700 (PDT)
-Date: Fri, 2 Oct 2026 12:20:36 +0300
-From: Abel Vesa <abel.vesa@oss.qualcomm.com>
-To: Komal Bajaj <komal.bajaj@oss.qualcomm.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Rajendra Nayak <quic_rjendra@quicinc.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Abel Vesa <abelvesa@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Subject: Re: [PATCH v2 2/2] arm64: dts: qcom: sm8750: Add watchdog node
-Message-ID: <sad5fandsyilvnj5b5huytervp3jfuf57ctfsm5qroxnrvvn6o@d4z3vv6kcwkn>
-References: <20260930-sm8750-watchdog-v2-0-b16fcda275d2@oss.qualcomm.com>
- <20260930-sm8750-watchdog-v2-2-b16fcda275d2@oss.qualcomm.com>
+        Fri, 02 Oct 2026 02:45:33 -0700 (PDT)
+From: Neil Armstrong <neil.armstrong@linaro.org>
+Subject: [PATCH 0/3] arm64: dts: qcom: sm8650-valve-deckard: Add watchdog
+ support
+Date: Fri, 02 Oct 2026 11:45:27 +0200
+Message-Id: <20261002-topic-sm8650-deckard-watchdog-v1-0-7d7f7d71d88a@linaro.org>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260930-sm8750-watchdog-v2-2-b16fcda275d2@oss.qualcomm.com>
-X-Proofpoint-ORIG-GUID: OM7kJ1kQSNaalxnUkW9wIG_Fm1J63r4f
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAyMDAzNyBTYWx0ZWRfX1h1Ge80t/tve
- jwfH5QokV8TgnEVuQdnbcBjKR7Gx1iE43ZD+7dEMyw5wLHseS4/Cy3rOA6BqwJfe/mCorCxuAh2
- vhXZjlNKKtCB7veuGvMZ88H1FTJIw4E=
-X-Proofpoint-GUID: OM7kJ1kQSNaalxnUkW9wIG_Fm1J63r4f
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAyMDAzNyBTYWx0ZWRfXweaTYRZtOrIP
- Vx5o0kzzuJBptBdkTt3WmWB4G5hpD0VqjkZf3f/8XyEzJ6oW6ViM1uMHXgpAtYRmjVnf1tu1MyP
- rz5cDa6DqZonT+Es/YlyXYTtHcnqvE2OiWjQdVjogCRwJTUzTGyYFiSZBJj+MZeh+J23R0Hpoh0
- L7VDyaETWelFJqJsbUON9PGdmEAJDr29aFbZfGofQ2a8h+yi9P3wj1ZrjPV7J2ygL/NwjzW6VGs
- Hosh7En64STozMXlIJQhXKfCdOqB0ST+5O69cqTycl9RzWRvCFCk9sCx+yj9q6/b23fR5Y0yDim
- Lj23a8DX07v1qS4ltUdopF5H5bRA1BoYOnbqTO/qz67H4R9rNx43nLZT+9U75M/p4sq4OCE48yd
- dDyLnriaUz7lRMddB1YxIFUdSENDdeAK8fgoo/nANqH+LVMciIH5qFpTeHHz7VS9lsQoSUIaATo
- /nKz0tx4h2nyWzaG/+g==
-X-Authority-Analysis: v=2.4 cv=D87SufRj c=1 sm=1 tr=0 ts=6abf7767 cx=c_pps
- a=hnmNkyzTK/kJ09Xio7VxxA==:117 a=EiYrS7xXfcF7w+nkr41hpQ==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
- a=EUspDBNiAAAA:8 a=x2DRelJqk6z56t6zBn4A:9 a=CjuIK1q_8ugA:10
- a=PEH46H7Ffwr30OY-TuGO:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-02_02,2026-10-01_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 lowpriorityscore=0 malwarescore=0
- adultscore=0 impostorscore=0 bulkscore=0 spamscore=0 phishscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2610020037
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIADd9v2oC/yXMwQ6CMAwA0F8hPdtkFEHirxgPo+ugGhnZppIQ/
+ t2px3d5GySJKgnO1QZRXpo0zAX1oQKe7DwKqisGMtTVxhDmsChjevRda9AJ3210+LaZJxdGPHn
+ qmyNTS42HcixRvK6//3L9Oz2Hm3D+prDvHwPx47CBAAAA
+X-Change-ID: 20261002-topic-sm8650-deckard-watchdog-7f2834c2523f
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Rajendra Nayak <quic_rjendra@quicinc.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Neil Armstrong <neil.armstrong@linaro.org>
+X-Mailer: b4 0.15.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=958;
+ i=neil.armstrong@linaro.org; h=from:subject:message-id;
+ bh=55BYKoYYSwy3bCN53a4FvbioXpDXA5/IUe+AN+5f4KU=;
+ b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBqv307ZhyTljFslPnOLKjXwAqzsLcS6c755ca19e71
+ dDewOMeJAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCar99OwAKCRB33NvayMhJ0QvyD/
+ 0YXCXjr5+/rzunnDbbBQiAWyZikxJgT6WkKCAdoJD2BGR9PEtC5z5PtthkQYC3xKcfcgWSzfzVWFeq
+ y1xm6w05yJ2giOyZTzYcjho1HkUcafw2FTuTUn/eKeQpjl0BzRlXLkO7+ExNqMQZyee95O7F/oxmf7
+ BpDHKRU9flpmmNzJIB9ajxStRZz0cN/fegPGMi5vDYgquZBiPmu1YFWKhz0p0XLq6h8bYts0N1WOLg
+ pmomyqKY0o/t2rqX9JOP0hu8i1+yY5xhPCdrxFgD8ZfCQwAmQ4u9Nh4qLjqNqu+v1256Sf54QSdlHF
+ U80lLGJVDY10PJxzC1FKM1kuaJFMUBbaa35FmrzufINqSOOu9uTcBj+YmovSYdQGc1tYaUoMV23G32
+ K9v5jYijDaHh4Ca0TeEms5Mt2fWep/3j8We9WWV06vm8DwtmjzvTY/7JSkrluJhYNw3pyu9l2bd+WW
+ aqwHSPXiQHIVIiO3ZMSDqZnq5R+yKcCDPWd8dCUSjFrcpW7MzSzXE1xYc8QuoRWJGhCFSC/wElOo1T
+ 7zAWGF6Ms1UAaWXgoSJ8xMUmdQp+5JE++SKYNnAn0guYlcdxsl3GEZfeqDpaTAdxzJo+ezYMYmzA0R
+ 1lj1i/T0LM134Q7jlM7UfEsLF6J2YW+rx+bZtmlN98Hbj0zzMLWPmjZ9dgog==
+X-Developer-Key: i=neil.armstrong@linaro.org; a=openpgp;
+ fpr=89EC3D058446217450F22848169AB7B1A4CFF8AE
 
-On 26-09-30 18:32:06, Komal Bajaj wrote:
-> Add a node for the watchdog on the SM8750 SoC.
-> 
-> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-> Signed-off-by: Komal Bajaj <komal.bajaj@oss.qualcomm.com>
+This series adds Qualcomm SM8650 watchdog support for the Deckard
+platform by updating both the binding and the SM8650 devicetree.
 
-Reviewed-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
+The watchdog is marked as reserved by default since most boards
+uses the Gunhyah Hypervisor which owns the watchdog.
+
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+---
+Neil Armstrong (3):
+      dt-bindings: watchdog: qcom-wdt: Document SM8650 watchdog
+      arm64: dts: qcom: sm8650: Add watchdog node
+      arm64: dts: qcom: sm8650-valve-deckard: enable the watchdog
+
+ Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
+ arch/arm64/boot/dts/qcom/sm8650-valve-deckard.dts        | 4 ++++
+ arch/arm64/boot/dts/qcom/sm8650.dtsi                     | 8 ++++++++
+ 3 files changed, 13 insertions(+)
+---
+base-commit: 9f24d789f03b22941b905ded43cb5ff8eea9ce62
+change-id: 20261002-topic-sm8650-deckard-watchdog-7f2834c2523f
+
+Best regards,
+--  
+Neil Armstrong <neil.armstrong@linaro.org>
+
