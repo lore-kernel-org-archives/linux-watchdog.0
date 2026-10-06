@@ -1,113 +1,109 @@
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D308C372EE4
-	for <linux-watchdog@vger.kernel.org>; Tue,  6 Oct 2026 04:28:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B342842E004;
+	Tue,  6 Oct 2026 14:24:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791260928; cv=none; b=nZ6E6aZhm+rSC+gnr/EZsRF+eu5uHohNFIDp1Tk4rMUEFWWWyUW8icjbglZ+Dzg18CL4ROMdMRB3EfLuki+6b7NAeCm9fTyNkMj1dBZJy/A/a0kNguXFydEHhOvA18WQ8n3drkSH60eX2mgciQFNBiA9OyfJq6TYnAb7kvuh6BI=
+	t=1791296646; cv=none; b=IphM4w6W0qSoszjIGolhqZky2v9Y8viEg0VFohvnhCtCndLffq9N2QVCgG1Mf9OMs6eSxBMLTZKh6WknJiD0fj7MjUiw7DunFTbwA5PGebdmxksVSSjM3u/vpaGemQ0hvbOLef6Y287d7d2tNWsOhNcnFLKqgTOh5Op9AQlXxCw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791260928; c=relaxed/simple;
-	bh=bo2X3hDeI4pBnunTcHhhTv7/UJwW6YG6gQ9h4NZtf1c=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:Message-ID:MIME-Version:
-	 Content-Type:References; b=JxDY7rED9RHsv2Dn+/yUcd9c373ZYa1YeaNL2pNa+hxf5POw1C5apthNzSNljYhWxa1K/jGiUMZqsQECTAadj3n2trRk/6GRO5hoYOFBsWrGGnqvEBT96fdLKd5K7DtL1WhXXxM9wQ0nc190nEYiIvsK4j+Fr/hoZ8VbNfNjUR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=az278A1A; arc=none smtp.client-ip=203.254.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1791296646; c=relaxed/simple;
+	bh=F46wmeq8sgiFcW6ENmE+0VuKM656ynw9mex+LuVjaKk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GRtDVCEMxEvWvVTzkGRxroJ6S5Vlqd0G2na/EFismdjeK3Iqs7GLGXAdI24oJ/yLXfsH+4wTTAr/orUcfXFIVx3Acwu6DLmClB3acrDBsq06n4erGzoanxgOiTak9xMGQLTmmfFc6CoT0mCY+TpYhCynsXKfqdRFDiMWNKldWO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VTukRynv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="az278A1A"
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20261006042836epoutp04b78f824f545f4e4e937730c13c2e6d03~b1lAycZ7T1628416284epoutp04P
-	for <linux-watchdog@vger.kernel.org>; Tue,  6 Oct 2026 04:28:36 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20261006042836epoutp04b78f824f545f4e4e937730c13c2e6d03~b1lAycZ7T1628416284epoutp04P
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1791260916;
-	bh=LgntyPCT6mbiDQeIW6B53O9DRHxz2wX1AyNTwm4lHi4=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-	b=az278A1AT5woz2LO9nCwKc56yOcJp2CKzCO033T58bFlnVZ5IbgAYglFDQcik64tV
-	 ssUF2dQgmftHgqF5d8kXAsQmDCq5esefw9ccB51LnrKLnGvb/RSPUQF8OYUtPCgpbj
-	 GgIz4lndLDTBNieNw+a/Xg02xCjbRZPagyx7S6hY=
-Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
-	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
-	20261006042835epcas5p24a08e2017b6d2f377eb2245a203597c7~b1k-SGrtO1183111831epcas5p2Z;
-	Tue,  6 Oct 2026 04:28:35 +0000 (GMT)
-Received: from epcas5p4.samsung.com (unknown [182.195.38.89]) by
-	epsnrtp01.localdomain (Postfix) with ESMTP id 4hzNYG2vjjz6B9mD; Tue,  6 Oct
-	2026 04:28:34 +0000 (GMT)
-Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-	20261006042833epcas5p4ce0e831af9c9d099e022ee6fc6e8ec79~b1k9_G1RV0768007680epcas5p4Y;
-	Tue,  6 Oct 2026 04:28:33 +0000 (GMT)
-Received: from INBRO002756 (unknown [107.122.3.168]) by epsmtip1.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20261006042832epsmtip1b09d3016748e0b94bfd2d6f288100092~b1k8bE5mJ0554705547epsmtip10;
-	Tue,  6 Oct 2026 04:28:31 +0000 (GMT)
-From: "Alim Akhtar" <alim.akhtar@samsung.com>
-To: "'Peter Griffin'" <peter.griffin@linaro.org>
-Cc: <krzk@kernel.org>, <robh@kernel.org>, <conor+dt@kernel.org>,
-	<linusw@kernel.org>, <linux-samsung-soc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>, <linux@roeck-us.net>,
-	<hajun.sung@samsung.com>, <wim@linux-watchdog.org>
-In-Reply-To: <CADrjBPrXYX4_d9dJ=SUqHf-eMDyuSpSChkuTsrPHfo2ZNh2mMw@mail.gmail.com>
-Subject: RE: [PATCH v2 2/2] watchdog: s3c2410_wdt: Add support for
- Exynos8855 SoC
-Date: Tue, 6 Oct 2026 09:58:30 +0530
-Message-ID: <18b901dd554b$259eb890$70dc29b0$@samsung.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VTukRynv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 359DA1F000FF;
+	Tue,  6 Oct 2026 14:24:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791296645;
+	bh=7b6as+N11WBsROO8ecGTfwqyF1FOsBi6gKzVGUGTDSs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=VTukRynvJ+fSwq3KuJCpdeAmT2t2cbGXxGTzCCtgS/2s82m6WUmpafvc4hhGPYv68
+	 L4t6POmSKjq9bNmQ40+zB3y3Xnenp6WgWiwMgcaou0eL6Rtd/NzETUgdow/3QYrFTW
+	 OVL8/heemX14zNW/ErVECE1yfJYxaAhJzwcr4XgvrQ87Zo1mRs9haN/w1AMnC/azof
+	 8jKGnTJee0t0+efYwx9b3e7Pr7Nf0TmGRyqQ9Pwi2kR0n6pDfIgQYMEjJnGjB8bsLc
+	 zRW5d2hnoSqKu5kDoQxZjLATB0F+qW7nYljR9iaKcTOglPI/hUO36sYSQlzYbUCbGW
+	 NaFkT8jaFU2fw==
+Date: Tue, 6 Oct 2026 14:24:02 +0000
+From: Tzung-Bi Shih <tzungbi@kernel.org>
+To: Paul Louvel <paul.louvel@bootlin.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v3 1/6] watchdog: w83627hf_wdt: Replace magic numbers
+ with descriptive macros
+Message-ID: <asUEgunBdF6N9LCA@google.com>
+References: <20261004-w83627hf_wdt-improvements-v3-0-8e27b518595e@bootlin.com>
+ <20261004-w83627hf_wdt-improvements-v3-1-8e27b518595e@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQJaA0b9OUQoKjNfig97L7/y+bvwowH+CJFiAXoAkAkBm/b0zbXN73ow
-Content-Language: en-us
-X-CMS-MailID: 20261006042833epcas5p4ce0e831af9c9d099e022ee6fc6e8ec79
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-cpgsPolicy: CPGSC10-543,Y
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20260927150943epcas5p1fb1720070f2bdca2c6cd32094dde895c
-References: <CGME20260927150943epcas5p1fb1720070f2bdca2c6cd32094dde895c@epcas5p1.samsung.com>
-	<20260927152738.3673504-1-alim.akhtar@samsung.com>
-	<20260927152738.3673504-2-alim.akhtar@samsung.com>
-	<CADrjBPrXYX4_d9dJ=SUqHf-eMDyuSpSChkuTsrPHfo2ZNh2mMw@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261004-w83627hf_wdt-improvements-v3-1-8e27b518595e@bootlin.com>
 
-Hi Peter
+On Sun, Oct 04, 2026 at 02:12:49PM +0200, Paul Louvel wrote:
+> @@ -71,6 +72,12 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+>   *	Kernel methods.
+>   */
+>  
+> +#define SIO_REG_LDSEL		0x07	/* Logical device select */
+> +#define SIO_REG_DEVID		0x20	/* Device ID (1 or 2 bytes) */
+> +#define SIO_REG_ENABLE		0x30	/* Logical device enable */
+> +#define SIO_REG_CONF_ADDR0	0x2E
+> +#define SIO_REG_CONF_ADDR1	0x4E
 
-> -----Original Message-----
-> From: Peter Griffin <peter.griffin@linaro.org>
-> Sent: Friday, October 2, 2026 8:32 PM
-> To: Alim Akhtar <alim.akhtar@samsung.com>
-> Cc: krzk@kernel.org; robh@kernel.org; conor+dt@kernel.org;
-> linusw@kernel.org; linux-samsung-soc@vger.kernel.org; linux-
-> kernel@vger.kernel.org; devicetree@vger.kernel.org; linux-
-> watchdog@vger.kernel.org; linux@roeck-us.net; hajun.sung@samsung.com;
-> wim@linux-watchdog.org
-> Subject: Re: [PATCH v2 2/2] watchdog: s3c2410_wdt: Add support for
-> Exynos8855 SoC
-> 
-> On Sun, 27 Sept 2026 at 16:09, Alim Akhtar <alim.akhtar@samsung.com>
-> wrote:
-> >
-> > Watchdog IP on this SoC is similar to Exynos850/ExynosAutov{9/920}.
-> > This does not have CNT_EN_WDT bit in PMU and offset of RST_STAT is
-> > different then the previously support SoC.
-> > Reuse the offset as much as from already supported SoC
-> >
-> > Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-> > ---
-> 
-> Small nit: If you send another version, the last sentence could be updated
-> slightly for clarity. Something like "Reuse the offsets as much as possible
-> from already supported SoCs"
-> 
-Sure, will update
+They are actually I/O ports rather than SIO registers.  SIO_PORT_2E and
+SIO_PORT_4E (or SIO_CONF_PORT_*) would be better names to distinguish them
+from SIO_REG_*.
 
-> Reviewed-by: Peter Griffin <peter.griffin@linaro.org>
-> 
-Thank you!
+> @@ -248,16 +258,17 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+>  		}
+>  	}
+>  
+> -	/* set second mode & disable keyboard turning off watchdog */
+> -	t = superio_inb(cr_wdt_control) & ~0x0C;
+> +	/* set second mode & disable keyboard reset turning off watchdog */
 
+This is confusing.  How about:
+
+    /* set second mode & disable watchdog reload on keyboard reset */
+
+> +	t = superio_inb(cr_wdt_control) &
+> +	    ~(WDT_CTRL_MINUTE_MODE | WDT_CTRL_RISING_EDGE_KBD_RESET);
+>  	superio_outb(cr_wdt_control, t);
+>  
+>  	t = superio_inb(cr_wdt_csr);
+>  	if (t & WDT_CSR_STATUS)
+>  		wdog->bootstatus |= WDIOF_CARDRESET;
+>  
+> -	/* reset status, disable keyboard & mouse turning off watchdog */
+> -	t &= ~(WDT_CSR_STATUS | WDT_CSR_KBD | WDT_CSR_MOUSE);
+> +	/* reset status, disable keyboard & mouse interrupt turning off watchdog */
+
+Same here.  How about:
+
+    /* reset status & disable watchdog reload on keyboard/mouse interrupts */
+
+> @@ -513,11 +524,11 @@ static int __init wdt_init(void)
+>  	/* Apply system-specific quirks */
+>  	dmi_check_system(wdt_dmi_table);
+>  
+> -	wdt_io = 0x2e;
+> -	chip = wdt_find(0x2e);
+> +	wdt_io = SIO_REG_CONF_ADDR0;
+> +	chip = wdt_find(SIO_REG_CONF_ADDR0);
+>  	if (chip < 0) {
+> -		wdt_io = 0x4e;
+> -		chip = wdt_find(0x4e);
+> +		wdt_io = SIO_REG_CONF_ADDR1;
+> +		chip = wdt_find(SIO_REG_CONF_ADDR1);
+
+I noticed the 'addr' parameter in wdt_find() is unused.  We could consider
+removing it in a later cleanup patch.
