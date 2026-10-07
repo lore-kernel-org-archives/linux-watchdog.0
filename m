@@ -1,134 +1,219 @@
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B702C358381
-	for <linux-watchdog@vger.kernel.org>; Wed,  7 Oct 2026 02:33:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90394423EA2;
+	Wed,  7 Oct 2026 07:44:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791340393; cv=none; b=desgCJo4BYK+WlmDzlAxWkH4mDumDf4MqvRbMrfQOc1OYRR1YPe40KTJG+3rP2PlAVl/h789R3TT6bs30jAJJywR2nqN8gSc5uiv0oZTcDT5QS+MJnkxjBQjduBb/aB9Q775IfNLs18idnFsfDz/xJdS8ErbdWyBhj/a18jmMko=
+	t=1791359060; cv=none; b=XgyK7bxwRBbgRtFU4xHCoutrU8r89DxXY6Rd6pyxH1DuTZuIUAa7AUYUK1miSnZCaqMIIpI8VNTHGshOoTqlcvK8DR1PCInD09uYE2l5G1qRh5T1w1m3CjSfULgFBtVZp9PJCvmOTIUYY2D7ioEge8dQlVtZPpqTAKcs9kT2I28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791340393; c=relaxed/simple;
-	bh=Jseu3J9Z9LRdwBu6sFpBltuwRbn0Jpwrpc/YutIarhY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
-	 References; b=AuNtdTetNZ7prBrjkIZllOAGSbQaG2IuZMqL7g0MkxCtKeYmWbjoedzoVdCaEW0zOZN6O3W6ug2k2MnwjQaCt9Yawha95z7QqUOgYWwai+k7pp1F7xw//JamtsQcj8NopDZw+huG1LMs+N8PkHFSxuMtTyu+3brXS4623d+TZc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=GXGd1Q3e; arc=none smtp.client-ip=203.254.224.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1791359060; c=relaxed/simple;
+	bh=dwCH8kSCiVDDas4o17xef68hFnP5dWpaR5Rt9w/MO5Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=J9g0Au31h2ak/mlJIYo2QAWOChNIdUS1szDqxGjVc8E+DueN6SwwlSfAc5Hal7E9rrDpM3X0QoTRCZ1YO4uLtE3hJS1C7hQNYRNAPrImNqfD5bM6vfjSYGV7SGLQkTW+GqAcyYZdyVlHlOzqd9DdGVcd22ny7jTyVlHmVmDY0Xg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V1nco5hz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="GXGd1Q3e"
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20261007023303epoutp025db8049ec290392330e7a4460e9787c8~cHpZsbXDS2661226612epoutp02h
-	for <linux-watchdog@vger.kernel.org>; Wed,  7 Oct 2026 02:33:03 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20261007023303epoutp025db8049ec290392330e7a4460e9787c8~cHpZsbXDS2661226612epoutp02h
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1791340383;
-	bh=jKwNwCkEkgSOYRtI1B18gjkqbvozWg4m6K9i9c8GMtw=;
-	h=From:To:Cc:Subject:Date:References:From;
-	b=GXGd1Q3eFS+alBTzo3UWIjnjVaN6Ok6F65AP4JsoW6l+54dmT62BdB3Tk3GebbtPT
-	 aE+sZT66vaX6cwRPqBtlovvhbc4JUlJ98aSZptv8NF1zLHKzGU+v2S9rch+NXEuS0u
-	 gKc57y2bSeDewGJkdDGgdvPmbbhP1/v7kf64RALA=
-Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
-	epcas5p1.samsung.com (KnoxPortal) with ESMTPS id
-	20261007023302epcas5p149f10e5761d0b750c53f480729b0b0ee~cHpYt-8Bx2398723987epcas5p1O;
-	Wed,  7 Oct 2026 02:33:02 +0000 (GMT)
-Received: from epcpadp2new (unknown [182.195.40.142]) by
-	epsnrtp02.localdomain (Postfix) with ESMTP id 4hzxxV0mqlz2SSKZ; Wed,  7 Oct
-	2026 02:33:02 +0000 (GMT)
-Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-	20261006160157epcas5p37b8a0053c489b051dfb415c9b72ba178~b-CYauej62920029200epcas5p3v;
-	Tue,  6 Oct 2026 16:01:57 +0000 (GMT)
-Received: from bose.samsungds.net (unknown [107.108.83.9]) by
-	epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20261006160155epsmtip20867d11cb4070342c00cb9349c74d4f4~b-CWcOjBR1675416754epsmtip2Y;
-	Tue,  6 Oct 2026 16:01:55 +0000 (GMT)
-From: Alim Akhtar <alim.akhtar@samsung.com>
-To: krzk@kernel.org, peter.griffin@linaro.org, robh@kernel.org,
-	conor+dt@kernel.org, linusw@kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux@roeck-us.net, hajun.sung@samsung.com, wim@linux-watchdog.org, Alim
-	Akhtar <alim.akhtar@samsung.com>, Krzysztof Kozlowski
-	<krzysztof.kozlowski@oss.qualcomm.com>
-Subject: [PATCH v3 1/2] dt-bindings: watchdog: Add Exynos8855 watchdog
- compatible string
-Date: Tue,  6 Oct 2026 21:50:03 +0530
-Message-Id: <360067785.01791340382096.JavaMail.epsvc@epcpadp2new>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1nco5hz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78D51F0089C;
+	Wed,  7 Oct 2026 07:44:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791359051;
+	bh=jT2zf9su+V2G9GQXB3y4tFuNVD9WDBdAXweFNBBIfQ4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=V1nco5hzrKpmdyxWlo78fqQDnQdFOcKLGh3v/x1fb/R9gMtxn/jWl84KV+iPj9S8d
+	 34tD8XwWEOLrsTRuR5yzkSvYkzhDh1mlfWnoMIYtmcQUx5dJG4IkTyoVjF/zyrs9mU
+	 0JL7kEU7bPc5M8Yzvg8SQmG27ZndbWL0cqdrQILcghZWFVIwkVfKcZSms0IoMeKmru
+	 TGZRRyW7heB3FEcJm+l5bxF1hoahss0GV2QXOLEZZ2QODk6Ea44kd3h6MCuwMDKRg8
+	 vZhIwzyDhNDPYiTr3/lmavwZJZ4nvDaQUNNG4rD4X1fdKXPSyf59k3Nc2jnVwK2Qxa
+	 m+jEyC+dk1PVQ==
+Date: Wed, 7 Oct 2026 09:44:04 +0200
+From: Lorenzo Pieralisi <lpieralisi@kernel.org>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Hanjun Guo <guohanjun@huawei.com>,
+	Sudeep Holla <sudeep.holla@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
+Message-ID: <asX4RPKF5IbUNd-n@red-moon>
+References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
+ <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
+ <arZDwutoadki7tiZ@ashevche-desk.local>
+ <arZNL9BnTGK0Klwc@red-moon>
+ <arZS4vwxps01dGb7@ashevche-desk.local>
+ <arqSqcoWAkhy-8do@red-moon>
+ <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20261006160157epcas5p37b8a0053c489b051dfb415c9b72ba178
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CPGSPASS: Y
-X-Hop-Count: 3
-X-CMS-RootMailID: 20261006160157epcas5p37b8a0053c489b051dfb415c9b72ba178
-References: <CGME20261006160157epcas5p37b8a0053c489b051dfb415c9b72ba178@epcas5p3.samsung.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
 
-Add the 'samsung,exynos8855-wdt' compatible string to the Samsung
-watchdog device tree binding documentation. The Exynos8855 watchdog
-nodes use two clocks (bus clock and source clock), require
-samsung,cluster-index and samsung,syscon-phandle properties, similar
-to Exynos850 watchdog implementation.
+On Tue, Oct 06, 2026 at 05:19:23PM +0100, Robin Murphy wrote:
+> On 28/09/2026 5:15 pm, Lorenzo Pieralisi wrote:
+> > On Fri, Sep 25, 2026 at 01:54:26PM +0300, Andy Shevchenko wrote:
+> > > On Fri, Sep 25, 2026 at 12:30:07PM +0200, Lorenzo Pieralisi wrote:
+> > > > On Fri, Sep 25, 2026 at 12:49:54PM +0300, Andy Shevchenko wrote:
+> > > > > On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
+> > > 
+> > > ...
+> > > 
+> > > > > > +static int acpi_static_fwnode_read_u32_prop_index(const struct fwnode_handle *fwnode,
+> > > > > > +						  const char *propname,
+> > > > > > +						  unsigned int index, u32 *value)
+> > > > > > +{
+> > > > > > +	u32 *values;
+> > > > > > +	int ret, count;
+> > > > > > +
+> > > > > > +	count = fwnode_property_count_u32(fwnode, propname);
+> > > > > > +	if (count < 0)
+> > > > > > +		return count;
+> > > > > > +
+> > > > > > +	if (index >= count)
+> > > > > > +		return -ENOENT;
+> > > > > > +
+> > > > > > +	values = kcalloc(count, sizeof(*values), GFP_KERNEL);
+> > > > > > +	if (!values)
+> > > > > > +		return -ENOMEM;
+> > > > > > +
+> > > > > > +	ret = fwnode_property_read_u32_array(fwnode, propname, values, count);
+> > > > > > +	if (!ret)
+> > > > > > +		*value = values[index];
+> > > > > 
+> > > > > Use standard pattern, id est
+> > > > > 
+> > > > > 	if (ret)
+> > > > > 		...
+> > > > > 
+> > > > > > +	kfree(values);
+> > > > > 
+> > > > > You want to use __free()
+> > > > > 
+> > > > > > +	return ret;
+> > > > > > +}
+> > > > > 
+> > > > > I believe the whole approach is suboptimal, if you wish get indexed value (but why?)
+> > > > 
+> > > > Why what (that's what the irq_get() interface requires ?) I agree it is
+> > > > suboptimal - the whole point of the series is an RFC on using properties
+> > > > to store GSI number/flags, then how to read them we will optimize it
+> I>>> when/if we agree that's the approach to be taken.
+> > > 
+> > > Why to have indexed APIs. The callers usually do not want a single item from an
+> > > array, they want all of them or a big pile (exception is the array of strings,
+> > > but we have matching functions for that).
+> > > 
+> > > As per approach, this patch is against device property and I don't think we are
+> > > going to agree on the approach taken in *this* patch.
+> > 
+> > Coming back to this, what is needed here is a way to stash the GSI number,
+> > flags and name in stardard storage (like OF nodes IRQ properties, ACPI objects
+> > _CRS, etc).
+> > 
+> > To give you some background, I thought about adding an array of:
+> > 
+> > GSI [number, flags, name]
+> > 
+> > to the ACPI static fwnode itself. Then basically the irq_get() API has got
+> > all the information it needs from the primary fwnode; while doing that I
+> > thought that this might have been a bit like reinventing software nodes
+> > (granted, software node properties are ways more general that what I suggest
+> > above and I don't expect any other property to be ever added to static fwnodes)
+> > that's why I put together the series as it is, precisely to understand what's
+> > best.
+> > 
+> > When you say "against device property", what do you mean precisely ?
+> > 
+> > I suppose you mean that this approach goes against software node properties
+> > usage guidelines ?
+> > 
+> > Anyway, again, it is just to provide some context, we are talking about
+> > a bunch of platform devices, it is nice to have a generic solution but
+> > it has to be simple enough too given its scope, I understand very well
+> > your concern with this approach as-is - it is there to find a way
+> > forward together and show what the problem is.
+> 
+> I guess software node properties look inviting in theory since they're a
+> ready-made mechanism for effectively attaching arbitrary data to a fwnode,
+> however looking at patches 6-7 and the amount of boilerplate involved in the
+> reality, I'm inclined to think that a dedicated structure for static nodes
+> is probably the best and most efficient compromise here. The redundancy
+> argument rather falls apart once we end up creating copies of those
+> contentiously-made-up property name strings for every node, especially given
+> that any one of those alone is probably already more than the amount of
+> actual data we need per node...
+> 
+> Perhaps the "purest" option might be to just store a function pointer in the
+> fwnode wrapper for each static table type to provide its own internal
+> irq_get() callback, so not stashing intermediate GSI data at all, but I
+> suspect that might end up being more work overall.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
----
-* Changes in V3:
- - Removed comment "for exynos8855" as recommended by Krzysztof
- - Added Reviewed-by tag
+Thanks Robin.
 
-* Changes in V2:
- - Fixed Sashiko review comment
-	- [Low] dt-bindings: watchdog: missing comma in samsung,syscon-phandle description 
- Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Yes, those are the possible options, last one requiring a look-up
+from fwnode to the data providing GSI numbers/flags for that specific
+fwnode - we do have that for IORT but I need to check for other
+devices.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-index a32c47831577..37d9fc9b68f4 100644
---- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.yaml
-@@ -25,6 +25,7 @@ properties:
-           - samsung,exynos5515-wdt
-           - samsung,exynos7-wdt                   # for Exynos7
-           - samsung,exynos850-wdt                 # for Exynos850
-+          - samsung,exynos8855-wdt
-           - samsung,exynos990-wdt                 # for Exynos990
-           - samsung,exynosautov9-wdt              # for Exynosautov9
-           - samsung,exynosautov920-wdt            # for Exynosautov920
-@@ -52,13 +53,13 @@ properties:
-     enum: [0, 1, 2]
-     description:
-       Index of CPU cluster on which watchdog is running (in case of Exynos850,
--      Exynos990 or Google gs101).
-+      Exynos8855, Exynos990 or Google gs101).
- 
-   samsung,syscon-phandle:
-     $ref: /schemas/types.yaml#/definitions/phandle
-     description:
-       Phandle to the PMU system controller node (in case of Exynos5250,
--      Exynos5420, Exynos5515, Exynos7, Exynos850, Exynos990 and gs101).
-+      Exynos5420, Exynos5515, Exynos7, Exynos850, Exynos8855, Exynos990 and gs101).
- 
- required:
-   - compatible
-@@ -76,6 +77,7 @@ allOf:
-             enum:
-               - google,gs101-wdt
-               - samsung,exynos850-wdt
-+              - samsung,exynos8855-wdt
-               - samsung,exynosautov9-wdt
-               - samsung,exynosautov920-wdt
-     then:
+To be honest, I implemented the three of them while prototyping, it is just
+a matter of choosing which one we want to support to sort this out.
 
-base-commit: bf1ee2bd5c2da8992f33c8950ef194aaff74ed6c
--- 
-2.34.1
+Thanks !
+Lorenzo
 
-
+> Cheers,
+> Robin.
+> 
+> > 
+> > Thanks,
+> > Lorenzo
+> > 
+> > > > > it needs to be retrieved as that in the guts of ACPI. Allocating memory for the whole
+> > > > > array to retrieve a single element is simply wrong.
+> > > 
+> > > ...
+> > > 
+> > > > > > +#define ACPI_IRQ_PROP_GSI		"linux,acpi-gsi"
+> > > > > > +#define ACPI_IRQ_PROP_GSI_TRIGGER	"linux,acpi-gsi-trigger"
+> > > > > > +#define ACPI_IRQ_PROP_GSI_POLARITY	"linux,acpi-gsi-polarity"
+> > > > > 
+> > > > > Oh... This sounds like a big ugly hack.
+> > > > 
+> > > > That does not help much I am afraid.
+> > > > 
+> > > > What's a ugly hack ? Property names ? Using properties for this purpose ?
+> > > 
+> > > Yes, properties started with "linux," for some core functionality.
+> > > Yes, using properties for this also doesn't sound right. I think the problem
+> > > here is in the table specifications or somewhere that deep. That's why we
+> > > ended up in this series.
+> > > 
+> > > > Again, it is an RFC for this specific reason and I mentioned that in the
+> > > > cover letter, thank you for your inputs.
+> > > 
+> > > And here we have a discussion started :-)
+> > > 
+> > > P.S. Looks like I was too quick to jump into this thread. I will wait for
+> > > others to share their view on all this.
+> > > 
+> > > -- 
+> > > With Best Regards,
+> > > Andy Shevchenko
+> > > 
+> > > 
+> 
