@@ -1,219 +1,290 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90394423EA2;
-	Wed,  7 Oct 2026 07:44:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71807489FC8
+	for <linux-watchdog@vger.kernel.org>; Wed,  7 Oct 2026 09:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791359060; cv=none; b=XgyK7bxwRBbgRtFU4xHCoutrU8r89DxXY6Rd6pyxH1DuTZuIUAa7AUYUK1miSnZCaqMIIpI8VNTHGshOoTqlcvK8DR1PCInD09uYE2l5G1qRh5T1w1m3CjSfULgFBtVZp9PJCvmOTIUYY2D7ioEge8dQlVtZPpqTAKcs9kT2I28=
+	t=1791364961; cv=none; b=op8RQUeP5Q3WdxhIKfbvbpMdH4ptvdw1WUJR4THw/IYevPCtZ3I+6HZgCmga9MM2ge9/y39/vvIoQIxRtjM3ORn25WIZ+hO4nt9CyxW/4wzNCsNA6nN9MWaSxmI3h7ScevJqPs+f19wmk8kZaYmavKeLR47OCTn+ZBAS54v9XfQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791359060; c=relaxed/simple;
-	bh=dwCH8kSCiVDDas4o17xef68hFnP5dWpaR5Rt9w/MO5Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J9g0Au31h2ak/mlJIYo2QAWOChNIdUS1szDqxGjVc8E+DueN6SwwlSfAc5Hal7E9rrDpM3X0QoTRCZ1YO4uLtE3hJS1C7hQNYRNAPrImNqfD5bM6vfjSYGV7SGLQkTW+GqAcyYZdyVlHlOzqd9DdGVcd22ny7jTyVlHmVmDY0Xg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V1nco5hz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791364961; c=relaxed/simple;
+	bh=EIU51X7sbCvyr9ufFBZFKlwQ5fYgl7LrFHObcFZMVcE=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=i4zpGFM4CiUalnd+Dx7dw+f9ib2FcWl3pZISvjHhIzyJRDU+DsnyvpJtfHQq6svf8mzkIFXqaVKzP8zcY+/ghtar9CISVyJgOKtr5O72l2eM27sA9cZQc5oySsJFXZf/hJDoVFJLXufDwsI3HeFtq4Mbntr2XiwkMtymqxl1g/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MnJVM3d4; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1nco5hz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78D51F0089C;
-	Wed,  7 Oct 2026 07:44:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791359051;
-	bh=jT2zf9su+V2G9GQXB3y4tFuNVD9WDBdAXweFNBBIfQ4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=V1nco5hzrKpmdyxWlo78fqQDnQdFOcKLGh3v/x1fb/R9gMtxn/jWl84KV+iPj9S8d
-	 34tD8XwWEOLrsTRuR5yzkSvYkzhDh1mlfWnoMIYtmcQUx5dJG4IkTyoVjF/zyrs9mU
-	 0JL7kEU7bPc5M8Yzvg8SQmG27ZndbWL0cqdrQILcghZWFVIwkVfKcZSms0IoMeKmru
-	 TGZRRyW7heB3FEcJm+l5bxF1hoahss0GV2QXOLEZZ2QODk6Ea44kd3h6MCuwMDKRg8
-	 vZhIwzyDhNDPYiTr3/lmavwZJZ4nvDaQUNNG4rD4X1fdKXPSyf59k3Nc2jnVwK2Qxa
-	 m+jEyC+dk1PVQ==
-Date: Wed, 7 Oct 2026 09:44:04 +0200
-From: Lorenzo Pieralisi <lpieralisi@kernel.org>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Hanjun Guo <guohanjun@huawei.com>,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MnJVM3d4"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2db18e5cb56so14111875ad.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 07 Oct 2026 02:21:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791364899; x=1791969699; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=k5R4VZ/vcFSxE7YhW6e2jDhGR189+VipnJ+Yy7YMf3I=;
+        b=MnJVM3d4715nJBdGVOQHhaxq+klbPzYjzp634VZPE0tNLjctniHGn4g+CPyCcm9DcS
+         GMGlsnD2NDrRws7/MAGBjtk+JnL6ndmuar0m1tGP6EBWMWEhdFmo9SfF7BZqtq9WtUqS
+         USZ+ArBeRdr5iRXdDz89D6mh3GZmKh3lpt/auves7r/iMND2d3u/XIlOdXbKRg04PBNm
+         QKmmgOmTLwcmOd1AssXUB0nonh5Q/HRzNxFSjfXynS46I2XYlKOntF4CKzaIr+GnawV2
+         5bd0DKFa8iTT32tl4S25QkDEj2lVEG+nGOSCBwmTu83oghF+4D4JbMfR/xaEaSFmxHPj
+         3Y7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791364899; x=1791969699;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=k5R4VZ/vcFSxE7YhW6e2jDhGR189+VipnJ+Yy7YMf3I=;
+        b=X1bopVrQgJ2IS0k/YdhlqXirdqVeYAR2vYQzy0Hb4bOkxDF02JOWSB/41q34bqeion
+         zva8feEfH6RU2bv5NfPyERVJQIJ9TuoKi8jO6kTERJxNkzGo7CPym5oEuYZtNMNfXbF+
+         puIv2ftc/nR0pv622IUvbKTiRoy4cb7aMnPxWT/XINQI6cRWCoY4n6LkNo9A9jZwqmJv
+         MF8A6CMqAQMWJWwRViY0kPof2eM7KjQWjlNIr1FifuMpVQKVhB9y2Jg3fA+jEyI6vwmQ
+         tfw23OoNwjFJrFzDUXr2kFxHAz3oUAxgCuFLAacpZLce002xhe6FplRTmGXlkW5hEIHM
+         LK/g==
+X-Forwarded-Encrypted: i=1; AKwUvByShyTC9Bd6aztmgLWxpQgogBlGX6Hhq6r4ycw1SSf1HuluRd+CMLGeydP6uxPRcvAwpkV4g9ZtpsWx3TYufA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIqdUWIRVQBCxukECYC4Z8zD6n2quu4LfLRKkY8WFH2Qd+2PBDj
+	lwEpAD4G/hhDH03D3YatLMpQrA74+h6cz5QuPEaLQ8tH2WqjFPDJ/m5T
+X-Gm-Gg: AYBFou2kIpSRLSzGDlZYwiZ+jovwRUW5Jabywq6PYzh7ict7qIZztuWNeJh26d9vXmG
+	5XfsfXyt9WoiVo3wC60406kT955a+SqOYscmn1VauV2q8MmpMy2EYDyiBnAeOZTca1H9WYMGxXT
+	DG6VznrEeLr3hH7w/3t2QTjHjPvRXSfypa/lki4iXVwLwq4jBnNmKwTt60KFoBotqhRaX4sV69u
+	K57TlKa3ZFBRPGfMV25z/vCIj9t1d4Ue/vKoXqdD07sviNDGI4n6o15Xk9YvnQtAoi+YbWMNl+9
+	DisliCVEbOcjEpMTHHI+5W8sXKD828s3XHEy8wzuHeseLDS2wmYruPMacYIOUnvLSV8qf5LfkAC
+	mmh6rZL+jGrw4yp6mwSKY6OmnwQV8RUlltIAThKb1ZdTSUrHQIRk0tnu9MD8BT3naf5pSF8PLbA
+	KzZ4bZGq6vciau6metS3FNVSYoSqqSH/WPb/dZOqNTTs6Uo47zK9tgNAGzy4aM+4ahKb/skNnHe
+	g/ExMm3zn0L8KcTgnVWPVx4xAy7eOsI15/Iv8N5
+X-Received: by 2002:a17:903:2cd:b0:2e5:cf8c:633d with SMTP id d9443c01a7336-2e6004e72dfmr14267475ad.34.1791364898570;
+        Wed, 07 Oct 2026 02:21:38 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e6046fe0e8sm7180675ad.25.2026.10.07.02.21.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Oct 2026 02:21:37 -0700 (PDT)
+From: a0282524688@gmail.com
+To: lee@kernel.org,
+	Ming Yu <tmyu0@nuvoton.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
-Message-ID: <asX4RPKF5IbUNd-n@red-moon>
-References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
- <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
- <arZDwutoadki7tiZ@ashevche-desk.local>
- <arZNL9BnTGK0Klwc@red-moon>
- <arZS4vwxps01dGb7@ashevche-desk.local>
- <arqSqcoWAkhy-8do@red-moon>
- <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
+	Andi Shyti <andi.shyti@kernel.org>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: linux-kernel@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>,
+	linux-gpio@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	mfd@lists.linux.dev
+Subject: [PATCH v8 06/13] mfd: nct6694: Move module type macros to shared header
+Date: Wed,  7 Oct 2026 17:20:55 +0800
+Message-Id: <20261007092102.3768818-7-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261007092102.3768818-1-a0282524688@gmail.com>
+References: <20261007092102.3768818-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 06, 2026 at 05:19:23PM +0100, Robin Murphy wrote:
-> On 28/09/2026 5:15 pm, Lorenzo Pieralisi wrote:
-> > On Fri, Sep 25, 2026 at 01:54:26PM +0300, Andy Shevchenko wrote:
-> > > On Fri, Sep 25, 2026 at 12:30:07PM +0200, Lorenzo Pieralisi wrote:
-> > > > On Fri, Sep 25, 2026 at 12:49:54PM +0300, Andy Shevchenko wrote:
-> > > > > On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
-> > > 
-> > > ...
-> > > 
-> > > > > > +static int acpi_static_fwnode_read_u32_prop_index(const struct fwnode_handle *fwnode,
-> > > > > > +						  const char *propname,
-> > > > > > +						  unsigned int index, u32 *value)
-> > > > > > +{
-> > > > > > +	u32 *values;
-> > > > > > +	int ret, count;
-> > > > > > +
-> > > > > > +	count = fwnode_property_count_u32(fwnode, propname);
-> > > > > > +	if (count < 0)
-> > > > > > +		return count;
-> > > > > > +
-> > > > > > +	if (index >= count)
-> > > > > > +		return -ENOENT;
-> > > > > > +
-> > > > > > +	values = kcalloc(count, sizeof(*values), GFP_KERNEL);
-> > > > > > +	if (!values)
-> > > > > > +		return -ENOMEM;
-> > > > > > +
-> > > > > > +	ret = fwnode_property_read_u32_array(fwnode, propname, values, count);
-> > > > > > +	if (!ret)
-> > > > > > +		*value = values[index];
-> > > > > 
-> > > > > Use standard pattern, id est
-> > > > > 
-> > > > > 	if (ret)
-> > > > > 		...
-> > > > > 
-> > > > > > +	kfree(values);
-> > > > > 
-> > > > > You want to use __free()
-> > > > > 
-> > > > > > +	return ret;
-> > > > > > +}
-> > > > > 
-> > > > > I believe the whole approach is suboptimal, if you wish get indexed value (but why?)
-> > > > 
-> > > > Why what (that's what the irq_get() interface requires ?) I agree it is
-> > > > suboptimal - the whole point of the series is an RFC on using properties
-> > > > to store GSI number/flags, then how to read them we will optimize it
-> I>>> when/if we agree that's the approach to be taken.
-> > > 
-> > > Why to have indexed APIs. The callers usually do not want a single item from an
-> > > array, they want all of them or a big pile (exception is the array of strings,
-> > > but we have matching functions for that).
-> > > 
-> > > As per approach, this patch is against device property and I don't think we are
-> > > going to agree on the approach taken in *this* patch.
-> > 
-> > Coming back to this, what is needed here is a way to stash the GSI number,
-> > flags and name in stardard storage (like OF nodes IRQ properties, ACPI objects
-> > _CRS, etc).
-> > 
-> > To give you some background, I thought about adding an array of:
-> > 
-> > GSI [number, flags, name]
-> > 
-> > to the ACPI static fwnode itself. Then basically the irq_get() API has got
-> > all the information it needs from the primary fwnode; while doing that I
-> > thought that this might have been a bit like reinventing software nodes
-> > (granted, software node properties are ways more general that what I suggest
-> > above and I don't expect any other property to be ever added to static fwnodes)
-> > that's why I put together the series as it is, precisely to understand what's
-> > best.
-> > 
-> > When you say "against device property", what do you mean precisely ?
-> > 
-> > I suppose you mean that this approach goes against software node properties
-> > usage guidelines ?
-> > 
-> > Anyway, again, it is just to provide some context, we are talking about
-> > a bunch of platform devices, it is nice to have a generic solution but
-> > it has to be simple enough too given its scope, I understand very well
-> > your concern with this approach as-is - it is there to find a way
-> > forward together and show what the problem is.
-> 
-> I guess software node properties look inviting in theory since they're a
-> ready-made mechanism for effectively attaching arbitrary data to a fwnode,
-> however looking at patches 6-7 and the amount of boilerplate involved in the
-> reality, I'm inclined to think that a dedicated structure for static nodes
-> is probably the best and most efficient compromise here. The redundancy
-> argument rather falls apart once we end up creating copies of those
-> contentiously-made-up property name strings for every node, especially given
-> that any one of those alone is probably already more than the amount of
-> actual data we need per node...
-> 
-> Perhaps the "purest" option might be to just store a function pointer in the
-> fwnode wrapper for each static table type to provide its own internal
-> irq_get() callback, so not stashing intermediate GSI data at all, but I
-> suspect that might end up being more work overall.
+From: Ming Yu <a0282524688@gmail.com>
 
-Thanks Robin.
+Each sub-device driver defines the module type used by its own
+commands. The upcoming HIF transport also needs to recognise
+NCT6694_RPT_MOD, as report accesses are served from a separate
+register space rather than through the command mailbox.
 
-Yes, those are the possible options, last one requiring a look-up
-from fwnode to the data providing GSI numbers/flags for that specific
-fwnode - we do have that for IORT but I need to check for other
-devices.
+Move all module types into the shared header so that the transports
+and the sub-device drivers use a single set of definitions.
 
-To be honest, I implemented the three of them while prototyping, it is just
-a matter of choosing which one we want to support to sort this out.
+No functional change.
 
-Thanks !
-Lorenzo
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
+---
+Changes in v8:
+- Reworded the commit message to explain why the transport needs the
+  module types.
 
-> Cheers,
-> Robin.
-> 
-> > 
-> > Thanks,
-> > Lorenzo
-> > 
-> > > > > it needs to be retrieved as that in the guts of ACPI. Allocating memory for the whole
-> > > > > array to retrieve a single element is simply wrong.
-> > > 
-> > > ...
-> > > 
-> > > > > > +#define ACPI_IRQ_PROP_GSI		"linux,acpi-gsi"
-> > > > > > +#define ACPI_IRQ_PROP_GSI_TRIGGER	"linux,acpi-gsi-trigger"
-> > > > > > +#define ACPI_IRQ_PROP_GSI_POLARITY	"linux,acpi-gsi-polarity"
-> > > > > 
-> > > > > Oh... This sounds like a big ugly hack.
-> > > > 
-> > > > That does not help much I am afraid.
-> > > > 
-> > > > What's a ugly hack ? Property names ? Using properties for this purpose ?
-> > > 
-> > > Yes, properties started with "linux," for some core functionality.
-> > > Yes, using properties for this also doesn't sound right. I think the problem
-> > > here is in the table specifications or somewhere that deep. That's why we
-> > > ended up in this series.
-> > > 
-> > > > Again, it is an RFC for this specific reason and I mentioned that in the
-> > > > cover letter, thank you for your inputs.
-> > > 
-> > > And here we have a discussion started :-)
-> > > 
-> > > P.S. Looks like I was too quick to jump into this thread. I will wait for
-> > > others to share their view on all this.
-> > > 
-> > > -- 
-> > > With Best Regards,
-> > > Andy Shevchenko
-> > > 
-> > > 
-> 
+Changes in v7:
+- None.
+
+Changes in v6:
+- None.
+
+Changes in v5:
+- Split from the monolithic v4 patch to follow the single logical change
+  principle.
+
+ drivers/gpio/gpio-nct6694.c         |  7 -------
+ drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
+ drivers/i2c/busses/i2c-nct6694.c    |  7 -------
+ drivers/net/can/usb/nct6694_canfd.c |  6 ------
+ drivers/rtc/rtc-nct6694.c           |  7 -------
+ drivers/watchdog/nct6694_wdt.c      |  7 -------
+ include/linux/mfd/nct6694.h         |  9 +++++++++
+ 7 files changed, 9 insertions(+), 55 deletions(-)
+
+diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
+index a38add1cde29..c8cdf4520466 100644
+--- a/drivers/gpio/gpio-nct6694.c
++++ b/drivers/gpio/gpio-nct6694.c
+@@ -13,13 +13,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 GPIO controller.
+- * This defines the module type used for communication with the NCT6694
+- * GPIO controller over the USB interface.
+- */
+-#define NCT6694_GPIO_MOD	0xFF
+-
+ #define NCT6694_GPIO_VER	0x90
+ #define NCT6694_GPIO_VALID	0x110
+ #define NCT6694_GPI_DATA	0x120
+diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
+index 9a9a4db434c4..bd4c106305c7 100644
+--- a/drivers/hwmon/nct6694-hwmon.c
++++ b/drivers/hwmon/nct6694-hwmon.c
+@@ -15,13 +15,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 report channel
+- * This defines the module type used for communication with the NCT6694
+- * report channel over the USB interface.
+- */
+-#define NCT6694_RPT_MOD			0xFF
+-
+ /* Report channel */
+ /*
+  * The report channel is used to report the status of the hardware monitor
+@@ -38,13 +31,6 @@
+ #define NCT6694_TIN_STS(x)		(0x6A + (x))
+ #define NCT6694_FIN_STS(x)		(0x6E + (x))
+ 
+-/*
+- * USB command module type for NCT6694 HWMON controller.
+- * This defines the module type used for communication with the NCT6694
+- * HWMON controller over the USB interface.
+- */
+-#define NCT6694_HWMON_MOD		0x00
+-
+ /* Command 00h - Hardware Monitor Control */
+ #define NCT6694_HWMON_CONTROL		0x00
+ #define NCT6694_HWMON_CONTROL_SEL	0x00
+@@ -53,13 +39,6 @@
+ #define NCT6694_HWMON_ALARM		0x02
+ #define NCT6694_HWMON_ALARM_SEL		0x00
+ 
+-/*
+- * USB command module type for NCT6694 PWM controller.
+- * This defines the module type used for communication with the NCT6694
+- * PWM controller over the USB interface.
+- */
+-#define NCT6694_PWM_MOD			0x01
+-
+ /* PWM Command - Manual Control */
+ #define NCT6694_PWM_CONTROL		0x01
+ #define NCT6694_PWM_CONTROL_SEL		0x00
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index 1413ab6f9462..ef3329f34246 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -12,13 +12,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 I2C controller.
+- * This defines the module type used for communication with the NCT6694
+- * I2C controller over the USB interface.
+- */
+-#define NCT6694_I2C_MOD			0x03
+-
+ /* Command 00h - I2C Deliver */
+ #define NCT6694_I2C_DELIVER		0x00
+ #define NCT6694_I2C_DELIVER_SEL		0x00
+diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
+index e5f7f8849a73..262b4c26c9d4 100644
+--- a/drivers/net/can/usb/nct6694_canfd.c
++++ b/drivers/net/can/usb/nct6694_canfd.c
+@@ -18,12 +18,6 @@
+ 
+ #define DEVICE_NAME "nct6694-canfd"
+ 
+-/* USB command module type for NCT6694 CANfd controller.
+- * This defines the module type used for communication with the NCT6694
+- * CANfd controller over the USB interface.
+- */
+-#define NCT6694_CANFD_MOD			0x05
+-
+ /* Command 00h - CAN Setting and Initialization */
+ #define NCT6694_CANFD_SETTING			0x00
+ #define NCT6694_CANFD_SETTING_ACTIVE_CTRL1	BIT(0)
+diff --git a/drivers/rtc/rtc-nct6694.c b/drivers/rtc/rtc-nct6694.c
+index 35401a0d9cf5..c06902f150c9 100644
+--- a/drivers/rtc/rtc-nct6694.c
++++ b/drivers/rtc/rtc-nct6694.c
+@@ -14,13 +14,6 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 RTC controller.
+- * This defines the module type used for communication with the NCT6694
+- * RTC controller over the USB interface.
+- */
+-#define NCT6694_RTC_MOD		0x08
+-
+ /* Command 00h - RTC Time */
+ #define NCT6694_RTC_TIME	0x0000
+ #define NCT6694_RTC_TIME_SEL	0x00
+diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
+index bc3689bd4b6b..4c06ac105562 100644
+--- a/drivers/watchdog/nct6694_wdt.c
++++ b/drivers/watchdog/nct6694_wdt.c
+@@ -20,13 +20,6 @@
+ 
+ #define NCT6694_WDT_MAX_DEVS		2
+ 
+-/*
+- * USB command module type for NCT6694 WDT controller.
+- * This defines the module type used for communication with the NCT6694
+- * WDT controller over the USB interface.
+- */
+-#define NCT6694_WDT_MOD			0x07
+-
+ /* Command 00h - WDT Setup */
+ #define NCT6694_WDT_SETUP		0x00
+ #define NCT6694_WDT_SETUP_SEL(idx)	(idx ? 0x01 : 0x00)
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 69e4652cf16c..d46ae34a497e 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -8,6 +8,15 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#define NCT6694_HWMON_MOD	0x00
++#define NCT6694_PWM_MOD		0x01
++#define NCT6694_I2C_MOD		0x03
++#define NCT6694_CANFD_MOD	0x05
++#define NCT6694_WDT_MOD		0x07
++#define NCT6694_RTC_MOD		0x08
++#define NCT6694_RPT_MOD		0xFF
++#define NCT6694_GPIO_MOD	NCT6694_RPT_MOD
++
+ #define NCT6694_VENDOR_ID	0x0416
+ #define NCT6694_PRODUCT_ID	0x200B
+ #define NCT6694_INT_IN_EP	0x01
+-- 
+2.34.1
+
