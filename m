@@ -1,190 +1,231 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 182662E285C
-	for <linux-watchdog@vger.kernel.org>; Fri,  9 Oct 2026 01:07:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CF9D3CB2C7;
+	Fri,  9 Oct 2026 07:57:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791508034; cv=none; b=qvUonM/HRPw2OKBaawuhx8APhY+lunzcX49RqYA/icHTy1URLxovzU9CTjbRZvh3vnYWtcc71B6LNiZctWyk9Ea3DP9LtN/p2wQKOdYQI4WTZmIlv1lkNeX7jA+uxhZ+OayOsXYhfIUnM4zHAnxPoJdapr4rg1V4dVYU3xZMBBU=
+	t=1791532642; cv=none; b=Msn2katlG7XzE6ERLYE7Gho3QEbzM+8w6iDe1YrToS1w7xtalI3njf8LLFYPrfCPAllz5Nrp4Khf6eV59q5E48QyrlR7TUthUIG60PwNFgDr89aI4iel1TLY/Lx7jnzE9OadwxMPPXLElm31/0YfqF9QAdnKcz9vG6kjeISwSck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791508034; c=relaxed/simple;
-	bh=+zxnZvtNeGJCI7pCdIuW6g2eA8/O+svbTTvlPCXqKk8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f9ltqy/kpF3GgcST8nzTSiOvAyOLIGUt3PUXXz3Vxh/3pvKaO9iHSFDK7epAkXg51iChU1sX6qKVrfMCW4eDGE0Tu+b2M9I0nvjIc7pgqCf2JucLF0KOiEdwPO0T/Jdd7F8bVT958EvQwp0Sq7o6z2DKEcY0Za7IWrcj8wF8JNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=PMGxK/nK; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=T9zbul6p; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1791532642; c=relaxed/simple;
+	bh=OVgnTlwhqjp5woUBmZR8Z1/tP1JnGEu9IxPV5ssVSmM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=umrX/8tSUyt4nBVNXeZttGDHToxDMT5sw5kZVyRPZ2YYp5pr28ck69Cqp9wE8GVY4W2oEx9AOXpRIe9ELs/C0NjjqTMPb58LPSg82EetbstN2XqG9gIGzYPV3pS1M4T/KSEIm+Tg06NoJOAgRmWQFwfguR0xLuUeKdCtFAVSwSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iXBkcs1o; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="PMGxK/nK";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="T9zbul6p"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6990R41D725987
-	for <linux-watchdog@vger.kernel.org>; Fri, 9 Oct 2026 01:07:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	wv5XRzDrzOa11d81nPhympfz8h9JIRXzef2dzjWca7E=; b=PMGxK/nKr79j6k8B
-	Nr9SyWFaowRNIeabOmWzTuVixody79Vtvmi0+ZgmaLygg2K9sEqr3cHep9ZXWbL0
-	w2XYoL9N4cZIKUn4de5TMIh1W5KLf03/m0OgcBUKMXQg0sKbqvZPEmuXbMzO0LO+
-	nVfxxUXkBYdX6QqqFr3qjl7Haa6q9H+jIxibJMwaaDy9/LyXo85HaMGS62ySJDUn
-	gtWdUXxU9rVh64gSC9mLRu8yrVH2fXyTBwPaBXpN9WkRrTu11SiDu8DNOUehek/k
-	OFcIvVK+zLP1pxU675bp3+mktldb+y3OiOEJ3v33VtClC65T35BpZ5j64Sa4EapH
-	cyjToQ==
-Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h6ekv9k2r-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Fri, 09 Oct 2026 01:07:11 +0000 (GMT)
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-34e676375d9so5890846eec.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 08 Oct 2026 18:07:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1791508031; x=1792112831; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wv5XRzDrzOa11d81nPhympfz8h9JIRXzef2dzjWca7E=;
-        b=T9zbul6pTaE2pvbiGT7BrNWNkzayD+1/ZVNTxHQoPaL/bBQKNdB8JG4DJvp5RKEAVG
-         hk5uR8HMW3yHZychZvrpuILZF+aNFI2YykqplLEvptI/0KRTEMsz5M83TO9mqiK6owb5
-         /TI0koH5oRZokcqlHPPLMMBL1i5Xj50/xqMLegyx24BXiTpg3IaiNLRiwtYhGp9nQK3e
-         ITGH4eiVP+j/7q8NyV9c/FcBF3TfXFSycbT7g6rhr3VmEgpaEevm4Ny0zyLqx2PyttfX
-         GyO7k5sxHFbT3/+dLI0C3H0PfJW3nm4rgtz6/rcoxSzg8mBj8rFR2w2Hb1It1a4aT+SG
-         MnOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791508031; x=1792112831;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=wv5XRzDrzOa11d81nPhympfz8h9JIRXzef2dzjWca7E=;
-        b=2K/HF1s+sxy4kY5Nl+inbwf9fkuV/WLdXuwjKmQByLEkPKbC0h4dgstnySDBjsjaR/
-         tzmypWj47yxpPGBLkLx4GGfDmDgwYE7RZ2I29JPno1ZcTKHlIT/Bl3pblag0eE/c8v0P
-         KBNmvBtwDCumv9QnXHgiQYBeuBbYoBbFIRE9TST5OA0R67Cphdo3XSWsI4b+rOWLMIe+
-         xtSHhH/AoFnqePQ1Bg5uYDqeo9TrFsdAV/a+HNQ4PX2b7+rOSfjqB7dgCbAeFZ0q+h18
-         hCannB8emxOmU1EvteXQarJZvNWzkOCGvr3L7nD6JaIny+yqQafob1AnoHxcNVRCveFT
-         IMVg==
-X-Forwarded-Encrypted: i=1; AKwUvByoRAXNNxaA32uoyPR75Y6sVlC7cEPL+oVLJYB7l5ErDcmjwuNzSbdJwG3dr3wWWkTsGXBoLTP6WQLmkU640A==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJllmWd0aMWAe4o8kRxeRQVjB/dr2cWTLz6zV2oIDbjsqbqlWlX
-	F5g6q71hv/siuvjba9aXLl2Nop+2P7+PpE3mMz4uVTu+pkrej/1KSSh++WP0E2zKXxHy41AXITD
-	hlwZqDB8X8w/gsSBk5tvjttuef1SanNrBpNpeXbodvozHHOqx9xuCiDCwBly0ojJn3QG8u8z7yb
-	IerA==
-X-Gm-Gg: AYBFou1UJ85AxkLmUfljuR59AhvlLlJV/vaO+rVw4zCcKKSNT5uZr7OIKIFAx3C/fBh
-	EVHohQzSDzzG5AJ+tTun2RPwTt6HY6Uuc6YlnZ1Ajslaa6aH1YkQjt2875t6CPI9ZGRYodGC50b
-	V8DY19fx9vKPi20qz/XEDxXlY5Cj0DDzoZM+fAbSIzphM0YpU0d5TXO5HhYV4z/KqgyckP2Dndg
-	JRZiLmkWMw/Fk3j0yeQZal4lylxyZsfX0+KQ+aMymSQvrIryoQIrZlf8oyYHgk2g16+Cye36Zvx
-	Fy8Lfrxx/FVd/jfYvDdG6vcNfOlijopNrBJIkRm27SGrtSS+QtPQItw14YX/7bGcqAor9WwwqvR
-	UQR+GNRZstZ5+SyfZDrjLpsJI7UlFh7B9GiH/kq94oZV23hSHkH7z
-X-Received: by 2002:a05:7300:c8c5:b0:34c:6edc:f4d with SMTP id 5a478bee46e88-3537de061f1mr790415eec.1.1791508030275;
-        Thu, 08 Oct 2026 18:07:10 -0700 (PDT)
-X-Received: by 2002:a05:7300:c8c5:b0:34c:6edc:f4d with SMTP id 5a478bee46e88-3537de061f1mr790363eec.1.1791508029119;
-        Thu, 08 Oct 2026 18:07:09 -0700 (PDT)
-Received: from [10.73.232.100] (pat_11.qualcomm.com. [192.35.156.11])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb1e05esm1795163eec.25.2026.10.08.18.07.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Oct 2026 18:07:08 -0700 (PDT)
-Message-ID: <ec393b82-912e-4f85-8f30-b3b8cbe948b9@oss.qualcomm.com>
-Date: Thu, 8 Oct 2026 18:07:07 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iXBkcs1o"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 888031F000FF;
+	Fri,  9 Oct 2026 07:57:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791532632;
+	bh=7JwBUaKiDw3DL4V1VblyqY4NlQUKc0x+WHZ55mtpZGk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=iXBkcs1ozdItQ91Qzqsd9bSnGiaVHmmQXgWX31nAahFHARHVMlRC01fE/XmvxTcaB
+	 AxmiA9IBMQT1BEgvXWlPPqAKWJ1DK7wtvu/u33eqUlFHZ5HJ518T+j+TlvK48tFoO+
+	 vcoithhATsDmOJrOHoFlumiaZLTwOKF1O3v+Lusa8xnFhppIegGSvCTuXkY1zQ1Z+N
+	 sEAtMFWBHxxprOVTOQq9vwB98xCsb0zzQaYeZTpImM/zWsPiBhtxLWuBeTdah0I/Tv
+	 OcXDTvxQXr65PFPpvxoqiA5WZgehZIlTzQeKPoKAWYRsJm6Zpg939xRbs8gJnnBjV6
+	 IaytI+HxCZvKg==
+Date: Fri, 9 Oct 2026 09:57:02 +0200
+From: Lorenzo Pieralisi <lpieralisi@kernel.org>
+To: Robin Murphy <robin.murphy@arm.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Hanjun Guo <guohanjun@huawei.com>,
+	Sudeep Holla <sudeep.holla@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
+Message-ID: <asieTvinZ7c2QpQm@red-moon>
+References: <20260925-acpi-static-table-irq-probe-defer-v1-0-2c62125d0085@kernel.org>
+ <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
+ <arZDwutoadki7tiZ@ashevche-desk.local>
+ <arZNL9BnTGK0Klwc@red-moon>
+ <arZS4vwxps01dGb7@ashevche-desk.local>
+ <arqSqcoWAkhy-8do@red-moon>
+ <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: gunyah: report system sleep operation failures
-To: Zhang Jiaxi <Z1529105815@outlook.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <SY5PR01MB10600A249F7E2CAE647EFD46FA1932@SY5PR01MB10600.ausprd01.prod.outlook.com>
-Content-Language: en-US
-From: Trilok Soni <trilokkumar.soni@oss.qualcomm.com>
-In-Reply-To: <SY5PR01MB10600A249F7E2CAE647EFD46FA1932@SY5PR01MB10600.ausprd01.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-ORIG-GUID: KrOtULZ2ZqtTtpiJNhmdGv6HwJg4mnh7
-X-Authority-Analysis: v=2.4 cv=csYOAF4i c=1 sm=1 tr=0 ts=6ac83e3f cx=c_pps
- a=cFYjgdjTJScbgFmBucgdfQ==:117 a=ZdW6uxA9NKXbfdqeeS2OGA==:17
- a=cNoKYFeJyS4W4/1HdvzxLidmn8o=:19 a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=3WHJM1ZQz_JShphwDgj5:22 a=UqCG9HQmAAAA:8 a=wiQ79f7mt1jt9let52sA:9
- a=QEXdDO2ut3YA:10 a=scEy_gLbYbu1JhEsrz4S:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA5MDAwNCBTYWx0ZWRfX5x5n/126eRAi
- XVOBdmYwN+G2l5t5GRNceVKVrl0GRitFXzxKbg1zW5z49qvTrT4RB2iQ6jEvTXeiXoYBqE6v16Z
- Sl98beWHrKBqLfsu9XB22J+w5/LTkD1G0hpz2XNpkCH6HkJH7BwPhytul80AeJftIHLt26PbSdO
- dkO2asaGT5R9a2/vWA1g/UIbv1ybCDvU8g8rTzTkOVX670lH4ya6fy/Lt6jpDC3SqVuzth0XBAo
- 02ywAv38GTGrMbybI6Fr90ttg6a8d2obJUjR+pi3Ojy9xsLL2rlzE48Rw/1xOASgNY/waGBi7+E
- QDCoSDDpQkMMDChjTmD58wot/NrB3MYXkk9Yb1658AfgdN9VbCsFmkd6XLBViagNLRlJ/+RdA2p
- EQ9hY11aZrnh4qYibWR7MHUv9lllGIIXU+xkRyHQdeIje6M96dtbBoqWnzNig9zBxH59KZ5FXWP
- Ylqu99XZHlxu5kpMWOg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA5MDAwNCBTYWx0ZWRfXxcxRW8X3TaxS
- gwFnrPD45UsB8hMBlmBGZUVJ4tRmTJnGUPTBgBDQDojJeqYJtaJIifFStXxBhF7CD13Okuusx11
- Sw2Y2LVc04X6iIQxF4me62PT5vmbQFQ=
-X-Proofpoint-GUID: KrOtULZ2ZqtTtpiJNhmdGv6HwJg4mnh7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-09_01,2026-10-08_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 spamscore=0 clxscore=1011 priorityscore=1501 suspectscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 bulkscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610090004
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
 
-On 10/8/2026 3:34 PM, Zhang Jiaxi wrote:
-> From: Jiaxi Zhang <z1529105815@outlook.com>
+On Tue, Oct 06, 2026 at 05:19:23PM +0100, Robin Murphy wrote:
+> On 28/09/2026 5:15 pm, Lorenzo Pieralisi wrote:
+> > On Fri, Sep 25, 2026 at 01:54:26PM +0300, Andy Shevchenko wrote:
+> > > On Fri, Sep 25, 2026 at 12:30:07PM +0200, Lorenzo Pieralisi wrote:
+> > > > On Fri, Sep 25, 2026 at 12:49:54PM +0300, Andy Shevchenko wrote:
+> > > > > On Fri, Sep 25, 2026 at 09:48:01AM +0200, Lorenzo Pieralisi wrote:
+> > > 
+> > > ...
+> > > 
+> > > > > > +static int acpi_static_fwnode_read_u32_prop_index(const struct fwnode_handle *fwnode,
+> > > > > > +						  const char *propname,
+> > > > > > +						  unsigned int index, u32 *value)
+> > > > > > +{
+> > > > > > +	u32 *values;
+> > > > > > +	int ret, count;
+> > > > > > +
+> > > > > > +	count = fwnode_property_count_u32(fwnode, propname);
+> > > > > > +	if (count < 0)
+> > > > > > +		return count;
+> > > > > > +
+> > > > > > +	if (index >= count)
+> > > > > > +		return -ENOENT;
+> > > > > > +
+> > > > > > +	values = kcalloc(count, sizeof(*values), GFP_KERNEL);
+> > > > > > +	if (!values)
+> > > > > > +		return -ENOMEM;
+> > > > > > +
+> > > > > > +	ret = fwnode_property_read_u32_array(fwnode, propname, values, count);
+> > > > > > +	if (!ret)
+> > > > > > +		*value = values[index];
+> > > > > 
+> > > > > Use standard pattern, id est
+> > > > > 
+> > > > > 	if (ret)
+> > > > > 		...
+> > > > > 
+> > > > > > +	kfree(values);
+> > > > > 
+> > > > > You want to use __free()
+> > > > > 
+> > > > > > +	return ret;
+> > > > > > +}
+> > > > > 
+> > > > > I believe the whole approach is suboptimal, if you wish get indexed value (but why?)
+> > > > 
+> > > > Why what (that's what the irq_get() interface requires ?) I agree it is
+> > > > suboptimal - the whole point of the series is an RFC on using properties
+> > > > to store GSI number/flags, then how to read them we will optimize it
+> I>>> when/if we agree that's the approach to be taken.
+> > > 
+> > > Why to have indexed APIs. The callers usually do not want a single item from an
+> > > array, they want all of them or a big pile (exception is the array of strings,
+> > > but we have matching functions for that).
+> > > 
+> > > As per approach, this patch is against device property and I don't think we are
+> > > going to agree on the approach taken in *this* patch.
+> > 
+> > Coming back to this, what is needed here is a way to stash the GSI number,
+> > flags and name in stardard storage (like OF nodes IRQ properties, ACPI objects
+> > _CRS, etc).
+> > 
+> > To give you some background, I thought about adding an array of:
+> > 
+> > GSI [number, flags, name]
+> > 
+> > to the ACPI static fwnode itself. Then basically the irq_get() API has got
+> > all the information it needs from the primary fwnode; while doing that I
+> > thought that this might have been a bit like reinventing software nodes
+> > (granted, software node properties are ways more general that what I suggest
+> > above and I don't expect any other property to be ever added to static fwnodes)
+> > that's why I put together the series as it is, precisely to understand what's
+> > best.
+> > 
+> > When you say "against device property", what do you mean precisely ?
+> > 
+> > I suppose you mean that this approach goes against software node properties
+> > usage guidelines ?
+> > 
+> > Anyway, again, it is just to provide some context, we are talking about
+> > a bunch of platform devices, it is nice to have a generic solution but
+> > it has to be simple enough too given its scope, I understand very well
+> > your concern with this approach as-is - it is there to find a way
+> > forward together and show what the problem is.
 > 
-> The system-sleep callbacks discard the errors returned by the watchdog
-> start and stop operations and always report success. If stopping an
-> active watchdog fails, the PM core can proceed to suspend while the
-> watchdog is still counting. Failed restart on resume is also hidden from
-> the PM core's callback error reporting.
+> I guess software node properties look inviting in theory since they're a
+> ready-made mechanism for effectively attaching arbitrary data to a fwnode,
+> however looking at patches 6-7 and the amount of boilerplate involved in the
+> reality, I'm inclined to think that a dedicated structure for static nodes
+> is probably the best and most efficient compromise here. The redundancy
+> argument rather falls apart once we end up creating copies of those
+> contentiously-made-up property name strings for every node, especially given
+> that any one of those alone is probably already more than the amount of
+> actual data we need per node...
 > 
-> Return the existing operation result when the watchdog is active. Keep
-> inactive callbacks as no-ops. The start/stop command sequence, initial
-> activation exception, probe registration and last-resort restart behavior
-> are unchanged. Reporting a resume error does not implement recovery or
-> guarantee that watchdog protection has been restored.
-> 
-> Signed-off-by: Jiaxi Zhang <z1529105815@outlook.com>
+> Perhaps the "purest" option might be to just store a function pointer in the
+> fwnode wrapper for each static table type to provide its own internal
+> irq_get() callback, so not stashing intermediate GSI data at all, but I
+> suspect that might end up being more work overall.
 
-I see flurry of emails from you. What exactly are you testing here? Is this driven
-through LLM? 
+Hi Rafael, Robin,
 
-Please also fix your SOB line. 
+I have not started prototyping it yet but I have got a question as a
+follow-up to our chat at LPC about crafting an ACPI device for the static
+table entries and sort out the probe dependencies using autodep.
 
-> ---
-> Clang 22.1.8 compiled the changed object on torvalds/linux
-> 6c377d19d4a5116d9bec5203aa3c6c11523e7898 without diagnostics.
-> Actual callback tests with modeled start/stop returns cover error propagation
-> and inactive no-ops, including old-code negatives. No device PM or real
-> hypervisor-error injection is claimed.
-> 
->  drivers/watchdog/gunyah_wdt.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/gunyah_wdt.c b/drivers/watchdog/gunyah_wdt.c
-> --- a/drivers/watchdog/gunyah_wdt.c
-> +++ b/drivers/watchdog/gunyah_wdt.c
-> @@ -214,7 +214,7 @@
->  	struct watchdog_device *wdd = dev_get_drvdata(dev);
->  
->  	if (watchdog_active(wdd))
-> -		gunyah_wdt_stop(wdd);
-> +		return gunyah_wdt_stop(wdd);
->  
->  	return 0;
->  }
-> @@ -224,7 +224,7 @@
->  	struct watchdog_device *wdd = dev_get_drvdata(dev);
->  
->  	if (watchdog_active(wdd))
-> -		gunyah_wdt_start(wdd);
-> +		return gunyah_wdt_start(wdd);
->  
->  	return 0;
->  }
-> 
+After spur of the moment reaction during the session, I now remember I
+thought about crafting an ACPI device for the static table entries and
+started digging then bumped into acpi_add_single_object() as you
+suggested.
 
+The point though is: what about the acpi_handle and the AML required to
+sort out the dependencies using the _CRS ? We have got the info to fill
+the _CRS coming from static table entries (MMIO, GSI) but I am not sure how I
+can form a full-fledged ACPI namespace object in the kernel, without
+that in place I am not sure how the autodep mechanism can possibly
+work.
+
+I need to have a deeper look into this next week but I wanted to ask first
+whether there was something I missed - most likely.
+
+Thanks !
+Lorenzo
+
+> 
+> Cheers,
+> Robin.
+> 
+> > 
+> > Thanks,
+> > Lorenzo
+> > 
+> > > > > it needs to be retrieved as that in the guts of ACPI. Allocating memory for the whole
+> > > > > array to retrieve a single element is simply wrong.
+> > > 
+> > > ...
+> > > 
+> > > > > > +#define ACPI_IRQ_PROP_GSI		"linux,acpi-gsi"
+> > > > > > +#define ACPI_IRQ_PROP_GSI_TRIGGER	"linux,acpi-gsi-trigger"
+> > > > > > +#define ACPI_IRQ_PROP_GSI_POLARITY	"linux,acpi-gsi-polarity"
+> > > > > 
+> > > > > Oh... This sounds like a big ugly hack.
+> > > > 
+> > > > That does not help much I am afraid.
+> > > > 
+> > > > What's a ugly hack ? Property names ? Using properties for this purpose ?
+> > > 
+> > > Yes, properties started with "linux," for some core functionality.
+> > > Yes, using properties for this also doesn't sound right. I think the problem
+> > > here is in the table specifications or somewhere that deep. That's why we
+> > > ended up in this series.
+> > > 
+> > > > Again, it is an RFC for this specific reason and I mentioned that in the
+> > > > cover letter, thank you for your inputs.
+> > > 
+> > > And here we have a discussion started :-)
+> > > 
+> > > P.S. Looks like I was too quick to jump into this thread. I will wait for
+> > > others to share their view on all this.
+> > > 
+> > > -- 
+> > > With Best Regards,
+> > > Andy Shevchenko
+> > > 
+> > > 
+> 
