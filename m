@@ -1,191 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23670342510;
-	Sat, 10 Oct 2026 17:09:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43F6D3BE633;
+	Sat, 10 Oct 2026 17:11:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791652194; cv=none; b=E3FJhGX6CgBljxydYg1tMZnasRqu2HCjPdWUbwlUIJJnnRGAc7WE3hVNWxI/yNMqbgNl9rUARYZtyqn430N0sMrYiPTiWeLNjr70yg3E2SfzgPvbM1T2pYOUSeu4+ksgHNyzIbrUSxv0taxgHtbRGdxDRNvxLg2b9zhVe81AiDA=
+	t=1791652306; cv=none; b=hGoWoK+sypHPuE+6ENXwmEPzjTpxaHGkoIXHj6k5l2WsELax1s1JVuiyo1d+Npws+lI0QgnmLijWmsMzcfYYepJB6rG84vZ+SeijbN8ATHQei1S20uMewUqMo3Pob4wJuskiaU5JLHs5v3zN24Mge1CVUZy7iseTVahrvEb+DEM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791652194; c=relaxed/simple;
-	bh=JV50tX2bt5EvtYNweGm/iZFunqLomki9FAcSg4k1tM8=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=ht0GOOl/9rHf7dQZUTm26ntOAq0MV3ePYQGv1W89sm/5sfmIdk+5KKI9bf70+FHQE5erpM6AITuBZeiR3jvCh85p7LJFn+sQjl4401kCH8BoGE9O7q2E2w0ZDC5ojKFot5ppLKVZ4/x+/GJx0YfdjtlVTg0/0UsUlC+qV+gF2sU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZAPPrmqs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791652306; c=relaxed/simple;
+	bh=8QGjyTRLdTBhk4Iz3QJMepcprxh+1GRSW1VXMEPmScI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qm21V41UiYvBj6cpoPrAVferpgOR+JPVPkMPP5nUAW11zxxwVZbO9i+e7cV2E0v7/AEpYINhNBdfNC7lwk7JBgPFsQGVZVVE2WHRUZz+eZj1CWdJgT95g2f/9cchT4C2zX4GvTXnDX2gsy0BnTlQf7zwrqjx+Q5kjTD36DKPlxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=maHCfN9r; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZAPPrmqs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 355A01F000FF;
-	Sat, 10 Oct 2026 17:09:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791652192;
-	bh=9loafavYlsAfLHpFI6f3pgcI3U9O4OtKC3AJ6HSvP9Y=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZAPPrmqstsIEVFenWnzFOanTtEmw8qLrcq2C246Tzi7PFHqhpLcJEU/ufumj8gxRN
-	 pA/epc5YIHwDGUpLrtR+4tn82cagkgy+QhpKKsPY36KnlrWX7i0GFAe+3MabhbH50v
-	 P+7SwUYhdqXowAGXGrrEeLH9oD7/ZEPiAwmN+1oHAa4j21v20dhHD43NQkBGHo/8/k
-	 FIUXo3+Gg7jZuhBKCgAaqEhT+1aA8HjuhVrv0x1YCWuJ0JFut5087PCRYp1rH2Tgoz
-	 rmPxKrvk3xN3IQ01JmRKDUhVu0FevGg2QRoVyghVsmdSaQUrIQ3RflcO3jEUTdP7M2
-	 PedsVmJ8qbbLw==
-Message-ID: <sashiko-outbox-166760@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 10/10] arm64: dts: apple: Add minimal t604x (M4 Pro/Max)
- device trees
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yureka Lilian" <yureka@cyberchaos.dev>
-Cc: linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20261010-apple-m4-pro-max-initial-devicetrees-v1-10-781fb3f2d9f6@cyberchaos.dev>
-References: <20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev>
- <20261010-apple-m4-pro-max-initial-devicetrees-v1-10-781fb3f2d9f6@cyberchaos.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 10 Oct 2026 17:09:51 +0000
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="maHCfN9r"
+Message-ID: <119cdaf0-e631-4d33-a7a1-85d10b87d78f@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1791652303;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=F5fZ9xMeWb13PFHx7PqGpTj4Gd+/TFWRgOl7WsIogwE=;
+	b=maHCfN9rFLAqX/oqjbAa8JPK8g5ikCzI3UD1ufj0d5LNm5EzndRpozUExeYoxkTEYtsYNu
+	Em7JvCyAm+KFKzUfeT5DtkovgSo+XLSmbvoO54148bxTtYAaH2LWNVg6l9oN3Midef0bpr
+	vrj2HAVqxD3XrtMVYnuC+SFZFwVHU6g=
+Date: Sat, 10 Oct 2026 19:11:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Subject: Re: [PATCH 02/10] dt-bindings: interrupt-controller: apple,aic2: Add
+ t6041 compatible
+To: Yureka Lilian <yureka@cyberchaos.dev>, Sven Peter <sven@kernel.org>,
+ Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Radu Rendec <radu@rendec.net>, Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Hector Martin <marcan@marcan.st>, =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?=
+ <ukleinek@kernel.org>, Sasha Finkelstein <k@chaosmail.tech>,
+ Linus Walleij <linusw@kernel.org>, Mark Kettenis <kettenis@openbsd.org>,
+ Andi Shyti <andi.shyti@kernel.org>
+Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev>
+ <20261010-apple-m4-pro-max-initial-devicetrees-v1-2-781fb3f2d9f6@cyberchaos.dev>
+Content-Language: en-US
+From: Yureka Lilian <yureka@cyberchaos.dev>
+In-Reply-To: <20261010-apple-m4-pro-max-initial-devicetrees-v1-2-781fb3f2d9f6@cyberchaos.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] dts: Apple desktop Mac devices reference disabled simple-framebuff=
-er power domains
-- [Medium] dts: CPU cache sizes lack 0x prefix, causing them to be incorrec=
-tly parsed as decimal
-- [Low] kbuild: Makefile entries for new dtbs are not sorted alphabetically
---
+On 10/10/26 18:59, Yureka Lilian wrote:
+> The Apple t604x (M4 Pro/Max) SoCs use an AIC3 as interrupt controller,
+> same as the previous M3-M4 SoCs.
+>
+> Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> Reviewed-by: Sven Peter <sven@kernel.org>
+> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+> ---
+>   Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml | 3 +++
+>   1 file changed, 3 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
+> index e3cadc5ad39d..fa9d89cb40b1 100644
+> --- a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
+> +++ b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
+> @@ -37,6 +37,7 @@ properties:
+>       oneOf:
+>         - items:
+>             - enum:
+> +              # Do not add additional SoC to this list.
+>                 - apple,t6000-aic
+>                 - apple,t6020-aic
+>                 - apple,t8112-aic
+> @@ -45,6 +46,7 @@ properties:
+>             - enum:
+>                 - apple,t6030-aic3
+>                 - apple,t6031-aic3
+> +              - apple,t6041-aic3
+>                 - apple,t8132-aic3
+>                 - apple,t8140-aic3
+>             - const: apple,t8122-aic3
+> @@ -134,6 +136,7 @@ allOf:
+>                 - apple,t6000-aic
+>                 - apple,t6020-aic
+>                 - apple,t6031-aic3
+> +              - apple,t6050-aic3
 
-commit 12545a49c68dd3594dd8e8ff795d304076ce814b
-Author: Yureka Lilian <yureka@cyberchaos.dev>
+As noted by Sashiko, this hunk does not belong in this commit. However, 
+apple,t6041-aic3 is intentionally not listed here, as there are no 
+multi-die t604x SoCs.
 
-arm64: dts: apple: Add minimal t604x (M4 Pro/Max) device trees
-
-This commit adds device trees for various Apple M4 Pro and M4 Max
-MacBook Pro, Mac mini, and Mac Studio models. It defines the SoC
-characteristics, CPU topology, power management controllers, and
-framebuffer settings.
-
-> diff --git a/arch/arm64/boot/dts/apple/Makefile b/arch/arm64/boot/dts/app=
-le/Makefile
-> index 4f31beeb11ac4..12fc777405b3f 100644
-> --- a/arch/arm64/boot/dts/apple/Makefile
-> +++ b/arch/arm64/boot/dts/apple/Makefile
-> @@ -94,6 +94,12 @@ dtb-$(CONFIG_ARCH_APPLE) +=3D t6031-j516c.dtb
->  dtb-$(CONFIG_ARCH_APPLE) +=3D t6032-j575d.dtb
->  dtb-$(CONFIG_ARCH_APPLE) +=3D t6034-j514m.dtb
->  dtb-$(CONFIG_ARCH_APPLE) +=3D t6034-j516m.dtb
-> +dtb-$(CONFIG_ARCH_APPLE) +=3D t6040-j773s.dtb
-> +dtb-$(CONFIG_ARCH_APPLE) +=3D t6040-j614s.dtb
-> +dtb-$(CONFIG_ARCH_APPLE) +=3D t6040-j616s.dtb
-
-[Severity: Low]
-This isn't a bug, but device tree Makefile entries are typically kept in
-alphabetical order.
-
-Could these entries be resorted so that j614s and j616s come before j773s?
-
-[ ... ]
-
-> diff --git a/arch/arm64/boot/dts/apple/t6040-j773s.dts b/arch/arm64/boot/=
-dts/apple/t6040-j773s.dts
-> new file mode 100644
-> index 0000000000000..751c29f60d9cf
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/apple/t6040-j773s.dts
-[ ... ]
-> +/ {
-> +	model =3D "Apple Mac mini (M4 Pro, 2024)";
-> +	compatible =3D "apple,j773s", "apple,t6040", "apple,arm-platform";
-> +};
-> +
-> +&framebuffer0 {
-> +	power-domains =3D <&ps_dispext0_cpu>;
-> +};
-
-[Severity: High]
-Can this cause the simple-framebuffer driver probe to fail indefinitely?
-
-The ps_dispext0_cpu power domain provider is explicitly marked with
-status =3D "disabled" in t6041-pmgr.dtsi because it is managed by firmware.
-The generic power domain framework will refuse to bind to a disabled
-provider, leaving the system with no visible console output.
-
-Should this use an enabled frontend domain like &ps_dispext0_fe instead?
-
-[ ... ]
-
-> diff --git a/arch/arm64/boot/dts/apple/t6041-j575c.dts b/arch/arm64/boot/=
-dts/apple/t6041-j575c.dts
-> new file mode 100644
-> index 0000000000000..0bd50072e463b
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/apple/t6041-j575c.dts
-[ ... ]
-> +/ {
-> +	model =3D "Apple Mac Studio (M4 Max, 2025)";
-> +	compatible =3D "apple,j575c", "apple,t6041", "apple,arm-platform";
-> +};
-> +
-> +&framebuffer0 {
-> +	power-domains =3D <&ps_disp_cpu>;
-> +};
-
-[Severity: High]
-Similarly, can this prevent the framebuffer from working on the Mac Studio?
-
-The ps_disp_cpu domain is also disabled in t6041-pmgr.dtsi. Using an
-enabled domain like &ps_disp_fe might be needed here to avoid the screen
-staying black.
-
-[ ... ]
-
-> diff --git a/arch/arm64/boot/dts/apple/t6041.dtsi b/arch/arm64/boot/dts/a=
-pple/t6041.dtsi
-> new file mode 100644
-> index 0000000000000..258048167df63
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/apple/t6041.dtsi
-[ ... ]
-> +		cpu_e0: cpu@0 {
-> +			device_type =3D "cpu";
-> +			compatible =3D "apple,brava-e";
-> +			reg =3D <0x0 0x0>;
-> +			cpu-release-addr =3D <0 0>; /* To be filled by loader */
-> +			enable-method =3D "spin-table";
-> +
-> +			d-cache-size =3D <10000>;
-> +			i-cache-size =3D <20000>;
-> +			next-level-cache =3D <&l2_cache_0>;
-> +		};
-
-[Severity: Medium]
-Are these cache sizes intended to be parsed as decimal integers?
-
-Without the 0x prefix, the device tree compiler reads these as exactly
-10,000 bytes and 20,000 bytes. This will cause incorrect reporting of the
-cache topology to userspace and could lead to suboptimal scheduling or
-memory access patterns.
-
-Should these be prefixed with 0x (e.g. <0x10000>) to represent 64 KB and
-128 KB respectively?
-
-[ ... ]
-
-> +		cpu_p00: cpu@10100 {
-> +			device_type =3D "cpu";
-> +			compatible =3D "apple,brava-p";
-> +			reg =3D <0x0 0x10100>;
-> +			cpu-release-addr =3D <0 0>; /* To be filled by loader */
-> +			enable-method =3D "spin-table";
-> +
-> +			d-cache-size =3D <20000>;
-> +			i-cache-size =3D <30000>;
-> +			next-level-cache =3D <&l2_cache_1>;
-> +		};
-
-[Severity: Medium]
-Similar to the efficiency cores above, do these performance core cache sizes
-need a 0x prefix to be parsed correctly as 128 KB and 192 KB?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261010-apple-m4-p=
-ro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev?part=3D10
+>       then:
+>         properties:
+>           '#interrupt-cells':
+>
