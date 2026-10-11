@@ -1,143 +1,129 @@
-Received: from mail-qk2-f8.google.com (mail-qk2-f8.google.com [74.125.230.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037A5229B38
-	for <linux-watchdog@vger.kernel.org>; Sun, 11 Oct 2026 00:43:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FEDF211466
+	for <linux-watchdog@vger.kernel.org>; Sun, 11 Oct 2026 00:58:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791679414; cv=none; b=o+htVWEd0VcCxntQMFuMmELRhL/sHBFGEXtheht8awQ4N/jipVUE4P+xjeWfsszY6f5Nnc7Z0ckSkninzGyexpbbWyA1svOCJik5F3El2Lbsd43ZNzrxOKDpcvI0TZcL0eIU3gzrfj2MIkIzwmIbxY5FVAbauwcJJjTFuha4bhY=
+	t=1791680302; cv=none; b=utG4lfoa2aqqi8ThybmISOV8jnH7U6DihWDhBPeIT3tYTM16Kxug/uOmQ3y88zvMrTrT04v89Fzp9+Cf2LZV3JubVoxkC7DwKYLVyESYhJyd9vZFKGTcBWofH5zw2KtsrzxwLDmcQ0+zK5C29BVR+ET0qblDg95FUFpUyMAJk+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791679414; c=relaxed/simple;
-	bh=jZNt1ZV4wpx5fuswN2QfhrfNVFBBOsFWlIrHoSF9TNg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sm/nLrdM3yxsydDq6Bf/LycmJTOXP/bKs4FXl3nU/dQHoExgOxCkYXWkGG3PUpYgKMoUMtMGtzo6cTDWkDt0BPRlB5Uf3lw9S/0PMtgX6cTMucVC+Ah9Wi1MjwlD30AtvveSD1Rqx3F6PMyBEFpjBkJHRn8L4JhejJ0dHF4BpxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LZ3/wQl0; arc=none smtp.client-ip=74.125.230.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791680302; c=relaxed/simple;
+	bh=sGXV0xu6EotK+3rt33DjuYlVEHeaQ5bWJ6sLAZuDTOI=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=OAYuZlhvQm7OtKE+rf67XaX9nFgstzAfVL1EdzN2huNlPDggZcdcwxUYma/rlxcExHsYcyW0rIx3GCBHXbaErke0O2FlQ1aCn1MdltXKydudZPEaUfrGL1EdCiHuoG402h2uh4shp8Udc8bWIc4nbPNwdZnLW+ukuHYTV3GrOXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kwDRJtO6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LZ3/wQl0"
-Received: by mail-qk2-f8.google.com with SMTP id d75a77b69052e-53524092d9cso10206651cf.1
-        for <linux-watchdog@vger.kernel.org>; Sat, 10 Oct 2026 17:43:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791679411; x=1792284211; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4/sSbLwCPSp4q8xFYrtdK+Sl95iWhYZVxZM9PhMl9mI=;
-        b=LZ3/wQl0nJugaYuwpyt+WKRTt9JQKkH0THmo4gF9fNL28Sph1AeuObDc76li+3h+Wg
-         m9TqcOxEjyNp3gbKr9unZjEe5kRG7RBCqbXz+P6DXDw5dP4MggY4qtyadCuVV7Qa7HnF
-         1EoklueJg4EcHGwOujyazRqkRYMGhwvhK1+2oKXPsq4QEzjAlXZ4cJnkHjVH0VOEHu0t
-         MdZGOMXezvQIZnl3ujK0arIuxdiQYAfkLlzAeZwc+m8+G7I8NbVSHTd5jr8vIrahNLNn
-         MZh6pPb/bZQqHak/eVQtqn8F4z11BaFbmJjBLyobWXQ4J/uL15TLT4j9Xx1nkS8+mSPc
-         9DJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791679411; x=1792284211;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=4/sSbLwCPSp4q8xFYrtdK+Sl95iWhYZVxZM9PhMl9mI=;
-        b=dmqaR2nb7K2jP7GTgNGk8aYP2+QMvGiIegTl+Yfub7CnEB+Dz06R8BQdAvnL9mi6w1
-         vR7V3two24RCxydMZpX9k3AF177diIlkN04oqf3FdTbMXHx1yZCJM8zUiWeuEWgwjp9M
-         AHozp3iMtSB3pAlzuH+jcfg02JzWCwBsoebxZmdDJZKMqhN2sjRoMdCQagE15NLubiru
-         2YCin/5r/QsYytHX7PzEuJe0/cykszibhAJvyxg9K4KMYR6WzfsC4e8NbOeghw6NFxRX
-         i7GPGuR6x2ZYtAOSgE3YS+PLWgzzVBFQzpPILrnL8F3/H4UizJQqVqFllbxvz7e41LFD
-         axnQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzXvA0dn8l5DbICbrg8WDJ7Akn2EwgeLOLHtsKQDhE/4fbLshJSH97gmOYF+tOiKu1x5mUz8eRKZIpePQemvA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJOAGYdmOh2KtOG4uM9YMNvqYY68wtVvYcngr2Tdox0lUMUOoP2
-	R9o3FL2Vpw2KVdkfnCP7ZvawDsqNOjgrjL2bEZ5pLzatnHInEUOwghph
-X-Gm-Gg: AYBFou0nJwj3s57PYOrHw85Ki0wGThZ84dCPEpcVhCcFgY/Ppo5owObAlsRA79GrGg0
-	udGxjpsseSyzAzMh2hCekKCgn8/1rh327+gHN+WUqx03bDzc35ab5MTYyMz6O7veN2w5eIhELK3
-	cnK6pHDGskN9fffW1rB3iJ1vMhBZWQyOfcz9VeriVvPC8xdaKqxkmKbfmmh+GwKJXwAkmH/J7aN
-	uMmISVRMZYB2AdfiygXBBveyUE7B7FESJ34cwvxGyj0IM0WhCdCph7vk2po/1eMI75LJRpGjzhJ
-	lceZKzvhAvfhqHJGi94aRWUHlHypR2UKK4XOV72zJNO06cOytTBD3a9Ns2vcZKxaVSeYjytVBBa
-	NhyhDGOxe3SNkxP5xBz+8pKovpWV/gsUQ5mrponEcRjEWHJ4Skb8eeWuJ/jrmjx+fBNQQSOHGE0
-	fhJOWnkYQafBqeyFunsovYlAk8vAvPMQx35khY85HvW8BL9XpevI317avMrd5lByYUhDw=
-X-Received: by 2002:ac8:5dcb:0:b0:533:79cf:18ea with SMTP id d75a77b69052e-5359fb88606mr102144591cf.57.1791679410806;
-        Sat, 10 Oct 2026 17:43:30 -0700 (PDT)
-Received: from omarchy ([2601:804:8780:3df1:6ff:277e:31c7:ac13])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5359b7dd1a0sm49229871cf.27.2026.10.10.17.43.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2026 17:43:30 -0700 (PDT)
-From: zoan37 <agentzoan@gmail.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Freddy Hsin <freddy.hsin@mediatek.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: mtk_wdt: Stop a running watchdog over system sleep even if not opened
-Date: Sat, 10 Oct 2026 20:43:22 -0400
-Message-ID: <20261011004322.1118027-1-agentzoan@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kwDRJtO6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B6D91F000FF;
+	Sun, 11 Oct 2026 00:58:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791680300;
+	bh=yE+bXEqeqTCwSYEYsB7lAJLV49JB/hZyBuW4eizCv98=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kwDRJtO6L5YkAgpWAxRrJL0DAg+Km1vMr1wCGtFWWnQI5LMdU+hm4qUTASQMn4knH
+	 81cuqOUFZftFkpPtg6J8kys5SRrAbweuo3UdhjoQP5LSu3zDyLf7gwOxofbpLCoDMz
+	 8jkRADyR7LhqeuDgt6NVOs3eWQ1H79Ga7gxSIQny1241CD1uAc0RCGyf1IODGcd4S7
+	 ip0MPCZDm3MMsMy757gsFDND+MMQsQ+TDRJM1gIKM9A9VsvniCsTK6ul7WWQhdNy7N
+	 wZZcKPKYNIkTW0PNroh/ak1mw9LCB/tza/UslzGOA03eQP9Mr0WZ6cDXGmmV4rV/7B
+	 ofA0sNxO93NWw==
+Message-ID: <sashiko-outbox-166954@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: mtk_wdt: Stop a running watchdog over system
+ sleep even if not opened
+Reply-To: sashiko-reviews@lists.linux.dev
+To: zoan37 <agentzoan@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20261011004322.1118027-1-agentzoan@gmail.com>
+References: <20261011004322.1118027-1-agentzoan@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 11 Oct 2026 00:58:20 +0000
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-mtk_wdt_suspend() and mtk_wdt_resume() only stop and restart the
-watchdog when it is active, that is, when userspace has opened it.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] watchdog: mtk_wdt: background ping worker accesses suspended device
+--
 
-But a watchdog that the bootloader left enabled stays enabled at probe,
-marked WDOG_HW_RUNNING, and the watchdog core pings it until userspace
-takes over; that has been the case since
-commit bbece05c0d3a ("watchdog: mtk_wdt: Remove mtk_wdt_stop() in probe()
-to prevent the system freeze and it doesn't reboot by watchdog problem").
-If the system suspends before userspace opens the device, or userspace
-never does, nothing stops the watchdog and nothing pings it while the
-system sleeps, so it resets the system one timeout (31 s by default)
-into the sleep.
+commit 86c1d5dc273343e1ae7c163f9a06c48451758c35
+Author: zoan37 <agentzoan@gmail.com>
 
-Also stop it on suspend and restart it on resume when it is running in
-hardware, like sp805_wdt does.
+watchdog: mtk_wdt: Stop a running watchdog over system sleep even if not op=
+ened
 
-Fixes: bbece05c0d3a ("watchdog: mtk_wdt: Remove mtk_wdt_stop() in probe() to prevent the system freeze and it doesn't reboot by watchdog problem")
-Assisted-by: LLM
-Signed-off-by: zoan37 <agentzoan@gmail.com>
----
+This commit updates mtk_wdt_suspend() and mtk_wdt_resume() to also stop and
+restart the watchdog when it is running in hardware but hasn't been opened
+by userspace yet.
 
-Notes:
-    Testing: on an MT8189 Chromebook (next-20261008 plus MT8189 support)
-    whose firmware leaves the watchdog off; a local module parameter starts
-    it in probe the same way a bootloader-enabled watchdog is picked up
-    (WDOG_HW_RUNNING set, fed by the watchdog core, nobody opening
-    /dev/watchdog). Without this patch the board reset about 30 s into
-    s2idle; with it a 10-minute s2idle sleep came back without a reset.
-    Not tested with a watchdog actually left enabled by a bootloader.
-    Compile-tested (W=1) on next-20261008.
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index 1630ab65d5932..ff72e0fb11541 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -572,7 +572,8 @@ static int mtk_wdt_suspend(struct device *dev)
+>  {
+>  	struct mtk_wdt_dev *mtk_wdt =3D dev_get_drvdata(dev);
+> =20
+> -	if (watchdog_active(&mtk_wdt->wdt_dev))
+> +	if (watchdog_active(&mtk_wdt->wdt_dev) ||
+> +	    watchdog_hw_running(&mtk_wdt->wdt_dev))
+>  		mtk_wdt_stop(&mtk_wdt->wdt_dev);
 
- drivers/watchdog/mtk_wdt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+[Severity: High]
+Does stopping the hardware here leave the software ping worker in an
+inconsistent state?
 
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 1630ab65d593..ff72e0fb1154 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -572,7 +572,8 @@ static int mtk_wdt_suspend(struct device *dev)
- {
- 	struct mtk_wdt_dev *mtk_wdt = dev_get_drvdata(dev);
- 
--	if (watchdog_active(&mtk_wdt->wdt_dev))
-+	if (watchdog_active(&mtk_wdt->wdt_dev) ||
-+	    watchdog_hw_running(&mtk_wdt->wdt_dev))
- 		mtk_wdt_stop(&mtk_wdt->wdt_dev);
- 
- 	return 0;
-@@ -582,7 +583,8 @@ static int mtk_wdt_resume(struct device *dev)
- {
- 	struct mtk_wdt_dev *mtk_wdt = dev_get_drvdata(dev);
- 
--	if (watchdog_active(&mtk_wdt->wdt_dev)) {
-+	if (watchdog_active(&mtk_wdt->wdt_dev) ||
-+	    watchdog_hw_running(&mtk_wdt->wdt_dev)) {
- 		mtk_wdt_start(&mtk_wdt->wdt_dev);
- 		mtk_wdt_ping(&mtk_wdt->wdt_dev);
- 	}
+The watchdog core's PM notifier is only registered if the driver explicitly
+opts-in by setting the WDOG_NO_PING_ON_SUSPEND flag:
 
-base-commit: aac26bee2287c88af5be5a5ff96d783b19a28790
--- 
-2.43.0
+drivers/watchdog/watchdog_core.c:___watchdog_register_device() {
+...
+	if (test_bit(WDOG_NO_PING_ON_SUSPEND, &wdd->status)) {
+		wdd->pm_nb.notifier_call =3D watchdog_pm_notifier;
+...
+}
 
+Because mtk_wdt doesn't set this flag, watchdog_dev_suspend() is never call=
+ed
+to cancel the hrtimer and kthread_work for the background ping worker:
+
+drivers/watchdog/watchdog_dev.c:watchdog_dev_suspend() {
+...
+	hrtimer_cancel(&wd_data->timer);
+	kthread_cancel_work_sync(&wd_data->work);
+...
+}
+
+During sleep, the hrtimer can expire and be deferred. Upon wake-up, timekee=
+ping
+resumes in syscore_resume and the overdue hrtimer fires in hardirq context,
+waking the watchdogd thread.
+
+If watchdogd preempts the suspend thread and executes mtk_wdt_ping() before
+mtk_wdt_resume() runs, it will attempt to access device registers:
+
+drivers/watchdog/mtk_wdt.c:mtk_wdt_ping() {
+...
+	iowrite32(WDT_RST_RELOAD, wdt_base + WDT_RST);
+...
+}
+
+If the device's bus clocks or power domains are gated during suspend, this
+early MMIO access can trigger a fatal bus fault. Even if clocks are always-=
+on,
+this causes the worker to ping a watchdog that the driver explicitly stoppe=
+d.
+
+Should WDOG_NO_PING_ON_SUSPEND be set in the driver to ensure the watchdog =
+core
+cancels the ping worker during suspend?
+
+> =20
+>  	return 0;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011004322.1118=
+027-1-agentzoan@gmail.com?part=3D1
