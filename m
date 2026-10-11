@@ -1,74 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3325A3451C6;
-	Sun, 11 Oct 2026 05:31:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C222833B6E8
+	for <linux-watchdog@vger.kernel.org>; Sun, 11 Oct 2026 20:24:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791696666; cv=none; b=UXSMULH2Betg9oXMkRO8XcmgTntheWE3CiKtwnJAbU4CW8eO3ob5WcsaXk5N5+NABO+rup5Uhyt1qVFLhiDgxh2zjAXk1RiK8wuGRiFmltlsrLjuzxGpyJJI7fSJS4OATRvIX4HEQ2VzxUsVGVwPSSc67x0z78wzUVW1jH1LR8s=
+	t=1791750255; cv=none; b=t12zyvT7EOiwwkT9CL3PvxUnGQ8iJ7Fa6xkGFt3wdTV8OfxieOylwHwXpgvemvTWP+SS5gsR15syVeG4KtN2kYm6nkHfuW9kBikyiJsYhQ/nBjkD25sCvaM+xzpxQpCD6YovfGhYudBWAhIc7Rd0XWKDRAo+pveNb2wObT+NVlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791696666; c=relaxed/simple;
-	bh=mmkOBjydK8X1MPZjQ+oe1RAsEXoznMVWMyZLqangTok=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Dh3RavRJ5W4undoLaIumg24/FfKCKsRwSfHvlBnJYU3h/55s48SHX1nRe/12q670L00LzFNui5FnNxPBWirBnbT+KbILjstgG9y/BI3kfEbWQj2phovSV/mJ1sFvf3BR+B6F27E51lT31gueg4/qMQdpFWGJaG2qlbtUYmTwQNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SUrpTlgb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791750255; c=relaxed/simple;
+	bh=OsRD+F+OLtUmpRSHXSpv9UfMmwgcSUQb/xDcJZ0DHJo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=t4HhAJTDxgMaded1PiGU/rwpTQTrLA/ZO37EX5YnOcGw2Uqo5quS3XuxCiAh2Bn+9B4tqhLm5vcMWJgJSaA02WKNsPZZ1NaWgUwXWvFitdepfgkyfFXkxt2E1SUSpJF5QvY6KPw422OvcRY6xmgFrotbOJlYubJycjVjJcWUEgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bDwkVR+M; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SUrpTlgb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7794E1F0089B;
-	Sun, 11 Oct 2026 05:31:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bDwkVR+M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B80F1F008A5
+	for <linux-watchdog@vger.kernel.org>; Sun, 11 Oct 2026 20:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791696664;
-	bh=9UINK8Ylgw2POp8mtSoHe0NZ1kXpFn45FN0OmGDfuuM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SUrpTlgbVIRHiOgX1oK0kAIDCT9ok7g9D7ot6DGNaGdldQ8dMwoTMyWHEUW2Zr3tl
-	 LjZzh+CTCCQZ8GMe0bNiKhEoLjwAnEIwx03ETzpI2XZxb2IwwvsjPmcFjrY/G6BLIF
-	 YIA+YfdQBEc2ODULd44o4sdIPv6ybChZsiy4J8Z8z+upgMuEY+uWJ4Rd/4ZYTnJHyN
-	 KLCaa5ih8LbhAKDSYc4ApgYFj09VtRR4/03ihFnO1vkNj6uoUpYwvpXqmSpjFY2Nnp
-	 COgoXU/tRd8qX2I5qH6NahXgFm63ClsTAtomQ38W23lWRw/UF21aWREG7xRJAe8IvZ
-	 Fi+6ju0AiZZJw==
-Date: Sun, 11 Oct 2026 07:30:59 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: a0282524688@gmail.com
-Cc: lee@kernel.org, Ming Yu <tmyu0@nuvoton.com>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Marc Kleine-Budde <mkl@pengutronix.de>, 
-	Vincent Mailhol <mailhol@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH v8 06/13] mfd: nct6694: Move module type macros to shared
- header
-Message-ID: <asse8LZ76649tShM@zenone.zhora.eu>
-References: <20261007092102.3768818-1-a0282524688@gmail.com>
- <20261007092102.3768818-7-a0282524688@gmail.com>
+	s=k20260515; t=1791750254;
+	bh=OsRD+F+OLtUmpRSHXSpv9UfMmwgcSUQb/xDcJZ0DHJo=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=bDwkVR+Mng9JjATCiFJWqiEpR38DGPgfTc3U+ctxg8/zcUPYe6TqXRRdyU3ye9pMq
+	 7khAoC94ueck2dwdL60uK4E66jZOkU2aqI2OXJq7u1JJAqaw9VxhBAj0gY5spb92cW
+	 +kZv5+LK8cA2iUxOwjmkOQc3O42BTz05jz5D9LL+Y5TLkTdBtzOt+1yx64SZqy9GHJ
+	 d0k1ADaHIOl5pGP5HGXGaq7W+xMmorZG1E7eT9Ws81zMZExmRZp7PPjtYaLFGZKJu5
+	 BC2NFnqcI9Jxzg+QNaCHVJ009FaM4bblt/P0TJik5hwb/wsdZio2QQe9VyaQGnikLr
+	 f/VK0uEoxEFvA==
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5bcb2ecebb4so909303e87.2
+        for <linux-watchdog@vger.kernel.org>; Sun, 11 Oct 2026 13:24:14 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBzUwoyKIulzsSIx4GvBwW2Ef+K+w7LmiTjvzmzHI2hEzlF5bX1tBOJjtqREdjN1qAdnYhqub8M9li2DxDTomQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKOZcAmhPDQILR4LijpdewdQkkuW64aOUQNuxX53u/YcW4qBAl9
+	QKLJrFJJM9KgjpEFP8GW0HqggEqMJAmtFcP4efhV2HcfNBfjfPlmDbX1TewWd/Poz6FeQPzeetQ
+	oycTrMliRunZjdofWl97CFISbiaHbhIM=
+X-Received: by 2002:a05:6512:118d:b0:5b8:bc5e:b570 with SMTP id
+ 2adb3069b0e04-5bcde8c13ffmr2228437e87.40.1791750253189; Sun, 11 Oct 2026
+ 13:24:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261007092102.3768818-7-a0282524688@gmail.com>
+References: <20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev>
+ <20261010-apple-m4-pro-max-initial-devicetrees-v1-7-781fb3f2d9f6@cyberchaos.dev>
+In-Reply-To: <20261010-apple-m4-pro-max-initial-devicetrees-v1-7-781fb3f2d9f6@cyberchaos.dev>
+From: Linus Walleij <linusw@kernel.org>
+Date: Sun, 11 Oct 2026 22:23:58 +0200
+X-Gmail-Original-Message-ID: <CAD++jLk+2iUkJfYQckV4G79JEErH77_mOqwGaZ6TyKGawmnFLw@mail.gmail.com>
+X-Gm-Features: AclHuK9cHC-ny7H2OT1BGwCBFcKBYkyqMbq7PnfdAqUY1dh82EQN4ca3xsuP3Cs
+Message-ID: <CAD++jLk+2iUkJfYQckV4G79JEErH77_mOqwGaZ6TyKGawmnFLw@mail.gmail.com>
+Subject: Re: [PATCH 07/10] dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible
+To: Yureka Lilian <yureka@cyberchaos.dev>
+Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
+	Lorenzo Pieralisi <lpieralisi@kernel.org>, Hector Martin <marcan@marcan.st>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
+	Sasha Finkelstein <k@chaosmail.tech>, Mark Kettenis <kettenis@openbsd.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pwm@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Ming,
+On Sat, Oct 10, 2026 at 7:00=E2=80=AFPM Yureka Lilian <yureka@cyberchaos.de=
+v> wrote:
 
-On Wed, Oct 07, 2026 at 05:20:55PM +0800, a0282524688@gmail.com wrote:
-> From: Ming Yu <a0282524688@gmail.com>
-> 
-> Each sub-device driver defines the module type used by its own
-> commands. The upcoming HIF transport also needs to recognise
-> NCT6694_RPT_MOD, as report accesses are served from a separate
-> register space rather than through the command mailbox.
-> 
-> Move all module types into the shared header so that the transports
-> and the sub-device drivers use a single set of definitions.
-> 
-> No functional change.
-> 
-> Signed-off-by: Ming Yu <a0282524688@gmail.com>
+> The pin controller on the Apple Silicon T604x (M4 Pro/Max) SoCs is
+> compatible with t8103. Add "apple,t6041-pinctrl" as SoC specific
+> compatible under "apple,t8103-pinctrl".
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+No Signed-off-by?
 
-Thanks,
-Andi
+Yours,
+Linus Walleij
