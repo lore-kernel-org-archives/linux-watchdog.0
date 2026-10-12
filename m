@@ -1,114 +1,218 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED0804C10DA;
-	Mon, 12 Oct 2026 17:32:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 700A034388F;
+	Mon, 12 Oct 2026 17:46:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791826379; cv=none; b=ERjyIXu99/HByB8L5+9C6JZCV59qzeAJeNH+TMftvjPFo9lJBEuT4AnpSsWqpKk6XVvkc8F6Jrk0Ip1MsIzEXBuue+bDxXnh/UcEVeGQXpWlJ2O+lEwKdftzG4McMXR8RJFaX6adyz4A2Fkzedhvj9qydy1noWuoKeWLw5FUIJ8=
+	t=1791827187; cv=none; b=qdUIuwcYcNDIbDmbTaWr+lIC84eOopr7DH21KjTFNKOsH0w5d9HnZhk+HFW6KU+KcCFaTwMdlVhOrOBO5LkNakyFzb4HsAqTdpZXUzZGwzp1aimLXd9LFGEZLo849fTptRgadxdwAIzpSMc319KrymbXuZhAcRR8sPtWP6/t+d8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791826379; c=relaxed/simple;
-	bh=fH9Kfvz9BxN/X6lf8vavcMwm5AFooycimNuX17Ck7qg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hWlsQRpEFBuyBbDbegFMgtRP2y2rivIBZRc0cJVtSVeA3HJ7Iy2DsUWFEuYwxs4vPWCOINqG+dVBz8GuMeMpQUe8pW8kUEsLFy17JzO3DPVZVdaC0kxeTwHQ5uDob9qhun/XA55Q10CGbqyh4qUv4EmLTucgNGMBKjWpUFC8zsg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DrdPlbVp; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1791827187; c=relaxed/simple;
+	bh=jrN1RemX+8+uqo2me2BEKWlDYuExUjFkMNEklYa5e40=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=hQWPaWqEdtDFGm6S0qfjP6ulNU8C34v+F+oytjXmVN2FFWYMFnqtwzQ3KdVUpVq0R+hIdl4Fl+4CoZfhfNEcl6Djh5lpQVjhQm4CmpXy2w8MmzP2iE7l2lu9S6jc9mv8jD8MhR6IBlvtSw29o4O4+rTby+uzMp9cwx/UBXgQikg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HKENnRa8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DrdPlbVp"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C4F8FC2BD01;
-	Mon, 12 Oct 2026 17:32:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791826378;
-	bh=fH9Kfvz9BxN/X6lf8vavcMwm5AFooycimNuX17Ck7qg=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=DrdPlbVpK9xyvtpJqjZRGZmTtPV9RAy7bnHE6Z+LkPPcfflC4CmOHfnOpMXKeJOfM
-	 jOrjq5A2NdHa+lTNtv/MZK4mjaUWk0cnEkCjlak2TSJd0gpUonJIKq0b0tlm6j0wMO
-	 qpo4RkeS8tT8RjgKHvBfXr0PInwo1H/JQi3Zn/eFQgVCPAoR5czCyHf7BRq8PMrUsc
-	 lZ0RWnpAi0iWgcEeAU/8JUSYo9zYDoPATYtpBdOmmLt+fhels0bCxqgQgmyZiMlwmz
-	 gc6dnMwd1e6W3tc8wW4abdt5gaiJA1fxioX+dGxuH8WGPwzOsazERZsM6AZ5zw31GO
-	 UQKKULMue/2OQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACCE4CA9EDE;
-	Mon, 12 Oct 2026 17:32:58 +0000 (UTC)
-From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Mon, 12 Oct 2026 20:33:05 +0300
-Subject: [PATCH 10/11] ARM: multi_v7_defconfig: Enable Cortina Systems
- CS75xx GPIO, I2C and TWD watchdog
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HKENnRa8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC6671F008A1;
+	Mon, 12 Oct 2026 17:46:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791827186;
+	bh=IRuRmJvzKxIb799RocDcW4Ik8w8yn37nxCQpCnAJshg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HKENnRa8yxWRcfONi/JF/ZZuXV8tGguuzrb3poOLgxgb1Hz7G2GWGFKv7JmsJqSEv
+	 yF8hPaxHLXQ4UZiBYQYyBGYkvUPjgSAKGHmCfMiw92o2K3IlsdbjRpDlMvlEl/LYUH
+	 GU9OZXu6doTSPkPThlhXesQuAoRaqsba1NCwEprIdpzgMeFZeNIK8SUdW/tgp1lOsz
+	 /llvoe8/e56RxoyMb7YYZSSx6/1S0K/6SdlRaP4nJL7RtPZI/myfTCkImTrg9l9/xU
+	 Z6weoY5Bfh/CCoUtFUAOgS62zUZwKlVY7RcwFb747uxz6hjRPEb1rOvppj2FyLA2pQ
+	 HonYeJR2zU5bQ==
+Message-ID: <sashiko-outbox-168487@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 06/11] i2c: Add Cortina Systems CS75xx I2C controller
+ driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fil Dunsky" <filipp.dunsky@gmail.com>
+Cc: robh@kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20261012-b4-cs75xx-s2-v1-6-8a7641b7b79c@gmail.com>
+References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
+ <20261012-b4-cs75xx-s2-v1-6-8a7641b7b79c@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 12 Oct 2026 17:46:25 +0000
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261012-b4-cs75xx-s2-v1-10-8a7641b7b79c@gmail.com>
-References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
-In-Reply-To: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
-To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
- Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Russell King <linux@armlinux.org.uk>, 
- Arnd Bergmann <arnd@arndb.de>, Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
- linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
- Fil Dunsky <filipp.dunsky@gmail.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791826375; l=1224;
- i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=MUeH/IRw5kyuG0JD1ac38OtCmIzMZqOUsJQbjBgyrHs=;
- b=SNf8wEToz4B2uynbNl9qa7UzIlGMp+SMQVfnf+94Fi+2mxpSi4lBHy0gcQ5GKXY7oCcGjAMFA
- N8mizfMeqI0CSOBviXEUbceoF5rj6Q1ZrwGpRiqkbxAJHp64U7Sm/qy
-X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
- pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
-X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
- auth_id=1085
-X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
-Reply-To: filipp.dunsky@gmail.com
 
-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
+- [High] i2c: ignored NACK on final byte of write transfer
+- [High] i2c: hardware busy timeout ignored
+- [High] i2c: cs75xx: race between STOP completion IRQ and next transfer
+- [High] i2c: cs75xx: ignore NACK on the last byte of a write message
+- [Medium] i2c: interrupts permanently disabled after timeout reset
+- [Medium] i2c: cs75xx: ignore NACK on the last byte of a write message
+--
 
-Enable the GPIO and I2C drivers of the Cortina Systems CS75xx SoCs and
-the ARM TWD watchdog driver, which is needed on the Securifi Almond+
-because its bootloader starts the watchdog.
+commit 4bef5e4f9afb2c145bb402508760c2866f3f5a51
+Author: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
----
- arch/arm/configs/multi_v7_defconfig | 3 +++
- 1 file changed, 3 insertions(+)
+i2c: Add Cortina Systems CS75xx I2C controller driver
 
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index 23f144359..9a161f8bd 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -423,6 +423,7 @@ CONFIG_I2C_ASPEED=m
- CONFIG_I2C_AT91=m
- CONFIG_I2C_BCM2835=y
- CONFIG_I2C_CADENCE=y
-+CONFIG_I2C_CS75XX=y
- CONFIG_I2C_DAVINCI=y
- CONFIG_I2C_DESIGNWARE_CORE=y
- CONFIG_I2C_DIGICOLOR=m
-@@ -492,6 +493,7 @@ CONFIG_PINCTRL_QCOM_SSBI_PMIC=y
- CONFIG_PINCTRL_RZA2=y
- CONFIG_PINCTRL_RZN1=y
- CONFIG_GPIO_ASPEED_SGPIO=y
-+CONFIG_GPIO_CS75XX=y
- CONFIG_GPIO_DAVINCI=y
- CONFIG_GPIO_DWAPB=y
- CONFIG_GPIO_EM=y
-@@ -568,6 +570,7 @@ CONFIG_UNIPHIER_THERMAL=y
- CONFIG_DA9063_WATCHDOG=m
- CONFIG_XILINX_WATCHDOG=y
- CONFIG_ARM_SP805_WATCHDOG=y
-+CONFIG_ARM_TWD_WATCHDOG=y
- CONFIG_AT91SAM9X_WATCHDOG=y
- CONFIG_SAMA5D4_WATCHDOG=y
- CONFIG_S3C2410_WATCHDOG=m
+The I2C ("Bi-Wire") controller of the Cortina Systems CS75xx SoCs transfers
+one byte per command, and raises an interrupt when a command has completed.
+Messages are sent with a repeated start between them and a stop after the
+last one. Arbitration loss is reported as -EAGAIN and retried by the core.
 
--- 
-2.53.0
+> diff --git a/drivers/i2c/busses/i2c-cs75xx.c b/drivers/i2c/busses/i2c-cs7=
+5xx.c
+> index 0000000000000..2d40f099d6715
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-cs75xx.c
+[ ... ]
+> +static void cs75xx_i2c_process(struct cs75xx_i2c *i2c, u32 ack)
+> +{
+> +	struct i2c_msg *msg =3D i2c->msg;
+> +
+> +	if (ack & CS75XX_I2C_ACK_AL) {
+> +		writel(CS75XX_I2C_CTRL_STOP, i2c->base + CS75XX_I2C_CTRL);
+> +		cs75xx_i2c_finish(i2c, -EAGAIN);
+> +		return;
+> +	}
+> +
+> +	switch (i2c->state) {
+> +	case CS75XX_I2C_ADDR:
+[ ... ]
+> +	case CS75XX_I2C_WRITE:
+> +		if (i2c->pos =3D=3D msg->len) {
+> +			cs75xx_i2c_finish(i2c, 0);
+> +			return;
+> +		}
+> +		if (ack & CS75XX_I2C_ACK_NACK) {
 
+[Severity: High]
+Does this early return ignore the NACK check for the last byte?
 
+Since i2c->pos is incremented immediately after writing a byte to the TX
+register, it equals msg->len during the interrupt that signals completion of
+the final byte. If the target device NACKs the last byte, will the driver
+falsely report a successful transfer instead of an error?
+
+> +			writel(CS75XX_I2C_CTRL_STOP, i2c->base + CS75XX_I2C_CTRL);
+> +			cs75xx_i2c_finish(i2c, -EIO);
+> +			return;
+> +		}
+> +		cs75xx_i2c_next_byte(i2c);
+> +		break;
+[ ... ]
+> +static irqreturn_t cs75xx_i2c_isr(int irq, void *dev_id)
+> +{
+> +	struct cs75xx_i2c *i2c =3D dev_id;
+> +	u32 ctrl, ack;
+> +
+> +	if (!(readl(i2c->base + CS75XX_I2C_INT) & CS75XX_I2C_INT_DONE))
+> +		return IRQ_NONE;
+> +
+> +	writel(CS75XX_I2C_INT_DONE, i2c->base + CS75XX_I2C_INT);
+> +
+> +	/* The done flag is cleared by writing it back */
+> +	ctrl =3D readl(i2c->base + CS75XX_I2C_CTRL);
+> +	writel(ctrl, i2c->base + CS75XX_I2C_CTRL);
+> +
+> +	ack =3D readl(i2c->base + CS75XX_I2C_ACK);
+> +
+> +	spin_lock(&i2c->lock);
+
+[Severity: High]
+Can the STOP completion interrupt from an error in the previous transfer
+race with the next transfer?
+
+If a transfer fails (e.g. arbitration loss) and the ISR commands a STOP, the
+waiting thread wakes up and the I2C core immediately retries. The thread
+polls for !BUSY in cs75xx_i2c_xfer(), which becomes true exactly when the
+STOP completes. The STOP completion simultaneously raises INT_DONE.
+
+The thread proceeds, sets the state to ADDR, starts the new transfer, and
+unlocks. Concurrently, the STOP completion ISR executes on another CPU,
+reads the stale ACK locklessly, and spins on the lock. When the thread
+unlocks, the ISR processes the stale ACK by incorrectly calling
+cs75xx_i2c_next_byte(), which overrides the ADDR phase with a WRITE.
+
+Does reading the ACK register locklessly before spin_lock() allow this stale
+state to corrupt the newly started transfer?
+
+> +	cs75xx_i2c_process(i2c, ack);
+> +	spin_unlock(&i2c->lock);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int cs75xx_i2c_xfer_msg(struct cs75xx_i2c *i2c, struct i2c_msg *m=
+sg,
+> +			       bool last)
+> +{
+[ ... ]
+> +	time_left =3D wait_for_completion_timeout(&i2c->done, i2c->adap.timeout=
+);
+> +	if (!time_left) {
+> +		spin_lock_irq(&i2c->lock);
+> +		i2c->state =3D CS75XX_I2C_IDLE;
+> +		spin_unlock_irq(&i2c->lock);
+> +		dev_err(i2c->dev, "transfer timed out, resetting the controller\n");
+> +		cs75xx_i2c_hw_init(i2c);
+
+[Severity: Medium]
+Will this hardware reset leave interrupts permanently disabled?
+
+In cs75xx_i2c_hw_init(), the enable bit is cleared which performs a hardware
+reset:
+
+	if (readl(i2c->base + CS75XX_I2C_CFG) & CS75XX_I2C_CFG_EN) {
+		writel(0, i2c->base + CS75XX_I2C_CFG);
+		usleep_range(5000, 10000);
+	}
+
+Since cs75xx_i2c_xfer_msg() calls cs75xx_i2c_hw_init() on a timeout but does
+not explicitly restore the interrupt enable (IE) register, will all
+subsequent transfers time out as well?
+
+> +		return -ETIMEDOUT;
+> +	}
+> +
+> +	return i2c->err;
+> +}
+> +
+> +static int cs75xx_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msg=
+s,
+> +			   int num)
+> +{
+> +	struct cs75xx_i2c *i2c =3D i2c_get_adapdata(adap);
+> +	u32 val;
+> +	int i, ret;
+> +
+> +	/*
+> +	 * Let the stop condition of the previous transfer complete and drop
+> +	 * its interrupt, so that it is not taken for the next address phase.
+> +	 */
+> +	if (readl_poll_timeout(i2c->base + CS75XX_I2C_ACK, val,
+> +			       !(val & CS75XX_I2C_ACK_BUSY), 10, 1000))
+> +		dev_dbg(i2c->dev, "bus still busy\n");
+
+[Severity: High]
+If the controller remains busy after the timeout, should the error code be
+returned instead of proceeding?
+
+By ignoring the return value of readl_poll_timeout(), the execution
+continues and writes a START command to the controller while it is still
+actively asserting BUSY. Can this violate the I2C protocol and cause
+undefined hardware behavior?
+
+> +	writel(CS75XX_I2C_INT_DONE, i2c->base + CS75XX_I2C_INT);
+> +
+> +	for (i =3D 0; i < num; i++) {
+> +		ret =3D cs75xx_i2c_xfer_msg(i2c, &msgs[i], i =3D=3D num - 1);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012-b4-cs75xx-=
+s2-v1-0-8a7641b7b79c@gmail.com?part=3D6
