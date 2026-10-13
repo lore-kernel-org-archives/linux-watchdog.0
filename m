@@ -1,114 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72D62483830;
-	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6557C17C203;
+	Tue, 13 Oct 2026 03:53:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791863221; cv=none; b=T3rw6fF5btI+kN9q7YKbrdZHycuZtnc5zJE4q5nYrJLRX0l3Ij7IdEgLLD/8KiR3xn9f7DZbXPqinv8sd1qbSl61ZK5+GSpUYvgTLFHQtDW+SBFFQnvEfjXN3K3DzbnOzeAqdNQuS+CFomn7YKbUlbIpcPharQnjXse/4PzFkhw=
+	t=1791863611; cv=none; b=HFSh3goHN2KClV8C5F0c0YNI4yFiD1EelumEarY8t+0ZrRbchWY1NGtJy9ljBmB9ggJqnYqFYf1DqM6eW7FX7ErNBuUA6JeAcvRc3Josqo9NGwZbv6og/HxgZiPiGV+Rphtd/PaoPCECZcRbE4Jns5juX4q9que1bIi4/Cer9Oo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791863221; c=relaxed/simple;
-	bh=fH9Kfvz9BxN/X6lf8vavcMwm5AFooycimNuX17Ck7qg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mFXBmGwNANaUgTxn4CgB7T0V30Hi+jL/B0sPyW1SOUaYKBnsLwK+azF4GpJ35+9qJ6ITwas2Ap3sX6Cs7o/arvdj8oZg81pLrvpJdePFtCx1/C48OYqwhA5vcIZMq5CJa8u1nGmJbm8hwlti814i+raudaKl4sODXb2jua0mXo4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WpWJ2k66; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1791863611; c=relaxed/simple;
+	bh=TTRrJyvNRxboYSTveUZKgra85aWVgFBrgOzTrzAHxZA=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=gXc8dPNzzjgQvJHefgeoVW5ZXIoXzsm0lhoubbwYZaaf6Y+4LLr6ZVfnJN0lfm7882JTg1SAEWMHF2Uu7WPMmzINz+809/I9gralux93YTrgrBz230NiB3EkN6skDmiZqPuPUlkx+e3IJOUBKsT+iGiSOiXMc4D0pFPnTarFPxE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P3a/OiHm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WpWJ2k66"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 40CC5C2BD04;
-	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791863221;
-	bh=fH9Kfvz9BxN/X6lf8vavcMwm5AFooycimNuX17Ck7qg=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=WpWJ2k66HKa1NPrvoR0ddCRW7UHJzHQFIuEmYl0hf1/tLaaVmiofYT7323NkyKKhh
-	 SLWrWljKSPi/g3Eiv1NmqzebWise7uCVP8uGyph+3lAXWWU370Fkf0J09zcTvfliot
-	 xu33bwUehdozUi2nc8Aj9a99CCnt1zsWxmqTRQHvV0KY/tbEbUTFQoo4Ifp57r5e44
-	 C0XzSzFuCE2qfzbODbWvdT0sGszI10jUSjelkfPiIoZKmwFAi+rlQmwEyk//jCdCFB
-	 oa6rKRvkv6FmSNlGTzTzxxB8TPeltZP2IYmB5EefS6kyLM0bBRYJOSHSVWCNxod8mB
-	 mZeO18QHDzGTQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F6C7CC6B0A;
-	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
-From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 13 Oct 2026 06:47:08 +0300
-Subject: [PATCH v2 10/11] ARM: multi_v7_defconfig: Enable Cortina Systems
- CS75xx GPIO, I2C and TWD watchdog
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P3a/OiHm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D861F000FF;
+	Tue, 13 Oct 2026 03:53:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791863609;
+	bh=ZEsPUt9NUA1+6sDpR2dTcp1X1EqYf9fRn0HWRVGUbq4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=P3a/OiHmf2Dd8M9vRzSJYS6ARiGMaOkSDq0Ph2DPDy7tqxtug3XLpPAAMLBe441DX
+	 1eDCMmI8pkf/ulcPc19+1UeAkTrSswcBlKI1BBt/HY1Db6GPpGu+cwfZhgx77lR0XW
+	 +37wpf6vP5Zfe6as6z6cbK9/1nCAqmsDj7O4RKGLgtJk5qrnQl/Fl9816/70RzXlmG
+	 C1kMq3BXuf0OarwcRjs+QSYiUUzTI3uj0ONAY7SxNAgSF1KMt/M1Jeko/ihMAu42FH
+	 NZc8XR9uWaK5qAOyO/Q9Y61EnBwIqG2LNhW3Tp07EhdnCgY4YMKoeMcCbFwL/ZKkue
+	 HircDZnsS4vqQ==
+Message-ID: <sashiko-outbox-168930@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 03/11] dt-bindings: gpio: Add Cortina Systems CS7542
+ GPIO controller
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fil Dunsky" <filipp.dunsky@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20261013-b4-cs75xx-s2-v2-3-94f8c0a90cda@gmail.com>
+References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
+ <20261013-b4-cs75xx-s2-v2-3-94f8c0a90cda@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 13 Oct 2026 03:53:29 +0000
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-b4-cs75xx-s2-v2-10-94f8c0a90cda@gmail.com>
-References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
-In-Reply-To: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
-To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
- Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Russell King <linux@armlinux.org.uk>, 
- Arnd Bergmann <arnd@arndb.de>, Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
- linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
- Fil Dunsky <filipp.dunsky@gmail.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=1224;
- i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=MUeH/IRw5kyuG0JD1ac38OtCmIzMZqOUsJQbjBgyrHs=;
- b=hzhdz9MnRJ7JJp0HaE5KAzO7vNQz+7RUh8c224Bc8guy2XssyleWF4dUfffCXu+cS/d85uXBA
- fc75l3wWCYcAeG+EpSXNpXeBbmEfwGgG3ApeklKtD13rCtuAelomWdF
-X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
- pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
-X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
- auth_id=1085
-X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
-Reply-To: filipp.dunsky@gmail.com
 
-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] dt-bindings: gpio: direct mapping of shared global control block
+--
 
-Enable the GPIO and I2C drivers of the Cortina Systems CS75xx SoCs and
-the ARM TWD watchdog driver, which is needed on the Securifi Almond+
-because its bootloader starts the watchdog.
+commit f730ed90fa497531db852f78666a6a8d9be45f40
+Author: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
----
- arch/arm/configs/multi_v7_defconfig | 3 +++
- 1 file changed, 3 insertions(+)
+dt-bindings: gpio: Add Cortina Systems CS7542 GPIO controller
 
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index 23f144359..9a161f8bd 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -423,6 +423,7 @@ CONFIG_I2C_ASPEED=m
- CONFIG_I2C_AT91=m
- CONFIG_I2C_BCM2835=y
- CONFIG_I2C_CADENCE=y
-+CONFIG_I2C_CS75XX=y
- CONFIG_I2C_DAVINCI=y
- CONFIG_I2C_DESIGNWARE_CORE=y
- CONFIG_I2C_DIGICOLOR=m
-@@ -492,6 +493,7 @@ CONFIG_PINCTRL_QCOM_SSBI_PMIC=y
- CONFIG_PINCTRL_RZA2=y
- CONFIG_PINCTRL_RZN1=y
- CONFIG_GPIO_ASPEED_SGPIO=y
-+CONFIG_GPIO_CS75XX=y
- CONFIG_GPIO_DAVINCI=y
- CONFIG_GPIO_DWAPB=y
- CONFIG_GPIO_EM=y
-@@ -568,6 +570,7 @@ CONFIG_UNIPHIER_THERMAL=y
- CONFIG_DA9063_WATCHDOG=m
- CONFIG_XILINX_WATCHDOG=y
- CONFIG_ARM_SP805_WATCHDOG=y
-+CONFIG_ARM_TWD_WATCHDOG=y
- CONFIG_AT91SAM9X_WATCHDOG=y
- CONFIG_SAMA5D4_WATCHDOG=y
- CONFIG_S3C2410_WATCHDOG=m
+This commit introduces a device tree binding for the Cortina Systems CS75xx
+GPIO controller. It specifies five banks of 32 GPIO lines, each with its
+own interrupt. The pins are shared between GPIO and peripheral functions
+configured via a multiplexing register within a global control block.
 
--- 
-2.53.0
+> diff --git a/Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.y=
+aml b/Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
+> new file mode 100644
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
+[ ... ]
+> +properties:
+> +  compatible:
+> +    const: cortina,cs7542-gpio
+> +
+> +  reg:
+> +    items:
+> +      - description: GPIO bank registers
+> +      - description: GPIO_MUX register of the bank
 
+[Severity: Medium]
+Does directly mapping the shared global control block in the reg property
+risk resource request collisions at runtime?
 
+If multiple drivers attempt to map the shared global control block, it can
+lead to request_mem_region failures. Additionally, handling pin multiplexing
+directly in the GPIO controller binding appears to bypass the pinctrl
+subsystem.
+
+Should the global control block be defined as a syscon node instead, with
+the GPIO controller referencing it via a phandle (for example,
+cortina,syscon =3D <&gcb>)? This would allow safe register modifications,
+leaving pin multiplexing logic to be managed by the pinctrl subsystem.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-cs75xx-=
+s2-v2-0-94f8c0a90cda@gmail.com?part=3D3
