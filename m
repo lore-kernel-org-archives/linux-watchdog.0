@@ -1,152 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B81D3890F3;
-	Tue, 13 Oct 2026 04:10:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791864639; cv=none; b=mBHZ6U2iz+Qo9UV1yqHoatxBLqOoyX5oYQwwqjoBsoTbc5KC+J5wVhlYeliu3sGpQDtAtISCN7F5OPupHHqr3CZpUsrtTHMCzAwGq8J3w6F8yTq+RAAfLhRYVWYyDVx+IsDVyXLlTJWevYUyMpjNcBzoG3OuciXPXPYuQoiqqRs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791864639; c=relaxed/simple;
-	bh=GYnHNUML77GQrGggzEp4DnJQEI752t2ZYn/aV6IL3KM=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=fDqgfiEBSfYWaeUNlctmbHj6H/3s0t34X/3IBaIzYhS8qgs6F+VGKEeF8i65YTzwoNyHKP/kMtiZwJ2f8W2+7imNgPPJFLhmodYy2nV/J//qmQwbhloMv9aN/iuATE/C+Hn8pq7p0cwkFDxpSimZaP+k5sVkQKb7yDNADwNS4WU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DZ0ZS3Wt; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4C313CC7CC;
+	Tue, 13 Oct 2026 05:54:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.203.200.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791870874; cv=pass; b=VvvyL8Qc0/bd99aMneEie2p1S5bmuPuEyGGjZUlsi3wt6wylywIMSfTpQFAjGlqh82PMHHAOwyeqGdgSsZJJFewguRrTLFfC3dH+SHpsjK5NluVzzYwiH+an3QBTkcgTsDmz2jp9tRoY4MjaGkFUPViKxhGP7ZMdsyxLjVYWZ+U=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791870874; c=relaxed/simple;
+	bh=cwmt1Rmw7srtXzLyuJulB26D/kRcw+JO8RqDjoEGx30=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=SqR5v2wlIhTwrma+UXcEQy9H7PoVKXr1O4eohdBcK/jMbytHnkcEiOQEs8I4MfIBg0BSlxAym7pdFGU4C7zeN09ch3p5YU0mpx5zML1/2C2dBfnQm7SFB4PBlP/ivUQKBPzDGGci+jiwkV7VVgQSvDAsbPBbzRNoDRXlrfACT8w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; dkim=pass (2048-bit key) header.d=pengutronix.de header.i=@pengutronix.de header.b=Gr5V0BUf; arc=pass smtp.client-ip=185.203.200.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DZ0ZS3Wt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 732D81F000FF;
-	Tue, 13 Oct 2026 04:10:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791864637;
-	bh=luoTZ3x8DadDP4999uBCvznMeLY4XRsJT+8N1/TuOaE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DZ0ZS3WtZVfMsm2iLhejUXvAR8V5h4exYiX4klPaIX3RQK9jO6RjL041D5AXtX2on
-	 9zxnxYACZ9vBSaPfd/KLJYIwTn6HT6cF0rlY3ML6LnotCCZPQeUCOauwEVuoBP7AJ3
-	 DkqS3YWRODFPzLnNQVBfc8W4yDdvNmTFMhN6eJSxy+xuFcaSy4WpN+VsgCG36eoSLE
-	 uYlEyuVal2coyW1m53hv8nt6nr2cw6ir7vP0bjGn0EXYeaCCZCaiH0tgbS0QD/j6lq
-	 EPF2NeL0FLWMLYDOCwNX8sSAtB+rle3y62LBPNIDnkoh3DmBrijy3Vy4v7Hade4ac2
-	 XG7lxZd2M4yBQ==
-Message-ID: <sashiko-outbox-168963@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 07/11] watchdog: Add ARM TWD (MPCore private)
- watchdog driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fil Dunsky" <filipp.dunsky@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20261013-b4-cs75xx-s2-v2-7-94f8c0a90cda@gmail.com>
-References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
- <20261013-b4-cs75xx-s2-v2-7-94f8c0a90cda@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 04:10:37 +0000
+	dkim=pass (2048-bit key) header.d=pengutronix.de header.i=@pengutronix.de header.b="Gr5V0BUf"
+Received: from ratatoskr.trumtrar.info (unknown [IPv6:2a00:1f:f805:2b01:a03:2f4:308a:7b52])
+	(Authenticated sender: str@pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 8FA0D200758;
+	Tue, 13 Oct 2026 07:54:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1791870869;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=8tEDT9qAsHJuw08pDh4AzesIHhDXjObjcYV+JFO2mf8=;
+	b=Gr5V0BUfZWRlcRLOcI7PDjYnjRtI82+/Cq51cdKsBqeQmSEIqPVInf5EJhxxV3PtIMPTu4
+	jvjsOj7KMq+PmCP/aA77vUAjbtYAkYRgLzWkXJSqnX2iEHGCEdAjFBWBWKhAleHPuCmWNP
+	gX/gcj9ivrV6y+llJUVTBxJCJeCYqxxrDe1q7aAAR6U2JsDwB4Jre1/5wYz7l/9puPwmIP
+	OIvDFY/PXxslwA4QWWxWkzi+UpXknLqhMrGPWu9ZbK6LZLyif3/0epa2dzA4VeFxrzJpFF
+	0WEvFAslYFy2LtkKhc0juIprPt8JCz+sDmdmCqbAtki+09/6W5kc8AZjZJCKjQ==
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1791870869; a=rsa-sha256;
+	cv=none;
+	b=Yepv/7LG9g6PjkrZET4sr2+ibpoLnE3DcU6r8+LJFCha1Gvvim43grxL6rivoWkDjbB5Ff
+	xxkoUhskIbrBficZMzsD2uRHhSUqhRXcrBBfdDDD3R/y/eKrJRKym5nRkfbMLXp2dBP9pL
+	BT+y+KR4l1ecK2RYT5mBr14lsFVrYz+r7HgQ240bFP3ivDTeeYMlsCNeD42E9y40xapLPk
+	RtgJ9KftHgucbQd1u6hnI3N7Y0XehOw1bYk5tpHfT0DcM2JmXahniZAd56dkpafp6AaUfD
+	H3iAW6Koet6BGV5qN750dHwAmmM+wz7rtAw1aCe8dGVV67E1dWvAzHUgSWN5ng==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=str@pengutronix.de smtp.mailfrom=s.trumtrar@pengutronix.de
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1791870869;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=8tEDT9qAsHJuw08pDh4AzesIHhDXjObjcYV+JFO2mf8=;
+	b=aV1NIFI/I2BqZ5Ny6ckdNfTAHITvGn8cKHv5HfJ9BEMmR8fiynEcT+13d3cC2gZb5i1LEt
+	yxAOXtp3r39gKkblyRgTHCCjw4728nkwQhUqJrZ59fn543vPGfFYH31t0DWIFKyfif56dh
+	p5DYXl89V69NJaBP1vT8yzPCBOVmcCP7jGb5oP8CB9g9GwpgvtWlbWCXJNE5yp8b+XRmM0
+	cz3QXElzWZuGNWTDuJ6VqGRsYGB6GwDRZ/2YaFuu4Vau/5Ex3xEXbQBPJ3pYRiRXpXXwfp
+	Ghf1Ka5SUsD7ajpzbonRP5uNqgGB5cwbK0iU10UG0XkqPznFyOfioRqH0p8xwg==
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [PATCH 0/2] watchdog: gpio_wdt: add reset-from-wdt status gpio
+Date: Tue, 13 Oct 2026 07:54:26 +0200
+Message-Id: <20261013-v7-3-topic-gpio-wdt-v1-0-bc98f05a4578@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMTQ6DIBBA4auYWTsJTE0xvUrjwuJgpwshgD+J8
+ e5SXX6L93ZIHIUTvKodIi+SxE8Fuq7AfvtpZJShGEjRUytNuBh8YPZBLI5BPK5DRtOavmmdU0Q
+ WShkiO9mu67u7nebPj23+r+A4TmipUBx3AAAA
+X-Change-ID: 20261012-v7-3-topic-gpio-wdt-787a48ff022c
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Robert Marko <robert.marko@sartura.hr>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Steffen Trumtrar <s.trumtrar@pengutronix.de>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=873;
+ i=s.trumtrar@pengutronix.de; h=from:subject:message-id;
+ bh=cwmt1Rmw7srtXzLyuJulB26D/kRcw+JO8RqDjoEGx30=;
+ b=owGbwMvMwCUmtVehiCsuTInxtFoSQ9bZ41PKF+yr+6Yh/sLpyDK9p3a5Cr9366VLLD6zImObc
+ cVUrYfXOkpZGMS4GGTFFFlUFlbwiXp88IycJsIFM4eVCWQIAxenAEzkUD4jw7lmhh+yc7r9pCuX
+ qza9rThxgbE+/ZlTwL/cudGzFRpn1jAyfPiSHtX8YKHt/Jr4K5s8r8oFn7KsmBexYOU0C+Xw59e
+ bOQA=
+X-Developer-Key: i=s.trumtrar@pengutronix.de; a=openpgp;
+ fpr=24A1780E1548F0495996140A1ABD20720A5E5622
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] watchdog: arm_twd_wdt: stale clock rate causes spurious reboots
-- [Medium] watchdog: arm_twd_wdt: boot CPU watchdog fails to restart after =
-resume
---
+In cases where the wdt-gpio buffers the reset signal over a reboot, this
+can be used to decide if the watchdog caused the reset. Watchdogs have
+the bootstatus for this information.
 
-commit 6655d83c448f4cf87494cf40f7b8891a218a895c
-Author: Fil Dunsky <filipp.dunsky@gmail.com>
+Add a device-tree binding for this gpio and evaluate the gpio in the
+driver and set bootstatus accordingly.
 
-watchdog: Add ARM TWD (MPCore private) watchdog driver
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
+Steffen Trumtrar (2):
+      dt-bindings: watchdog: add reset-from-wdt-gpios binding
+      watchdog: gpio: add reset-from-wdt support
 
-ARM11 MPCore, Cortex-A5 and Cortex-A9 MPCore systems have a watchdog next to
-the local timer of every CPU. This commit adds a driver to program, ping,
-and stop the watchdogs of all online CPUs together.
+ .../devicetree/bindings/watchdog/linux,wdt-gpio.yaml      |  5 +++++
+ drivers/watchdog/gpio_wdt.c                               | 15 +++++++++++++++
+ 2 files changed, 20 insertions(+)
+---
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+change-id: 20261012-v7-3-topic-gpio-wdt-787a48ff022c
 
-> diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wd=
-t.c
-> new file mode 100644
-> index 0000000000000..a582234e3d953
-> --- /dev/null
-> +++ b/drivers/watchdog/arm_twd_wdt.c
-> @@ -0,0 +1,395 @@
+Best regards,
+--  
+Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
-[ ... ]
-
-> +static u32 twd_wdt_ticks(struct twd_wdt *wdt, unsigned int secs)
-> +{
-> +	u64 ticks =3D div_u64((u64)wdt->rate * secs, TWD_WDT_PRESCALE + 1);
-> +
-> +	return min_t(u64, ticks, U32_MAX);
-> +}
-
-[Severity: High]
-Does this calculation use a stale clock rate if the CPU frequency scales up?
-
-The ARM TWD clock is tied to the CPU frequency on many MPCore systems. If
-the CPU scales up its frequency via cpufreq, the actual clock rate will be
-higher than the cached wdt->rate.
-
-Could this result in computing too few ticks for the requested timeout,
-leading to a premature expiration and spurious system reboots?
-
-[ ... ]
-
-> +static void twd_wdt_cpu_ping(void *data)
-> +{
-> +	struct twd_wdt *wdt =3D data;
-> +
-> +	/* In watchdog mode a write to the load register reloads the counter */
-> +	writel(twd_wdt_ticks(wdt, wdt->wdd.timeout), wdt->base + TWD_WDT_LOAD);
-> +}
-
-[Severity: Medium]
-The ping function only writes to the LOAD register. If the system resumes
-from suspend-to-RAM, the watchdog core's ping worker will invoke this
-method. Since it does not restore the CONTROL register, will the boot
-CPU's watchdog silently remain disabled after power loss?
-
-[ ... ]
-
-> +static int twd_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev =3D &pdev->dev;
-> +	struct twd_wdt *wdt;
-> +	struct clk *clk;
-
-[ ... ]
-
-> +	clk =3D devm_clk_get_enabled(dev, NULL);
-> +	if (IS_ERR(clk))
-> +		return dev_err_probe(dev, PTR_ERR(clk), "failed to get clock\n");
-> +
-> +	wdt->rate =3D clk_get_rate(clk);
-
-[Severity: High]
-The clock rate is cached statically during probe. Since the clk pointer is
-not saved, does this prevent dynamic rate updates if the CPU frequency
-changes via cpufreq without modifying the driver?
-
-> +	if (!wdt->rate)
-> +		return dev_err_probe(dev, -EINVAL, "clock rate is zero\n");
-
-[ ... ]
-
-> +static struct platform_driver twd_wdt_driver =3D {
-> +	.probe =3D twd_wdt_probe,
-> +	.driver =3D {
-> +		.name =3D "arm-twd-wdt",
-> +		.of_match_table =3D twd_wdt_of_match,
-> +	},
-> +};
-
-[Severity: Medium]
-This platform driver appears to lack a .pm field or syscore_ops.=20
-
-During system suspend, the TWD block loses power and its CONTROL register
-is cleared. While non-boot CPUs are hotplugged and restart their watchdogs
-via the online hook, the boot CPU is not hotplugged.=20
-
-Does this mean the boot CPU's watchdog state is never restored after resume?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-cs75xx-=
-s2-v2-0-94f8c0a90cda@gmail.com?part=3D7
