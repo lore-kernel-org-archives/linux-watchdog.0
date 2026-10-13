@@ -1,169 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD46F3CE4B5;
-	Tue, 13 Oct 2026 07:03:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8FA94B44BE
+	for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2026 07:10:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791875017; cv=none; b=Sg/F6RxB44Q8jOsyMBQ4UgIjTzdkUWqvqo8KxCdGRZMo8P1oYniqGlcms6j4pum97RMp1AwpAHJAUFtRp3WacxxNb640V/3k6eo74vecesNxZpaK0p2JZVcmW5YAphs7jQaFG1Xw3VtvCzxNs5FtNnlvB+DiSaORkALfMFqN+0s=
+	t=1791875428; cv=none; b=CYrWbDBtAKoYSJRslaUFD3huh77bvHL3FjVARUWe/0xC058grvYeoja99wUWZLumXprIM4U4mMo/nWD3P/b3tVBBbyiq+33cGI94XA0hjPMn/vnqSqlGtkRO5UxRHmIEvQgqYRNr9CeHjEf7G8FWPXVYnQ4PTplENa3KYt0UEeY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791875017; c=relaxed/simple;
-	bh=+GkHhUFoHl24xkNvl//jHs5d+SUTjNgLF4a17pSlxD0=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=JhTGBiMRE8P7wuo65317kr4fapVgDRiUVusGwU8OikeWxCo1dEQyMt0+tj91CVtmZWUa/fZVWRABqN9YsomZa8tG/LOtfIVoHzBgJdtFn32Ge8ykapKS8Ce9xR44t/p4bMofnRMKvy1VgiO7jcJGqyTOJHl1zPgbec1OWXLaB6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n5xzRJtE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791875428; c=relaxed/simple;
+	bh=YC4l7vs6phBF/kwZPYqd6bhtkTN6nnOLPDyVW74IR1o=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=QiK1rvA+8fWowf4Gur0+w7WOzPgBcJzcKl9kD0PnnBEE/Gpl6noLzNPId1zTvMMwjEclZp1ijZ59Rsm/OIMFLjw9muCN73zpjlqQR8FrKSoBAva/qfYQdMFO5En7l8OHWKwHnC1LAtCEuyMWOvDgQM1BYBa0FlsoZT+Ehf3QXXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YdUCZbR5; arc=none smtp.client-ip=209.85.167.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n5xzRJtE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469EB1F000FF;
-	Tue, 13 Oct 2026 07:03:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791875016;
-	bh=4lqjhpdu+A5kK9msUbydoo48CEzbPiUZcGuZ/DLuQ18=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=n5xzRJtExvmuFIOJ7z/tXRIO84Y5bhw6RyPOLIc9O3RTLXv5DOee7xWa2+mwsTU+N
-	 KYyb6YtbpZkA9i5GIJNtwa+svUk1ZixDSXNdLPHd/RibVd5ajSeIKhkPn+NxifhnJx
-	 QYkFSEiQiZ3m43J5b+uAozln1RMWARTJKNVIl6vfG1hlJPjB0j3TigBGdefESQTtk3
-	 YXYcZ9/mZBXmItqqZrWrvKBT0oTafWJ9ZqC24yXFsTdSavsaNhSCDV2x9K4HwTRkxQ
-	 K0xBkeMUTnprtMzXW/JLm8aqd9q5+LNuUJbbt6FaG9Elvvtjd2AP8o/ajdwu+XIgLq
-	 UiiSCfscFq1YQ==
-Message-ID: <sashiko-outbox-169158@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 07/11] watchdog: Add ARM TWD (MPCore private)
- watchdog driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fil Dunsky" <filipp.dunsky@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20261013-b4-cs75xx-s2-v3-7-181bb0d23f4c@gmail.com>
-References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
- <20261013-b4-cs75xx-s2-v3-7-181bb0d23f4c@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 07:03:35 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YdUCZbR5"
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5ba357a1929so2135276e87.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2026 00:10:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791875425; x=1792480225; darn=vger.kernel.org;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=YC4l7vs6phBF/kwZPYqd6bhtkTN6nnOLPDyVW74IR1o=;
+        b=YdUCZbR59sndgbI3P34/lHcO0G/fRRWAKHnvwtv94VTPjZnZwGfRN6MF77V9+Z34Vr
+         mosY+lnsCjFgdSKG40s3y8h5D2kjIBqCcWkYPE1pzTu+kj16pGHGgVZrvEOuuKapbrtl
+         Y4XcCywfKx0jahc7aAC0E3D7Vf6PGw3v36vg/Fv8YKc3dOELhaIRVENBD9FUnY7Z37n6
+         6vV0Mv4adKPXAdIULtb01BJhzr0QZVn1fsfSCzRKZVv79/iQt2xUDFfvDyWEwjbxIlmb
+         yznhDisbxu31BTE09Ai2YmX24chIlY7OpbHApiCZN9LCUv3/GynuhMFaBRQxcTIuf4xL
+         FFpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791875425; x=1792480225;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=YC4l7vs6phBF/kwZPYqd6bhtkTN6nnOLPDyVW74IR1o=;
+        b=bZ4kAXnFKA5zCIUMRgeYW5wb3/281XrpsTNcXPBbVBk2oY7IBnrH0McFv1P74H5i/C
+         Qd3AqIhN0vSjq6lEMTPT0Ozr+nyfkr4Q+p11+x8/d/DkHb+UyVIkxVfNFGv6pMgcQsOO
+         5/VNEGnxGxCG1/ugJiTDl+QuQKMC55tTdBfsfZxP+6kgi9s4byQa+Y8bGXp2PTzgFudO
+         cugvEEPI+j0jdQDg1GbBbSIP48QIncnMKSnb8FDXUteIFwTafvPgFMlgQQQRlAuS3QtQ
+         SYx1Y0B7+cdK34hcYhnavMRbCeEykvpKMoephtSdSFF20T5ij9x20qiBka4WLD6G61we
+         1IYg==
+X-Forwarded-Encrypted: i=1; AKwUvBwU1ULrzR98CT9pdcrYzP2b3I/yw/2gERzKRmR9OQBRqNddly0p3v2de6A+ZwpRGTS8uNRQlijtsWqQY68NJQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJmVdCnY1K7uNMUopY0dQm1VIpwNjR6REh+gBJTTf4iQnO+FJDl
+	meSukyI/h/BXBnXO3Gxo3i8gSV+8jdXFyGK9bMMh+N+bcj4P6ZatuXPG
+X-Gm-Gg: AYBFou3c1Zwr0U/B3Ud9buVSp8rgYR3a4Vp3Qbr9A1LrVC5HTFFvGOJEQlmVPG0qznb
+	s9+JmhlEMPREu6okmPoWaII4eD+1DckzupGfc/M5J6BHBSM8QEEPxno5DnrgSzfzTUAh2foJdSt
+	bR6lUTgO3E5pK8xyElV0uhddp6S0ecEjELMKlDwQ6UAABTJo7fcee+IGsj5l3Q2Ij3Gh6oF0tCs
+	OnYBPfWxw0LPehVdYaJTi7D4K5kEXpS4aI8WpN2PjpnWbNdKE/AhnZ9gamv/C4dvTQdrU9yV4AI
+	LH27+39XAawitZkxq73Du51733SlBvWopsuEmEuTmgf99e54SCkh5sEYbSSyhY/KJfEMNQVk7ge
+	L+BGvfsrrx4/PHvmkcd15JFtlZVgA4DacwcO76MKtRVz/R/PyRSNydaWk1utmHWW+X+i9IGl6mT
+	tMbulGn5uuNKIx/FwfnMVI5EVtNAwinr111CkSLvEixdkNYOSmGIUltFqAnURLdNj9JsMsv986X
+	Pfdau+bo3i98khTtfUx4BFMEqY9iOOLWCYOYUufQ0SGwhgPFeguAZuE
+X-Received: by 2002:a05:6512:3989:b0:5bc:b15d:beb9 with SMTP id 2adb3069b0e04-5bcde6c3067mr3863262e87.29.1791875424914;
+        Tue, 13 Oct 2026 00:10:24 -0700 (PDT)
+Received: from [127.0.1.1] (ip-024-215.users.dtel.ru. [91.210.24.215])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5bcdde36114sm3388236e87.1.2026.10.13.00.10.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 00:10:24 -0700 (PDT)
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+To: Conor Dooley <conor@kernel.org>
+Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+ Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
+ Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 00/11] Cortina Systems CS75xx: interrupt controller, GPIO,
+ I2C and TWD watchdog
+In-Reply-To: <20261012-dreamlike-hazily-19bb60326f0a@spud>
+References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
+ <20261012-dreamlike-hazily-19bb60326f0a@spud>
+Date: Tue, 13 Oct 2026 10:10:22 +0300
+Message-ID: <179187542217.3247897.4323160442877168450@gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="fixed"
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] watchdog: acquiring cpus_read_lock() in clock notifier causes dead=
-lock
-- [High] watchdog: arm_twd_wdt: watchdog silently disabled across cpuidle d=
-eep sleep
-- [High] watchdog: arm_twd_wdt: missed ping on concurrent clock rate change
---
+Hi Conor,
 
-commit 3df85baea3ae83b30f30fe157567af6f425f2a20
-Author: Fil Dunsky <filipp.dunsky@gmail.com>
+Sorry for the late reply, and for sending v2 and v3 without addressing
+this - I missed your mail.
 
-watchdog: Add ARM TWD (MPCore private) watchdog driver
+On Mon, Oct 12, 2026 at 07:48:00PM +0100, Conor Dooley wrote:
+> I think what's here looks really suspect - regions of two registers
+> wide, interlaced between devices etc.
+> You mention syscons here, and really that's where I think that this
+> should go. The region at 0xf007_0000 looks exactly like a syscon to me
+> and should be modelled as one.
 
-This patch adds a watchdog driver for the ARM Cortex-A9/A5 and ARM11
-MPCore private watchdog. It programs, pings and stops the watchdog on
-all online CPUs and registers a hotplug state to handle CPUs coming
-online and going offline.
+Understood. The block at 0xf007_0000 is the "peripheral" register block
+of the vendor kernel: the interrupt status/enable pairs, the UARTs, GPIO
+banks, the I2C (BIW), SPI, MDIO and timer registers are all packed into
+it. Would you be fine with a "cortina,cs7542-peripheral", "syscon",
+"simple-mfd" node covering it, with the interrupt controller as a child
+node without its own reg that gets a regmap from the parent? The UART,
+GPIO and I2C nodes would stay separate devices with their own reg, as
+you suggest below.
 
-> diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wd=
-t.c
-> new file mode 100644
-> index 0000000000000..18875ae24a243
-> --- /dev/null
-> +++ b/drivers/watchdog/arm_twd_wdt.c
-[ ... ]
-> +static void twd_wdt_cpu_ping(void *data)
-> +{
-> +	struct twd_wdt *wdt =3D data;
-> +
-> +	/* In watchdog mode a write to the load register reloads the counter */
-> +	writel(twd_wdt_ticks(wdt, wdt->wdd.timeout), wdt->base + TWD_WDT_LOAD);
-> +}
+> I think it's fine to make a GPIO controller at this point, and leave
+> pinctrl to later, but I don't think that it is acceptable to pretend
+> that the mux registers are part of the GPIO controller. The pinctrl-less
+> GPIO controller would have to either rely on something else (e.g.
+> firmware) setting the mux registers or be not entirely functional until
+> the pinctrl arrives
 
-[Severity: High]
-Does this ping routine silently fail to re-enable the watchdog if the CPU
-previously entered a deep cpuidle sleep state?
+Agreed. The next version drops the mux register from the GPIO binding
+and driver and relies on the boot loader's pin mux. A line that the
+boot loader leaves muxed to a peripheral then stays unusable as a GPIO
+until the pin controller exists; I will check which of the Almond+
+lines (reset button, touchscreen interrupt) that affects before
+sending, and leave those out of the dts if needed.
 
-If cpuidle cuts power to the CPU's power domain, TWD_WDT_CONTROL might be
-lost. Writing to TWD_WDT_LOAD alone without restoring TWD_WDT_CONTROL could
-leave the watchdog permanently disabled upon wakeup.
+I will not send it before the interrupt controller question is settled,
+and not before 48 hours have passed in any case.
 
-[ ... ]
-> +static int twd_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct twd_wdt *wdt =3D watchdog_get_drvdata(wdd);
-> +
-> +	cpus_read_lock();
-> +	on_each_cpu(twd_wdt_cpu_start, wdt, 1);
-> +	wdt->armed =3D true;
-> +	cpus_read_unlock();
-> +
-> +	return 0;
-> +}
+Thanks,
+Fil
 
-[Severity: High]
-Could setting wdt->armed =3D true after calling on_each_cpu() cause a race
-condition with a concurrent clock rate change?
-
-Because this function uses a shared reader lock (cpus_read_lock()), it can
-run concurrently with twd_wdt_clk_notify(). If the clock rate increases just
-as the watchdog is started, twd_wdt_clk_notify() might see wdt->armed =3D=
-=3D false
-and skip resynchronizing the ping, resulting in the hardware running with a
-timeout calculated for the old, slower clock rate.
-
-[ ... ]
-> +static int twd_wdt_clk_notify(struct notifier_block *nb, unsigned long e=
-vent,
-> +			      void *data)
-> +{
-> +	struct twd_wdt *wdt =3D container_of(nb, struct twd_wdt, clk_nb);
-> +	struct clk_notifier_data *cnd =3D data;
-> +	unsigned long rate;
-[ ... ]
-> +	cpus_read_lock();
-> +	wdt->rate =3D rate;
-> +	if (wdt->armed)
-> +		on_each_cpu(twd_wdt_cpu_ping, wdt, 1);
-> +	cpus_read_unlock();
-> +
-> +	return NOTIFY_OK;
-> +}
-
-[Severity: High]
-Can acquiring cpus_read_lock() here cause an AB-BA deadlock with CPU
-hotplug?
-
-The clock framework's prepare_lock is already held when this notifier is
-called. The CPU hotplug path acquires the global hotplug lock for writing
-via cpus_write_lock() and invokes callbacks, including cpuhp_cpufreq_online=
-().
-
-Cpufreq drivers update CPU frequencies during hotplug by calling
-clk_set_rate(), which acquires the clock framework's prepare_lock mutex,
-establishing a locking order of cpu_hotplug_lock -> prepare_lock.
-
-Acquiring cpus_read_lock() here creates an inverted lock order of
-prepare_lock -> cpu_hotplug_lock.
-
-[ ... ]
-> +static int twd_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev =3D &pdev->dev;
-> +	struct twd_wdt *wdt;
-> +	struct clk *clk;
-> +	int ret;
-[ ... ]
-> +	ret =3D cpuhp_state_add_instance(twd_wdt_hp_state, &wdt->node);
-> +	if (ret)
-> +		return ret;
-
-[Severity: High]
-Is a call to cpu_pm_register_notifier() missing here to ensure the watchdog
-context is saved and restored across deep CPU idle states?
-
-Without this, the watchdog could remain disabled if TWD hardware loses its
-state during deep sleep.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-cs75xx-=
-s2-v3-0-181bb0d23f4c@gmail.com?part=3D7
