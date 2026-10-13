@@ -1,65 +1,65 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272384AE134
-	for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2026 06:19:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1344B04A5
+	for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2026 06:19:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791872371; cv=none; b=LE/HMbSDL1iSU3cfSj1bEUQ+JImOIxjudk/36Z6RlevlM1oWmclMh/KxPWfMLFkWzn8ROOMoJ91JupW37l5GZKCwwIRc+no/FgYeBq6RgY6f5740YnMX//o3ZzZ2Z7JQQ3/iizE9ic6n8KEF8Z1Ij5k6hVcgd7LzyeyyqJIXNc8=
+	t=1791872374; cv=none; b=QWiAlmqI5+2ikiF2UdwNPClVwrr/c0mn+ZXc6Cz6vEfIzdYNfZ00mDIKGnDQ7V3ZLeuhLVTm8/C8YnhEssWX44110KrEyQelgCciGVN1+PAMzHntdNsnapd3yoqO9AGkg0IXhVUXU9qxEG2Wfp02but4Qkkv0SwXtslx86AVKws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791872371; c=relaxed/simple;
-	bh=6UsELNCTtBVT15YmxhvPJaLTSocnKF/U4Li7maIpCt4=;
+	s=arc-20240116; t=1791872374; c=relaxed/simple;
+	bh=qVZJr6BGUqZMkmvvywtMFv4Y+FRBCFB7MBPZsxpnpp8=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=kzYaXlyTK+7FH7kbovzWzCASudaezsK/HLzV9ESbs0/YAOIyR1/h6fVbr+gDFLfW6Dr5IlnG4ld2gpdnx5trcsnN3jfkfcdndVis36zqqdTDQNphOMq7y0WpHy3n+29u0Y29w0mCQJW0x51juXD6wPqUEp+vBXUbiqubs59w6gQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PbL1xaE0; arc=none smtp.client-ip=209.85.208.177
+	 MIME-Version:Content-Type; b=S3LBUALlVqmrB7X3mlUyRTODFhWzv9G8TN0BYXMfct8NFYu9rwoM+dYqUwFE7+6OXgdLFvBLF/xqzfTBPaxQO84TG2igBQI9VUsNTuNFlnE4HIFTxa9STL3Nn8APeXLwpwPxpGcfqxuz6aY2g9lXXZn+98rew0CQMNIv5JJTW+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LbFOB+kH; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PbL1xaE0"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-3a9787a156eso19906681fa.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 12 Oct 2026 23:19:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LbFOB+kH"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4a17baef589so20691915e9.0
+        for <linux-watchdog@vger.kernel.org>; Mon, 12 Oct 2026 23:19:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791872368; x=1792477168; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791872372; x=1792477172; darn=vger.kernel.org;
         h=content-type:mime-version:content-transfer-encoding:message-id:date
          :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6UsELNCTtBVT15YmxhvPJaLTSocnKF/U4Li7maIpCt4=;
-        b=PbL1xaE04in7+jpadT5vv4XsPrLGsmHW6kyB9iz8PQDwf96/u/DXaJWdu29dYTlyF9
-         NZbLX1dKT/x+8Ytz2pqiGgvgqgwgCjixA8l5nH765g1+LagEKlPswnlv6StrY7Okqa+3
-         NJAUXZQLIVTuv1GFoyna/hDWRx8mfzCxU+C+OPWXAgO/W+ISSuKJ1eOSc6EakQKRiavk
-         uL3BfSp/AzfObP+6GSbocPEpuf6l1KSCz33IM58WLFKlx6ZFBGB51xtyi6wO/N1BSKJK
-         eH+agbfLM4OkLSHIkdWK2LX/WkeQX6Ap4C3ThmkylXIdRmc8ZkmiXpR0of9tyyCYmLgs
-         IFkg==
+        bh=qVZJr6BGUqZMkmvvywtMFv4Y+FRBCFB7MBPZsxpnpp8=;
+        b=LbFOB+kHfGIvJmHW/7rO5K/rmUnwR2M0fAdOf3rpNk9XKwJQ8m/0tGz0SIKZCQh0Rb
+         9OVUCCltNrgwGPfmKYa8beaOh3q5aOKoVMnagYIXLhleuYENI2uHmATmG1R3yN9EXxEd
+         9wtxTyZ5CrXgG1PG0Fs+NOyvm829MLuhzqUd+liDSIHuWoiD3RYKLRtdGLou03QVa2LI
+         PRB/wn9Uh4jtutFzV266YZ1NOu5LZMF87UKclgiNCaDJMKBnzKPGRwGMhw6oraijCcRu
+         rXSdLrN06o9EZA6MClFoA1ZXwNY2zqw7zlKH+ighaPpDulr2Vk2ojhiHCQUTqUSMxpxM
+         5plQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791872368; x=1792477168;
+        d=1e100.net; s=20260707; t=1791872372; x=1792477172;
         h=content-type:mime-version:content-transfer-encoding:message-id:date
          :references:in-reply-to:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6UsELNCTtBVT15YmxhvPJaLTSocnKF/U4Li7maIpCt4=;
-        b=f3rczfKQ6wh4lBsNFbGwdB5o5ZP8MWEn7zaJlfVU77larwB/pA8LgFTcX00Vt51e1N
-         /Z1+C0xjKZMScrSFvUYVsUGXicvZS0ign8h+p9hcNlULRotk2W+efw1cPNdSU+bOwk02
-         kEcnEzRYdi5SBYL+uJA0XqSkEeLEQX99PlCvAcYUK+S9+JMu2Co6nPyz4GPU0d+W6IPY
-         7vM34TvkmLxf7ofcTjHrVadKTPs1jTYrd35ZSVRKXhowZT9XJnv1ceJJ57sQmu7/zhK/
-         cOJ/kd0MLCjlL7B89PDOsISKpJAdMaORbq2STda7+IbV0HufMxj2fF4k/eits6KekNwH
-         bzdw==
-X-Forwarded-Encrypted: i=1; AKwUvBz0grdDFopSbgbvluGSRRUXxo3KsYO6jg2Dr/9j0MMJQLQxaEBO88EX0k2whVr0xCyTJ+X+qi3sVG2d9Mb0MA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLV04KoeC43C7o69teAvy/jljBpRNjBIFEf/EJiSszSFnyEU1N0
-	TbU9NJo+M9kvcumd2U/TkPMErx4M2uRhRj++6Heqj4aGK0S9h/PAnKojEuSMDExrOVKGvg==
-X-Gm-Gg: AYBFou3qRhR2E2UKkgjxlCiZ65XV/+KklFuN92bEMAdTI0xt5d/T2vKpAnO0eGIOaWO
-	fEFPbX1duNM48tWgP9LAjlswPK151E7+sBF1Nl6p5wQgM6OHb3jOZZml1I6wEcmkexIhUt0ETTo
-	7iBCYY7lfYsWaqm4OV9Hnqex0wzs9iWg3i1vL16FUGwd8er5cxB/6+3OWAJlORJZ9YMgHLVaPXd
-	BKP5nIwcYxv1+QAasCSsVdUGQaBrPL/jm3uIAD32XmtZMIimAh9ghdayvcGDKNqWvxjMU7X8zPI
-	BPNXR6ONgk1vMtLAoOVqe2S1qCVsxN4DS9se4sBxHbVXZfR2N4PdvDhX4tVH4uICUVNrtrYhgkp
-	+7D82ESye79k+SgIImAt6nry7CvT4S00hP5/L6jA1s/Nc9k5bo32tjsbrSxaESTQLN6/GdIdQzi
-	KKhArjFKFSPZNpqgVSALK94cf4d9pnclrmPIjGcxT4fkDCm8FK7LdMNf7yijeRArXvBO3V5Pjc2
-	YdyD+WgG5RkUIjyy10QuJBdStUmmLPYrdFfL3uyoepg9fGR0MClo+YMbQ==
-X-Received: by 2002:a05:651c:211b:b0:3a9:7425:7c33 with SMTP id 38308e7fff4ca-3a9c570c4a9mr29246931fa.28.1791872368005;
-        Mon, 12 Oct 2026 23:19:28 -0700 (PDT)
+        bh=qVZJr6BGUqZMkmvvywtMFv4Y+FRBCFB7MBPZsxpnpp8=;
+        b=clEdQtenLue7s4UvqueZJOpzvN9beFkwFhYa09t2EVob2yHk0Nlnuc8Lkxsdx91qUR
+         FmmD9kC7JcRaKTXQzSbsy+Vq0MU0AuAuUKu3DZyenob5ArguK5elPQSkUGTbYFll2/kK
+         LJmcyoLPJV5vdHHAatSAvkoabzB4HSyEcxmIF57FXvlLxgoUCBzOyGYTdKrsSz5xJXrS
+         vrHdMMX4WiG9PBb+pfo7SXifzfDUz9sdEhvXhJ4T5NOvmMRfWQXVB1YHMCbFte+7YdMv
+         5+z1gN1UK3lXqND/EeifYcLQuf4BXITC/yiOHN18FkOeS2LzKGNOSTm0BCNChcqoU1dW
+         c0TA==
+X-Forwarded-Encrypted: i=1; AKwUvBzFMOlvMBPkBuZfmze06yaoJTxfPGgHZ/hmhcOzHrYJXg6JrijekpdvFuRzbN1UNA+5O3XXPk0afoIgtH4WsA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIfWegFJbeQcsYNl1PnLQoAvGTM6Pnl+wL3j8qvGAmyoaF7nevZ
+	tYzY3m9IZcBkJFWAA+/JBkqTFtQn/g94gfConmXHAU3Ywm0RpC3DWdGw
+X-Gm-Gg: AYBFou0WAIDjEdFapF2Bwru6fU+7hznKJ2W2PFrpHmpyJ1PjF3pijp/p0Epy7aRk/yP
+	pHFZbfnVia/ETBd0KlC3rO4UDxB2AZrfSUtG8ia7D1BZwTNJnRyoQkUoMEeN7M+TDWmyLxrub9t
+	S1Zz4PwOtWJilZ4f0yDvmB8ti6b1vrOmXuI7+/Ni7wHITPRrcbhNoJYcDL4UWzYSIwEUkzcHNZ+
+	/CAXfYB/Uv2B8ytmFKPeOcEbMQab8fr+iY+XEXGbbENXmmYL4yfoKVJYPcCTFptN+yj1agbUR4e
+	MYwD3lDbcSKRiUd4+q62Kl9EAfKedg5pHfN/CxjJDZxqtNbwgZen5j/k9GGFfRRjUmk4qHv+9lC
+	5AihjQiTomkE0EdJLqJ8hSPrKqHt1UVSKnt6Tsz0VawewHZya4Mn98Cy4oLjCBWoC7YRnJJ1qWV
+	+fNgRIQ9gWL7cE5L2KxAm0MpfePxazZJjA5joYmw7e8ba5hYXJMVoqsFaMIOjZv4ulRguGUJKYP
+	DXqy0M5KCDuUpbXYSfvCmfj9mmVA9/BuJ3LT4ZITSFs8xFnFKtzgHP3iw==
+X-Received: by 2002:a05:600c:1549:b0:4a0:25c:8af2 with SMTP id 5b1f17b1804b1-4a18e491051mr250154825e9.17.1791872371668;
+        Mon, 12 Oct 2026 23:19:31 -0700 (PDT)
 Received: from [127.0.1.1] (ip-024-215.users.dtel.ru. [91.210.24.215])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a9c3c9bff8sm33912331fa.7.2026.10.12.23.19.26
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a19f249692sm264395905e9.3.2026.10.12.23.19.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 23:19:27 -0700 (PDT)
+        Mon, 12 Oct 2026 23:19:31 -0700 (PDT)
 From: Fil Dunsky <filipp.dunsky@gmail.com>
 To: Krzysztof Kozlowski <krzk@kernel.org>
 Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
@@ -71,14 +71,13 @@ Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
  linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 10/11] ARM: multi_v7_defconfig: Enable Cortina Systems
- CS75xx GPIO, I2C and TWD watchdog
-In-Reply-To: <abe6e89f-2379-4928-a77e-0baee12b23e4@kernel.org>
-References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
- <20261013-b4-cs75xx-s2-v2-10-94f8c0a90cda@gmail.com>
- <abe6e89f-2379-4928-a77e-0baee12b23e4@kernel.org>
+Subject: Re: [PATCH v3 00/11] Cortina Systems CS75xx: interrupt controller,
+ GPIO, I2C and TWD watchdog
+In-Reply-To: <ad388a91-404f-40cd-8153-3a0df3411c16@kernel.org>
+References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
+ <ad388a91-404f-40cd-8153-3a0df3411c16@kernel.org>
 Date: Tue, 13 Oct 2026 09:19:25 +0300
-Message-ID: <179187236528.3113952.1605165361017352112@gmail.com>
+Message-ID: <179187236532.3113955.136062642054162547@gmail.com>
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -88,18 +87,16 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="fixed"
 
-On 13/10/2026 08:13, Krzysztof Kozlowski wrote:
-> On 13/10/2026 05:47, Fil Dunsky via B4 Relay wrote:
->> +CONFIG_I2C_CS75XX=y
+On 13/10/2026 08:18, Krzysztof Kozlowski wrote:
+> Slow down. One small patchset per 24h. If you send some big work, then
+> once per 48h.
 >
-> This should be module.
->
-[...]
->> +CONFIG_GPIO_CS75XX=y
->
-> This as well.
+> Implement previous review.
 
-Will do, both become =m in the next version.
+Sorry, understood. Your comments on v2 arrived after v3 had gone out;
+they are done in my tree (I2C and GPIO as modules in multi_v7_defconfig)
+and will be in v4, which I will not send before 48 hours have passed,
+and the platform series likewise.
 
 Thanks,
 Fil
