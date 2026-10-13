@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF834825AA;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80B40483BE8;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791863221; cv=none; b=mkFTD6uCwkoYopKr5Zr2ytOX9K/CuoCL2GSLuj9jqFdUOmRIe4CWf1Od8qn+pkGjgWFbsIXq9TEh6CqFRR66Dj+MTVrp0OSqNVK6RwZc4KQNoKR8sZDQJUeXEeLaRWsY61J/GRvC3dxMeqdqLbuCh2JvwOYlhTQmk7kiZdn+XSM=
+	t=1791863221; cv=none; b=JzyuDQem1t0SBu3Lc5YFRttv9eXKTngTEry+XbR9/Z/FZ5CQytp6MSeHebGLnlgw7S1vL25JXbxHXxkecaQR1KfuDBW+sbiRLEZa5elbcSFZ+SUmA34erKv2AWjFIg227ChXr0iFg+w8VA0h3rfE1zo28697LwGfVIc+vNFl+90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1791863221; c=relaxed/simple;
-	bh=LVXybKoszYAKk7+ZqXsYnEtv/pEeuvwZpKkZi4AyivI=;
+	bh=Fc3v+sAfUFif61yc1m5RkBfsjoDptWTKM2sW8+Rf9hA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Zg+mo8vV3AlA1bk5bCT5d2oxafFv9z1ByLNJA0oZ4iwilITXJritc6hDw/gNBknKptvcYDIjra4S+XMxLZSIjJGcKIgAqbH73OnHnHWTYHksmgzqR7rra4HIej7+Df4NSWrPwowhVEu1L76TGhs+HRwjHSMR+mBCY09N9PmE6s4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kWAawX7o; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=pahjytoXLTE8pGCj1hMrpqyUqKgCTbYOjc9OU/QRLN2EnblGeBPZvtkq0/QGI6ofl+BbNw7qPpjC3MsSSLNVThh9JBg4MAVccpsuxv2mLlx56wmbElPR40hTSCUSuJXNhcNu1ykqVu/+lCdB12wX4be/Z5wkjIr+t6pHQMT6whA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OD7iu+pB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kWAawX7o"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 23DC8C4AF09;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OD7iu+pB"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 52CDDC2BCFA;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1791863221;
-	bh=LVXybKoszYAKk7+ZqXsYnEtv/pEeuvwZpKkZi4AyivI=;
+	bh=Fc3v+sAfUFif61yc1m5RkBfsjoDptWTKM2sW8+Rf9hA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=kWAawX7oTBdXElPESh/4flrChxqWQ7kdBYovYfJ07vrs/m5iWdQf/4OoxHecEwX0Y
-	 62zdYdtIYj/Eq5zl0J/JBsS4HrAegBRsYib9lzrbelSj5WmyJJX9ydMjt/dC0Mr8Gv
-	 Ae/AOJlj7t8a2hoaapOpLCj9beXeGKFBoYZpsu8CYWZcLlespmKMGeRkhpkbejuSdM
-	 GphP1Dt4PQIzrMG/bWQFKl3h9dEZtpThiEAP9GPVhxM0sfUNq6jFITGncDwph4fNC+
-	 My1+9ldEuigdGoOVhkEZfALPvu/g+1Ef1CAgmvLLikbtVgO10j/QalpogwJBxvTZgs
-	 E48xW1QYipe5w==
+	b=OD7iu+pBpUWQ22JlV+FEF53ft9TOvWL/gVFuQiNLXtjiJxmkfeUUeBrGpyD5rToi4
+	 yWdiS6N7EazHYkOLz+rqrKYv3e1JY6tTIudDLqZKDaStPdexuLU92VzwnqKxZOWvIZ
+	 kEVoGJxa38XIdGyK+8F4gU3tLwtG6CfFbqUFgp8DiAMhw7kSmtyWdAFRcCs8MnHroG
+	 I7gblBlg/zkmibZE5Aah2SU9BbIu5R0z+87Ypx4ouKmEk527Br2cTzHnR32TgzOD3q
+	 71PAf36lPogNTJJ+OnJHsCN/GIGlkFQjT1cQUvj0I6JqDSxhId8cZIFwgXEtACHnhs
+	 fFePTEIw2Uabw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1066ACA9ED0;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EE4ECC6B09;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 13 Oct 2026 06:47:06 +0300
-Subject: [PATCH v2 08/11] ARM: dts: cortina: cs7542: Add interrupt
+Date: Tue, 13 Oct 2026 06:47:09 +0300
+Subject: [PATCH v2 11/11] MAINTAINERS: Add Cortina Systems CS75xx interrupt
  controller, GPIO and I2C
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-b4-cs75xx-s2-v2-8-94f8c0a90cda@gmail.com>
+Message-Id: <20261013-b4-cs75xx-s2-v2-11-94f8c0a90cda@gmail.com>
 References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
 In-Reply-To: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
 To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
@@ -56,11 +56,11 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
  Fil Dunsky <filipp.dunsky@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=2798;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=1164;
  i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=3Upc60FD1EM1O4fIft/ek4FPT0icYaZ8EOrDpkRXA2U=;
- b=AAT1Zi6KjBzIm9NZh3D1FMgGKRH/21PSXRqp7a4HrpjOj/El1G2tTgwuwpAGug1ntBOz6RP7z
- 6k3DgzvQhNoBY5XAp/06RXbMQ+4f+4bJXzA52TByFknJIrEk2lclBFN
+ bh=8born+lqbJWHHfA9yx4+qhsEyHSP/MdbnsbUcNAg5HU=;
+ b=OjNTRpBwm7+styelTVABzZsjoLC2URQ+UUV3d/JL3nx7F2z9ZI0k8C51Yde9/79AFIg6EV2pq
+ 2x3+2Tx9/XMCw9PV/yIWJDirVgp7ynI2YlO715uYMYpP8rklVOP2sUe
 X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
  pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
 X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
@@ -70,107 +70,35 @@ Reply-To: filipp.dunsky@gmail.com
 
 From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Describe the peripheral interrupt controller, the five GPIO banks and
-the I2C controller of the CS7542.
+List the new Cortina Systems CS75xx interrupt controller, GPIO and I2C
+drivers and their bindings in the CS75xx entry.
 
 Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
- arch/arm/boot/dts/cortina/cs7542.dtsi | 75 +++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/cortina/cs7542.dtsi b/arch/arm/boot/dts/cortina/cs7542.dtsi
-index 29b0b7da8..c88449c54 100644
---- a/arch/arm/boot/dts/cortina/cs7542.dtsi
-+++ b/arch/arm/boot/dts/cortina/cs7542.dtsi
-@@ -44,6 +44,26 @@ soc {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 53f6fa1c5..604993705 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2925,10 +2925,16 @@ M:	Fil Dunsky <filipp.dunsky@gmail.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/arm/cortina.yaml
++F:	Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
++F:	Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
++F:	Documentation/devicetree/bindings/interrupt-controller/cortina,cs7542-intc.yaml
+ F:	Documentation/devicetree/bindings/serial/cortina,cs7542-uart.yaml
+ F:	arch/arm/boot/dts/cortina/
+ F:	arch/arm/include/debug/cs75xx.S
+ F:	arch/arm/mach-goldengate/
++F:	drivers/gpio/gpio-cs75xx.c
++F:	drivers/i2c/busses/i2c-cs75xx.c
++F:	drivers/irqchip/irq-cs75xx.c
+ F:	drivers/tty/serial/cortina-uart.c
  
-+		intc: interrupt-controller@f0070004 {
-+			compatible = "cortina,cs7542-intc";
-+			reg = <0xf0070004 0x8>;
-+			interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
-+			interrupt-controller;
-+			#interrupt-cells = <1>;
-+		};
-+
-+		i2c: i2c@f00700e8 {
-+			compatible = "cortina,cs7542-i2c";
-+			reg = <0xf00700e8 0x28>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <11>;
-+			clocks = <&apb_clk>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			status = "disabled";
-+		};
-+
- 		uart0: serial@f0070110 {
- 			compatible = "cortina,cs7542-uart";
- 			reg = <0xf0070110 0x30>;
-@@ -80,6 +100,61 @@ uart3: serial@f00701a0 {
- 			status = "disabled";
- 		};
- 
-+		gpio0: gpio@f00701d0 {
-+			compatible = "cortina,cs7542-gpio";
-+			reg = <0xf00701d0 0x20>, <0xf000001c 0x4>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <6>;
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
-+		gpio1: gpio@f00701f0 {
-+			compatible = "cortina,cs7542-gpio";
-+			reg = <0xf00701f0 0x20>, <0xf0000020 0x4>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <7>;
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
-+		gpio2: gpio@f0070210 {
-+			compatible = "cortina,cs7542-gpio";
-+			reg = <0xf0070210 0x20>, <0xf0000024 0x4>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <8>;
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
-+		gpio3: gpio@f0070230 {
-+			compatible = "cortina,cs7542-gpio";
-+			reg = <0xf0070230 0x20>, <0xf0000028 0x4>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <9>;
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
-+		gpio4: gpio@f0070250 {
-+			compatible = "cortina,cs7542-gpio";
-+			reg = <0xf0070250 0x20>, <0xf000002c 0x4>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <10>;
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
-+		};
-+
- 		l2: cache-controller@f5010000 {
- 			compatible = "arm,pl310-cache";
- 			reg = <0xf5010000 0x1000>;
+ ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE
 
 -- 
 2.53.0
