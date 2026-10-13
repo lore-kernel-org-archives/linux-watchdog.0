@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1A0A49B5AB;
-	Tue, 13 Oct 2026 06:14:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B72DA4AD4AF;
+	Tue, 13 Oct 2026 06:18:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791872049; cv=none; b=WWPsrvlBDHytbTAVdPtD0Gt4V2EXPmSNNP+qkTRMZwrcGtymBNco5am51L0X1PQLZsBlrcasgH8h85OLZL4b4esq4sTna2Gi2DNlsbhhrrIky3JMLIt+cp/edHATRpVUR6/kSnKoV7vrN3fTpiWDwvrV1ya4PaoKi3vGGiEjKo8=
+	t=1791872298; cv=none; b=ZpY4BhfTdO8vDahJKlcEGxT+kaCgZ/4qoXBheLboRIneDq/lWO6qfpAy5UazLbUCtDGKlZT9TGa8LjNt1QyJmAwSaRGyrF88zvk0LS6GVri846q89vpwfrIpyBXwzwQ7UZsJ6ISw9rsPaeYAjei+nbuBrthQPtrCZ9uLNegaxk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791872049; c=relaxed/simple;
-	bh=D+XjgK9TSECFVWpYMAABiQWEZXi+AJq4rnbSwTRUiaQ=;
+	s=arc-20240116; t=1791872298; c=relaxed/simple;
+	bh=a6IdMJ4Ehai4AzAzwmTbXCyofjxWQVEE1jiwx+HKFqY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H8mERwPzC+fWlXDrH5XPuo0gEIibfHXkWRUGw9h71Ek49NFAkIq8ICXLoPbxvL0rTjIMcZJ/pCEjMtPhq9thjsz1gbo579weOWLCxuMwT+DL3YPdeKJOANGlyS85LSCP7E4g7/IWJRQANiq/ctymVoxm0GhceG1MKSi5rQHYlo0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i9ArvrCk; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=XT8HL6BiSFGGpPLHKxKgw8JUs2rlzK3WLDzD5T1cddHcI5wrBPkBiMVdwGwyNB212jM7jV0d4ZkrB5wqU46xf7bYfSmsp3uBYKJB84ElfBhh9TnltpnTpAeUfDXDCotvm+mSUAfNbyx0l9MVukVRn+SJbVs8wZVKOwKH07ACsbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MjfJ0rkX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i9ArvrCk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E4431F000FF;
-	Tue, 13 Oct 2026 06:13:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MjfJ0rkX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19271F000FF;
+	Tue, 13 Oct 2026 06:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791872045;
-	bh=YzIyLaCQVYyFvJr0HYNnDsB1AeI73g+HQRH1Lm1z4vA=;
+	s=k20260515; t=1791872297;
+	bh=s0Owovj5yCN/YII+i8I65SUoJkW/splLTgjlRzLW90g=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=i9ArvrCk6y2JT7SFZ8TC2coKR32sMlGjZNT2ur0EQXl++EKq7u+/Sq96LZ2zVz1u8
-	 PF/7z53jLdSTrOz9I2Xv+chK02rzYTfeM9/umtsloeAwPepL6SykLGlIv7RQaeR4xO
-	 8bC2k3MewAzDx5grtHAaxR6tNcYW7r1Db0TaMaw6iieqw/iq8B5em+MbePXPNgn4OY
-	 E4f2WCFhwoNchILXcy/n80hUlZeVIbebxXKSr7gdLKoj5UIYaMj4EPQaZLBZlrVh5P
-	 0Y9IgnPVoVJiDRtqbgyIdjBi8O6exHxB9FlUyhtXCdlFOYPoFekfrpOHC9Gpptpz8U
-	 SNS76fV1/hSvQ==
-Message-ID: <abe6e89f-2379-4928-a77e-0baee12b23e4@kernel.org>
-Date: Tue, 13 Oct 2026 08:13:57 +0200
+	b=MjfJ0rkXJ2DyoAcWmEtDVDVvUKbYdcZ1Vcerv5B3uXjESwdAbG8iBg7y2LS2MeyTW
+	 4fhCrHGYMaDTgQiiRkQBAZyTlt5KyKDsBfG0db/ywbnxyQaO949953DNJUa8X9yfSZ
+	 OvhspphTmsyF68ALJrx+RMHJ1SFPC9Kf7Kd/z2Dzts0/Lh6SjPP9RWlMiIvAWW27E7
+	 R7APQlWX8TT7Z8WdBGWaUjfDr7SLWW38d2WZOpTkNt+l1z5WYImuYUHxJKCCs4oz8w
+	 bSpLfHRzzHfoZQHKRQ/gp3CO7sx+TsQqbN1Ts+4FFaSWlkbFCi9J3n1GItPchZBaqz
+	 iO8QfBEJdkYiw==
+Message-ID: <ad388a91-404f-40cd-8153-3a0df3411c16@kernel.org>
+Date: Tue, 13 Oct 2026 08:18:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 10/11] ARM: multi_v7_defconfig: Enable Cortina Systems
- CS75xx GPIO, I2C and TWD watchdog
+Subject: Re: [PATCH v3 00/11] Cortina Systems CS75xx: interrupt controller,
+ GPIO, I2C and TWD watchdog
 To: filipp.dunsky@gmail.com, Thomas Gleixner <tglx@kernel.org>,
  Radu Rendec <radu@rendec.net>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
@@ -48,8 +48,7 @@ To: filipp.dunsky@gmail.com, Thomas Gleixner <tglx@kernel.org>,
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org
-References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
- <20261013-b4-cs75xx-s2-v2-10-94f8c0a90cda@gmail.com>
+References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -95,44 +94,30 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <20261013-b4-cs75xx-s2-v2-10-94f8c0a90cda@gmail.com>
+In-Reply-To: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 13/10/2026 05:47, Fil Dunsky via B4 Relay wrote:
-> From: Fil Dunsky <filipp.dunsky@gmail.com>
+On 13/10/2026 08:07, Fil Dunsky via B4 Relay wrote:
+> This is the second step of the Cortina Systems CS75xx ("Goldengate G2")
+> / Securifi Almond+ support. It applies on top of the platform series
+> "ARM: Add support for Cortina Systems CS75xx and Securifi Almond+"
+> v6 [1] and adds:
 > 
-> Enable the GPIO and I2C drivers of the Cortina Systems CS75xx SoCs and
-> the ARM TWD watchdog driver, which is needed on the Securifi Almond+
-> because its bootloader starts the watchdog.
+>   - a driver for the per-CPU private watchdog of the ARM11 MPCore,
+>     Cortex-A5 and Cortex-A9 ("arm,cortex-a9-twd-wdt"),
+>   - the peripheral interrupt controller that combines the interrupts of
+>     the low speed peripherals into one GIC interrupt,
+>   - the GPIO banks,
+>   - the I2C controller,
+>   - the device tree nodes, including the reset button of the Almond+,
+>     and the multi_v7_defconfig and MAINTAINERS updates.
 > 
-> Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
-> ---
->  arch/arm/configs/multi_v7_defconfig | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-> index 23f144359..9a161f8bd 100644
-> --- a/arch/arm/configs/multi_v7_defconfig
-> +++ b/arch/arm/configs/multi_v7_defconfig
-> @@ -423,6 +423,7 @@ CONFIG_I2C_ASPEED=m
->  CONFIG_I2C_AT91=m
->  CONFIG_I2C_BCM2835=y
->  CONFIG_I2C_CADENCE=y
-> +CONFIG_I2C_CS75XX=y
 
-This should be module.
+Slow down. One small patchset per 24h. If you send some big work, then
+once per 48h.
 
->  CONFIG_I2C_DAVINCI=y
->  CONFIG_I2C_DESIGNWARE_CORE=y
->  CONFIG_I2C_DIGICOLOR=m
-> @@ -492,6 +493,7 @@ CONFIG_PINCTRL_QCOM_SSBI_PMIC=y
->  CONFIG_PINCTRL_RZA2=y
->  CONFIG_PINCTRL_RZN1=y
->  CONFIG_GPIO_ASPEED_SGPIO=y
-> +CONFIG_GPIO_CS75XX=y
-
-This as well.
+Implement previous review.
 
 Best regards,
 Krzysztof
