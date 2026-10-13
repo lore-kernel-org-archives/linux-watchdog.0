@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80B40483BE8;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72D62483830;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791863221; cv=none; b=JzyuDQem1t0SBu3Lc5YFRttv9eXKTngTEry+XbR9/Z/FZ5CQytp6MSeHebGLnlgw7S1vL25JXbxHXxkecaQR1KfuDBW+sbiRLEZa5elbcSFZ+SUmA34erKv2AWjFIg227ChXr0iFg+w8VA0h3rfE1zo28697LwGfVIc+vNFl+90=
+	t=1791863221; cv=none; b=T3rw6fF5btI+kN9q7YKbrdZHycuZtnc5zJE4q5nYrJLRX0l3Ij7IdEgLLD/8KiR3xn9f7DZbXPqinv8sd1qbSl61ZK5+GSpUYvgTLFHQtDW+SBFFQnvEfjXN3K3DzbnOzeAqdNQuS+CFomn7YKbUlbIpcPharQnjXse/4PzFkhw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1791863221; c=relaxed/simple;
-	bh=Fc3v+sAfUFif61yc1m5RkBfsjoDptWTKM2sW8+Rf9hA=;
+	bh=fH9Kfvz9BxN/X6lf8vavcMwm5AFooycimNuX17Ck7qg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pahjytoXLTE8pGCj1hMrpqyUqKgCTbYOjc9OU/QRLN2EnblGeBPZvtkq0/QGI6ofl+BbNw7qPpjC3MsSSLNVThh9JBg4MAVccpsuxv2mLlx56wmbElPR40hTSCUSuJXNhcNu1ykqVu/+lCdB12wX4be/Z5wkjIr+t6pHQMT6whA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OD7iu+pB; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=mFXBmGwNANaUgTxn4CgB7T0V30Hi+jL/B0sPyW1SOUaYKBnsLwK+azF4GpJ35+9qJ6ITwas2Ap3sX6Cs7o/arvdj8oZg81pLrvpJdePFtCx1/C48OYqwhA5vcIZMq5CJa8u1nGmJbm8hwlti814i+raudaKl4sODXb2jua0mXo4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WpWJ2k66; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OD7iu+pB"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 52CDDC2BCFA;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WpWJ2k66"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 40CC5C2BD04;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1791863221;
-	bh=Fc3v+sAfUFif61yc1m5RkBfsjoDptWTKM2sW8+Rf9hA=;
+	bh=fH9Kfvz9BxN/X6lf8vavcMwm5AFooycimNuX17Ck7qg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=OD7iu+pBpUWQ22JlV+FEF53ft9TOvWL/gVFuQiNLXtjiJxmkfeUUeBrGpyD5rToi4
-	 yWdiS6N7EazHYkOLz+rqrKYv3e1JY6tTIudDLqZKDaStPdexuLU92VzwnqKxZOWvIZ
-	 kEVoGJxa38XIdGyK+8F4gU3tLwtG6CfFbqUFgp8DiAMhw7kSmtyWdAFRcCs8MnHroG
-	 I7gblBlg/zkmibZE5Aah2SU9BbIu5R0z+87Ypx4ouKmEk527Br2cTzHnR32TgzOD3q
-	 71PAf36lPogNTJJ+OnJHsCN/GIGlkFQjT1cQUvj0I6JqDSxhId8cZIFwgXEtACHnhs
-	 fFePTEIw2Uabw==
+	b=WpWJ2k66HKa1NPrvoR0ddCRW7UHJzHQFIuEmYl0hf1/tLaaVmiofYT7323NkyKKhh
+	 SLWrWljKSPi/g3Eiv1NmqzebWise7uCVP8uGyph+3lAXWWU370Fkf0J09zcTvfliot
+	 xu33bwUehdozUi2nc8Aj9a99CCnt1zsWxmqTRQHvV0KY/tbEbUTFQoo4Ifp57r5e44
+	 C0XzSzFuCE2qfzbODbWvdT0sGszI10jUSjelkfPiIoZKmwFAi+rlQmwEyk//jCdCFB
+	 oa6rKRvkv6FmSNlGTzTzxxB8TPeltZP2IYmB5EefS6kyLM0bBRYJOSHSVWCNxod8mB
+	 mZeO18QHDzGTQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EE4ECC6B09;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F6C7CC6B0A;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 13 Oct 2026 06:47:09 +0300
-Subject: [PATCH v2 11/11] MAINTAINERS: Add Cortina Systems CS75xx interrupt
- controller, GPIO and I2C
+Date: Tue, 13 Oct 2026 06:47:08 +0300
+Subject: [PATCH v2 10/11] ARM: multi_v7_defconfig: Enable Cortina Systems
+ CS75xx GPIO, I2C and TWD watchdog
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-b4-cs75xx-s2-v2-11-94f8c0a90cda@gmail.com>
+Message-Id: <20261013-b4-cs75xx-s2-v2-10-94f8c0a90cda@gmail.com>
 References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
 In-Reply-To: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
 To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
@@ -56,11 +56,11 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
  Fil Dunsky <filipp.dunsky@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=1164;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=1224;
  i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=8born+lqbJWHHfA9yx4+qhsEyHSP/MdbnsbUcNAg5HU=;
- b=OjNTRpBwm7+styelTVABzZsjoLC2URQ+UUV3d/JL3nx7F2z9ZI0k8C51Yde9/79AFIg6EV2pq
- 2x3+2Tx9/XMCw9PV/yIWJDirVgp7ynI2YlO715uYMYpP8rklVOP2sUe
+ bh=MUeH/IRw5kyuG0JD1ac38OtCmIzMZqOUsJQbjBgyrHs=;
+ b=hzhdz9MnRJ7JJp0HaE5KAzO7vNQz+7RUh8c224Bc8guy2XssyleWF4dUfffCXu+cS/d85uXBA
+ fc75l3wWCYcAeG+EpSXNpXeBbmEfwGgG3ApeklKtD13rCtuAelomWdF
 X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
  pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
 X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
@@ -70,35 +70,43 @@ Reply-To: filipp.dunsky@gmail.com
 
 From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-List the new Cortina Systems CS75xx interrupt controller, GPIO and I2C
-drivers and their bindings in the CS75xx entry.
+Enable the GPIO and I2C drivers of the Cortina Systems CS75xx SoCs and
+the ARM TWD watchdog driver, which is needed on the Securifi Almond+
+because its bootloader starts the watchdog.
 
 Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/configs/multi_v7_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 53f6fa1c5..604993705 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2925,10 +2925,16 @@ M:	Fil Dunsky <filipp.dunsky@gmail.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- S:	Maintained
- F:	Documentation/devicetree/bindings/arm/cortina.yaml
-+F:	Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
-+F:	Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
-+F:	Documentation/devicetree/bindings/interrupt-controller/cortina,cs7542-intc.yaml
- F:	Documentation/devicetree/bindings/serial/cortina,cs7542-uart.yaml
- F:	arch/arm/boot/dts/cortina/
- F:	arch/arm/include/debug/cs75xx.S
- F:	arch/arm/mach-goldengate/
-+F:	drivers/gpio/gpio-cs75xx.c
-+F:	drivers/i2c/busses/i2c-cs75xx.c
-+F:	drivers/irqchip/irq-cs75xx.c
- F:	drivers/tty/serial/cortina-uart.c
- 
- ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index 23f144359..9a161f8bd 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -423,6 +423,7 @@ CONFIG_I2C_ASPEED=m
+ CONFIG_I2C_AT91=m
+ CONFIG_I2C_BCM2835=y
+ CONFIG_I2C_CADENCE=y
++CONFIG_I2C_CS75XX=y
+ CONFIG_I2C_DAVINCI=y
+ CONFIG_I2C_DESIGNWARE_CORE=y
+ CONFIG_I2C_DIGICOLOR=m
+@@ -492,6 +493,7 @@ CONFIG_PINCTRL_QCOM_SSBI_PMIC=y
+ CONFIG_PINCTRL_RZA2=y
+ CONFIG_PINCTRL_RZN1=y
+ CONFIG_GPIO_ASPEED_SGPIO=y
++CONFIG_GPIO_CS75XX=y
+ CONFIG_GPIO_DAVINCI=y
+ CONFIG_GPIO_DWAPB=y
+ CONFIG_GPIO_EM=y
+@@ -568,6 +570,7 @@ CONFIG_UNIPHIER_THERMAL=y
+ CONFIG_DA9063_WATCHDOG=m
+ CONFIG_XILINX_WATCHDOG=y
+ CONFIG_ARM_SP805_WATCHDOG=y
++CONFIG_ARM_TWD_WATCHDOG=y
+ CONFIG_AT91SAM9X_WATCHDOG=y
+ CONFIG_SAMA5D4_WATCHDOG=y
+ CONFIG_S3C2410_WATCHDOG=m
 
 -- 
 2.53.0
