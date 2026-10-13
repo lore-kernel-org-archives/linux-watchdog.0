@@ -1,135 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com [209.85.208.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D381051CF74;
-	Tue, 13 Oct 2026 16:52:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B64D4FECC8
+	for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2026 17:36:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791910364; cv=none; b=EcXOSB92cctJcY+d+uiqfCHNa7UwK5wMa43/SDfPyHa06iIJ4nsbJyOH1o0iYeuhZMIZfbR4VsQJAUK7t8O/AVmYBT46OIM61UzxDjWwE5il23j87Y5zCNFBWMfx4z+303Mq44S8SRiLWsmrkF8kD2EJeZMB9SfEgYO66YHpWVw=
+	t=1791912997; cv=none; b=VWYF0QtuxOIuB7pg+JeIa/fXn6XjjKdOCYf3HDtkIXFp13Rr/e3jr8NMmefjg8LVOtjjp6uilfnPOQ8AFDTbzgP61PEm69A2ruCbLVy5vqLbeUDJB7Nclftijl36LcALuRXP/X1Izv99xc2LZc8jv09GjNjZhy8vqCcwu2LhJpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791910364; c=relaxed/simple;
-	bh=EjjAyjBU3ZHFg4z47azZ/Od4tQNOANc9AyJ546IQj+E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ie/gYNHLjuYs1P+HC0fPYLliHFBEBlUnx+iKJ0TednAVyjvq23pTPB+qmtupHyYmexWh4kg7DeipOqXYnM2JE/nxzbo6JcBaPt9vBhIbU+qR8DC3nqchxipj7QosTDTY+aI4edDPhFIqLFIo1Dm/6aVeDv/nuJTzKfT1TX+U758=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MRPfkvSg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791912997; c=relaxed/simple;
+	bh=Y3m+IiRPjHXlRcCy5kt0s5eCMwrp2C3UhEBDizZT22I=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=F5jY8jt1RjTslhE3P5RsMtwdoTi+nszrKgg7Y5+D5/wwRJF0LHttC/T93utVQnFHrrzfbmWUOjLfB2FMC39fhZ+QmyUdslv85oydPYUjsT3V5pZEpZVqo60t5AhPQoHC9f3rUu6lfwA6qEoaRs7yOIPrdLwf2imvmIThQ4Ld+00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sWSKRDYf; arc=none smtp.client-ip=209.85.208.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MRPfkvSg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146A91F000FF;
-	Tue, 13 Oct 2026 16:52:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791910362;
-	bh=EjjAyjBU3ZHFg4z47azZ/Od4tQNOANc9AyJ546IQj+E=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=MRPfkvSgsYreau+FlHK4l6TZdXeSqfxnlgeH9mTyZ9Tdhh/jUk7nIuHdL5nWMD6dL
-	 xIKpbWEVPRTEGIOLFJDOlY13m9j7GcE4j74wOihgmaYupV5Bf4NgDk+6185bis5igm
-	 ddUoR6y297V6TZBDvPVXDjCSrdyKGjpPDMXjeMTzmKcMEHSQJZQXG8TMV0VL98K3cL
-	 iRzm+WGF1GOuTevubpBPove9gRDCwSDOXlgCCX9vHR8m6RBQZICTlmgTMVKlHk5dsW
-	 mdrSrGflAyn1USuBrRaCGDmxPgvwe/wZX6mew2neQm9cIuAD+cEprS4j4kLiykr3iN
-	 6FQLVdx7Jrx6w==
-Date: Tue, 13 Oct 2026 17:52:36 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Fil Dunsky <filipp.dunsky@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sWSKRDYf"
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-3a777d4f321so28064441fa.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2026 10:36:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791912994; x=1792517794; darn=vger.kernel.org;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Y3m+IiRPjHXlRcCy5kt0s5eCMwrp2C3UhEBDizZT22I=;
+        b=sWSKRDYfEI2zJ8ek2B8JekPO7bpouaU4ye6ZLMzaLhFtP1AhCCxqdVnUU1AvhKNrDd
+         v2MC0OEebHbDFaMpOxCzNS6pSlTBUtHQmanosOVAV1K4Zu71B+jUWzJz/COc5WxhFuWq
+         Ek78aoVLycp+SnFOteb/roZXxKhe3ULXz1tvDGSIGnbrBYDAzjAuiEdVdwxfPcQZgAXv
+         wCT1j3P5xVlnwX+G31vpUkkaO4ImQpP/FcajorsT+5mbbirQUlS4Y3GW3rHli3jtu1lv
+         s8V/49TqBiKHlLbI7Ltn08J0xb8u+qJiSyxKX4SGXaK4YjlXK3kxzIWa5tvhgxWXE14G
+         XlVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791912994; x=1792517794;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Y3m+IiRPjHXlRcCy5kt0s5eCMwrp2C3UhEBDizZT22I=;
+        b=eF6wcWh12XvpzAkw+Ki9KRZ6F0P0ss6P0rWmK51v67HAlkvp18IDxQRhTSfxZ4GECv
+         A1IMlivxGmBZyhfoJrAto/2qiR+rxu/3AYFE6f8DfDiSg4dQWFycvBNKSGuQDpxUSQNL
+         bk1OQNDyYQVIKaYbQBXpVGODDgEdKF1gNijQHbmxPQejSjiA+Wx3Gku7PdjLca2+uKen
+         K7k642pxa/yv/L7LQusfnTN5Z6JcCcr+KtLXX7qkMJVmPeAh0bZbsEyrJNx7hqR6OoTN
+         wrVVO6Ri0TZ7+7OEddRXL0cMWcxgmoWdDMU4vqU+Plfuwh06ZrlJDrhi1c+f7kxyiMt2
+         YdqA==
+X-Forwarded-Encrypted: i=1; AKwUvBzvtZvgVI9JzEE733ceYZKwPDRGjXZ5o0LgA5JCA+6pHInoRlW5pbR8/slxs5OJUHkY19Yp0TJs/ZprHNlciA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLPmuHipC4imwoNBb+IzYQpx4RZGyBrJtC007X8MzmXSvlIh1QV
+	PpSIoL95dcR5wwL2nR83ycOjg67iH80eoQA9sYnwNHcaR91D9h9TgrLr
+X-Gm-Gg: AYBFou3pnZCRDCQQkdYPPMAeJ4IxpaQD+3vFku3iTU3BPArBLFBwND25X+3xP9m80QS
+	/g9McNB7NJcwuuNNfIOvGeWGdzo14+PRaBrl//E2+ObaEhQLph9MCh68zaYE7Fji2iy7CgCDUbL
+	9CRSGvcTIMPR5nwDynOP83YFhGkZALo/ohJNgOXHa08fvQKNs1BjhxZJgZdGStDx808zImPEc/w
+	kXKXT2XSG4AgxChFHRB3HiN6D5iGWL6olNpqrn58OZSnOdOGp8p8VZwjh4PksoGW63KvtdlCJqC
+	VztlLgrr8j7vBCTKNm6Pd+0HeMj86TaR6XRwhy9xHQBjiekYGMVv1uHvdIXClSDu9igVzJTwsTo
+	Tzs3CcQPOSDiBxW4JVbGvsdwZPc9qPIda4FfSdXcs3ocjRWzbSOCPFEPW5Ro7wgPDGGmCCHM2Sx
+	nRu1yz9IOIm4skeief0cCIugf3Ntaogt+pWsmpBMyFgz+DkhtjJE+aiWJwnDj+4dkihTt0hXuFM
+	iYTN0Hm03jKmlWUy7E7Lmky7lj0v2p67Awr7hqjKOT2mLg0PJDyOpOJN0j4rLxjm8EF
+X-Received: by 2002:a2e:a585:0:b0:3a5:f982:9c62 with SMTP id 38308e7fff4ca-3a9c4eb6b77mr31027101fa.1.1791912993414;
+        Tue, 13 Oct 2026 10:36:33 -0700 (PDT)
+Received: from [127.0.1.1] (ip-024-215.users.dtel.ru. [91.210.24.215])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a9c3cf7ffesm36421781fa.41.2026.10.13.10.36.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 10:36:31 -0700 (PDT)
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+To: Conor Dooley <conor@kernel.org>
 Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 00/11] Cortina Systems CS75xx: interrupt controller,
- GPIO, I2C and TWD watchdog
-Message-ID: <20261013-plastic-dragging-8232efb058ef@spud>
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+ Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
+ Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 00/11] Cortina Systems CS75xx: interrupt controller, GPIO,
+ I2C and TWD watchdog
+In-Reply-To: <20261013-plastic-dragging-8232efb058ef@spud>
 References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
  <20261012-dreamlike-hazily-19bb60326f0a@spud>
  <179187542217.3247897.4323160442877168450@gmail.com>
+ <20261013-plastic-dragging-8232efb058ef@spud>
+Date: Tue, 13 Oct 2026 20:36:28 +0300
+Message-ID: <179191298807.12554.2183121269667635269@gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="9WsB/PUlVzPaxjR8"
-Content-Disposition: inline
-In-Reply-To: <179187542217.3247897.4323160442877168450@gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="fixed"
 
---9WsB/PUlVzPaxjR8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Oct 13, 2026 at 05:52:36PM +0100, Conor Dooley wrote:
+> If things are just tightly packed, that's fine and you don't need to
+> make it a syscon. Just because something looks suspect doesn't mean that
+> it is actually wrong.
+>
+> In your shoes, I think what I would do is leave i2c/interrupt
+> controller/gpios etc all as independent nodes.
+>
+> I would however model the pinctrl as a single node, with
+> reg = <0xf000001c 0x14>
+> I think, rather than 5 instances 0x4 wide.
 
-On Tue, Oct 13, 2026 at 10:10:22AM +0300, Fil Dunsky wrote:
-> Hi Conor,
->=20
-> Sorry for the late reply, and for sending v2 and v3 without addressing
-> this - I missed your mail.
->=20
-> On Mon, Oct 12, 2026 at 07:48:00PM +0100, Conor Dooley wrote:
-> > I think what's here looks really suspect - regions of two registers
-> > wide, interlaced between devices etc.
-> > You mention syscons here, and really that's where I think that this
-> > should go. The region at 0xf007_0000 looks exactly like a syscon to me
-> > and should be modelled as one.
->=20
-> Understood. The block at 0xf007_0000 is the "peripheral" register block
-> of the vendor kernel: the interrupt status/enable pairs, the UARTs, GPIO
-> banks, the I2C (BIW), SPI, MDIO and timer registers are all packed into
-> it. Would you be fine with a "cortina,cs7542-peripheral", "syscon",
-> "simple-mfd" node covering it, with the interrupt controller as a child
-> node without its own reg that gets a regmap from the parent? The UART,
-> GPIO and I2C nodes would stay separate devices with their own reg, as
-> you suggest below.
+Thanks, that makes it simple: the interrupt controller, I2C and GPIO
+nodes stay as they are, and the pin controller, when it comes, gets one
+node for the five mux registers.
 
-If things are just tightly packed, that's fine and you don't need to
-make it a syscon. Just because something looks suspect doesn't mean that
-it is actually wrong.
+I checked the boot loader's pin mux on the board: it leaves the reset
+button line and the touchscreen interrupt line muxed to GPIO, so the
+dts does not change with the mux register gone from the GPIO binding.
 
-In your shoes, I think what I would do is leave i2c/interrupt
-controller/gpios etc all as independent nodes.
+> My take would probably be not sending new versions until at least 48h
+> has passed since the last reply on the current version, rather than 48h
+> or w/e from time of posting.
 
-I would however model the pinctrl as a single node, with
-reg =3D <0xf000001c 0x14>
-I think, rather than 5 instances 0x4 wide.
+Noted. Arnd also asked to wait for the 7.4 merge window to close, so the
+next version comes on top of v7.4-rc1.
 
->=20
-> > I think it's fine to make a GPIO controller at this point, and leave
-> > pinctrl to later, but I don't think that it is acceptable to pretend
-> > that the mux registers are part of the GPIO controller. The pinctrl-less
-> > GPIO controller would have to either rely on something else (e.g.
-> > firmware) setting the mux registers or be not entirely functional until
-> > the pinctrl arrives
->=20
-> Agreed. The next version drops the mux register from the GPIO binding
-> and driver and relies on the boot loader's pin mux. A line that the
-> boot loader leaves muxed to a peripheral then stays unusable as a GPIO
-> until the pin controller exists; I will check which of the Almond+
-> lines (reset button, touchscreen interrupt) that affects before
-> sending, and leave those out of the dts if needed.
->=20
-> I will not send it before the interrupt controller question is settled,
-> and not before 48 hours have passed in any case.
+Thanks,
+Fil
 
-My take would probably be not sending new versions until at least 48h
-has passed since the last reply on the current version, rather than 48h
-or w/e from time of posting. Of course, exceptions apply, and you can
-use common sense to guide you.
-
---9WsB/PUlVzPaxjR8
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCas5h1AAKCRB4tDGHoIJi
-0udqAP0WM0sBTq4yEA+F6vKgUmE8ocwVivM3NUIF83HuZso3pgEAivB/61eJBing
-IjaFuZ7tEIoxs6shBuwSTj5im/+qbQk=
-=Hfgz
------END PGP SIGNATURE-----
-
---9WsB/PUlVzPaxjR8--
