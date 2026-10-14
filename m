@@ -1,145 +1,166 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010020.outbound.protection.outlook.com [52.101.193.20])
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF63A30D3FE;
-	Wed, 14 Oct 2026 01:30:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.20
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791941406; cv=fail; b=LfC3lmQZUwob4vUoDvXrCOO1g2Y9pl+FA2ELf54i4SVOrtYkAPPi1gSGl2tnb26c1ng5tVD4SFT5MiXk99H5R47Zu/evFUX2Mca+hXeod/4x/5cFTom+AUzsGF677qCX/eNaRpLZxBus/DcCktz/soziZsQvufEBIlnMbemOk+w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791941406; c=relaxed/simple;
-	bh=h43Ss7PdOnxLEBzuKjqmcNa2xm/5PEaikdGA2nv2uIo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=maH3GA34vIUrta5iQvusMoYdk6nVsvOy/DtFMgxhZqBvKmnd+gP/+aEjftq48aXi5dXL3YGN6XXMEDA8UTF0EB1Nn4AOf9/46O9HBoh9q5zWk3cfwDmsvbZvLyktCGCQzYY1hp+/VVrxm4cq3sfEkgnfrSGGyviJ5P8zS8vxdkE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=H8vvCriZ; arc=fail smtp.client-ip=52.101.193.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8221541D135;
+	Wed, 14 Oct 2026 06:56:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791960985; cv=none; b=kfbYSly1xmLaohLYWrVwLvv8QnXpWpvh3NSXOufUMSMDX+rXACE1at8K/adPii60ebYvZIe2W8pPgf4loheiK62fOmxaTVh1aY2N+MFJdZSczZXndeI966Zx1gKGzEZqL5vKLn07LI4yMcDhi371aIcboOfiecGNg3O6hZi8dWw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791960985; c=relaxed/simple;
+	bh=pchHXEt1J4aJR0AWs0OX96hBjb602vhBljsRc6MgM7g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=YhrvC1PWwsPKRfqgudG0/tXl6dD3RDZTv4RjMwro4O0FCA6anXz6vD+NY3HRj8J8s99+13zBGaic1vHDSM/bihF8jzMTF3D07/LdxEYBGI5WYc6KtV2blYdVONwcsLTYfBqNK6cdCl7Sseh1AJC4QNkLvrKTXhuPyDsWqLnnyto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=cCZPlIQc; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="H8vvCriZ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ZiMsxNefvBhWVPYb4jP3O+avRfueUs6roo4Cs67Gr9OD+yjcI88GnQ1fxmFJOtVjlHd8rAQ/OPydqTbQTwVy19pILkpeeIdzjcpVQWXruMrl+BDQVE5e2tP00jElwuqCcIV+f97G3IOYNN6Pc245r3qQ6w1buq1IL8FstzSK6bpYdXJaT/9nHGSdJ/ItDRm6rDxj3Z6JWhWY2CsX8Za7GprYM+OeF7zVfX68wZgQi+B0bnvdx6JOkb2CEu9/98oO0kSUPj2nLaXfYizX/OOI7MDpe9lJkmk0rYt8MAkKVp+1KshXCU69Wx/kczdcC2eoVtnofskPs26SyLqQb/sCwQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=h43Ss7PdOnxLEBzuKjqmcNa2xm/5PEaikdGA2nv2uIo=;
- b=nrSydd3TOsqDiaDbRRq6uObz5e89mH7SFvjN6OSorasLdxOWB+Xxz8JlIYsR7bHsXNd+ixtQYS+hwQIasqJ4B95edXE/lq+YUgw6LkVffEC5kifhScf1baLmIUR/g5wY+d9kA7WZgS2GstX4ezOGzm/fonskt/ASXzr04oRQN6YJsnddn+z/lFEIOdelxcbUuZ1v5kpXZKafUx36IF86uezpRIGMte6lQpGNvhaUzmDyRj9kUABUyVtzhq3r/dM7eopJI7Xvn8O0n7TGLdmIgKgAFlUTDnFyRxPaxbf+MpsC4sXuNEJgsWFnHqo3m9+VtfQLvLMwZmgWYw4Aipug1A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=h43Ss7PdOnxLEBzuKjqmcNa2xm/5PEaikdGA2nv2uIo=;
- b=H8vvCriZdVuRP9wZbiHKrLcEro6YWWGQHYNHx8ofIE7AOHmmf40qu2390M6/lnhAQbykyZj7ycsPyoI2y4utnC7UMnUdmho77kDkGEE+9upBPcN6yM0YKjTejf3uQZIhQKpAApIHWJXNyKNaD74t8JI4M1SSioNzPfDovNHuSBKVWxDeXwS77l/4Bo/zOWY4HPfkYZRK2JMqG8Jn5olHrQg1U1cV29KVzmX/aFJnbMIdHyi7mNq7JNyKU7nNpNsaLUyaNPwNQ4T8s1VJh7weIUNsZzULchWhRxEkDjCMjrUR3VYj92zCDp8buUHKlX5OH+mPF+lArX7dMtxo2h7VAA==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH0PR12MB5089.namprd12.prod.outlook.com (2603:10b6:610:bc::8)
- by LV2PR12MB5967.namprd12.prod.outlook.com (2603:10b6:408:170::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.15; Wed, 14 Oct
- 2026 01:29:59 +0000
-Received: from CH0PR12MB5089.namprd12.prod.outlook.com
- ([fe80::cb31:7ebf:51e3:d9f6]) by CH0PR12MB5089.namprd12.prod.outlook.com
- ([fe80::cb31:7ebf:51e3:d9f6%4]) with mapi id 15.21.0522.012; Wed, 14 Oct 2026
- 01:29:59 +0000
-From: David Cemin <dcemin@nvidia.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-tegra@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sbsa_gwdt: stop the watchdog across the whole system-sleep transition
-Date: Tue, 13 Oct 2026 18:26:36 -0700
-Message-ID: <20261014012635.2360555-2-dcemin@nvidia.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <b17e7387-0de1-4b41-8955-6f66965a1126@roeck-us.net>
-References: <20260912182107.1156221-1-dcemin@nvidia.com> <b17e7387-0de1-4b41-8955-6f66965a1126@roeck-us.net>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: MW4PR03CA0343.namprd03.prod.outlook.com
- (2603:10b6:303:dc::18) To CH0PR12MB5089.namprd12.prod.outlook.com
- (2603:10b6:610:bc::8)
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="cCZPlIQc"
+From: Yureka Lilian <yureka@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1791960975;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=RFRhkU5N0xkY+h+ZZaHcxaa1ZMJtDptcbJ0QND+y2ZU=;
+	b=cCZPlIQcPSnjvO680NjrZGy0BG6CEKO524p5wCykGaevyWasCNuGYmGtaMmcEvn9oM89hq
+	b8zrbS8P0V+Gu2GfoUfdPbZV/YOqmP1DnY9rsCE4gp0zQ9NFmjghU0lItKy3GPrFV/OXmc
+	+utiL/vJPVDjsmPooYSCUJ3YEf4Nl1k=
+Subject: [PATCH v2 00/10] Initial Apple Silicon M4 Pro/Max device trees and
+ dt-bindings
+Date: Wed, 14 Oct 2026 08:56:07 +0200
+Message-Id: <20261014-apple-m4-pro-max-initial-devicetrees-v2-0-961edd8d661b@cyberchaos.dev>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH0PR12MB5089:EE_|LV2PR12MB5967:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6cb3776f-a939-4c9c-346b-08df2992a939
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|376014|23010399003|56012099006|10067099003|4143699003|11063799006|18002099003|22082099003|261009223027099003;
-X-Microsoft-Antispam-Message-Info:
-	166KhULRD6f6YRJ5n9JRUwhW67F/Gz/v0v5u7l+btFdB0I57zqti/WiZ3IKxo7hbLk4NY2hYk9YvHxPyGjh2KFX08aT34xs4q8qZkGuqz5khKb56mXlB1XBDv5lmi4HJwsbqsscYXH22e+2wXXmQ1KEM2OoPS1CfPYfW5XCpdvOyLIn0UNN6qVK6pG0iRDOO72gItUEoUyoK18odoLVhrjCXPJLtUzpftqkOv1N8ymD2XLFqEysX6WrZOB67Ed3h21PJ8bjnqbLwne3qK9J7oBtOgR6e/clSFNh3Rv+AEcWT5yFKHw6rVg8GqfumUXuAzpJaqaMV+LB8zHhPQ7LGlQL06SODCbtyAvJAamJzK7f++Yt8oaz7CFoISuYtA47UkcEjxmY88C+fhCx4/ezgZiRcnWXiNc7GfGHBYiBr2ruhJ5bOyV3Uz2mjPhzQYgdJEFvjneP/6rYtedVsBfMCtT3uA7fj21CSlyBipWLf5HeZTF6BaVgZPo4GYprVwbknTIQsLp0k+j3cNt9TNpPQUZmuhmYf1IHfLPStab/GMApSfPc5cJweECSrhgJ3ttrA6+I0ULGX0N30I+3eaXWVWkvJp8hky+Jw5XOtrftVr0IQC83Qyy7n0uuJYyywj57OhRE+/XDYJp2ZOCn5YBqw/w==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB5089.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(23010399003)(56012099006)(10067099003)(4143699003)(11063799006)(18002099003)(22082099003)(261009223027099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?u0FFmmrJhI482oLZpNwfk0qKW/dPyul3lWyvSXnalUsCWNeKlwS2jLgRL56l?=
- =?us-ascii?Q?va5bbWIbgkCM95uM07ztyqAKALdBZ+ut27ktJazFVTtDyZ6XOazwsm0lwkIb?=
- =?us-ascii?Q?nwdiyyTJygaYslLGvhxPC8nVz/a36pF/buVfXQf71Ue3CS5U8MAO9osmrgK1?=
- =?us-ascii?Q?n9JsUghfEm8O286XdGfhrkI6iKL2vJOzHraBvvKqVefVEI7nT6elIRm37A4s?=
- =?us-ascii?Q?W6kjyeFr6Lov2Ch98Wl+lIy7kQoWKeA7IBsDdEu1el9zvDI45FiB2nEgA2Ky?=
- =?us-ascii?Q?EE2cH89L5R/gijW8601vB/ZaVnoGTX/Pu8WDw6jf6nblMpuCUziruMzFZZTw?=
- =?us-ascii?Q?23RsMxVRj+jIkeXd333PjzVCQyJ0eXiRz8Qy0PBOy60OGdKtYojfqz3npORg?=
- =?us-ascii?Q?kKJVGTIyJOBmhsu6uQq7ZmKqaknSmg/Nckl86JJJWfAWmW5m1jjqpPKtOHUB?=
- =?us-ascii?Q?tjXlc2YBYoGZtEQ1DUdfmnoYQ++E6UFe3QZRI6LG4RBvI2QHdcTHgcTNQD8Z?=
- =?us-ascii?Q?F4iFil9iACx4IK5NjUT1OXrdxGw4vLme2k/Dv7ttjcEU8Q7JZc/kGh5h7BW5?=
- =?us-ascii?Q?mpc37O+8pbsmLGG2kKvAO6+EmFHGpkEeaKJt13KgKB4e2F9xnGeX8I3jIfkv?=
- =?us-ascii?Q?bOsYHHUP1v3MIWaT0nROj8Bqx/ZPw4fxOf2jA0pIGurY1I9ZT3/TLDhLUlgB?=
- =?us-ascii?Q?fyOwMZ4FEqXZ5mYhXaQOQTCpXwQ/8RVZfnOOaEx5pxK3HhjJCfTn970ElYde?=
- =?us-ascii?Q?aoJvgXHiKxqME+BKW65FgGxjs8sHS7vpD7Vf36Ihnp6xy03wFb9ipeadZic7?=
- =?us-ascii?Q?PtHdJ8Tek8s5NZdQMh+J8D/TbdZzf2RtNYoqIecIjK9kKxxiLuC56qp0hDl4?=
- =?us-ascii?Q?54ovJW3g8CK9ECv2LcK65Np02slCH/ZYRvkpxNxLI2nWh/fY6qqlk9Nux0UE?=
- =?us-ascii?Q?hl2WuYDRgTyS9Qrrv2hoXaQp242VmNy5SlP8+4mg7qJLnLlPCkzx8vkgRoMC?=
- =?us-ascii?Q?MkQ1NRNwGw0KDek99z/niAuD6V+wT4Pf7iZ21vdHksg56KVT1zqcai9OA2vK?=
- =?us-ascii?Q?FzOgnAm/tVJzVLi5g+Hz6d7TUkpiPTQ65Y0zLgBrhL/zIetmE5LKfoWJ8miT?=
- =?us-ascii?Q?QSHLLxLsva8JXGJKOTZk61KRFST3Etq2vSJ+nQcfn+ptLq+kzcv/Wv8vlrtx?=
- =?us-ascii?Q?dksJRfaWdTSW9YQd92o+EBwMX4nPa8LBKkpr4sK+ALn2Dnc0JZGfKTOKZTK/?=
- =?us-ascii?Q?Sklzi/Md0d3jtmXlLiXMVeThIdRhR4eE9Uj71SEm95Gjmj03zWw3zRCzFmBq?=
- =?us-ascii?Q?hH1cUsS0aJbOqrHnufp8jgbxk+NS8GsVj8msQVrz6ju/pdvwYPCpZEyninn9?=
- =?us-ascii?Q?G170zQ+6FdgU1KDZ2whdwUZzi+blj5L1AFb40gQk+laoRux+vuT+jYrwnOLB?=
- =?us-ascii?Q?sFBhCY8p72es1EzC5oj95aZ7Gr5qY51Kvfj8rVKFCBLcYfxWwcmF6gEfwsSB?=
- =?us-ascii?Q?9tBQ4Uihv5URZTL/qRMefaicvtfUuh24MemC8JfnmTH8Y7jhUv6YHjQ5Zri4?=
- =?us-ascii?Q?Yzfv19LDdbrmB4kjbItltZEs8w3Yav0wcUJml1kVWariVfMe5x/1SN1hVWg+?=
- =?us-ascii?Q?xX+BxMfc64btFeF5v2dIdCgFpdajTkTWAcQ2tMCzEjFG/OQSos+QI789CxZG?=
- =?us-ascii?Q?rp9e/bFhLn94+U55Bf0VK2CEc921lzKm4w7+zo3yWHcgB45aRoQHABfZUHDf?=
- =?us-ascii?Q?SkxHwoXzxQ=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6cb3776f-a939-4c9c-346b-08df2992a939
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB5089.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Oct 2026 01:29:59.2370
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gZpjsC0OiYEC53glzH4n66KUfBN66P3jvvqQgcApUoBJ5BCGpuIGmfu8w/8iITT0czkL241KgC5IURQBONZcuQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5967
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42PTQ6CMBCFr0K6dkxbDD+uvIdhUcpUxiBt2kogh
+ Ltb0AO4/JJv3nuzsoCeMLBrtjKPEwWyYwJ5ypju1fhAoC4xk1wWgvMalHMDwusCzlt4qRlopEh
+ qgC5da4weMYDOW5kbVaqqQpainEdD81Fzb74c3u0Tddyzd6OnEK1fjh2T2L1fpeD/VU4COJSVM
+ G1uZFeb4qaXFn16woZzElmzbdsHS+3j9u8AAAA=
+X-Change-ID: 20261009-apple-m4-pro-max-initial-devicetrees-c3b23fa7a88e
+To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
+ Neal Gompa <neal@gompa.dev>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Radu Rendec <radu@rendec.net>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+ Hector Martin <marcan@marcan.st>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+ Sasha Finkelstein <k@chaosmail.tech>, Linus Walleij <linusw@kernel.org>, 
+ Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ Yureka Lilian <yureka@cyberchaos.dev>, Florian Klink <flokli@flokli.de>
 
-On Wed, Sep 16, 2026 at 05:18:34PM -0700, Guenter Roeck wrote:
-> After thinking about it, I concluded that this is the wrong solution.
-> First of all, it is a solution in search of a problem: Simply increasing
-> the watchdog timeout to be safe would solve it.
+Hi,
 
-Agreed, and sorry for the long silence. Please consider this patch
-withdrawn. The resets described in the commit message are handled on
-our side by running the watchdog with a timeout that covers the suspend
-path, as you suggested, and the watchdog now stays armed throughout.
+This series adds initial device trees and dt-bindings for the Apple
+Silicon devices using the M4 Pro/Max (t6040/t6041) SoCs.
 
-While doing that we found a second, unrelated problem on the same
-platform that I want to mention because it touches the same driver.
-sbsa_gwdt never calls watchdog_stop_ping_on_suspend(), so the keepalive
-hrtimer of the core can still be armed when the system enters suspend.
-On this platform that pending timer wakes the SoC a few seconds after
-it enters suspend. Calling watchdog_stop_ping_on_suspend() from probe
-removed the spurious wakeups over repeated suspend/resume cycles on two
-boards. I will send that as a separate one-line patch. Your core series
-from 9/29 (3/8 in particular, the _WDOG_SUSPENDED gate) closes the
-remaining race in that path, so the two go together.
+This series covers only a minimal amount of hardware, which is useful
+as a basis for future developments. The hardware added here has remained
+largely unchanged between the M3 and M4 generations.
+
+The dt-bindings changes should be mostly boring (in a good way!). The
+device trees themselves are roughly organized into the MacBook Pro
+models on one side (t604x-j614-j616) and the Mac mini and Mac Studio on
+the other side (t604x-j575-j773). I'm hoping to re-use these dtsi files
+for the M5 Pro/Max versions of these machines in the future.
+I applied some version of dt-check-style formatting to all new files
+with the exception of the generated pmgr nodes.
+
+Merge strategy:
+Since there are no actual driver changes, we'd prefer to merge the
+dt-bindings changes through the apple-soc tree once Acked by the
+respective maintainers.
 
 Thanks,
-David
+
+Yureka
+
+Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+---
+Changes in v2:
+- Remove accidental t6050 hunk from "dt-bindings: interrupt-controller:
+- Remove accidental Acked-By & Reviewed-By from "dt-bindings: interrupt-controller: 
+- Fix missing "0x" hexadecimal prefix in cpu cache sizes
+- Use _fe power domains instead of their disabled _cpu counterparts in
+  Mac mini and Mac Studio framebuffer nodes
+- Link to v1: https://patch.msgid.link/20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev
+
+To: Sven Peter <sven@kernel.org>
+To: Janne Grunau <j@jannau.net>
+To: Neal Gompa <neal@gompa.dev>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Guenter Roeck <linux@roeck-us.net>
+To: Rob Herring <robh@kernel.org>
+To: Krzysztof Kozlowski <krzk+dt@kernel.org>
+To: Conor Dooley <conor+dt@kernel.org>
+To: Thomas Gleixner <tglx@kernel.org>
+To: Radu Rendec <radu@rendec.net>
+To: Lorenzo Pieralisi <lpieralisi@kernel.org>
+To: Hector Martin <marcan@marcan.st>
+To: Uwe Kleine-König <ukleinek@kernel.org>
+To: Sasha Finkelstein <k@chaosmail.tech>
+To: Linus Walleij <linusw@kernel.org>
+To: Mark Kettenis <kettenis@openbsd.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: asahi@lists.linux.dev
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+apple,aic2: Add t6041 compatible"
+
+---
+Yureka Lilian (10):
+      dt-bindings: watchdog: apple,wdt: Add t6041 compatible
+      dt-bindings: interrupt-controller: apple,aic2: Add t6041 compatible
+      dt-bindings: arm: cpus: Add Apple M4 Pro/Max CPU core compatibles
+      dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6041 compatible
+      dt-bindings: arm: apple: apple,pmgr: Add t6041 compatible
+      dt-bindings: pwm: apple,s5l-fpwm: Add t6041 compatible
+      dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible
+      dt-bindings: i2c: apple,i2c: Add t6041 compatible
+      dt-bindings: arm: apple: Add M4 Pro/Max based devices
+      arm64: dts: apple: Add minimal t604x (M4 Pro/Max) device trees
+
+ Documentation/devicetree/bindings/arm/apple.yaml   |   27 +
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    1 +
+ Documentation/devicetree/bindings/arm/cpus.yaml    |    2 +
+ .../devicetree/bindings/i2c/apple,i2c.yaml         |    1 +
+ .../bindings/interrupt-controller/apple,aic2.yaml  |    2 +
+ .../devicetree/bindings/pinctrl/apple,pinctrl.yaml |    1 +
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |    1 +
+ .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
+ .../devicetree/bindings/watchdog/apple,wdt.yaml    |    1 +
+ arch/arm64/boot/dts/apple/Makefile                 |    6 +
+ arch/arm64/boot/dts/apple/t6040-j614s.dts          |   24 +
+ arch/arm64/boot/dts/apple/t6040-j616s.dts          |   24 +
+ arch/arm64/boot/dts/apple/t6040-j773s.dts          |   28 +
+ arch/arm64/boot/dts/apple/t6040.dtsi               |   65 +
+ arch/arm64/boot/dts/apple/t6041-j575c.dts          |   22 +
+ arch/arm64/boot/dts/apple/t6041-j614c.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6041-j616c.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6041-pmgr.dtsi          | 2297 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t6041.dtsi               |  713 ++++++
+ arch/arm64/boot/dts/apple/t604x-j575-j773.dtsi     |   47 +
+ arch/arm64/boot/dts/apple/t604x-j614-j616.dtsi     |   65 +
+ 21 files changed, 3364 insertions(+)
+---
+base-commit: a8ac6027e82415f431bbba49ab535c44f2edaf4d
+change-id: 20261009-apple-m4-pro-max-initial-devicetrees-c3b23fa7a88e
+
+Best regards,
+--  
+Yureka Lilian <yureka@cyberchaos.dev>
+
