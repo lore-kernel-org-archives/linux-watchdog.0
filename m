@@ -1,144 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B28C31E84F
-	for <linux-watchdog@vger.kernel.org>; Wed, 14 Oct 2026 22:39:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D409231B101
+	for <linux-watchdog@vger.kernel.org>; Wed, 14 Oct 2026 22:48:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792017579; cv=none; b=FfktEqtaWyjAzQqZvq7x9lrE+SSl+xlVlZtXddW28vvaOntK5ZpbS84rtzAa3lOA3lsxwvX7Qb8gX3vHVC1nBSIVv2iW3qABp9gcnYviL9t0cLksigZYX4nFogpKnPvkmTcrlUSILoemyhLWyxhTxGZNalhKq2AGG2gOmnQJ/58=
+	t=1792018115; cv=none; b=Hxjq9HB8uerKUNxpSGSYtEMx4JuoQQBUWBqN400BJ1isSZfSzNf3wNVBF8nd6jz222Wxji3cRqBBJ8C57hXPLQGQOASpgC18lA04Uzzj32aQYn1OuBu4H4r/ESqohCz5/SF41MDdTUAqDFzUsm4ukQ3/8nYZN7SFyRIms9mRPfY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792017579; c=relaxed/simple;
-	bh=AX2OgX9JNXXhk55wwwVTWor2YrgAG8rtLyuifTHXGqY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=pboOQceeYNMqpIyLYSiN0VE9ZhdioCLsu1TKza8JM/OdTNxTj+UhH6q3KlO0rlqJ/9tzRbLO3NLwu5fOQ+V5HxFHmjHtK1+Q5cs0EJI54I38fPWaDgu7MN0sy6AeY7UERDZlS95k+yRg0M1ezxXsJZ8tKyivYI3Jodl4kupCTKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EvbStanm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792018115; c=relaxed/simple;
+	bh=6hh1v8EA5d+dQZaaczzJePCW4SQIb60zzTdqMu692wA=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=ANgq6xINhz+ZaWKYtzKeY64nERwprgGB4CoTcgScEtj6gtAkRpotejP3DVB3qJYaLdTDDpKoDWCHsCiQAx9V9Dq0etX964dy/LVRm9b1ScNw+hWD+eaB7UnsbiM6plVlJu7kop8nL5GQr3CymsXkYI292y3ECkqQGhq2kPBj0r4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OY3sXUvB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EvbStanm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC8361F000C4;
-	Wed, 14 Oct 2026 22:39:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OY3sXUvB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 479031F000C4;
+	Wed, 14 Oct 2026 22:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792017578;
-	bh=mxl7bKnMGGFXkps2Wgm0oQQDOv6wA4YQaW/l0sVA49A=;
-	h=From:Date:Subject:To:Cc;
-	b=EvbStanm58VNLEZ+JGYF7YPuPiXOV3b+KmR1mRz27eC18hJTgNSS6GoVbaT3Mk55/
-	 Dm337L44Qgxq5lY7BxX+GMXhKJ56iRZjITD+ftjQm3UUh4vD/y6S8nqRM8vzReIzi2
-	 Dqn3ajAREZe2nnTcPfnfxmHDDYf14+juOvjeTj8wrdLPNtiTAr1aJQWYLbaM8w6D88
-	 qCaqp5UDwdXOYIV6pmC6tRQ2sOmb7v6eTPotUwKXBY+BZAT5cVYW12YZ/LbSOyNFh4
-	 uQC8R4bXbACO+1hZQmfcksP8+yimaSnPeR7YJ6AF9XmkKPsujJpum6oMlyB8KO6x7m
-	 FiHFJ4aKnfxfA==
-From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 15 Oct 2026 00:39:29 +0200
-Subject: [PATCH] watchdog: bcm7038: Add a restart callback
+	s=k20260515; t=1792018114;
+	bh=D13AbjQ5bnKUyXHjREhGP87+Lf1Pl1lNX55V8FgjkoM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=OY3sXUvB/UU5dyETqJTvqwt+ZGlWSl8sfBHloHFqOf73x6J5QyKaG4ervARhZjCoZ
+	 ADc2JIOm2ABAocDmneinDPv9T95baP2+ZnxCASKwhK8NBaiv/BhXMb6bvoQgjNuLyY
+	 qij32m3XXUEcM0GXlhluLoEC+M6tZJiUs6RKNudlQZrU3zUUky36RZJZJJeFwFV17k
+	 Jh/moWs5qFwVmxBGLXCWHS2JZQ6tzmcq70rnTA/nKvo2F4FaibIwlFAyE5gUGV3YPB
+	 9VH4nwhsdlcpVoCGLpQ7MTNjbrNhsyLvEhg2j3o2Upn6vGmfPjBURYz3kyoGvFPJm5
+	 9XWoLlFvfUEZA==
+Message-ID: <sashiko-outbox-172006@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: bcm7038: Add a restart callback
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Linus Walleij" <linusw@kernel.org>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20261015-genexis-xg6846-watchdog-reset-v1-1-9577d65223d5@kernel.org>
+References: <20261015-genexis-xg6846-watchdog-reset-v1-1-9577d65223d5@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 14 Oct 2026 22:48:33 +0000
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261015-genexis-xg6846-watchdog-reset-v1-1-9577d65223d5@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQrDIBAF0KuEWXdAgzFtr1K6EP01szHFCY0Qc
- vdKlm/zDlJUgdJzOKjiJypr6bC3geISSgZL6qbRjN4a6zijoIlyy/7uPO9hi0taM1coNk7ORf+
- YwjzDUD++FR9p1/96n+cfqcEBkm8AAAA=
-X-Change-ID: 20261014-genexis-xg6846-watchdog-reset-d44c695a77e0
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, 
- Florian Fainelli <florian.fainelli@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: linux-watchdog@vger.kernel.org, Linus Walleij <linusw@kernel.org>
-X-Mailer: b4 0.16.0
 
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] watchdog: bcm7038_wdt: missing spinlock causes restart failure on =
+panic
+--
+
+commit 6002003a9fe5a5243c56c551564e6ccb85d21046
+Author: Linus Walleij <linusw@kernel.org>
+
+watchdog: bcm7038: Add a restart callback
+   =20
 The watchdog in BCM6846 can reset the system, but bcm7038_wdt
-does not provide a restart callback. Add this.
+does not provide a restart callback. Add this. The vendor kernel
+also uses a short watchdog timeout to reset this SoC.
 
-The vendor kernel also uses a short watchdog timeout to reset
-this SoC.
+> diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wd=
+t.c
+> index e038dd66b8198..1637e32ac02e8 100644
+> --- a/drivers/watchdog/bcm7038_wdt.c
+> +++ b/drivers/watchdog/bcm7038_wdt.c
+[ ... ]
+> @@ -113,6 +115,32 @@ static unsigned int bcm7038_wdt_get_timeleft(struct =
+watchdog_device *wdog)
+>  	return time_left / wdt->rate;
+>  }
+> =20
+> +static int bcm7038_wdt_restart(struct watchdog_device *wdog,
+> +			       unsigned long action, void *data)
+> +{
+> +	struct bcm7038_watchdog *wdt =3D watchdog_get_drvdata(wdog);
+> +	unsigned long flags;
+> +
+> +	/*
+> +	 * Prevent runtime watchdog operations from interfering on
+> +	 * uniprocessor systems where restart handlers are preemptible.
+> +	 */
+> +	local_irq_save(flags);
+> +
+> +	/* Stop the timer before changing its reload value. */
+> +	bcm7038_wdt_stop(wdog);
 
-Implement the restart operation by stopping the watchdog, loading the
-minimum count of two ticks and starting it again. A count below two
-does not trigger a reset, as also documented by the U-Boot BCM6345
-watchdog driver.
+[Severity: High]
+Can this restart handler execute out of sequence with other watchdog
+operations?
 
-Disable local interrupts across the register sequence and
-reset wait  so preemptible uniprocessor MIPS kernels cannot run
-a competing watchdog operation.
+If a panic or SysRq interrupt preempts a ping or stop operation exactly
+between its two writes to WDT_CMD_REG, could the hardware state machine
+become corrupted?
 
-Assisted-by: LLM
-Signed-off-by: Linus Walleij <linusw@kernel.org>
----
- drivers/watchdog/bcm7038_wdt.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+For example, if bcm7038_wdt_ping() is interrupted:
 
-diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
-index e038dd66b819..1637e32ac02e 100644
---- a/drivers/watchdog/bcm7038_wdt.c
-+++ b/drivers/watchdog/bcm7038_wdt.c
-@@ -5,8 +5,10 @@
-  */
- 
- #include <linux/clk.h>
-+#include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/io.h>
-+#include <linux/irqflags.h>
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-@@ -113,6 +115,32 @@ static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
- 	return time_left / wdt->rate;
- }
- 
-+static int bcm7038_wdt_restart(struct watchdog_device *wdog,
-+			       unsigned long action, void *data)
-+{
-+	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
-+	unsigned long flags;
-+
-+	/*
-+	 * Prevent runtime watchdog operations from interfering on
-+	 * uniprocessor systems where restart handlers are preemptible.
-+	 */
-+	local_irq_save(flags);
-+
-+	/* Stop the timer before changing its reload value. */
-+	bcm7038_wdt_stop(wdog);
-+	/* The watchdog does not fire with a count below two. */
-+	bcm7038_wdt_write(2, wdt->base + WDT_TIMEOUT_REG);
-+	bcm7038_wdt_ping(wdog);
-+
-+	/* Flush the writes and wait for the reset to take effect. */
-+	bcm7038_wdt_read(wdt->base + WDT_CMD_REG);
-+	mdelay(500);
-+	local_irq_restore(flags);
-+
-+	return 0;
-+}
-+
- static const struct watchdog_info bcm7038_wdt_info = {
- 	.identity	= "Broadcom BCM7038 Watchdog Timer",
- 	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-@@ -125,6 +153,7 @@ static const struct watchdog_ops bcm7038_wdt_ops = {
- 	.stop		= bcm7038_wdt_stop,
- 	.set_timeout	= bcm7038_wdt_set_timeout,
- 	.get_timeleft	= bcm7038_wdt_get_timeleft,
-+	.restart	= bcm7038_wdt_restart,
- };
- 
- static int bcm7038_wdt_probe(struct platform_device *pdev)
-@@ -167,6 +196,7 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
- 	wdt->wdd.max_timeout	= 0xffffffff / wdt->rate;
- 	wdt->wdd.parent		= dev;
- 	watchdog_set_drvdata(&wdt->wdd, wdt);
-+	watchdog_set_restart_priority(&wdt->wdd, 128);
- 
- 	watchdog_stop_on_reboot(&wdt->wdd);
- 	watchdog_stop_on_unregister(&wdt->wdd);
+drivers/watchdog/bcm7038_wdt.c:bcm7038_wdt_ping() {
+	...
+	bcm7038_wdt_write(WDT_START_1, wdt->base + WDT_CMD_REG);
+	<--- interrupted by panic/SysRq
 
----
-base-commit: 164778eff84a0ee908db0b28136a6f7d7f785c33
-change-id: 20261014-genexis-xg6846-watchdog-reset-d44c695a77e0
+And then bcm7038_wdt_restart() executes in the interrupt context, it will
+call bcm7038_wdt_stop() which writes WDT_STOP_1 to the hardware that was
+expecting WDT_START_2.
 
-Best regards,
---  
-Linus Walleij <linusw@kernel.org>
+Would this cause the watchdog to ignore the reset command and hang the
+system during reboot or panic? Additionally, on SMP, could an
+smp_send_stop() IPI from a panicking CPU halt another CPU mid-sequence in
+the same way?
 
+> +	/* The watchdog does not fire with a count below two. */
+> +	bcm7038_wdt_write(2, wdt->base + WDT_TIMEOUT_REG);
+> +	bcm7038_wdt_ping(wdog);
+> +
+> +	/* Flush the writes and wait for the reset to take effect. */
+> +	bcm7038_wdt_read(wdt->base + WDT_CMD_REG);
+> +	mdelay(500);
+> +	local_irq_restore(flags);
+> +
+> +	return 0;
+> +}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261015-genexis-xg=
+6846-watchdog-reset-v1-1-9577d65223d5@kernel.org?part=3D1
