@@ -1,132 +1,144 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98C71414418
-	for <linux-watchdog@vger.kernel.org>; Wed, 14 Oct 2026 09:36:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B28C31E84F
+	for <linux-watchdog@vger.kernel.org>; Wed, 14 Oct 2026 22:39:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791970583; cv=none; b=JoBNhOqGUMdAE5ZXV/bDqyMJDtVEVnUzmsBCFww2cfvqzx30BHz7c1wQ5j8ik38yDmvyqtlSm+JPwkzMpZLLUUNahkn0I5oqBTmCMAxttdPgUEZlb+n/drytn+5I+t/kpia85F4I2sf+fTvSFsP0WJVnZXhM1yJGLhlYGiA719E=
+	t=1792017579; cv=none; b=FfktEqtaWyjAzQqZvq7x9lrE+SSl+xlVlZtXddW28vvaOntK5ZpbS84rtzAa3lOA3lsxwvX7Qb8gX3vHVC1nBSIVv2iW3qABp9gcnYviL9t0cLksigZYX4nFogpKnPvkmTcrlUSILoemyhLWyxhTxGZNalhKq2AGG2gOmnQJ/58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791970583; c=relaxed/simple;
-	bh=Z5ysX779+2BJivXevzHH1XvznaoW04mloJ1QhySlIwY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jfhXeWHCVGubfyJ6Gy5xsXKIEe5bGJCBvjHPD/n4S88/Fzah9hpjQYw4h46dhb+aVd44SV7N5AMVchPAqvAXKKe20dRB0rLnKUkEyGxskq8ySqAQjWaoA8mqMntPaJdxgABGYfdwo2Z1cpMnIgjXPDU0w/cqGDGzer+UvL0d0es=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=D4h9k2KY; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1792017579; c=relaxed/simple;
+	bh=AX2OgX9JNXXhk55wwwVTWor2YrgAG8rtLyuifTHXGqY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=pboOQceeYNMqpIyLYSiN0VE9ZhdioCLsu1TKza8JM/OdTNxTj+UhH6q3KlO0rlqJ/9tzRbLO3NLwu5fOQ+V5HxFHmjHtK1+Q5cs0EJI54I38fPWaDgu7MN0sy6AeY7UERDZlS95k+yRg0M1ezxXsJZ8tKyivYI3Jodl4kupCTKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EvbStanm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="D4h9k2KY"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4980fe6b3beso30631985e9.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 14 Oct 2026 02:36:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1791970580; x=1792575380; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9nFXolfpittgi2Lah9fQ/bqQ/j+/1tOBiVSyiO7ElMg=;
-        b=D4h9k2KYW0maCX6tsmsmAbBTbeDdlb5KVqZYxV9wP/e97DT6QK8TQKq4I42wueMV0a
-         zE2RtdDtU8d5LBptU2aMNoFDSszAJdZP1rravwftWPtTz7oH0RmXjV1nqk91mu9TQkAX
-         ufJfj8m19qntw2Uu955lFAoHWNN1BGx8VOiRbyd6rOWAuibyEHYTpQULp7Zq0IxGfTRD
-         MctpWNhBsxU45VyxsNAquLRCunBRdU4E/MnypoU/eseCMjj1ajJ2dmDecnvL2R0x0VtR
-         mVdVJM1Pm0mA+T+WIQk3HglCHAZE2vUw7QZhJE/CeYtTti7pqi6FPX2xqTjb//pYNPn5
-         E4RA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791970580; x=1792575380;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=9nFXolfpittgi2Lah9fQ/bqQ/j+/1tOBiVSyiO7ElMg=;
-        b=y1o0EwJBPo+s58PY/JO07zhT8ZhEJgvdQgfwWvJs7OBQfHD2fxVi5ykU/YvpJT9z0Y
-         Jt/Xf9ntJy7Ax+MPTndA9GwRtbBxEbf1nlRqhlT8pzrgihi22q5IGS3vMcFHsKmjacGa
-         oOts9j5zHoLwzlsgEGwTfW7I+net3Gj7ZxhywSjjbgNrWUBDwYgF7+JgIuos9I00Ouli
-         K1NsxSEKOu0WJy/Hq+qn1c+2MwAk6NHhgIuxolUouorTDxP/zjujLwTyQeZjkIjzQ1lV
-         sgUGRyUyh+EDbIDObhUBBQGfyS9VanwcPkjQ4klFCV7Bry+FqruxdWyPFiAjV2ncR/7V
-         RwRw==
-X-Forwarded-Encrypted: i=1; AKwUvByjcQ6L/OsF1L0O8YxRqz+k7W3PYaJ8/wSST0xrwTLJmCwR7XHaJHJs0hQZPlGBGquue7V7v9gR2V8drAb7hg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLpJn8X7CGCdckK41qCsYpbcjQ03jJ0YciNTkmhZAYl/DBWZoRI
-	Ble9GaTY2t5bJ52/cslpOkZHz2gBWjO+ELP0c8fZ2fFKopczNa9u31/XZewokEIuaM8=
-X-Gm-Gg: AYBFou1jA2mP6rHb9DQL0zfPxTflLbijprT5yChc6OAGeQjJxVeZsTqySlsKkFIvP4D
-	0iI4RHE4BWvvTKx6afsYn7GXjUrDZAAYQBS6HoE42Thyao6QzZN9fXxjltyPx/vz2CZWTF6oTK3
-	gYlem0vtyAVGQgM45Yy0aHRc0a+iwTZOeZUIw7h2u0EYiSgybjKQH0TrcXegtfCTRd495K83+DD
-	yftk4mwhsU9bSULZtKYi0UJTN/tRRzc1KMlXMcEsapyAUxIF62zEY3wPAtAtUbZGhZt5m3oplng
-	+BllQ5q8aAW1nXX6VMwMfLTnSzC14zo/DJRAH1wKy5TC0ANTGYWfcg4E1nvEZSAyKFp4qijZHIJ
-	Wbq0/50/H0075YgiOZ/NMkSWTd5YBQxNKgzGEaqvnNy+2D6saPsw42mqB5YiA42sz60HA4NlqhY
-	G7WfX4eprna2Qr6MgvOYUesOiqdZtrRmUj8s7HcNAHhW1Q9B/iok+gGVI6SNI3DjqSv2AAV3lFh
-	1eMLM9iDA76F3cfz0YtHocOnPgpkb5Ufiliq9XRsRDukkTzmRpGMFIGx7psdWCXiWhI6NKf6Eg1
-	zBM+Nc5Uenq+amtdKt8yBtbjk+5nY0QKSiClDF4D
-X-Received: by 2002:a05:600c:8a09:20b0:4a1:9c98:b9b8 with SMTP id 5b1f17b1804b1-4a19c98c153mr160846965e9.11.1791970579795;
-        Wed, 14 Oct 2026 02:36:19 -0700 (PDT)
-Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0aaaa3fsm10907378f8f.10.2026.10.14.02.36.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Oct 2026 02:36:19 -0700 (PDT)
-Message-ID: <2e88806e-57dd-47e0-a9ef-a8507d22aa3e@suse.com>
-Date: Wed, 14 Oct 2026 11:36:17 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EvbStanm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC8361F000C4;
+	Wed, 14 Oct 2026 22:39:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792017578;
+	bh=mxl7bKnMGGFXkps2Wgm0oQQDOv6wA4YQaW/l0sVA49A=;
+	h=From:Date:Subject:To:Cc;
+	b=EvbStanm58VNLEZ+JGYF7YPuPiXOV3b+KmR1mRz27eC18hJTgNSS6GoVbaT3Mk55/
+	 Dm337L44Qgxq5lY7BxX+GMXhKJ56iRZjITD+ftjQm3UUh4vD/y6S8nqRM8vzReIzi2
+	 Dqn3ajAREZe2nnTcPfnfxmHDDYf14+juOvjeTj8wrdLPNtiTAr1aJQWYLbaM8w6D88
+	 qCaqp5UDwdXOYIV6pmC6tRQ2sOmb7v6eTPotUwKXBY+BZAT5cVYW12YZ/LbSOyNFh4
+	 uQC8R4bXbACO+1hZQmfcksP8+yimaSnPeR7YJ6AF9XmkKPsujJpum6oMlyB8KO6x7m
+	 FiHFJ4aKnfxfA==
+From: Linus Walleij <linusw@kernel.org>
+Date: Thu, 15 Oct 2026 00:39:29 +0200
+Subject: [PATCH] watchdog: bcm7038: Add a restart callback
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/3] Remove obsolete __MODULE_STRING()
-To: Petr Pavlu <petr.pavlu@suse.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>,
- H Hartley Sweeten <hsweeten@visionengravers.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Rudolf Marek <r.marek@assembler.cz>, Andi Shyti <andi.shyti@kernel.org>,
- Chris Snook <chris.snook@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Andreas Noever <andreas.noever@gmail.com>,
- Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat
- <YehezkelShB@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>,
- Chas Williams <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
- Aaron Tomlin <atomlin@atomlin.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
- netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
- linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
-Content-Language: en-US
-From: Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20261015-genexis-xg6846-watchdog-reset-v1-1-9577d65223d5@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQrDIBAF0KuEWXdAgzFtr1K6EP01szHFCY0Qc
+ vdKlm/zDlJUgdJzOKjiJypr6bC3geISSgZL6qbRjN4a6zijoIlyy/7uPO9hi0taM1coNk7ORf+
+ YwjzDUD++FR9p1/96n+cfqcEBkm8AAAA=
+X-Change-ID: 20261014-genexis-xg6846-watchdog-reset-d44c695a77e0
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Florian Fainelli <florian.fainelli@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: linux-watchdog@vger.kernel.org, Linus Walleij <linusw@kernel.org>
+X-Mailer: b4 0.16.0
 
-On 10/2/26 10:31 AM, Petr Pavlu wrote:
-> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
-> MODULE_PARM support for older modules" [1] in 2002-12. That change also
-> moved it to the graveyard section at the end of linux/module.h
-> 
-> Replace the remaining uses of __MODULE_STRING() with __stringify() and
-> remove the macro.
-> 
-> Apologies for the wide distribution. Acked-bys are appreciated.
-> 
-> [1] https://git.kernel.org/tglx/history/c/136839a1b4
+The watchdog in BCM6846 can reset the system, but bcm7038_wdt
+does not provide a restart callback. Add this.
 
-I've queued the second patch ("drivers: Replace __MODULE_STRING() with
-__stringify()") on modules-next for v7.4-rc1. Thanks for the Acked-byes
-and reviews.
+The vendor kernel also uses a short watchdog timeout to reset
+this SoC.
 
-The first patch ("hwmon: Replace __MODULE_STRING() with __stringify()")
-should go through the hwmon tree. Once these changes are in mainline,
-I plan to pick up the final patch ("module: Remove obsolete
-__MODULE_STRING()").
+Implement the restart operation by stopping the watchdog, loading the
+minimum count of two ticks and starting it again. A count below two
+does not trigger a reset, as also documented by the U-Boot BCM6345
+watchdog driver.
 
--- Petr
+Disable local interrupts across the register sequence and
+reset wait  so preemptible uniprocessor MIPS kernels cannot run
+a competing watchdog operation.
+
+Assisted-by: LLM
+Signed-off-by: Linus Walleij <linusw@kernel.org>
+---
+ drivers/watchdog/bcm7038_wdt.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+index e038dd66b819..1637e32ac02e 100644
+--- a/drivers/watchdog/bcm7038_wdt.c
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -5,8 +5,10 @@
+  */
+ 
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/io.h>
++#include <linux/irqflags.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -113,6 +115,32 @@ static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
+ 	return time_left / wdt->rate;
+ }
+ 
++static int bcm7038_wdt_restart(struct watchdog_device *wdog,
++			       unsigned long action, void *data)
++{
++	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
++	unsigned long flags;
++
++	/*
++	 * Prevent runtime watchdog operations from interfering on
++	 * uniprocessor systems where restart handlers are preemptible.
++	 */
++	local_irq_save(flags);
++
++	/* Stop the timer before changing its reload value. */
++	bcm7038_wdt_stop(wdog);
++	/* The watchdog does not fire with a count below two. */
++	bcm7038_wdt_write(2, wdt->base + WDT_TIMEOUT_REG);
++	bcm7038_wdt_ping(wdog);
++
++	/* Flush the writes and wait for the reset to take effect. */
++	bcm7038_wdt_read(wdt->base + WDT_CMD_REG);
++	mdelay(500);
++	local_irq_restore(flags);
++
++	return 0;
++}
++
+ static const struct watchdog_info bcm7038_wdt_info = {
+ 	.identity	= "Broadcom BCM7038 Watchdog Timer",
+ 	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+@@ -125,6 +153,7 @@ static const struct watchdog_ops bcm7038_wdt_ops = {
+ 	.stop		= bcm7038_wdt_stop,
+ 	.set_timeout	= bcm7038_wdt_set_timeout,
+ 	.get_timeleft	= bcm7038_wdt_get_timeleft,
++	.restart	= bcm7038_wdt_restart,
+ };
+ 
+ static int bcm7038_wdt_probe(struct platform_device *pdev)
+@@ -167,6 +196,7 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
+ 	wdt->wdd.max_timeout	= 0xffffffff / wdt->rate;
+ 	wdt->wdd.parent		= dev;
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
++	watchdog_set_restart_priority(&wdt->wdd, 128);
+ 
+ 	watchdog_stop_on_reboot(&wdt->wdd);
+ 	watchdog_stop_on_unregister(&wdt->wdd);
+
+---
+base-commit: 164778eff84a0ee908db0b28136a6f7d7f785c33
+change-id: 20261014-genexis-xg6846-watchdog-reset-d44c695a77e0
+
+Best regards,
+--  
+Linus Walleij <linusw@kernel.org>
+
