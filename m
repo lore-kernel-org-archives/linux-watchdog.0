@@ -1,109 +1,118 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+Received: from mail-qk1-f227.google.com (mail-qk1-f227.google.com [209.85.222.227])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B364751AEDD
-	for <linux-watchdog@vger.kernel.org>; Thu, 15 Oct 2026 13:25:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 784D44766AC
+	for <linux-watchdog@vger.kernel.org>; Thu, 15 Oct 2026 19:30:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.227
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792070718; cv=none; b=hTliGVXValJ5dFStHugtrQFTFuZwsaD0n/55J9Tr8dzakB3Ixjqi6ZfCjYcsmeRHc3rt8e71pnP8BycdgbjjT5OnXmDTHzphATpU4rWz1TmMpxxgimxbzURzpRWmu3HCCnWLcKup+o2WCrT0hCtC5k/l9VdTGCv4P8ceoKPyKyo=
+	t=1792092636; cv=none; b=Cfru7k7v0YqIRwteTTiXp6X5rjsTHwZ8xH6/IzSNAL3NSEplecnsEuPnfMY58uW/GTKZW+IkW22E2ywLdHtOR5xfkjf1AGbkzZVIxWKM2HRd4IZb/Os1iHXgjRSYqXbiwXcRv2lOD4OfZes9HdRvPhAjAc4M15h0nE0QkbkbhcM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792070718; c=relaxed/simple;
-	bh=H3zCP5H13vvVFVkfSQiIjCtmW1MwjHaJtfgXUw5dX60=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Bz74rtjouPHsEJ+2o5C4+kNG4Wq0qG1z9ZNxEjzFZOIkCC/JpzvQ5/HG+0nHR9J/6UdvXd7Vb6l3xHCzNr0FWFLDkL4sLvkF6LG3gcNXqxF+u3P2GEj2LxmJmuXWYLuj/qKEV+mMhFNtTJXhVqJluEs5ddCDtJuMqbFvF2bFj90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CBae+0GZ; arc=none smtp.client-ip=209.85.221.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1792092636; c=relaxed/simple;
+	bh=9Kqk0Q0biXFoJEttgW4MNrGZoQja7yIbQAHZST2gk7s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V5WfQsV/OiVrZ7E+ecn7chxSzKVpqTPxGu09pGd7b9x2UlGT1D8bbbhdbanq1cUkX3ec//GTHQd8SUZt5dY7sWxHS8YXVpE2YLQVI2aanSa656cFDU1EcyuSPVKfGGywLCDUdJ48J/5TgyRpDypAVJBfxpuNpUqzBPaY/RQ3ItA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=h0TxixzX; arc=none smtp.client-ip=209.85.222.227
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CBae+0GZ"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48c6f764f82so722644f8f.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 15 Oct 2026 06:25:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792070716; x=1792675516; darn=vger.kernel.org;
-        h=content-type:mime-version:content-transfer-encoding:message-id:date
-         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=0fatwg6Ql10eF4yUkxnXRufoS1VKiolsiumheXDiVcQ=;
-        b=CBae+0GZcOGJDgIX1tHi1ZOI04z/UBOJD39qMdwmRbrcq971OYnfa8TT8VgnRoH1ag
-         OJqediBSk9PNcNxf82i4Uk7Zra5yHVcpOMB9B2+FzQ0UgYNkiRTKX+9nNikkJPS0/UAk
-         JpBHp1SArlEB3B/2jjkhESnhoeXzz/Gu5MIplCvBguZV0WTQbb7OTA55xNB2ax8oQQaU
-         mYOm1payuMenxSFnlQNKDiSfKGsV0u0lKAO1Kklmro69gOhrjc+8LNS+0z+ox/TwvVJr
-         p2uvpktUHsQ+QpxC+NCvrNykld46qcz/pOkoi7G9l9iZo+xbvmnbmYWO1BJnuV9Bb6Uo
-         FlAQ==
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="h0TxixzX"
+Received: by mail-qk1-f227.google.com with SMTP id af79cd13be357-93cb1c0e851so437865585a.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 15 Oct 2026 12:30:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792070716; x=1792675516;
-        h=content-type:mime-version:content-transfer-encoding:message-id:date
-         :references:in-reply-to:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=1e100.net; s=20260707; t=1792092633; x=1792697433;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:dkim-signature:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=Vb16iMhx//XGUDWs4+DiLxrnqFHAghGxCusgzIfyjf4=;
+        b=LVwiIGXH9V40sJixo2ZWLgzQfmJZ4sv/Z2kSqVZxy/jC4z0FBcS1hhn773ro6UNjEw
+         CQJLOQJA4WBiKOVQqqigEovXrdnflLBFiFDNHE2BqwzhDJkIztYXaitjfYeafIm9NkXH
+         gCNHauqmo83W3PDU0WJJH5+bKWjJ66CCb52Qu+Ur32j6UH9DXLwqH2XE3Z4bbkv1AyI8
+         82ib0nR08ZmHT1s+nMEkcKeoo+vyW4uA603+AvOQgZHvgrhbINej4q4pK5w8126NuC6K
+         +2QRanwWb4+0iuZzpili0HHcrOoj4XK9FeRtSuERR8u1JcEuLy6I2r41wYra40H6WDcS
+         GsYg==
+X-Gm-Message-State: AFq9FYLozpNSuV480IOYUvi9Pp3c9ciMm0Rr8BgScYFIKPtovuO/+v+Q
+	tsrKDblQRkytzAMu1JcYE3oh8mrubNolUjttVRyEuoCnvSIThH8hisPjQLhA3gWhVhS2zH+FZj5
+	P0Y7pr/KpGB66IqSaR6MYGYf7AIAVMaNod1tL16YjJwbhu4N2o4ipRlzxeTLeBqzFuz5ks8z1zL
+	Z3Q0Nqloh8yNEtcKzZ2WdbWYlgyZeZqdCQAizno0SVeB+gw3ie3Sb5iMT3JLKKuNtrJJ3ftHiWG
+	kfKov7axGvhvs0CQO0C
+X-Gm-Gg: AYBFou19jD07RKnAidiuriddrIcTI03z3bWaiBW4eqkiWlvNWApOZP5j3r4ZTyOit7M
+	7KJK7jlPjQCgbJFkmhrVT7NFphchuLJbntnN091E1GizbpiK0FgQHnEKdV4c/VHRQFecTNvFeUx
+	DbDTCwdoFf/6Ogh/ZW3uGmb+vOjY4g34mOIyStf03MAvx3yLAHB5S2BR1pvmOSiOwzdxTh8k+P+
+	yfhUlWsBE7oMpYLlIyELO2zShc6eVoTqy0o1dmZRSE2GSyvcISLtZLgQhNkNNETs1soWQATNsmC
+	N4QFmg75wIQm9KI0U+8oY5ErfW1vXtC8LXloqL2tVVb4SjJbK7/p57jaloBvvD9+BKzBlwM8Amy
+	sgC5CqXE5y9HTFcmPgrJawoCAw/6IXDsE0QcUhpc1k6E8nuiDRzKK72+MXhnm/krHAZ1j4wxnAK
+	1ZNddMkebTpztOAb7UuPx3OEAzA2YIGv0Xpk+r
+X-Received: by 2002:a05:620a:470b:b0:93c:29b3:3525 with SMTP id af79cd13be357-93ebd262b17mr3120241185a.36.1792092632900;
+        Thu, 15 Oct 2026 12:30:32 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-125.dlp.protect.broadcom.com. [144.49.247.125])
+        by smtp-relay.gmail.com with ESMTPS id af79cd13be357-93f19f527c7sm3670385a.0.2026.10.15.12.30.32
+        for <linux-watchdog@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 15 Oct 2026 12:30:32 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-5350ec54bf6so115049171cf.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 15 Oct 2026 12:30:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1792092632; x=1792697432; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=0fatwg6Ql10eF4yUkxnXRufoS1VKiolsiumheXDiVcQ=;
-        b=Dcte6jl/ZKvV1vFn1SsbOzYzfQ/WAygg1D4kHjuO3lJ6aed+aYm0XWi16eXzlX+pCy
-         lG0/MPUpjLSiw/jWZhVq6v2F+a5DL561E/f529tkxQu9P1k1QbBNZfptt0AWIya/0YxY
-         iN4gm39Aw9K5LAvV44UrFZTrITgc7eNmoicimHg5ZoCLI0t8iYV4TqBRwyWVvyDQLFyt
-         lTYA7mkwctHgwy91Mv4hXmNZCRjYIGd3AuA0Saf1yArWPFiRCFsIJqfLWzGR21sW+GMw
-         IfDX8BxAknHHIVLGlayYQC2NBs/kO8/y7D+H0BOvImUc4pQNzHBGM+clRO84Xo7/oldi
-         AgpQ==
-X-Forwarded-Encrypted: i=1; AKwUvByKPMHqRAW56wsZlNUfqGY80s4THGqsjRJx5vYmunK1LrC6xAPQndIifQpSlwoOIuxinv5Fw5u9o0q/CnDdbQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ43PSSsBZ9cLia8hna2tOnPHfjI8n/TagonDL27toB/Jd6HhAd
-	i2VS1DN/GkU/HuYIvTQG6wb+Rymg0HIRdratthGMRJoh+okFxK4JC1wQ
-X-Gm-Gg: AYBFou0+bxGAV3vlO3s99Ic14wnR1Mn+oLsWu6z98KYZCj02OLvbw8UN7l8oSXPOPNg
-	pgJOiBwvqAi6E4QEmZLk3zhIGwtxsINW3eE5194oAq7XY7YocNz4pQZ1FQLoKNw3L1ljsFujTcE
-	nHGRNbGkKGyS7G9Y3cC3AdGdFbsxAzssCls8kvD8C2G2hXxz51J+r8wVyttUPcXQwLyu7CL42fs
-	TmWVBU3amJ+fxvJF3ITQzj5zflQtLtqf44Dg8EROPqh5qDbJRwF7xq9woIh3ms47VPUMnHOYjQB
-	z3dUz/2R9S9K64BAUxDDaVPIcRZxoAZk36ATi0E8an1BKeGKeQ91hAEC/zvblIUBP5wAAjSsJ5c
-	zxDuzZFaJSdkhAa9UV1UhJA8DnPULkO5yv1UiS++3rkk+o2OoUH3uQWNnjDeNcu0x5GuCJy68Pe
-	RauMK/MYV3aou3JukC5GPK29TBFmXC4/8GhCbuisoDliDz/Re6JS39PYUvpi4KzwusNA9sui+l0
-	BjQpvHc/UoG/XycJVB3tzDnTB77Jo01GtPRMuy7XBOzsudlw/JMiFGjhw==
-X-Received: by 2002:a05:6000:4549:b0:48d:facb:5939 with SMTP id ffacd0b85a97d-48dfacb5b8fmr147377f8f.8.1792070715607;
-        Thu, 15 Oct 2026 06:25:15 -0700 (PDT)
-Received: from [127.0.1.1] (ip-024-215.users.dtel.ru. [91.210.24.215])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de09693c7sm23470807f8f.4.2026.10.15.06.25.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2026 06:25:15 -0700 (PDT)
-From: Fil Dunsky <filipp.dunsky@gmail.com>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>,
- Radu Rendec <radu@rendec.net>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Russell King <linux@armlinux.org.uk>,
- Arnd Bergmann <arnd@arndb.de>, Krzysztof Kozlowski <krzk@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3 02/11] irqchip: Add Cortina Systems CS75xx peripheral
- interrupt controller
-In-Reply-To: <87tsmndu0p.ffs@fw13>
-References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
- <20261013-b4-cs75xx-s2-v3-2-181bb0d23f4c@gmail.com> <87tsmndu0p.ffs@fw13>
-Date: Thu, 15 Oct 2026 16:25:06 +0300
-Message-ID: <179207070645.418589.10399440167204506807@gmail.com>
-Content-Transfer-Encoding: 8bit
+        bh=Vb16iMhx//XGUDWs4+DiLxrnqFHAghGxCusgzIfyjf4=;
+        b=h0TxixzXOhpavbrQmxsyLNTkCupmOvPNxdUKqC0FAhLgCEBDocLOJ89vl0ZluS2VkY
+         2XgaH2gZ2IgWs9luM6Jbh5ttiUAkNWHsEW0HgPlWvM0wk7dn2/626UsKpMMWZn4X1R0K
+         JmC1nz13lPs3tNRVLHoIbpDHeUTbzIsLp29s4=
+X-Received: by 2002:a05:622a:449:b0:535:92a6:22dd with SMTP id d75a77b69052e-5359fb12660mr349334341cf.41.1792092632039;
+        Thu, 15 Oct 2026 12:30:32 -0700 (PDT)
+X-Received: by 2002:a05:622a:449:b0:535:92a6:22dd with SMTP id d75a77b69052e-5359fb12660mr349333611cf.41.1792092631350;
+        Thu, 15 Oct 2026 12:30:31 -0700 (PDT)
+Received: from [10.14.194.119] ([192.19.161.248])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5362a74c0bcsm1742631cf.1.2026.10.15.12.30.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Oct 2026 12:30:29 -0700 (PDT)
+Message-ID: <1a3b094f-94b3-4932-990d-dd717b189d69@broadcom.com>
+Date: Thu, 15 Oct 2026 12:30:27 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="fixed"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] watchdog: bcm7038: Add a restart callback
+To: Linus Walleij <linusw@kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Florian Fainelli <florian.fainelli@broadcom.com>,
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: linux-watchdog@vger.kernel.org
+References: <20261015-genexis-xg6846-watchdog-reset-v1-1-9577d65223d5@kernel.org>
+Content-Language: en-US
+From: Justin Chen <justin.chen@broadcom.com>
+In-Reply-To: <20261015-genexis-xg6846-watchdog-reset-v1-1-9577d65223d5@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-On Thu, Oct 15 2026 at 14:32, Thomas Gleixner wrote:
-> On Tue, Oct 13 2026 at 09:07, Fil Dunsky via B4 Relay wrote:
->> +static int __init cs75xx_intc_init(struct device_node *np,
->> +				   struct device_node *parent)
->
-> No line break required. You have 100 characters. Please fix that all
-> over the place.
 
-Done for the next version, the declaration and the calls in the init
-function are on one or two lines now.
 
-> Other than that this looks good.
-
-Thanks for the review. The next version will come after v7.4-rc1, with
-the interrupt controller as a series of its own (binding and driver),
-split from the GPIO, I2C and watchdog patches.
-
-Fil
-
+On 10/14/26 3:39 PM, 'Linus Walleij' via BCM-KERNEL-FEEDBACK-LIST,PDL wrote:
+> The watchdog in BCM6846 can reset the system, but bcm7038_wdt
+> does not provide a restart callback. Add this.
+> 
+> The vendor kernel also uses a short watchdog timeout to reset
+> this SoC.
+> 
+> Implement the restart operation by stopping the watchdog, loading the
+> minimum count of two ticks and starting it again. A count below two
+> does not trigger a reset, as also documented by the U-Boot BCM6345
+> watchdog driver.
+> 
+> Disable local interrupts across the register sequence and
+> reset wait  so preemptible uniprocessor MIPS kernels cannot run
+> a competing watchdog operation.
+> 
+> Assisted-by: LLM
+> Signed-off-by: Linus Walleij <linusw@kernel.org>
+Reviewed-by: Justin Chen <justin.chen@bradcom.com>
