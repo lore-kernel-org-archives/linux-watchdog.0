@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6471250276B;
-	Thu, 15 Oct 2026 10:23:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B165947668B;
+	Thu, 15 Oct 2026 10:24:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792059818; cv=none; b=lg6wBuFAKbi9zuHKrr2zwqaB5oR9RZhVRaG5cwa06ZjIRvqeh9sQ69opvWFftXLypvYY2TprPKuEyZjdlu6Kdol+R2dKknTDRGMk0L+59uFggmUzExZ/nqg+k4KFhMD9nSQcFQs6tZjSbcNDVTguHurdmXJryXMC0m2D1yBI3l8=
+	t=1792059871; cv=none; b=CtJUg/cgFhjCyH6MW0BGkPYcrnYmk7YqZ/Nw/gERtyYYsf/mA6mG9v43uUBcjcZQ/+qS3K+MVsaqIka/77vY/oIh/FP7dKiR/q9HzsIXx76LnnzjUBaI9qbrREOgBbFWEbe1HpD5cB9/Br2tNRoD0wUBd9Vunfa9XJiHk7a/6X8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792059818; c=relaxed/simple;
-	bh=zDYAg4eAr+csBvslyqXmXjuMWtVmLBOKBuVQyQD+yKI=;
+	s=arc-20240116; t=1792059871; c=relaxed/simple;
+	bh=N0bbxB50mpo7/S0frewbfrh6WRs1DDRnK2wPT6C+sqw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JGfhqiUJa+TousrfDrCK/EwL6D3X3aoY4EyZEI3D82mbz7CPlyc0uslM0a/AFEJXTTAliJYUI/yi5gBaSdCsHf8kBv5VUkABg2X0a5tQ77kOwKg7wPO2Kb09FhCpHOnFwEyUQN/IPerCf2Xw/nubaP8PFTB/sMHLoqg9lx0qvws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kh0U/zW3; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xporp1ktmhC8lAspu9c5TqV+XsnCcRdEUZIwe5Aq3D6qY2wEidNLVMGTT9yrDQp3BggJNsYDw+OUSa4UGBDyTWwskt/t2mum6JRliOEUEOQPhmQL/jslA42QNnbL19mKnOfuW+3nw9GjZ0tVMlgMJHGp0BHYGF3XFUrcNrERtoQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jnM1gNwO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kh0U/zW3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CEC51F000C4;
-	Thu, 15 Oct 2026 10:23:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jnM1gNwO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333B81F000C4;
+	Thu, 15 Oct 2026 10:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792059817;
-	bh=oZNzHE19mN9ZPlKLE+9F5Pf2M335AMCg0mWZd6cuQOw=;
+	s=k20260515; t=1792059870;
+	bh=mYBfMwiTI0HuoRBpQtV8NM8t6EOqAZpyYmmAOuAh4mA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Kh0U/zW3Q5NUsLJJGoPaP3oyojNyEBmT604tlxiRpzHM+5suIBaSpBmuHepA9r+PF
-	 Uq2Gp4XtkJyzxAiVLXVz+RIphSvEh/VgTsCI6OfP0RukW055CC+e43j5nrt/3Ct9g3
-	 u5XKGHyj3mA/97BycDiV+PmvbmcDB35ZblWKYP242PmgQGLqkUTL8ePrITFAwN/lL0
-	 65Rx6BHmY+lXXq/p4PabsGKmWOiY/Pt6k96OMBxO1/9gkpgmk2yfhZ0NDMMLtkJ+OM
-	 +mW54gU3FLOJTA+qHT7pgUiB52SpTK7jvNkFYciPQmQApXupwEI3iA57s4RHp1fuc5
-	 terQDrocurTQA==
-Date: Thu, 15 Oct 2026 12:23:30 +0200
+	b=jnM1gNwOFnII7fIg2tTDV029l5K3lKllCnkAkp0Q7uJ9lZORN29D/zL1mGmxmozL9
+	 72ukYJ+Rg4qf/KtOmshXtCDEP/orbv7bacWVQ9bYMTEUQo3DG+m4EU6H/mIfdN1lBu
+	 YFK81QgtgNEgVKUAdJZa+byVgrNsx3QqUv1R5I8uF/vxtBDUEWuSglUe2Sf1Swv+S/
+	 gu438xESVRPuqT7w2OpmfH4Nqp9CuRkewAGKIERjeMWPg6jnkNhNs+QIJLPXczp5XS
+	 asBGJOULBLOMN38pAM4OkFEfCSLCRQ1EBL2ScH/Fx2bnf/DN+Ghxqcep5kA4pPzvLT
+	 BMY7dusPpuvZg==
+Date: Thu, 15 Oct 2026 12:24:25 +0200
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Yureka Lilian <yureka@cyberchaos.dev>
 Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
@@ -40,11 +40,11 @@ Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>,
 	Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-pwm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v2 08/10] dt-bindings: i2c: apple,i2c: Add t6041
- compatible
-Message-ID: <20261015-fair-tan-viper-7ba5c2@quoll>
+Subject: Re: [PATCH v2 09/10] dt-bindings: arm: apple: Add M4 Pro/Max based
+ devices
+Message-ID: <20261015-peach-quoll-of-intensity-b21ded@quoll>
 References: <20261014-apple-m4-pro-max-initial-devicetrees-v2-0-961edd8d661b@cyberchaos.dev>
- <20261014-apple-m4-pro-max-initial-devicetrees-v2-8-961edd8d661b@cyberchaos.dev>
+ <20261014-apple-m4-pro-max-initial-devicetrees-v2-9-961edd8d661b@cyberchaos.dev>
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -53,17 +53,25 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261014-apple-m4-pro-max-initial-devicetrees-v2-8-961edd8d661b@cyberchaos.dev>
+In-Reply-To: <20261014-apple-m4-pro-max-initial-devicetrees-v2-9-961edd8d661b@cyberchaos.dev>
 
-On Wed, Oct 14, 2026 at 08:56:15AM +0200, Yureka Lilian wrote:
-> The i2c block on the Apple Silicon T604x (M4 Pro/Max) SoCs is compatible
-> with t8103. Add "apple,t6041-i2c" as SoC specific compatible under
-> "apple,t8103-i2c".
+On Wed, Oct 14, 2026 at 08:56:16AM +0200, Yureka Lilian wrote:
+> These devices were offered with M4 Pro/Max SoCs.
+> Add the corresponding compatibles:
+> 
+> - MacBook Pro (14-inch, M4 Pro, 2024)
+> - MacBook Pro (14-inch, M4 Max, 2024)
+> - MacBook Pro (16-inch, M4 Pro, 2024)
+> - MacBook Pro (16-inch, M4 Max, 2024)
+> - Mac mini (M4 Pro, 2024)
+> - Mac Studio (M4 Max, 2025)
+> 
+> No iMac with M4 Pro/Max SoC was released, and the Mac Pro was not
+> updated in this generation.
 > 
 > Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
 > ---
->  Documentation/devicetree/bindings/i2c/apple,i2c.yaml | 1 +
->  1 file changed, 1 insertion(+)
+>  Documentation/devicetree/bindings/arm/apple.yaml | 27 ++++++++++++++++++++++++
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
