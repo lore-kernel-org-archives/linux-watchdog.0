@@ -1,64 +1,63 @@
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E69E442FCE
-	for <linux-watchdog@vger.kernel.org>; Fri, 16 Oct 2026 22:16:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B3D644C4E8
+	for <linux-watchdog@vger.kernel.org>; Fri, 16 Oct 2026 22:16:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792188989; cv=none; b=Y5bey3iLZPMxZTaBU8jR4Ffc/9CGTdyMJbn+Dov/GqikTQxrxy+75oX8+XkDy02sRdTIcQcga2jCno7IaCqDlWuPyUzV0CvMVItTYD95cHJCsSmSPdkIYtlMKKV/JkBIbLW0bFMy4g+JO5P1baznZ4GPf03YYAyGDPphH1FKd9s=
+	t=1792188991; cv=none; b=G4m027HSXoYw4nAj4HHDbiOkstRPo3tdmVehSOvlfH2Mzy6gNeZS6vKXIqSsq2tedg22Y6TGMedGzJBVU58geFPFP4DdEo3tMgiPZRYlBcRMQeTopM9CTrq9ao4yPudJHa/T+tC1TjjvQxAuqjAXomH/h3lXVlPlnsxQ4NpWYnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792188989; c=relaxed/simple;
-	bh=OIaEkynfAr9WKeooJY/3g2U/O1bCDEbfzmAGfhXmYIY=;
+	s=arc-20240116; t=1792188991; c=relaxed/simple;
+	bh=TXBqsVGg9cAtgaVHRhNDFyJ7mFNE3M7pp6dyhTAsDp8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LxCLnGSw0YkrCi7k6FCIUUW8fbxGC4u8X5tHI4N1CXBLG8ydNZZ6Q695RWJEfGmkIqkgXNHhZQ62A6hKTGtoXoQpJ/FizVxrdsVoTDJ9oQ69hh1nUwr3CY3uH+kf2hkKSm8966BTI6ECxfSJ9Erw9z+iyJlR7fAlxj/TJpkjYAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rwT7Sv3w; arc=none smtp.client-ip=74.125.82.45
+	 MIME-Version; b=oyNUhDd+wEVAbfqPFjcMHcbcA79MjFgi0/oqdyXBJE25kDfxuZHIpk1UWB6UBfh1uBaypcT7nkAtgI7jSbQReR2ESGr1rIfWGJB51YIP/D3Bd39kYBmM8ltz4Iwc3LquYLcmVt+Lap+OgwjU2QvKcyb9L1jMCyhaejdkL1uJAcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CdpTr6tl; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rwT7Sv3w"
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-170135e43c7so251852c88.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 16 Oct 2026 15:16:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CdpTr6tl"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-35aa0cf7c40so395350eec.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 16 Oct 2026 15:16:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792188987; x=1792793787; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792188989; x=1792793789; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=IKMLDd4ELr4QXkQblGO+w5ZqVhuimx/sg35XuBzMtks=;
-        b=rwT7Sv3wcsEj39GLLbHQvHAmM97L4+hg1aflLTjVOwSgdgJiojI6V9c6hIBckuh/lq
-         4hy89RquscP0WVEWDHzcT9V4VgLFXoXQ/p62sjLevdajXmjtaKPlf89f34TgVVb/++cU
-         3qGIhey5fJJYZ2/X7mUBHnen6RFp4qH+fvPqH4ZOKlaRGN4iu0bkkdJGotv2MGMh634+
-         kVJw3E8qnMGhyZcMPHybMTH4nWfG1sAEvEbxwS87+oy3ytllx5AP8gcCvjPucul9EPAp
-         nS/TT9a8IYJ2tifBQ1oke34GH1b/BtWNxqjUdTPsO9lNdUGMOq9PoVDRzHNmjPjMcYKd
-         72Nw==
+        bh=7RQWVgYSBP0OMtApng4YZ1gHWXM9hb7Ag3kJOb+CrpA=;
+        b=CdpTr6tlGv6Dh3hjWO3vxHYfQjRfIFH/aG67epNUmoRlIpOAO5s3rrJQu2v/fjqZe8
+         hDo2LvHALk4eLeTOAIdPzPgoMqXFNr1/upY+3Pl+Ql0Bilra+KS3ueCYJtAV6M3XUpFh
+         HQnp65AjQ3kj/D8KYtrZU84CWbfTFnsPxMcdiIiLEADz0/BMnllKWJNLojQKKhvD8sXP
+         cJaha7QcqNQalSNFY511Ce0AdJcG3BSMtOOQpIC5acZWCFE29AMokpoC4TtKZaJOdCVf
+         KifKaDjYT5OGEUHrNK0V/N0xZ/WRg3zkN1DwzSApnmE1amkn7xWIW7G7spHm/JOQKtWO
+         mNxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792188987; x=1792793787;
+        d=1e100.net; s=20260707; t=1792188989; x=1792793789;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=IKMLDd4ELr4QXkQblGO+w5ZqVhuimx/sg35XuBzMtks=;
-        b=R8Bbx60SYpFZlVpU0RNZpy7jLCSImqj4WpvuG7Xzjf25OlAvQWktV1InZYiyUPzIwF
-         bl1+Gq2LbStxyTKX15Tmp2NcRvmHtwlrBQ2l/TbofWOLJaFchfrieVb81CoffDZScA5X
-         O4xn6TNr+Fg2fyusIfPhYuUD2oo2ks929ClCQ+ssHcw0yaYFc6J2Zt7Fob4ZD4ZoSVvF
-         TdA3/goPlEUlJY0JxB0OR1IVMffS3rY92MZkgNOdUxmjenUVrVFDHSb2kxrSc12lPjM5
-         /5F8Qb9ifJs3QFIIyn8D2h9BkZ2fiS+qGSdGK7ZeK6BIJZt6oCybCH1OkEou+nViZiw0
-         3ZDw==
-X-Forwarded-Encrypted: i=1; AKwUvByjzWkst/L4vY8xGSOi+oNRlNqUwj9Tl9glGDHkcJ0NmAro5jRjJHQGhU9nEbmTqcr51e4Oh/C63nwtvcR+bw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYI+USb5U9a1vBPKT/wvm8vPbpF4BEVk4p5rcf8UDuUzupoQPc0t
-	Y3f8mBgSAvmrQ/TuCq98TU5el8v2AErf62ymrXp+KXpZc7fKCZ99D4CK
-X-Gm-Gg: AYBFou1dZU8jXZxbO+a59w+Z/qBDYhzc55euDo8+h/NTvVw/356efGubht6dvTH9OW+
-	8QTlf256B6Jh2Ie7ZrPw4oWeYK7JUT716EwWDFmXbdIi6e4bLuCdL3ViuHaWHAcPXcHwqhVtjM7
-	aUE82N9UQTvV2jttxrithTVqHm4EzqKlEjbtnzSqfeTdU3mLjd3zEVuv8KsoFaN7PDAvq6ACNMS
-	Lo5MC+lEDAFm2LTMfXFfefr1SCyCblKjsZuWeoqkbTH7kKVUj5bjJMnlwc4oZ3dlgbnDD3u8ccb
-	s2BHq+vrd1iSuaU4hQDzUpnO8hwlkuOsAG+Xa/ACHzSzRMGS0Dds57BpnZA592pPMYNb7A+A7jG
-	ySTO/Ns+n3UgNwns9ywKt2f7rZqr0QDazu6wuZaMDA511T3Hgm9m/3ERKcGgHfaI3+cl2wWpFdt
-	2scc9mf7Se/MFMuT5mJxN9YeECKHvFZUhyOJ55d26oeSL+ABI4oZTQGrigTB5rhXQ6RWhQ5yMFy
-	CidIb7Q
-X-Received: by 2002:a05:701b:4284:20b0:163:a197:722d with SMTP id a92af1059eb24-1850cda6b4cmr1715523c88.4.1792188987400;
-        Fri, 16 Oct 2026 15:16:27 -0700 (PDT)
+        bh=7RQWVgYSBP0OMtApng4YZ1gHWXM9hb7Ag3kJOb+CrpA=;
+        b=LMwpak7u9O96si9HuK0NtbHI+cCDeYLmeozM4ECRZVno1mflDx+MC/xD7R8E32hHx+
+         qB47g56LR+r2z5+Pj5V4NXvKknllwr+wfxrzVc5sjK1kFBynslcB3bxBO2vcwcCJlIvM
+         HB2pPcXlsYTYrh8RnD5ssrgRxfcn89G6ROXi+1M85wiDBPTf3FJNgcveyR7Dab42n9h1
+         yQB3Yk7I/rIDjWytvPP6MfthWbw+jlf/zCJhFF/bPRB0MNZngrYRPBh8e+IQJnwD2NLi
+         Ldo76g/xn1Fe9i7TyUP96t1+vWvPy7myrLqDxmDqZlKCGnFmNcsDjJWVsDsekm3lthOF
+         NVlQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxQgHUNy39Ja/cuTpLbK6LC/BCQxoseQJ/a8oOYWaoTudDP/BtldkbdMFEU8sCbLMJ8XeTfXmKldS5Gi5PwSg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLrxqna3iLSqOJ+u2bGj1NTCrYvSZL4xpb2A7ozBoRz3G2icSqe
+	1JIMGfFfwUvbIZDi/3co2wGxdWmR+lmwCGa3+0J5tQ2xV5kjPSoAlV+y
+X-Gm-Gg: AYBFou260y2og6nGOwFjz8WU0I/LMk7wDdZoBHh8LAO23G3m9DLUR9th6mTer8ui9NB
+	uCzfdKaNs33ir2KtOsdNTMnQiRdz5IV7ronSL/pHCW+d34GQmAM+JYOZihEXDX3D11Sn9oywxuR
+	PJTu4sCoRGFRvgTWGZ+U3g0+41kOSHXV/HHLSnQ6DZ1vZlQzOUWYiI90S8THTtwQ8fobwEyW1hq
+	NqI2ZFctT0PCNx46Q2lBLKeLhEQ72LqYB5NaNlluRiHgjMAVneXhCJEQQ5jl5qcVd06yWB0Mej7
+	z6VlVozElgoiPS9cQmdZQjUvV8McDt1rnjRWHdIbsuSFaHUrOAeqYs6/gerOlpHMRdbd3ggS3Za
+	vhxX1NYFglIcT6heHm+c8JOqTI2NMXFmlrPNnoRnvu3z0xH2av8LHp157FmnT7JnxwykEB+WP54
+	f1ZVqofZ0iNio+VlSTsa7d7OILc+E/plj7pYjPgladR7vayES1rWbeQccM0dwfD2b+9xiRqg4=
+X-Received: by 2002:a05:7022:f118:b0:146:85b9:970b with SMTP id a92af1059eb24-18514256f24mr1604037c88.39.1792188989457;
+        Fri, 16 Oct 2026 15:16:29 -0700 (PDT)
 Received: from eldorado ([2600:8802:b00:1f84:d294:66ff:fe95:a98e])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831919fc14sm10480863c88.6.2026.10.16.15.16.25
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831919fc14sm10480863c88.6.2026.10.16.15.16.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 15:16:26 -0700 (PDT)
+        Fri, 16 Oct 2026 15:16:28 -0700 (PDT)
 From: Florian Fainelli <f.fainelli@gmail.com>
 To: linux-mips@vger.kernel.org
 Cc: Florian Fainelli <f.fainelli@gmail.com>,
@@ -81,9 +80,9 @@ Cc: Florian Fainelli <f.fainelli@gmail.com>,
 	devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS),
 	linux-kernel@vger.kernel.org (open list),
 	manuel.lauss@gmail.com
-Subject: [PATCH 3/5] watchdog: gpio: Support watchdogs with a minimum heartbeat interval
-Date: Fri, 16 Oct 2026 15:16:15 -0700
-Message-ID: <20261016221617.2223004-4-f.fainelli@gmail.com>
+Subject: [PATCH 4/5] MIPS: Alchemy: Use the GPIO watchdog driver on MTX-1
+Date: Fri, 16 Oct 2026 15:16:16 -0700
+Message-ID: <20261016221617.2223004-5-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261016221617.2223004-1-f.fainelli@gmail.com>
 References: <20261016221617.2223004-1-f.fainelli@gmail.com>
@@ -95,47 +94,65 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Read the optional hw-min-interval-ms property into min_hw_heartbeat_ms so
-the watchdog core defers keepalives that would toggle the GPIO too soon.
-Reject zero intervals and intervals at or above the hardware margin.
-Devices without the property retain their existing behavior.
+The MTX-1 watchdog is serviced by toggling GPIO 215. Describe its toggle
+algorithm and 1.6-second minimum interval through the existing software
+node properties, and register gpio-wdt instead of mtx1-wdt.
 
-Remove the arbitrary 65535 ms upper bound on hw_margin_ms as well. There
-is no register width to constrain this software interval, and the MTX-1
-watchdog needs a larger margin with a 1600 ms minimum ping interval.
+The nominal 100-second circuit reset the test board about 82 seconds after
+starting an unclean-close test over the serial console. Allow for circuit
+tolerance and console transmission time with a conservative 70-second
+hardware service margin. Keep a 100-second initial userspace timeout and
+let the core schedule keepalives for the longer userspace timeout.
+
+Mark the watchdog always-running so the core services it before userspace
+opens the device and after a clean stop, without trying to disable the
+hardware by tristating the GPIO. Enable GPIO_WATCHDOG in the MTX-1
+defconfig.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/watchdog/gpio_wdt.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/mips/alchemy/board-mtx1.c   | 8 +++++++-
+ arch/mips/configs/mtx1_defconfig | 2 +-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index ff323d6e692e..a431c77fa179 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -138,10 +138,20 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	ret = device_property_read_u32(dev, "hw_margin_ms", &hw_margin);
- 	if (ret)
- 		return ret;
--	/* Disallow values lower than 2 and higher than 65535 ms */
--	if (hw_margin < 2 || hw_margin > 65535)
-+	/* The core feeds the watchdog at half the hardware margin. */
-+	if (hw_margin < 2)
- 		return -EINVAL;
+diff --git a/arch/mips/alchemy/board-mtx1.c b/arch/mips/alchemy/board-mtx1.c
+index 88c20c0ca96d..8543ae42af92 100644
+--- a/arch/mips/alchemy/board-mtx1.c
++++ b/arch/mips/alchemy/board-mtx1.c
+@@ -125,13 +125,19 @@ static void __init mtx1_keys_init(void)
+ }
  
-+	if (device_property_present(dev, "hw-min-interval-ms")) {
-+		ret = device_property_read_u32(dev, "hw-min-interval-ms",
-+					      &priv->wdd.min_hw_heartbeat_ms);
-+		if (ret)
-+			return ret;
-+		if (!priv->wdd.min_hw_heartbeat_ms ||
-+		    priv->wdd.min_hw_heartbeat_ms >= hw_margin)
-+			return -EINVAL;
-+	}
-+
- 	priv->always_running = device_property_read_bool(dev, "always-running");
+ static const struct property_entry mtx1_wdt_props[] = {
++	PROPERTY_ENTRY_STRING("hw_algo", "toggle"),
++	/* Allow for tolerance in the nominal 100-second timeout. */
++	PROPERTY_ENTRY_U32("hw_margin_ms", 70000),
++	PROPERTY_ENTRY_U32("hw-min-interval-ms", 1600),
++	PROPERTY_ENTRY_U32("timeout-sec", 100),
++	PROPERTY_ENTRY_BOOL("always-running"),
+ 	/* Global number 215 is offset 15 on Alchemy GPIO 2 */
+ 	PROPERTY_ENTRY_GPIO("gpios", &alchemy_gpio2_node, 15, GPIO_ACTIVE_HIGH),
+ 	{ }
+ };
  
- 	watchdog_set_drvdata(&priv->wdd, priv);
+ static const struct platform_device_info mtx1_wdt_info __initconst = {
+-	.name = "mtx1-wdt",
++	.name = "gpio-wdt",
+ 	.id = 0,
+ 	.properties = mtx1_wdt_props,
+ };
+diff --git a/arch/mips/configs/mtx1_defconfig b/arch/mips/configs/mtx1_defconfig
+index e28a0b1e6d52..5e060daded9d 100644
+--- a/arch/mips/configs/mtx1_defconfig
++++ b/arch/mips/configs/mtx1_defconfig
+@@ -377,7 +377,7 @@ CONFIG_SENSORS_W83627HF=m
+ CONFIG_SENSORS_W83627EHF=m
+ CONFIG_WATCHDOG=y
+ CONFIG_WATCHDOG_NOWAYOUT=y
+-CONFIG_WDT_MTX1=y
++CONFIG_GPIO_WATCHDOG=y
+ # CONFIG_VGA_ARB is not set
+ # CONFIG_LCD_CLASS_DEVICE is not set
+ CONFIG_BACKLIGHT_CLASS_DEVICE=y
 -- 
 2.53.0
 
