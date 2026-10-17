@@ -1,108 +1,208 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8353BBFAE;
-	Sat, 17 Oct 2026 16:47:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56D413CCA19
+	for <linux-watchdog@vger.kernel.org>; Sat, 17 Oct 2026 21:42:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792255678; cv=none; b=JSWHkNmjzj4wIn/grI/YDZCVFZz1nuRmI+uPepokwL8v6VHqJuZpSOqycBHOPjQiu9YfhF46F4JoDjYNyzxf7gQgIWznWgjH6vr7j0Z1OFCZfc3BCIhd4GULylQ0lmjRgB7hfiiOIJbhqAKu0NyCY9e5qga9lmr1Wte1PCHTXyI=
+	t=1792273370; cv=none; b=XOTkg4tqkclEQqFgqJEp3uYZi1TdmHgI+jJW+GVOGlsn9ti0PJmmpl9J/i8UOK35usvAYheSuEOBnzlDBYMcGy8z4BTKZJ8WqNghGgKVUu/dBKYyeur4P0Cbjgicrg0/jWVt1ye4zbslaHw9vxvVx+BDKQIhrpjDI6Z9/G5M+qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792255678; c=relaxed/simple;
-	bh=C4FRfj4wamUGn8rY0vb6qIc1L2oWaljYwkNRiCT3GGA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pGrYzoEpb0N3mz3xeqFLOVJb47sBz41xVqexeSZeN78KoEytlTygA9LhWU0UPJa74kf+OWBGwhFZtBrjygmcgK05vyoCwsYCJfREwYlzr8Iv12OlZRMm4YuYYiAWnvPXx9l/Mq2EQnhtCbAPcgGCaQNP5fOeKdiF6YMkDvdAdDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=qti.qualcomm.com; spf=pass smtp.mailfrom=qti.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=XQq5LRql; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=qti.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qti.qualcomm.com
+	s=arc-20240116; t=1792273370; c=relaxed/simple;
+	bh=vwce9QZh0YjGdk0hHH3KPAT02bmznkKX2olAZ3xxR0U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TGsmUJoROS2G6UiFl/beJDC8BkDKMhNxQDwSTzjd3a183mGCQM3N2OR4/c85u89Pf+BAxIxF65unt6nyiVuBYo+mV8HIMQeKsEchLRGmb7xMsaNOuWyNiGcyGUd8Jc2AwkPRiTGYwFT0KIB2Lvlm+k0vAhktzI7XuQ3dbDUzC9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HTuj0bY1; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="XQq5LRql"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69HGAHhB2033071;
-	Sat, 17 Oct 2026 16:47:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=Cff2KPdGKOxo1XuIhdSBy5uzHdOGE4DC4Lf
-	yDv2vqZY=; b=XQq5LRqlP6RJzJYBMRksAp9j60ZiRxJk+/KkB7MtXw12qKiPyc9
-	D6AmXfJS6mkrT1lGUijqTD89S08FhXChR3uviDFno+w6rL9iN3ZGeRnr5KDjo4/g
-	ZXJVI7WtFxlgYq4n0cotwD+gfHh2pN45g7+tQ9vtckFPxRvh8mjgxtfWlzIyGc/M
-	08egtSyRgR+BiPxvO5AE+zwiE26jLHoEHslNC8bZ8M4BuWpqTiIUmW5vTBMio3Nv
-	p6tMPHQ5X9LRCUA4ZNf0d60kn24doTOjKRmQmBPRYKI/D0fdcPDCUKOF5nImddSZ
-	FSjnGBv6XeZwuUHehzaw7Qr5+qVMloaYOXw==
-Received: from apblrppmta01.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hc0kxhcbn-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Sat, 17 Oct 2026 16:47:42 +0000 (GMT)
-Received: from pps.filterd (apblrppmta01.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA01.qualcomm.com (8.18.1.11/8.18.1.11) with ESMTP id 69HGi6Cw1156800;
-	Sat, 17 Oct 2026 16:44:06 GMT
-Received: from hu-aalagars-hyd.qualcomm.com (hu-aalagars-hyd.qualcomm.com [10.147.242.11])
-	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 69HGi6uA1156788;
-	Sat, 17 Oct 2026 16:44:06 +0000 (GMT)
-From: Arunmani Alagarsamy <aalagars@qti.qualcomm.com>
-To: wim@linux-watchdog.org, linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Arunmani Alagarsamy <aalagars@qti.qualcomm.com>
-Subject: [PATCH 1/2] watchdog: davinci_wdt: Fix typo 'occured' -> 'occurred' in comment
-Date: Sat, 17 Oct 2026 22:14:03 +0530
-Message-ID: <20261017164403.2987788-1-aalagars@qti.qualcomm.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HTuj0bY1"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-38ec1402b05so667222a91.2
+        for <linux-watchdog@vger.kernel.org>; Sat, 17 Oct 2026 14:42:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792273369; x=1792878169; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=NtMtMcjvDiG/mkJrZNZLBZRrz/fsXp09ZdXXjXeDy2k=;
+        b=HTuj0bY1ozCot516edn2bkUZKEzjnil3GVwOWT+argL9IjufuoolVPvpTsvrwR8U3N
+         OhjvZXLCV/HBvnz1KF75tPQeyuMKhQOJmiuLxhIDtTqbySBVfExEqlt4na//pwxeSRyM
+         KYikQGzRxhK/6HZ/Zo9W3RLYngt74T1oE0/x+Q2Ydg9EF2V/RA8FnXkkVGhSRkRajF/1
+         pHWzP9HqbL99s6JAN44IRMO8uh6RThQHg49XROyA7w47gfQM0J/q9nA50ZZuxk0Z9vCl
+         h+AuHrJbYLp4TxOn8CfIm9vpBDb56MTVIT8wgr7ew7Q3bHdkdsn79OMWT9Ea4jpIWAiV
+         8dAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792273369; x=1792878169;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=NtMtMcjvDiG/mkJrZNZLBZRrz/fsXp09ZdXXjXeDy2k=;
+        b=fEmZJaO0nzNs+XjkTYQ4NXOvVrwCqT+ZDMQRj0l/7lJh5uEAjDE2rBSrROceclwemM
+         y94euWhKfxyAytHx47MTwUCmvOlPIanGXNm/qPgFrWOfe0GcCV/lJgJesNfwpWL61ZVt
+         3nkraDrHv0g/x0wIPMJj72hz3Yk85E+zKWuq6JMn8YLd/tiVP2hZ5+Wg76wMBbAg2Ncw
+         /sEp4fbb8n6LZaC0UZxDwVNfVHYL76xKVnt+lbQJXkzFB/Z3dPT0brFKpCrYtlg0RbXG
+         m8YcUNeWHii5lsn2yn2mRSuldGQu6hzrpIhIzlaUYGkQwxBOlV3qunzu5SZ1iXGxZJwt
+         LdHw==
+X-Gm-Message-State: AFq9FYKUQQ+Is5YXVFSOFOw8HBFwQyye/QfE72hfZ3vQ7EwEvoHWXNRy
+	+txVRf/VWUnXMhaDmANC+998wMJeeiPFVnZr7nrseBw18XYGgaySrVipuJZVYA==
+X-Gm-Gg: AYBFou11fMYHa0QqMkIYlGS+7ZZwhVyKt840e6Uq/kYEQCMoCO1vPYef0wNw9s0HIwk
+	+W84vgz1lriKTLBOC9C4z1NQFHXuYppUPosHfIcoAlHNjtWz/Nwbt8rYtMe8xPo65DhBcinYq/M
+	McBj3ZU7xEi53pO8Te8hrTPbKgdfMkO3Pd3gpyY9bCQQmJzyFZvUPGpPlhJ/1p8Axv+yAvJ4o8G
+	VxP58XixPBg8tOm9yfDqPnG6oD7fX8zDtxD5PXZfcOQiN8jk9I3Qki+GX0dnK1W88XVs2eSl33b
+	V3Ih68JzO193yGtbZA8e9DTo9lkIk/6V5N9yn2EBSTkGpYwG2YhJwCavcmIEPyO67+Y25rsGqPs
+	Z1WvBPuvPihJW/qUTlLbBxn+FwVqpJyhpqXAIES1YuKI1EJcvP8fRTPglRFlcINKAU4NENa1d69
+	zIjtr1LviKQLLPbMPNQ/BYmr/uTU/ibzvwhk9JBwwsMy6WWhBrfG7FamodAQDWxM6Eh0lg4YFNl
+	5CWx3wE749P2BWAgF29/zktl30T8cwaZ57Fj68QbSGMV4rL
+X-Received: by 2002:a17:90b:3889:b0:3ac:b6eb:e0dd with SMTP id 98e67ed59e1d1-3acef5961c5mr2822459a91.50.1792273368623;
+        Sat, 17 Oct 2026 14:42:48 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cd654a15c57sm2544966a12.25.2026.10.17.14.42.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 17 Oct 2026 14:42:47 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <053269a6-41ab-41eb-8756-b6a04eea2e5a@roeck-us.net>
+Date: Sat, 17 Oct 2026 14:42:45 -0700
 Precedence: bulk
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] watchdog: allow WATCHDOG_PRETIMEOUT_GOV_SEL=y
+To: Dmitry Voytik <voytikd@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20261004213755.554191-1-voytikd@gmail.com>
+ <e7c99dc5-dfa4-4ce7-b7da-a3a70a2710a8@roeck-us.net>
+ <CAAX90H0qGF-H8BYcmT_vbUGoqN9RbfeGxMdTTRyQPK_h8MzFhA@mail.gmail.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <CAAX90H0qGF-H8BYcmT_vbUGoqN9RbfeGxMdTTRyQPK_h8MzFhA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE3MDA2NiBTYWx0ZWRfX7TFVISqbP/h3
- Bl+Y4ufC8Rde/aiqzxoBKoUaneYyor284fQyWFZPxYMs1Y82dT+7kH4gvq65o/9gOORUY51VSMI
- 6/bKxkUZvspcq2lKN8Yb46pyq3sFakI=
-X-Authority-Analysis: v=2.4 cv=JpZkP84C c=1 sm=1 tr=0 ts=6ad3a6af cx=c_pps
- a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
- a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=3WHJM1ZQz_JShphwDgj5:22 a=EUspDBNiAAAA:8 a=vsytH-DHD1w-UOUJ09EA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE3MDA2NiBTYWx0ZWRfXw+a7iGNzCxzM
- wayWA8qeMyfbpOxHuxU9IuucAYCxesEFRlflDDKEDoILMOKk5BM1pkwgVPjYk+eEAMTCdYABdOe
- X43hkJOjz4tJHS1q1ky0n/czeN3+T/hw1DnggyqtBpY6jC071jAb331eHaGND9oP5D5KSxqLvUh
- GN2gHygomjUoIGNliz3yuavP1QVa78Fy/Z0L43EC/ujRZJwU5Mn2nbmiIAHwlH1xZ/VZzEVSc74
- CIousN4GDTdb3YyG+oVdCAk1aR4S941sBQU6ndGtoRfwI6phR54aNFGZTt1G16PU+dfDDGhtPtm
- fGxYJoncNkVRMr562XpIbOB19/aHjnwSg8Kxy0GUKvb1RHQ60Ag9lNOqkuMla3hVtDzIByUeCIQ
- mtB2nF6eo1KnDHpjKIGjEmwT8aBZCb47dE7bH7GWOKXrsPjP3zxda5CIuP05q/ZDfPfJZ/czvkv
- otwtMObHcrT7Ohnxh4Q==
-X-Proofpoint-ORIG-GUID: dCUZLmjrlC_9bJkYLsQQ6WAd1fDltftr
-X-Proofpoint-GUID: dCUZLmjrlC_9bJkYLsQQ6WAd1fDltftr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-17_05,2026-10-14_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 spamscore=0 phishscore=0 suspectscore=0 malwarescore=0
- clxscore=1011 impostorscore=0 lowpriorityscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610170066
 
-Fix a spelling mistake in a comment inside davinci_wdt_get_timeleft().
-'occured' should be 'occurred'.
+On 10/17/26 08:59, Dmitry Voytik wrote:
+> Hi Guenter,
+> 
+> Thanks for reviewing the patch!
+> 
+> On Fri, Oct 16, 2026 at 8:21 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>>
+>> On 10/4/26 14:37, Dmitry Voytik wrote:
+>>> Fix the issue when WATCHDOG_PRETIMEOUT_GOV_SEL can't be set to =y,
+>>> and always is =m.
+>>>
+>>> The issues can be reproduced with the following steps:
+>>>        make mrproper
+>>>        make defconfig
+>>>        ./scripts/config \
+>>>          -e WATCHDOG_CORE \
+>>>          -e WATCHDOG_PRETIMEOUT_GOV \
+>>>          -e WATCHDOG_PRETIMEOUT_GOV_SEL \
+>>>          --refresh
+>>>        make olddefconfig
+>>>        make mod2yesconfig
+>>>
+>>>        grep '=m$' .config
+>>> returns only CONFIG_WATCHDOG_PRETIMEOUT_GOV_SEL as module:
+>>>        CONFIG_WATCHDOG_PRETIMEOUT_GOV_SEL=m
+>>>
+>>> "make menuconfig" doesn't let it to be switched from =m to =y either.
+>>>
+>>
+>> This does not explain what the problem actually is that is supposed
+>> to be solved with this patch. Since this is just a selector used to
+>> enable other configurations, and the configuration option does not
+>> result in any packages built, "WATCHDOG_PRETIMEOUT_GOV_SEL can't be
+>> set to =y" on its own is not a problem.
+> 
+> The issue is that
+>    make mod2yesconfig
+> doesn't work as expected. Help says "Change answers from mod to yes if
+> possible".
 
-Signed-off-by: Arunmani Alagarsamy <aalagars@qti.qualcomm.com>
----
- drivers/watchdog/davinci_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This does say "If possible".
 
-diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-index 6ea0434f45c2..748dd24affb3 100644
---- a/drivers/watchdog/davinci_wdt.c
-+++ b/drivers/watchdog/davinci_wdt.c
-@@ -120,7 +120,7 @@ static unsigned int davinci_wdt_get_timeleft(struct watchdog_device *wdd)
- 	u32 val;
- 	struct davinci_wdt_device *davinci_wdt = watchdog_get_drvdata(wdd);
- 
--	/* if timeout has occured then return 0 */
-+	/* if timeout has occurred then return 0 */
- 	val = ioread32(davinci_wdt->base + WDTCR);
- 	if (val & WDFLAG)
- 		return 0;
--- 
-2.43.0
+> I might have misunderstood it, but I thought all configs should be =y
+> for this make target.
+> 
+
+$ make allmodconfig
+$ make mod2yesconfig
+$ grep =m .config | wc -l
+51
+
+Not really.
+
+> Maybe a dumb question, but why does only this config have " default m"
+> and others use
+> "default WATCHDOG_CORE"? Does it have some special meaning with "default m"?
+> 
+
+Again, this configuration option is only used to set the (default) value
+for the watchdog pretimeout governor, and the "=m" states that the default
+should be WATCHDOG_PRETIMEOUT_GOV_PANIC=m, not =WATCHDOG_CORE.
+
+> I want to have no modules and still not disable the module load
+> ability, and it annoys me
+> that some configs don't allow "=y" :-) otherwise when I do
+>   grep '=m$' .config
+> I need to remember that CONFIG_WATCHDOG_PRETIMEOUT_GOV_SEL is a special case.
+> 
+> FYI, for Arch Linux based config, only
+> CONFIG_WATCHDOG_PRETIMEOUT_GOV_SEL pops up with =m.
+> A fix for the same issue with CONFIG_TDX_HOST_SERVICES seems to be accepted:
+> https://lore.kernel.org/lkml/as04AoNxjzlvh-K8@thinkstation/
+You are comparing apples with oranges. That commit states:
+
+   Fix the issue when the driver always gets compiled as a module.
+
+There is no module that can or will be compiled based on
+WATCHDOG_PRETIMEOUT_GOV_SEL.
+
+Guenter
 
