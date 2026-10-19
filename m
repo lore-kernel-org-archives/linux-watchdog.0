@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792423324;
-	b=FUaWxLw8qhWukozgW+TjBIhb/qI1SWOF1qbtEhPwVWWphlYhuuDHPRhoz0p1Eo96165n
-	 p/wbRcRugQP6qAUSpt+ipgMEL72XUUPgeP2u8SwGAJVXxR4IMB2oQhSdVhCoxhbVWP6fZ
-	 APVF+YS2bmXl67f92H9JgjrxRMKEhQDbirgj8moOTZTRCBt9Ak/3wjkN06OzWR/AmZd9k
-	 s5DL2fyg9qkodSsJWeiryE5AgJGMJH0GLkxT0UngV+g4nKgZ5qCg4Q0eL6bY1pDJV/RQN
-	 U7RMVlDHi8Pa3+iuLp18vCw9ngyOeKc2GZc5qpgIEXtM2mJIiOk2rlE+H0oV6G81GyQ==
+	t=1792423433;
+	b=cc7E1sL9BZPAb/z/qaWEqh1E4tF9RspUXSLqNkeqcwTZ997fiWmzJh3PpeVjylB4UqHv
+	 W/Rkwn7eYmRAsaRw0Z2n7PKyS/CsxM4Drs/Z8FYp2+hJYElKEkeTL0SGO3EvHCekzYQ2D
+	 lFZ0Cz29WMgiZmL8bws65rNMhdCTevF6TwoNhJmUVcAc+EbHQApmLyj2ojuGVtwQNECoe
+	 2lHB9xJyGK4IT3AO6sZcUsJlrRHGHr+stbirgecgONdSdcJtN1YAqwiAhlkxJqe7s33A1
+	 0MLux9/sJwVc8xfH3IbNZfQLfbe51FEXRCrNe5kTw+h3dFrtxjr2l+r4f3TyRLQafuA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792423324;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792423433;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=CVvYJSMvSsGSkRMqKLY6ZTXC9wxv6gDsXZTKWE4b2wY=;
-	b=hhFdJGEC1lyUxqtbkiT+W2x9+rz/KMG/zEu45nR54jL5R0wosq4GDVy/5ziGmDbMiD/n
-	 iBLY9FW1sZltb1aSU2WqGiSO0iUgMi1OKCG5rzsYNqcCDtWepsxf9S1jU9R9tPLU3PcFz
-	 qDtaQSUBhiesfuPqcqT5PorEnKmFkRkw9brWNmKxeNX8PE9q0IoO4BpvAAMNviJTeRP1X
-	 DiHXel0s1mT6hmg+Eae1OoBFZP5pk4R9MxjkxgaFWS+nXQze8w20PuMHwo+1078rMcsa2
-	 cxKpDfexYFLpGCcetdF8AoFns3vORT2ExYg1E9Apxua/5uyD0JMW90PlC+iO8KxplPA==
+	bh=85sDb+x/VzAs09Yh5sx09kwWeEyVdIngX7YU9H09UK0=;
+	b=n8H22HMyc1Wz5LdsMfC4nGq1lvHhxM8syWB1yCaZOEzHhx+gonasQs6yqsM1xa89iOPH
+	 PyzAA+Z2CV4zWu3hWHtqLh6tqmy1/hQgBufdRPgd+hBsYkaGri0X8dChWD1bOuGTs7UmM
+	 s2B06O9Wd9DognlsogMD20dHFRNKfcga9NxgezLumtpBXmCe1+WvAzSLwTg5AG5VZXSE3
+	 3jfMLQWYgKlhXAPey0qiZbsVKG8eAxowlo/wtyGiqwvs79lJwnUeJ5USPcrNEP3QkBYj0
+	 Xt0vgquH0mUtF53vN0sO1fYIOX0X+Dkv9hXzm+EhRSM6q0SGiyZW/7u7DOI+YpC+7iw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aXQnxIKj;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Hi7Vor/l";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28D4360AA0D2;
-	Mon, 19 Oct 2026 15:22:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B04CC60ACCFD;
+	Mon, 19 Oct 2026 15:23:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aXQnxIKj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B711F000C4;
-	Mon, 19 Oct 2026 15:22:02 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hi7Vor/l
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E9F1F000C6;
+	Mon, 19 Oct 2026 15:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792423323;
-	bh=CVvYJSMvSsGSkRMqKLY6ZTXC9wxv6gDsXZTKWE4b2wY=;
+	s=k20260515; t=1792423432;
+	bh=85sDb+x/VzAs09Yh5sx09kwWeEyVdIngX7YU9H09UK0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=aXQnxIKj/cFcl+YiA6cPj3DsRfhN18y2LRzbr1rXACFZbsCqkXaOOWb19/95wtg6S
-	 3TCafnZjUSWxY0kXmL41WRQIe5yoWyrOHtzMBNisy7jXKXg/dq5dPMRA2uZzg/X5kL
-	 9YVJMqG/Qtd7tIlF+SYuGZysdyO52wAjcw7veEszKrUcyH9kzIYthdiMK2hb3nXnYq
-	 zywLHxjyS0SWb6t0z2Ea9A4m1cL3+j9tDlHSjeZzaKBH9/j3ii+55uPuJPlIYvgarY
-	 RtbYnjDYPB+kSJm76hHjzIwD4djdp+5fcMkHEJonu7iXNuqNfSWzd28A2aAXRPu/Zh
-	 qdaSZ//+6YncQ==
-Date: Mon, 19 Oct 2026 15:22:00 +0000
+	b=Hi7Vor/l37RNbw2eM+rFjb1sHxjLmnHgXzKkV57X9mrMGqt20PCf+VK7xT7Ahce5u
+	 mFazqA1XCVMPywiNM+urVRDLFSAQpYsOS1gJtcu/bTQvQqP8yhflkGg5Y4nIpfO47T
+	 9iFkL3CMBu8pvEDRHMLnFDsxOiD0I2y7ebdHybR3cKCeldPCb4UBpSwB/3k2t9q+uH
+	 aX5N3NI5sDxatDdjVmOcn3Z2/OSPjvE3khS+C46TqNE175xTMQi+2FeyaKuQBlsZz6
+	 j1TO+oDmuGRHWIPwjsFSUjmnCW3zUPW2AS9w4wpvYkAua3Hj/DHjL4pFoCoB9G3Ug+
+	 uPInN5Y7r1w2w==
+Date: Mon, 19 Oct 2026 15:23:49 +0000
 From: Tzung-Bi Shih <tzungbi@kernel.org>
 To: Paul Louvel <paul.louvel@bootlin.com>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	stable@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v4 1/6] watchdog: w83627hf_wdt: Fix watchdog identity
- truncation
-Message-ID: <atY1mMlBN1L93rbi@google.com>
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v4 5/6] watchdog: w83627hf_wdt: Store Super I/O
+ configurations in platform data
+Message-ID: <atY2BXHPAZ95vCkD@google.com>
 References: <20261013-w83627hf_wdt-improvements-v4-0-b6f6b60a9566@bootlin.com>
- <20261013-w83627hf_wdt-improvements-v4-1-b6f6b60a9566@bootlin.com>
+ <20261013-w83627hf_wdt-improvements-v4-5-b6f6b60a9566@bootlin.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -63,19 +62,45 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261013-w83627hf_wdt-improvements-v4-1-b6f6b60a9566@bootlin.com>
+In-Reply-To: <20261013-w83627hf_wdt-improvements-v4-5-b6f6b60a9566@bootlin.com>
 
-On Tue, Oct 13, 2026 at 03:58:45PM +0200, Paul Louvel wrote:
-> The identity field in struct watchdog_info is only 32 bytes in size, but
-> the identity could be at most 33 bytes in this driver, resulting in
-> truncation.
-> Remove the "Watchdog" suffix, as this is implied that the device is a
-> watchdog if a user request his identity.
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: 3d6757a640f8 ("watchdog: w83627hf_wdt: Report the probed chip name via WDIOC_GETSUPPORT")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202610080027.3OsJDwfo-lkp@intel.com/
+On Tue, Oct 13, 2026 at 03:58:49PM +0200, Paul Louvel wrote:
+> Instead of using global variables, store Super I/O related
+> configurations in platform data.
+>
+> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
 
-The patch doesn't really fix anything.  The longest string in `chip_name`
-with the " Watchdog" suffix is still under 32 bytes.
+With a few nits,
+
+Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+
+>  /*
+>   * On some systems, the NCT6791D comes with a companion chip and the
+>   * watchdog function is in this companion chip. We must use a different
+>   * unlocking sequence to access the companion chip.
+>   */
+> -static int __init wdt_use_alt_key(const struct dmi_system_id *d)
+> -{
+> -	wdt_cfg_enter = 0x88;
+> -	wdt_cfg_leave = 0xBB;
+>  
+
+Please remove the blank line as well.
+
+> -	return 0;
+> -}
+> +static const struct w83627hf_sio_pdata w83627hf_sio_pdata_alt = {
+> +	.cfg_enter = 0x88,
+> +	.cfg_leave = 0xBB
+> +};
+>  
+>  static const struct dmi_system_id wdt_dmi_table[] __initconst = {
+>  	{
+> @@ -554,7 +564,7 @@ static const struct dmi_system_id wdt_dmi_table[] __initconst = {
+>  			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "INVES"),
+>  			DMI_EXACT_MATCH(DMI_BOARD_NAME, "SHARKBAY"),
+>  		},
+> -		.callback = wdt_use_alt_key,
+> +		.driver_data = (void *) &w83627hf_sio_pdata_alt
+                                       ^
+Please remove the extra space.
