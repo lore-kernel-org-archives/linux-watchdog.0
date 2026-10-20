@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792482783;
-	b=xtKnyQHUsOd8RjEE98q6XYjT+J+f1SFhDWA0y/zmJ5aSb8vs2hqmNInOEe9whm0EBbnQ
-	 OrNZRLkE5rvXWCcRcekDJUJog4aR6O8sOE2tt9oEV8fgBC7SO+qI5fjZBVQTzjJuq/BP2
-	 5wKd9konfqHQo3aZ8hR5yGoEcmh1iB/Grm7250lpLureStpf42Gbf7Sjm6zLrCtFdN/tu
-	 +YwRoNNfxS2WwwELNgNRMBwwJn24gCWGCUO2b88ERF9g0fqSfmYp3N/uSRHVFSy++L8WD
-	 oKYMugDsysk6vs1kTGGi8WS7UFmqFlh7W2F+9O+W2zS11uCY886aacZtTUUuWuSVNmQ==
+	t=1792482884;
+	b=ZtsiAhEwt7hEvlocQSyXr3gj4XgdCWEQXg/Z5OxalvhIDE4PVs5p3oFVU9+7bgFp0Ajg
+	 dtYODfd+TafbjUYdTi+QFydpgBNfRSWLhXfHwDXYr9E3L8YFK0aey3EffhWBG047N+B1q
+	 f2iDKmY9y/dH1gDmvO8Vtb3RTReJl8Jif2O7OcHoMZbTlxmf0cJt4wjMR+Yp95A9HXwBu
+	 4bVD4L8zoErFEtot0ae0JbhRcdPhthApQm3NEYjTmuIinel1b1cMemlwTGPZSy7+rdTEF
+	 eQ1jfy4pCuevYe0zd8UJTY3w3t6i0rzLQTfLrq6m0iJfLYFT5w99o57RGY3kxEZFmuw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792482783;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792482884;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Mime-Version:
-	 Content-Transfer-Encoding:Content-Type:Date:Message-Id:Subject:From:
-	 To:Cc:X-Mailer:References:In-Reply-To:X-Last-TLS-Session-Version;
-	bh=hi+RizexM700lJm+zJb+vjtDDdoQ9eNhKLCKMXQF8Cc=;
-	b=VvAXkQIF1GK9DwxzVehr0lnQYZYZwGQnBn6S50S7T4qCNmALaY/4VuzpWx2R49PsDqvH
-	 XUyays2+n4Oc8h1E6CaGHHV65d7q1NNgjS/S8uoqTW9wiD2SEM2uQLU+tgUZXAnTPMOr1
-	 iuLf7TvAybbykjbd5tbe+95fGIqq0Lnbfjs4SGKGsCoeJwB+KYOjPqDx3Ay1FEiFIV8oA
-	 pcBrJyhKzwlW5yptSilc9/k5aHnGPsB0wiooaoLsvYIrEH6r+rCA0OX+VJgzk4aDJOq7C
-	 oovbRYGh+FcVRNIMEcd7XG0h+y43a+5RJtxhiy8iBOoMfLbY6YnIZZIQI+4/LugBvTQ==
+	 Content-Transfer-Encoding:Content-Type:Date:Message-Id:From:To:Cc:
+	 Subject:X-Mailer:References:In-Reply-To:X-Last-TLS-Session-Version;
+	bh=nhRD7+nxyHeCKS+xkeCWsLjCOGr/T5riYo2YwiC+rww=;
+	b=nAq+3a73C+5y3B5G633tqyzi5KC2ozfbMDoBxSxFs+gxOqfPLlCks8GY8I5orSF8eWrY
+	 3wKjhXfYO02fuipbHrKUWpAB8Mr6xC4NDZQdzQQerv9atemnJiHfTPGsrKfzegeP+Y9GZ
+	 bnq9sl4bBMt5SFLolSbKB3mZq9ZfLIjECba2k+86kx+qpgyB0UG4miyS8WG+0BRaKtfBO
+	 tPUqbPNRHBGkHlaMt42ynnueypCFAGL9OBMTisKGhf+MiU/Ed0jZpm9IO5BfewQwqlmre
+	 sII5TjvfkJ/+JzKlmT/liqLq2vubZd7jrMDS+Njsh1OhCq6beVCFyTq0vyTM47yhsoA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=y9eroWaR;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=1N3mKuZI;
 	arc=none smtp.remote-ip=185.246.85.4
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED3C606A31C
-	for <linux-watchdog@vger.kernel.org>; Tue, 20 Oct 2026 07:53:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5ED3C606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2D3160A2603
+	for <linux-watchdog@vger.kernel.org>; Tue, 20 Oct 2026 07:54:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D2D3160A2603
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=y9eroWaR
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=1N3mKuZI
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 7A5DD4E4128D;
-	Tue, 20 Oct 2026 07:52:59 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 4B8184E4128D;
+	Tue, 20 Oct 2026 07:54:42 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 3E4D460393;
-	Tue, 20 Oct 2026 07:52:59 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 351CF10328D8B;
-	Tue, 20 Oct 2026 09:52:55 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 18B2E60393;
+	Tue, 20 Oct 2026 07:54:42 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5448A10328D55;
+	Tue, 20 Oct 2026 09:54:25 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1792482778; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1792482866; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=hi+RizexM700lJm+zJb+vjtDDdoQ9eNhKLCKMXQF8Cc=;
-	b=y9eroWaRPITyTjrHPUIpCtTPYTC79pAmN2AmgzyvBdS1kRnW21+VrVlTLK8BMm4l8okMu+
-	xH3nRyzR2BGLvPQdz4I2NdNL+ZMkfigJpysxQdhxErANk56ghzvZkVO75XuBb3apI0Z1VO
-	tzIdlH4OFyB+0Ik3L3qRGe87m/SKpahFF/iyoI/XFakxkaAFwkv2ODQ7PvDOz9IRlcs/OI
-	isk6wZjjj4v+LR2g5xlxVrY3ZDzVtGtAiXrFPpIrgI221e7u/2oA4F3x7wds0epUUUFfhN
-	9yLeEC16MIIGBbTn2hc1/++Q8g8vvayyUDSXYj00hUUASHpBMzEXmU0P+E8Hbw==
+	bh=nhRD7+nxyHeCKS+xkeCWsLjCOGr/T5riYo2YwiC+rww=;
+	b=1N3mKuZI0qxd6NRMVyevLU7abiuW3foNzamZpUF5nc0LMuS1ZOv15zGssSgmZXSG8Q1Zwa
+	fMPrPkw1e9Uv15TxnfOzxDAVr7ostyN/wBesKDLV0V1qMabUTrwp6Ep9HPvr4WCC+wI+AH
+	ppXavt/nePP1bqqMOLBqoxyt69GI3F8VzILWjAvgiRTLE++hJttq3Iftsj+LOyWoeJ8kQ0
+	aWpIy12aYFolytX6Vo1kKUGRHvQoohidPZv6mY8cyttHXb+ryIB24IgHFv6UlfZwCNsrC2
+	E6L1oUccqE0dEnQ7I6ilzrz/QmmCgw6mmnN2FyklD+7nP9xFEUqm5tfJHF/kkg==
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -61,45 +61,41 @@ Precedence: list
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 20 Oct 2026 09:52:54 +0200
-Message-Id: <DM9I42KN8Y2M.1076TL8NU62GR@bootlin.com>
-Subject: Re: [PATCH v4 1/6] watchdog: w83627hf_wdt: Fix watchdog identity
- truncation
+Date: Tue, 20 Oct 2026 09:54:25 +0200
+Message-Id: <DM9I58934NW5.OE48MSUCM2Q1@bootlin.com>
 From: "Paul Louvel" <paul.louvel@bootlin.com>
 To: "Tzung-Bi Shih" <tzungbi@kernel.org>, "Paul Louvel"
  <paul.louvel@bootlin.com>
 Cc: "Wim Van Sebroeck" <wim@linux-watchdog.org>, "Guenter Roeck"
  <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
  <linux-kernel@vger.kernel.org>, "Thomas Petazzoni"
- <thomas.petazzoni@bootlin.com>, <stable@vger.kernel.org>, "kernel test
- robot" <lkp@intel.com>
+ <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v4 2/6] watchdog: w83627hf_wdt: Replace magic numbers
+ with descriptive macros
 X-Mailer: aerc 0.22.0-0-gc2f86b7abde3
-References: <20261013-w83627hf_wdt-improvements-v4-0-b6f6b60a9566@bootlin.com> <20261013-w83627hf_wdt-improvements-v4-1-b6f6b60a9566@bootlin.com> <atY1mMlBN1L93rbi@google.com>
-In-Reply-To: <atY1mMlBN1L93rbi@google.com>
+References: <20261013-w83627hf_wdt-improvements-v4-0-b6f6b60a9566@bootlin.com> <20261013-w83627hf_wdt-improvements-v4-2-b6f6b60a9566@bootlin.com> <atY1rXhHo2RJbDrF@google.com>
+In-Reply-To: <atY1rXhHo2RJbDrF@google.com>
 X-Last-TLS-Session-Version: TLSv1.3
 
 On Mon Oct 19, 2026 at 5:22 PM CEST, Tzung-Bi Shih wrote:
-> On Tue, Oct 13, 2026 at 03:58:45PM +0200, Paul Louvel wrote:
->> The identity field in struct watchdog_info is only 32 bytes in size, but
->> the identity could be at most 33 bytes in this driver, resulting in
->> truncation.
->> Remove the "Watchdog" suffix, as this is implied that the device is a
->> watchdog if a user request his identity.
+> On Tue, Oct 13, 2026 at 03:58:46PM +0200, Paul Louvel wrote:
+>> Raw hex values for Super I/O register addresses are difficult to
+>> understand
+>> without constantly consulting the datasheet. Use named macros instead.
+>> Also, replace macros value that contains bit position with the BIT()
+>> macro.
+>> Remove comments that doesn't help understanding the code.
 >>=20
->> Cc: <stable@vger.kernel.org>
->> Fixes: 3d6757a640f8 ("watchdog: w83627hf_wdt: Report the probed chip nam=
-e via WDIOC_GETSUPPORT")
->> Reported-by: kernel test robot <lkp@intel.com>
->> Closes: https://lore.kernel.org/oe-kbuild-all/202610080027.3OsJDwfo-lkp@=
-intel.com/
+>> Signed-off-by: Paul Louvel <paul.louvel@bootlin.com>
 >
-> The patch doesn't really fix anything.  The longest string in `chip_name`
-> with the " Watchdog" suffix is still under 32 bytes.
+> This looks good to me.  Except for a weird line wrap in the commit messag=
+e,
+>
+> Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
 
-Indeed, max is 21.
-No idea why it got reported in the first place also.
+ACK.
 
-Best regards,
+Thanks,
 --=20
 Paul Louvel, Bootlin
 Embedded Linux and Kernel engineering
