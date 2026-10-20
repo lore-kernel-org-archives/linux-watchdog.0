@@ -1,63 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792510237;
-	b=LB9E4//lgsWctPLWOW3Wlm9MU0Rakzz8nIvwmM2hXVfCDFFQ/z/KC8eO5ANxuTdn5rav
-	 fK4HveblR5nU07UyaDzTTG6wfNYJyOVP+zjfGQhVUSUxtLDXQnOGy7z3c4zTNg6pw0C8+
-	 ugTB/6N6Av3/mQK5Y6DcLQSNBy7JCpc6dSsnqvMuNvuTvLTt+W14iAsIONoWvw1EEiJUV
-	 A17uOBDquYbcq3B6cTyjoOGjVpRcteaisweM2ODv6uTpk+1q/UV+XVTtu7vCPX1YtfDEW
-	 4epWjgqdj0DrsrspcveUHFzNnLGUeG+kyk+auRjrfuIpfEOP0fYqXJZy92uYr2EQyLA==
+	t=1792510953;
+	b=GGSXiobgJvDYvawufLAM/s9fW7tlW8ERmWtgTwYMWFiHpbSO2wYCx42riAtwl5F9cNVr
+	 E4F3X/GBnP3kQ6F1oT0G8A5qOjtWnwFdyIpBY8IG4/a6+Nq7MVNsILTLupdXEAggsdzCa
+	 b2Kb0oxZj9mieXbanJhhLxSNmwxXZg8mCrFdsPrN4+0Zb90gBHenSBGivhH0Kz3dPo6Nn
+	 3099sZgo4PAWtG1vR5ejnl/rfQT8ZllOsjst5ooNpibFcr0WsS26e2zQI9eNvAm9N4dCL
+	 5lCMmh3ci3S9tLNwCT9goWgUwh91kodT0SVHw7g1DNUkxWD+PtD8CVNG+35oHMyPbLQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792510237;
-	h=Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
-	 In-Reply-To;
-	bh=VMqDibeEONqAJsijitjSdM1kHE4HWDS9vh+bBPboeGQ=;
-	b=W4izgiXOszXhfT4SKHo/HprQv5rrjZ0cLuw02ODw8tBgn8CBqbgnC6hdjz+DvBMNgO/Y
-	 QpZZ+CAQNHgxPOO3X3FxBFu0gvz2bzzsVKqYlBvh2c1mLW+3KxLRbbsUUIlDGlvoyWpTb
-	 b+EIopMdtVstA4BeBia/oZEliCY4lJ7/GMyTqqKyZddj7ZWAGIDCxT6t6kthnwEJcWBZE
-	 xMIyi1d+9y53b9z46PCl4VEvZ1KT2K0WqMVbhN8dIoDUicrUY29dJ9Q0TnhMbi8Ge+EJC
-	 +4LrXtbbTlqzNEs1Lw3mfuhYivtNiX+/vKSW5RBdu2oiYVT4F7R6rTvX7a20Q9Anzew==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792510953;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Sender:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=Ha92501mYo4eZ+6VzZrrZAGeSZLwhK583D+B3xN2u3Q=;
+	b=NHqUqUNEh/2aJvJaS09j0IZzqM9Q4PP+cMfENOdTTAhvcYK/yjeJTUUqxnfcHQU2d0Ak
+	 0C+tecLfn2BXvrhnCuh2uwdfGTWkHzblySfSEHSr0WJBfWB7FsLeXHe/PF9pEmnRw7Q7Z
+	 j8h7AowTb8qO4gr2FQspa+YPBFYAH5V5ZnCU9mLTbIgT5cZEFID8QV2xcuQ/cNZQ2B9yP
+	 vEmHAFCbKKkUBvg2/jEs4OYoygRriSZHAGmuZyDPXAE0qsV5gyBiTXo6h9zf/2yn0GR5d
+	 WqCVAq44x+xkxRy4HlQIjYcIpPjrZ5GmcQM0Vfpj5AE9bntpjEVcmdyX3VjGFLAtaeA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=roeck-us.net;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=OvDR6hCD;
+	arc=none smtp.remote-ip=74.125.82.43
+Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87432606A324;
-	Tue, 20 Oct 2026 15:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4933D1F000C8;
-	Tue, 20 Oct 2026 15:30:32 +0000 (UTC)
-Date: Tue, 20 Oct 2026 17:30:00 +0200
-From: Lorenzo Pieralisi <lpieralisi@kernel.org>
-To: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Hanjun Guo <guohanjun@huawei.com>,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	driver-core@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RFC 02/11] ACPI: Introduce irq_get() for static fwnodes
-Message-ID: <ateI-JcExDyfXKrs@red-moon>
-References: <20260925-acpi-static-table-irq-probe-defer-v1-2-2c62125d0085@kernel.org>
- <arZDwutoadki7tiZ@ashevche-desk.local>
- <arZNL9BnTGK0Klwc@red-moon>
- <arZS4vwxps01dGb7@ashevche-desk.local>
- <arqSqcoWAkhy-8do@red-moon>
- <d1720b63-65bf-4019-bc19-1852555f7993@arm.com>
- <asieTvinZ7c2QpQm@red-moon>
- <CAJZ5v0hVLSJs1j8J1TV3yJ8Psyaf=B_0UfHsYSMtM5xTup0B_Q@mail.gmail.com>
- <atXyIadz1TEKSodg@red-moon>
- <CAJZ5v0joJBZg==DWPsNviPfL7Jo=qupRhb6GinqOLoHXGnvevg@mail.gmail.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B60B3606A319
+	for <linux-watchdog@vger.kernel.org>; Tue, 20 Oct 2026 15:42:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B60B3606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=OvDR6hCD
+Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-1438d9363fbso248749c88.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 20 Oct 2026 08:42:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792510952; x=1793115752; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Ha92501mYo4eZ+6VzZrrZAGeSZLwhK583D+B3xN2u3Q=;
+        b=OvDR6hCD7KSUIrLTxwD+wM8ADil6OW4AxS5vuW6sWk0BvkMY3CMbwghhU43+BmgJhT
+         DvimmAe5HljJSUwdraf6gsxC0dk24d3w6zGKH2G9zyPKlhF3K/QZ8XIHZdGU1hMIYYbG
+         XnjDO3hNqVUht8VdY2o0iWPfe/9C7a76hs+Yqq1Qo0ZhHszVSa2FrbpIko0JctqaygrT
+         MTeao5fBm0Z2sOKOBK/R275yKwdGt9f0LD9knr5o6nalLkEw5z+WhcihWBcq9vqclucA
+         Rmg2aX0vPfydwDjnF6AVhExJc65Ocqy63jBVYV9aeY30z2W6Pze2QTtGLciAgNXdQJVN
+         FQ0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792510952; x=1793115752;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=Ha92501mYo4eZ+6VzZrrZAGeSZLwhK583D+B3xN2u3Q=;
+        b=FQAl3KtqJOQ5XJ6Pvlpf0A8dsTcF9ldfzWwSd2nX4ISKrwe3/Q13y0Be+aim4L2wz2
+         t4R5/Q4YCD3PYWJBQdk5yuOvVrEfx0kx5q1L7l5hUk2X2W6bZzSe9NCqbhQspuUN4XbQ
+         vS0pNW/hJj6K1EeyrHckykF+ZWgme+0dS6B0pNIKAm05RfaEpU0V/VBKObHgUMJB48XG
+         bF05E7sezyPj79lCyw9jLWdFR1AJZaod61nEqCzwONJHLt3CKwZsMENORqa4sDVPUK0v
+         RoxpohidMGKvVcWwY619hbKvOGO+3nulNDZaOaI4X/yUPCWQwzdxwPa+VFkhCC7xWWL+
+         5t9A==
+X-Forwarded-Encrypted: i=1; AKwUvBy/8NBTGAaeD2pEkY7C3jMKHKJStek4ks37llNizxNq787OS23ttZwMIZ0wRcqPY2SHw9KmIEUTVqpPTcJ5WA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKycKGL3tYfiX+lSlCKBwSIxhihmD1jk4vX+tJAbGn02m6jgmsg
+	V2R2haD0Bt5d+8yXzCs/fK8/ZlBTxTWRO7uajn18R+AzW2sw3alcICuzaUhDKg==
+X-Gm-Gg: AYBFou2I4i5EjpvCimAxlEQ5ekqONpwE8NB78S27uB3F8M08zKJIufv2lULBlSniXNs
+	EJvssGfc1BmAlZhyy+fDJ8I+//a8e2DXoUiKW0v8e0oJ9+ZHqU8Zj9j41ptBntWTpaH01BP1wem
+	1dOyhSPKmzC2HGz3UW7qCYnF1G73PkYEJ4tF6aLO9WiZYTpeIaznPC3AlQk0m3OFvlc+EAsT/fE
+	J4vl94ywNIDOXDOMjGf0xk8eU71bQMmzwjE4+dexZCdyd89u0nVd1UhO3RpSmAUYK1I7INDGBEU
+	6+LCIPhbqg5Rcn5Bq5c1oEYGGrpysVraO1/8ngjW7Tc95Y4EifygriBBzqgJSnLrL/bbycT6e3L
+	KFX7Q2RX5a26yd/RLGi4e9evEClRsH7Mr80L/TNjTf0U0ZmgqH2q8VwhBTvJqwjCMqAAdWWzRo/
+	J0shfvr7r4oX49S7LXOdYDvSEeDgNsrgCn75EdLpaeJdXEudc6AUUhK1kSokq6Bf8N2G3TePZ1K
+	Kyamcg823bkI8fF9Xb04fRr8v6mdso0/cESS9D1RUX8JKhT2Q+v4JG5NlqtzIgEmE+jC4X5BQbe
+	9L3iZCxrXz4derVoq/LUPaLNB2wJLQ==
+X-Received: by 2002:a05:7022:419e:b0:185:e68c:904c with SMTP id a92af1059eb24-18dbe2af64bmr5061788c88.7.1792510951564;
+        Tue, 20 Oct 2026 08:42:31 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831919fdfesm38145624c88.7.2026.10.20.08.42.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 20 Oct 2026 08:42:30 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <e92d62d4-cd2f-40a0-a973-2f2a0e392bd1@roeck-us.net>
+Date: Tue, 20 Oct 2026 08:42:29 -0700
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -67,72 +93,90 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJZ5v0joJBZg==DWPsNviPfL7Jo=qupRhb6GinqOLoHXGnvevg@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 5/5] watchdog: w83627hf_wdt: Add minute mode counting
+To: Tzung-Bi Shih <tzungbi@kernel.org>, Paul Louvel <paul.louvel@bootlin.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+References: <20261020-w83627hf_wdt-improvements-v5-0-90b226684fc7@bootlin.com>
+ <20261020-w83627hf_wdt-improvements-v5-5-90b226684fc7@bootlin.com>
+ <atd1wP1cELjiwjXT@google.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
+ RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
+ nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
+ 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
+ gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
+ IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
+ kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
+ VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
+ jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
+ BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
+ ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
+ CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAmgrMyQFCSbODQkACgkQyx8mb86fmYGcWRAA
+ oRwrk7V8fULqnGGpBIjp7pvR187Yzx+lhMGUHuM5H56TFEqeVwCMLWB2x1YRolYbY4MEFlQg
+ VUFcfeW0OknSr1s6wtrtQm0gdkolM8OcCL9ptTHOg1mmXa4YpW8QJiL0AVtbpE9BroeWGl9v
+ 2TGILPm9mVp+GmMQgkNeCS7Jonq5f5pDUGumAMguWzMFEg+Imt9wr2YA7aGen7KPSqJeQPpj
+ onPKhu7O/KJKkuC50ylxizHzmGx+IUSmOZxN950pZUFvVZH9CwhAAl+NYUtcF5ry/uSYG2U7
+ DCvpzqOryJRemKN63qt1bjF6cltsXwxjKOw6CvdjJYA3n6xCWLuJ6yk6CAy1Ukh545NhgBAs
+ rGGVkl6TUBi0ixL3EF3RWLa9IMDcHN32r7OBhw6vbul8HqyTFZWY2ksTvlTl+qG3zV6AJuzT
+ WdXmbcKN+TdhO5XlxVlbZoCm7ViBj1+PvIFQZCnLAhqSd/DJlhaq8fFXx1dCUPgQDcD+wo65
+ qulV/NijfU8bzFfEPgYP/3LP+BSAyFs33y/mdP8kbMxSCjnLEhimQMrSSo/To1Gxp5C97fw5
+ 3m1CaMILGKCmfI1B8iA8zd8ib7t1Rg0qCwcAnvsM36SkrID32GfFbv873bNskJCHAISK3Xkz
+ qo7IYZmjk/IJGbsiGzxUhvicwkgKE9r7a1rOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
+ 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
+ pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
+ J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
+ pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
+ 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
+ ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
+ I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
+ nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
+ HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
+ JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAmgrMyQFCSbODQkACgkQyx8mb86fmYHlgg/9
+ H5JeDmB4jsreE9Bn621wZk7NMzxy9STxiVKSh8Mq4pb+IDu1RU2iLyetCY1TiJlcxnE362kj
+ njrfAdqyPteHM+LU59NtEbGwrfcXdQoh4XdMuPA5ADetPLma3YiRa3VsVkLwpnR7ilgwQw6u
+ dycEaOxQ7LUXCs0JaGVVP25Z2hMkHBwx6BlW6EZLNgzGI2rswSZ7SKcsBd1IRHVf0miwIFYy
+ j/UEfAFNW+tbtKPNn3xZTLs3quQN7GdYLh+J0XxITpBZaFOpwEKV+VS36pSLnNl0T5wm0E/y
+ scPJ0OVY7ly5Vm1nnoH4licaU5Y1nSkFR/j2douI5P7Cj687WuNMC6CcFd6j72kRfxklOqXw
+ zvy+2NEcXyziiLXp84130yxAKXfluax9sZhhrhKT6VrD45S6N3HxJpXQ/RY/EX35neH2/F7B
+ RgSloce2+zWfpELyS1qRkCUTt1tlGV2p+y2BPfXzrHn2vxvbhEn1QpQ6t+85FKN8YEhJEygJ
+ F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
+ FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <atd1wP1cELjiwjXT@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Oct 19, 2026 at 08:05:50PM +0200, Rafael J. Wysocki (Intel) wrote:
-> On Mon, Oct 19, 2026 at 12:34 PM Lorenzo Pieralisi
-> <lpieralisi@kernel.org> wrote:
-
-[...]
-
-> Basically, yes, the idea is to defer the creation of the platform
-> device until the dependency is met.
+On 10/20/26 07:08, Tzung-Bi Shih wrote:
+> On Tue, Oct 20, 2026 at 10:11:58AM +0200, Paul Louvel wrote:
+>> All of the chips supported by the driver can be set to minute mode,
+>> allowing timeout value up to 255 minutes.
+>> Add it to the driver.
 > 
-> > till the dependencies are cleared but then, without a _CRS, where will
-> > the consumer driver find the platform device resources ?
+> I didn't review the patch carefully as I was thinking about a fundamental
+> question: isn't 255 seconds already more than enough for a hardware
+> watchdog?  Why does it need to support minute mode for timeouts larger than
+> that?
 > 
-> Well, good question.
+
+One would think so, but oddly enough there are people and even large
+companies (like the one you and me work for) using such large timeouts.
+
+Guenter
+
+>> @@ -49,7 +50,8 @@ enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+>>   static int timeout;			/* in seconds */
+>>   module_param(timeout, int, 0);
+>>   MODULE_PARM_DESC(timeout,
+>> -		"Watchdog timeout in seconds. 1 <= timeout <= 255, default="
+>> +		"Watchdog timeout in seconds. 1 <= timeout <= "
+>> +				__MODULE_STRING(WATCHDOG_MAX_TIMEOUT) ", default="
+>>   				__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
 > 
-> > There are multiple facets in this issue and possibly some of them have
-> > been already solved but I need to pull them together.
-> >
-> > > Note that the dependencies can be added to acpi_dep_list after
-> > > creating a struct acpi_device with acpi_add_single_object() and
-> > > acpi_scan_add_dep() is not really suitable for that, but it should be
-> > > doable if the dependencies can be found.
-> > >
-> > > > I need to have a deeper look into this next week but I wanted to ask first
-> > > > whether there was something I missed - most likely.
-> > >
-> > > Well, it is not really straightforward.
-> >
-> > Yes it is getting messy. This RFC, with all its flaws, does not transparently
-> > prevents enumeration but rather relies on -EPROBE_DEFER to sort out
-> > dependencies - though it does so by adding more stuff into ACPI static fwnode
-> > that to be honest I'd rather see gone.
-> 
-> I think what you need is a notification mechanism that will trigger
-> when a specific device (enumerated via the ACPI Namespace) becomes
-> operational.  It doesn't look like any of the existing ones (platform
-> device probe deferral or ACPI device dependencies tracking) is really
-> suitable for your use case.
+> The patch is obviously not based on the watchdog-next branch (see commit
+> b152ca999c5f ("watchdog: Replace __MODULE_STRING() with __stringify()")).
 
-Yes. It might just be a notification from ACPI core to say "the driver for
-this ACPI device probed, go create platform devices that depends on it".
-
-We can check and track the dependency in code that does create those
-devices today.
-
-I will think about this to see how bad this might look like.
-
-> > > I'm still not sure why you can't represent all devices in the ACPI
-> > > namespace in addition to describing some of them in static tables.  I
-> > > guess that would work for everybody, wouldn't it?
-> >
-> > That's a fair point - though then code will have to work with firmware
-> > that does NOT explicitly require those devices in the namespace (ie: firmware
-> > as it is specified _now_); it can turn out to be a mess even less
-> > manageable than this discussion ;-)
-> 
-> If it has to work under these conditions anyway, then adding stuff to
-> the namespace is rather pointless.
-
-Yes that's the problem, reworking the code to make it work with namespace
-devices is doable the issue is existing firmware and that we can't change it
-(and we can't create it in the kernel either).
-
-Thanks,
-Lorenzo
