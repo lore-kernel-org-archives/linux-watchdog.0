@@ -1,63 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792496112;
-	b=0/wWebfV1JfN9CQcXlm7S516eOzP28+6TDZ/7Qf7tyRzZPgna8Seim0L8ee4vNCrdHtu
-	 kEzAJnAQlTFvxz6GsW/hQIa5GEEokCWEaGWN9HFQYkGR9x29XqIVCElZK4LY+9cB4rIXs
-	 kclNNXNnUpPSmdTb2K0fZ+XvUEO+cCaMH7Ji8B+kCyRnzgwO7iP627+x+gyEQi1H9QJ2h
-	 qHizVQ7ciFwyyvhCenHk3yd6dXG/peqFZ4zFsueDPtRFGkxayZ9M6SR8JjG17x0tjKqtY
-	 aCzmL65Kd9PsHkxWB9qDDeXTW/mDCS5LQ5tl6mKeelYIdcjCvvhIgfuT410pYJ+OsiQ==
+	t=1792501649;
+	b=WWx+w9iTUGTzIvP1TtDI0o7Ezh6NYADv+/TkFCUUg5Zrvk0pgz1dDLsL6OZRcaSR6lF4
+	 QHrXkNc/K3HX9vEBgA/S21d6j8RrEaOVKfEw4BOavr6GqN5X/KXxWxUSu+NYi8k7rIpAS
+	 8Ir/ttDA3ioYKYa2m0NlrpG3ZeJQ8Y4FAGzbRZp7lKUMhPYXpOy1cPlQPqzPNwx4f0TyP
+	 wlkksMeMP6a45B/vY26CBMcwfBmDpBNVE5ZhA2bBQW29P7GCo854DKOkG2Qh3uwi/IS8V
+	 CAp4NhqMz3rmYxSVjP+mtsU6c5+r7cPKV+QRjlrxrvywDnm2PBoWfkfl/fkpIycRCRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792496112;
-	h=Received:DKIM-Signature:From:To:Cc:In-Reply-To:References:Subject:
-	 Message-Id:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer;
-	bh=KC+tsMxL27T8X/Np0Fb1tWZeOW8IxFTBoi/UezmyYRg=;
-	b=OHcngJGkUjuDBwkdbpsotMKVLWsg5sGux3iuDopAJVCLRq6fYvb2klDHlwcKzt6kiRbE
-	 Wz3c6Ws9l5a/aay9qjSRsje7mVyi85uH0mD1nJjvgCtTimOWPF4pCsRO/ejHXfcFYvzli
-	 2x5pS2mGvmmXDJUEyt6A1AZUTUg6xtHlSrfg/U0YbuRf9+8xpukd65R1pV7Wy+aJ06iXl
-	 RcrsaJH+bMfLO5NJh99guu4VVcbDvELtLLeA69hadVbFooE2ciS6k7e+L2WGNbknA50t5
-	 X4s8uFL32aFqaTbh7kLM4T6HWR+FGYaI5H4bsrSB6Yi2BYAVmR3ohyUQDzKTJzFQy4w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792501649;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=yczeao/IfIHXdQRDuzsDbtiZys1GnnvPZGbVKXnNSdw=;
+	b=RF4ePqPdrYFi0zOpKMRZ1n3EkLiq3blHWrVSDNpV6njDC3qyyEXLvLPpDOsNQ3BI34Xj
+	 8cYtlR1MfSvfgCf3N6scFMoGQ8U/BDRkEdgFPoNr+RiB/htUXKUIJGDhm1RU8rLxF//Y9
+	 wLi29FpIMrqmiHnf3Qi8PD2xiHRcE67EKT/83WLXze5fR08xS25Yd4piHUa0370Ekpkkx
+	 wwZuASc2wusomXE0hu04bVKJnsRzETM9cnAq8xdegR+KNwHUKpCeY9IqMWJvNF1M7EuPF
+	 Pv18ER9me93/q8FPw1xLl8caRK0QS8+YlhtJxuW6tL891Z4FraqHLBSfs+4lDrYnuLQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UYwCaJ0R;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="lzCe/9+8";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F3E606A331;
-	Tue, 20 Oct 2026 11:35:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D7CA606A331;
+	Tue, 20 Oct 2026 13:07:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UYwCaJ0R
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2707E1F000C4;
-	Tue, 20 Oct 2026 11:35:06 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lzCe/9+8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A281F000CE;
+	Tue, 20 Oct 2026 13:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792496111;
-	bh=KC+tsMxL27T8X/Np0Fb1tWZeOW8IxFTBoi/UezmyYRg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=UYwCaJ0ROq/utWY4xpPuooyxMbQRo0ykWMVu9P2d28ECMV1HhSYPgVJj/ocpbyhNn
-	 BU9cWCF8bsTbVQwhv4e/XXWCNjtjgiv1XGb5O4xwR8szS65CDhXevP24Pa6+W8KrC4
-	 GvsLZbXEVOuQYl5+5ALmkweqkbt7xd6Pv1Kh0ZXPzNltbAIUZ0+f3acAhEFtW8/bnr
-	 /Y4GYmMjF33eUML1zli1IoUMnSmeg1jeu7m/1yMd0xIs5pHtHEvQqAycCYx2liVywR
-	 1zrFbzK+sd+BFjhpht6JMXRomiOuwi6m6gGqM0Z57+HQ4DwQYW6Qh8RWkvlzvikg9T
-	 ES7n+e/Ea+cJg==
-From: Lee Jones <lee@kernel.org>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Fabio Estevam <festevam@gmail.com>, 
- Support Opensource <support.opensource@diasemi.com>, 
- Lee Jones <lee@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, Primoz Fiser <primoz.fiser@norik.com>
-Cc: devicetree@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- mfd@lists.linux.dev, linux-watchdog@vger.kernel.org, 
- upstream@lists.phytec.de, andrej.picej@norik.com
-In-Reply-To: <20260924065044.368341-1-primoz.fiser@norik.com>
-References: <20260924065044.368341-1-primoz.fiser@norik.com>
-Subject: Re: (subset) [PATCH v2 0/4] da9062/da9061 watchdog timeout mode
-Message-Id: <179249610684.1885397.15733265210505859748.b4-ty@b4>
-Date: Tue, 20 Oct 2026 12:35:06 +0100
+	s=k20260515; t=1792501648;
+	bh=yczeao/IfIHXdQRDuzsDbtiZys1GnnvPZGbVKXnNSdw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=lzCe/9+84DSLwPFWQmsvRNJqOqlvoSsVjLE6nSv4WCcw8Je9ijpBv61c3HpjHVdF8
+	 FxqdVSsvl9BAcyZAca2J7ZfAGwaIRySoPcQAP1zP7iFyKTYwx/xi3TIjsILD51SeeU
+	 v1eZQY48A12bekOcIvzDehRohwtV3xaNJmJNCKmhPDDgS7ZX17lyOYjpHyJfeWIAMl
+	 Wyn3E/ugXIq0LEkX0Zd+6RhWFodEEGcHpISCTgsov93fxA+x8fgT1GaHhY//CDN3Ir
+	 5qmqCS7iDGSrNhohuS8UpHKgl7+X5aZAsrgQs5fCbIjy20V+Xcszi7dkhDecesBUbi
+	 HSvBQ/MlefZkA==
+Date: Tue, 20 Oct 2026 13:07:25 +0000
+From: Tzung-Bi Shih <tzungbi@kernel.org>
+To: Paul Louvel <paul.louvel@bootlin.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	stable@vger.kernel.org, kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH v4 1/6] watchdog: w83627hf_wdt: Fix watchdog identity
+ truncation
+Message-ID: <atdnjaujw_BUiVUR@google.com>
+References: <20261013-w83627hf_wdt-improvements-v4-0-b6f6b60a9566@bootlin.com>
+ <20261013-w83627hf_wdt-improvements-v4-1-b6f6b60a9566@bootlin.com>
+ <atY1mMlBN1L93rbi@google.com>
+ <DM9I42KN8Y2M.1076TL8NU62GR@bootlin.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -67,32 +63,31 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.16-dev-ad80c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DM9I42KN8Y2M.1076TL8NU62GR@bootlin.com>
 
-On Thu, 24 Sep 2026 08:50:40 +0200, Primoz Fiser wrote:
-> This is a revival of a series originally posted by Andrej Picej in
-> December 2021 [1]. It lets the DA9061/2 PMIC watchdog be configured via
-> the "dlg,wdt-sd" DT property, to trigger a full SHUTDOWN instead of the
-> default POWERDOWN on watchdog timeout, and enables that on the PHYTEC
-> phyCORE-i.MX6 SOM.
+On Tue, Oct 20, 2026 at 09:52:54AM +0200, Paul Louvel wrote:
+> On Mon Oct 19, 2026 at 5:22 PM CEST, Tzung-Bi Shih wrote:
+> > On Tue, Oct 13, 2026 at 03:58:45PM +0200, Paul Louvel wrote:
+> >> The identity field in struct watchdog_info is only 32 bytes in size, but
+> >> the identity could be at most 33 bytes in this driver, resulting in
+> >> truncation.
+> >> Remove the "Watchdog" suffix, as this is implied that the device is a
+> >> watchdog if a user request his identity.
+> >> 
+> >> Cc: <stable@vger.kernel.org>
+> >> Fixes: 3d6757a640f8 ("watchdog: w83627hf_wdt: Report the probed chip name via WDIOC_GETSUPPORT")
+> >> Reported-by: kernel test robot <lkp@intel.com>
+> >> Closes: https://lore.kernel.org/oe-kbuild-all/202610080027.3OsJDwfo-lkp@intel.com/
+> >
+> > The patch doesn't really fix anything.  The longest string in `chip_name`
+> > with the " Watchdog" suffix is still under 32 bytes.
 > 
-> From v5 of original series this resend drops patch 4/5 ("dt-bindings:
-> watchdog: da9062: add watchdog timeout mode") because it already landed
-> upstream as commit 382256b219fb, later converted from .txt to YAML by
-> bd888a4377ae. Thus dlg,da9062-watchdog.yaml already documents dlg,wdt-sd
-> property.
-> 
-> [...]
+> Indeed, max is 21.
+> No idea why it got reported in the first place also.
 
-Applied, thanks!
+It should be from 21 + sizeof(id->name) = 21 + PLATFORM_NAME_SIZE > 32.
 
-[1/4] mfd: da9062: Make register CONFIG_I writable
-      commit: db52dc6f9aef97ad7f9738b5f595f42299946793
-[2/4] mfd: da9061: Make register CONFIG_I writable
-      commit: 630751941b7488912fbe432c2412b8c9fbfaed9e
-
---
-Lee Jones [李琼斯]
-
+   482		snprintf(data->info.identity, sizeof(data->info.identity),
+ > 483			 "%s Watchdog", id->name);
