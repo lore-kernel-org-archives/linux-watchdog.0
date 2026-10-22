@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792676640;
-	b=CBTUGuwm1Ms/95AQeMNHqmCI8v9gzCev204UiXI328Fi59DkJpTcf1j9cQ9kfI1ZwqAW
-	 hyENX/QiG7kY3dW9vw4pdHrcsKUXVe43RvBFYvmShMKyC4iayttyUJFRNN+63rBbV9yCk
-	 WCDfcgKlZjj2M+M291Az++ezLCH8SqDFf74q1nuSZEnEu0lgZ2gcLU5n/T4HrFpjiBc4r
-	 /CM5+AdcikzYcfSxIbYo3LouwnwVpsmEmCnEWQKlvpz0fpIFBIichB0lLRShCEHqFHfpQ
-	 SaPSkehL6nIyw5WsrCseNXly9yA7S9mpR7LjjB6YY8RDo9x50tiD7SQQYDp7JtpH0lw==
+	t=1792676641;
+	b=dEBp8o4FQHeUrqYANhmkJ8Q+wB4M6mYarIzNh/1OoUB8p+tAYuEgJL4O/wZ+7yl/5mzU
+	 86TnT+sPn+QyedMUrKedgdvBAi6jtujgTv3tOT6dDjV1H4kl3OQP53lNpCul0PVb9WTOH
+	 Q4j5m0owdZ4kYLOFmh6f0YkJ1NlnW2VIH9UY06lJQsrnidR+0H/5qcoEKPKXW4s3n7krM
+	 LjWxQ4tdfEqu1y2BMRY00vRrWZunXeRAjiNjLL5x6oy7SKxkzA2bOJ54OXy0mdDrSKr0u
+	 /A8yq2HcLbsIpTspCm80Jxmbj73oNNhLR7+ZRCh0LQMrYXz8cSQmZfidTw2zSPWYYhQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792676640;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792676641;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=OBrAstFxfei97/qGYpXR2Je94zT74yF0LdF3nW5YIug=;
-	b=l1jyetsmmUK83nsPcWC+64zhjjYBN+K0NFJP+sY4MqYxpN8XORGKIfhSwmZef1z5FRg3
-	 TbDUWE4FctxdR9ECycNDVOVb2CkB2ZdKifiNK8Pgdyl9sCIm1/3q0MhtsSy3OMItpbiTz
-	 cY5322HBnUNKRXgwDzpd1+0cwyMDhqNhgN6QpejCaMZS8TZRoHNAKGEJOfDQPct3gkIs3
-	 gncd9fwYjkBQ8lm6ZLF+GbeqfZga8ziWb0NboIpXmGS+LiWxreVxY96B2bHNihGQLlDDk
-	 kHo1h68cadMMYngCWXR6NUhCvsUfEDoZxIXdKoVZz1hrG6jXQWkXvGTO63JxB3RiEhA==
+	bh=vel16q6gN2xg2Z/AVBnJqepV7LiP48eLiT0cnN1qO1c=;
+	b=XfefE2iPQQwBLK4lM/fJaS+je/e3uDj06MOqnJ9RbhuGzHpaUrScYf57dTiL5ugG7Z1a
+	 EqNycSdX75LFSjqCMdUc5iELo77SHXmOj2H9S5YrOI59Wl/sajhY9Lo7v5A12YfQ/3o0q
+	 HljrHYDxYSKj/jGxwTyxr0AGHDXwwF1dE0E13rJQ2ikyEE+uIwyaTt3EymRyEm2vtVE+D
+	 WrAEe2sjzYT7/mcvdh7oikP1avVaTq8giooCo8S4QganiK9J+ylY2IE7kWu3zHm3/D2Ci
+	 JmpTn/0tw9efoP6fppn2K3Ff5eAYjnlFJDrNOw0YV1g/T6epf/KFZ/JHpC28RGaKR0Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=NNVTXLU2;
-	arc=none smtp.remote-ip=209.85.221.49
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=cHNjz5sA;
+	arc=none smtp.remote-ip=209.85.128.48
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38CB60A2631
-	for <linux-watchdog@vger.kernel.org>; Thu, 22 Oct 2026 13:43:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A38CB60A2631
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73F2E60A4AC6
+	for <linux-watchdog@vger.kernel.org>; Thu, 22 Oct 2026 13:44:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73F2E60A4AC6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=NNVTXLU2
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48af4d4e61fso1204920f8f.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Oct 2026 06:43:59 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=cHNjz5sA
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a2074a66beso5553485e9.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 22 Oct 2026 06:44:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792676638; x=1793281438; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792676640; x=1793281440; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=OBrAstFxfei97/qGYpXR2Je94zT74yF0LdF3nW5YIug=;
-        b=NNVTXLU2h8M+Zihavhx6ETDfpwf0+ysd6eNPBmJ2bUpCF82IefP7x17FNCpjm65J9z
-         HdAzApEN7qBkViUIINKFRXordZaxBLxpkp5g7mxRlhGZVSBOvSr5yHtCmxrXqOSd+SLg
-         mN69640QPyYrgmJHkv7jc4WBnV1e/gQ7/couGfVqCNWVKL3EdHLV11ib7qFIgNCygWa3
-         51SUZdXLaunf5KEiPOQcqJJWhMZUXmldNf5w7OXg424rXonnGYiU6Ez128wq4t5IMKoE
-         j0/aTlQGDg7Jqq0sYCFC4Mv6YMb2fBEtghCK3lHs9HUGAT1BRwmEiYwq1a3yc5vsRqX2
-         7s1w==
+        bh=vel16q6gN2xg2Z/AVBnJqepV7LiP48eLiT0cnN1qO1c=;
+        b=cHNjz5sAwvyB9ToNCxkji6vTSt2soKeHfWorF+IP8rQbOunLU5sxreU5yrka0ba8LA
+         V+rhwu5GlHkm0nneC4diO+RLSl8tHKQ1Nc9e+hk4p38+PSpguBwYCT1V8gI2JJhdOs7B
+         eTjFY+/7tEhysQy18IPQLz30KDRcamyv3nxpcuFRRVsBmiWj1Ifo1skHUli0YBgIZ9r7
+         XJyd7JvqiXYqHTGuLUj2LzTJ8d+icRWZO+A26jvoOlHb3Qv+so57kR0QnJ0B0GrXpaKI
+         bklAOoBazNtmV0LBHLaqmOR2WYtx7Ilq6d+9yc+7nqNjAvVVoUb2VPb0xuGyze4VkLYi
+         70Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792676638; x=1793281438;
+        d=1e100.net; s=20260707; t=1792676640; x=1793281440;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OBrAstFxfei97/qGYpXR2Je94zT74yF0LdF3nW5YIug=;
-        b=Vke8b/A3qW74y2l7kTOsgSBgBD0T8Iv1svtMaAJ4q5u5qIPbRSERzPk82W4DuPz5bz
-         zfMAEcWhZdkqFcc6lNN49ATtPlIqxe9om5D2BJbmSYS53j4Mpp23cognNFMYWmk77FI/
-         v44md1Ls6s+sg52SF+AnuW0id+PZC0/oTFJsFXge1ysjpX6CIM6t/X8hMERrbjG7w2tP
-         6wTcUubfhZUk2l0oMDWAJhU0koxeRWw3YxSLeHJ8Hoi2MZ01pVdGdZRu65bmQ2WAPE6V
-         bdUN7tcaOb8GxvP2i9bvJzkSP1cvzi5aRTzr1/HhXx9GPUWxm1DXUhufNW0TA2yNkH2D
-         yxPw==
-X-Forwarded-Encrypted: i=1; AKwUvBwbyRLebgIGEShrPeLYpRTmH0uDPfnBcpo01OMD3PtbTuJ9Du5JdiLGm4RlJGyoGSK2H5eNu9lhI/gwxSf/+g==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL2Rb/lB9DEykK84VgikVZhzhHjwLDwsJNFgLmBRDWz/PkTw7HB
-	klZg0CjuKriBXu5qY3Y7JDhYYaK4abY5okeS5ZDJfghEuMNxncb4rCmE2tdT5g==
-X-Gm-Gg: AYBFou2h8wX7ji2pRSIh/EwHYu5+3KqzZsCEdVm2Jd/St4E6LlvvqAKiOaMFkPNuiRp
-	1onTB40r7E9WI0jAPgA24Tlvr6GQ4O5ezHIvR5j7BWQVrw3zLvyKkzWdK4Tq7OYNExQoLubPPM4
-	Oft/5Vk/OmBQ/ZbuvhKOWm/VreK7Phj+ABGjSOiYwN6x8bb7BOi3K64beTDfTcnQnflncHgWQSI
-	CY/81zS5MOvc9EEtN2AvY2EWwTgY0l3k2bbUlfTtEEaHviRG6DF/q00K1U5psT7TajMLpA4gBg+
-	LG+n2YPqiYAWpgsMHogOhINLr81vOVgY5lvhBMfjehX7JOlPbQu+4HN5Zh21uWuywQsRoyys9x0
-	GgArYZQD20o2MiR2MCobG+JdRWtMBZmEELG7AVMkY/7GNE8zwsMeZ/Ohp7kp9Ftm+4T/FKjyCF/
-	KDCWu1sAGRztophCyuOMhIHoUilQsP7mwlMH57oEbGMRSjKn/KIabAPnsfhYBt/3WlXK2YM9VE4
-	uz31q5QMQeNJkiiEUznQ3M96b1NkfdwnSG/QzWJr0Dt2y8Q1qOPJshAgC1fpESf1AAozuAUxhCP
-	V4w=
-X-Received: by 2002:a5d:4a8d:0:b0:48d:ecba:3cf8 with SMTP id ffacd0b85a97d-48e264dda0emr8042703f8f.43.1792676637773;
-        Thu, 22 Oct 2026 06:43:57 -0700 (PDT)
+        bh=vel16q6gN2xg2Z/AVBnJqepV7LiP48eLiT0cnN1qO1c=;
+        b=GUCuwcv/obU9Omwpz0V4w80RLvQ35ylwkJeUjTuZU5DXZSWj4dHBEp+Nfs43jEhYCW
+         OYp9Xa8BNRrJ0/z69UMpf+/t9NJCsA+POyvx3LCDSeDeNweQP2IUzdzekf0mqnzWP3at
+         rXFm02vh6FLWTVBJbWjnn8a8mS8i59bFglSTvhdYanhwz1/X88YYCncG5ihKiRXznkvn
+         dDpelKsxFgPEfLZ/bOwXQl3wzp8km4xjB1O1/78SsF+BxO7w47s18qTAqj+j47RVveBW
+         Twiz9sFQWec9baO030mNfUU/4n3U/D7c2RZA433xxQhWS+ddnI2FeZ2IftKgLpHrFKx8
+         NeyA==
+X-Forwarded-Encrypted: i=1; AKwUvByLqGrRxKuDa+GzeQieg3QbfvPch/pZf5XxxhuQ196RUPSabI8aOujJdq5A0nZbUpQBKsdabnupmUeX8qh0Iw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYL/R4/E/yKwIioTJUMBCd7vkQK7jLGxS0uMlZ6gqP1p9whV+3Fx
+	6SyvOFSwI7WZPPAKsa8jApxDQm2WBQLI+P5ajEcoD0YXy8BWxXTmHDHedj0I3w==
+X-Gm-Gg: AYBFou26fEQohQQ4bQbFuFzmJJH0ulP+3DLvTbrPEYguT7FBKDL4Z4cBbKf7UUA4NI+
+	93Rb/wcpntf/D/GGRJKwyqaM1ZAaR0PYVSVeSgwC5zfR/mYUk+YQJDg1srbToUEwkYr+iI+06Ds
+	+hfb5k9cZkmXqZ58kmwR7BsYUkQKbkHBtzXH6vqqcDu4fyz3sMGDJ8pFztP2mfhkSqJx/sX7DYK
+	6YMGrLsUQSAzdBdRRTvbW/nR8hFy+euEL3VCTVSebrtSuUBXofOljKMEskZ5g57sPpVMOh4YPdG
+	TSNAPP2iqfr8CF8nAwkDSdBsPjAKuRwtcC0onaA6fkr5vL9cG6GG2O6lhSesBLnNcC3RBO0QA6j
+	GW2F3mN+E0fp70yrT50MJ3pTf9A9iyfVjzqTZJD1XI1AdIVg7UhHAI+XZqWv3u8PUvgIdKEeRnE
+	7sGYIG3sNfaFNCXvT389XL119ImgMbDuRdzdcKjALQCB/hy9vJKL1sLdQIWZJugPx9i71TVRA9J
+	TxH1HysegnOcYxVtHXXDzKgibPst2EETISeYlsojY4wwwgKb6BtbetaMZlUBI4tfRosvcJt2DYp
+	CSo=
+X-Received: by 2002:a05:600c:3e10:b0:4a2:b89:b02 with SMTP id 5b1f17b1804b1-4a20b89151dmr19236685e9.10.1792676639696;
+        Thu, 22 Oct 2026 06:43:59 -0700 (PDT)
 Received: from NB-6746.. ([188.243.183.76])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e25835b1dsm13621390f8f.40.2026.10.22.06.43.56
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e25835b1dsm13621390f8f.40.2026.10.22.06.43.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 06:43:57 -0700 (PDT)
+        Thu, 22 Oct 2026 06:43:59 -0700 (PDT)
 From: Artem Shimko <a.shimko.dev@gmail.com>
 To: wim@linux-watchdog.org,
 	linux@roeck-us.net,
@@ -89,12 +89,13 @@ To: wim@linux-watchdog.org,
 Cc: Artem Shimko <a.shimko.dev@gmail.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/3] watchdog: dw_wdt: fix reset line management
-Date: Thu, 22 Oct 2026 16:43:48 +0300
-Message-ID: <20261022134354.534642-1-a.shimko.dev@gmail.com>
+Subject: [PATCH v2 1/3] watchdog: dw_wdt: use devm_reset_control_get_optional_shared_deasserted
+Date: Thu, 22 Oct 2026 16:43:49 +0300
+Message-ID: <20261022134354.534642-2-a.shimko.dev@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <y>
+In-Reply-To: <20261022134354.534642-1-a.shimko.dev@gmail.com>
 References: <y>
+ <20261022134354.534642-1-a.shimko.dev@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -106,107 +107,80 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hello,
+Replace devm_reset_control_get_optional_shared() with
+devm_reset_control_get_optional_shared_deasserted() to let the
+device-managed API handle reset line deassertion and assertion
+automatically.
 
-This is v2 of the series fixing reset line management in the dw_wdt
-driver. Compared to v1, the series is reduced from 5 patches to 3:
-the manual reset_control_deassert()/reset_control_assert() handling
-is replaced by the device-managed _deasserted variant from the start.
+The driver currently manages the reset control manually: it calls
+reset_control_deassert() during probe and reset_control_assert() in
+error paths and remove. This is error-prone and requires explicit
+cleanup in multiple places.
 
-Patch 1 replaces devm_reset_control_get_optional_shared() with
-devm_reset_control_get_optional_shared_deasserted(), so the reset line
-is deasserted on acquisition, before the first register access in
-dw_wdt_update_mode(), and is asserted again automatically by devres
-when the device is removed. This removes the out_assert_rst label and
-the explicit reset_control_assert() calls in probe error paths and in
-dw_wdt_drv_remove(), and uses dev_err_probe() for the acquisition error.
+Switching to the _deasserted variant deasserts the reset line on
+acquisition and asserts it again when the device is removed, which
+allows removing the out_assert_rst label along with the related
+assertions in the probe error paths and in dw_wdt_drv_remove().
 
-Patch 2 adds reset line management during system suspend/resume:
-the reset is asserted before clocks are disabled in suspend, and
-deasserted after clocks are re-enabled and before the register state
-is restored in resume. Error handling is added for the reset operations
-in resume, with a cleanup path that disables the clocks in reverse
-order of enabling.
+Signed-off-by: Artem Shimko <a.shimko.dev@gmail.com>
+---
+ drivers/watchdog/dw_wdt.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-Patch 3 cleans up the error paths in dw_wdt_resume().
-
-Thank you.
-
-Testing:
-
-$ ls /dev/watchdog*
-/dev/watchdog   /dev/watchdog1  /dev/watchdog3
-/dev/watchdog0  /dev/watchdog2
-
-$ ls /sys/class/watchdog/
-watchdog0  watchdog1  watchdog2  watchdog3
-
-$ chmod +x watchdog-test
-$ ./watchdog-test -f /dev/watchdog0 -i -s
-watchdog_info:
- identity:              Synopsys DesignWare Watchdog
- firmware_version:      0
-Support/Status: Set timeout (in seconds)
-Support/Status: Supports magic close char
-Support/Status: Pretimeout (in seconds), get/set
-Support/Status: Keep alive ping reply
-Support/Status: Keep alive ping reply
-
-$ echo mem > /sys/power/state
-...
-...
-[ 1560.147058] PM: suspend exit
-[ 1560.371470] usb 1-1: new high-speed USB device number 3 using xhci-hcd
-[ 1561.031825] cdc_ncm 1-1:2.0: MAC-Address: a4:2a:95:e8:fc:e4
-[ 1561.037736] cdc_ncm 1-1:2.0: setting rx_max = 16384
-[ 1561.054408] cdc_ncm 1-1:2.0: setting tx_max = 16384
-[ 1561.084713] cdc_ncm 1-1:2.0 eth0: register 'cdc_ncm' at usb-xhci-hcd.2.auto-1, CDC NCM (NO ZLP), a4:2a:95:e8:fc:e4
-
-$ ./watchdog-test -f /dev/watchdog0 -i -s
-watchdog_info:
- identity:              Synopsys DesignWare Watchdog
- firmware_version:      0
-Support/Status: Set timeout (in seconds)
-Support/Status: Supports magic close char
-Support/Status: Pretimeout (in seconds), get/set
-Support/Status: Keep alive ping reply
-Support/Status: Keep alive ping reply
-
-$ ls /dev/watchdog*
-/dev/watchdog   /dev/watchdog1  /dev/watchdog3
-/dev/watchdog0  /dev/watchdog2
-
-$ echo 1 > /dev/watchdog0
-$ cat /sys/kernel/debug/1e012000.wdt/registers | grep ccvr
-ccvr = 0x09a7baab
-$ cat /sys/kernel/debug/1e012000.wdt/registers | grep ccvr
-ccvr = 0x0599dce0
-$ cat /sys/kernel/debug/1e012000.wdt/registers | grep ccvr
-ccvr = 0x01926467
-$ [  110.392536] watchdog0: pretimeout event
-
---
-Best regards,
-Artem
-
-ChangeLog:
-  v1:
-    * https://lore.kernel.org/all/20260320135624.223863-1-a.shimko.dev@gmail.com/T/#t
-  v2:
-    * Reduced from 5 patches to 3: manual reset handling is replaced by
-      the devm _deasserted variant from the start, so the intermediate
-      states that could leak the deasserted reset line are gone and every
-      commit is self-contained.
-
-Artem Shimko (3):
-  watchdog: dw_wdt: use
-    devm_reset_control_get_optional_shared_deasserted
-  watchdog: dw_wdt: manage reset line during system suspend/resume
-  watchdog: dw_wdt: clean up error paths in resume function
-
- drivers/watchdog/dw_wdt.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
-
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 39031445d754..2cffe337b4ea 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -588,9 +588,9 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dw_wdt->pclk))
+ 		return PTR_ERR(dw_wdt->pclk);
+ 
+-	dw_wdt->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
++	dw_wdt->rst = devm_reset_control_get_optional_shared_deasserted(dev, NULL);
+ 	if (IS_ERR(dw_wdt->rst))
+-		return PTR_ERR(dw_wdt->rst);
++		return dev_err_probe(dev, PTR_ERR(dw_wdt->rst), "failed to acquire reset\n");
+ 
+ 	/* Enable normal reset without pre-timeout by default. */
+ 	dw_wdt_update_mode(dw_wdt, DW_WDT_RMOD_RESET);
+@@ -617,11 +617,9 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 		dw_wdt->wdd.info = &dw_wdt_ident;
+ 	}
+ 
+-	reset_control_deassert(dw_wdt->rst);
+-
+ 	ret = dw_wdt_init_timeouts(dw_wdt, dev);
+ 	if (ret)
+-		goto out_assert_rst;
++		return ret;
+ 
+ 	wdd = &dw_wdt->wdd;
+ 	wdd->ops = &dw_wdt_ops;
+@@ -655,15 +653,11 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 
+ 	ret = watchdog_register_device(wdd);
+ 	if (ret)
+-		goto out_assert_rst;
++		return ret;
+ 
+ 	dw_wdt_dbgfs_init(dw_wdt);
+ 
+ 	return 0;
+-
+-out_assert_rst:
+-	reset_control_assert(dw_wdt->rst);
+-	return ret;
+ }
+ 
+ static void dw_wdt_drv_remove(struct platform_device *pdev)
+@@ -673,7 +667,6 @@ static void dw_wdt_drv_remove(struct platform_device *pdev)
+ 	dw_wdt_dbgfs_clear(dw_wdt);
+ 
+ 	watchdog_unregister_device(&dw_wdt->wdd);
+-	reset_control_assert(dw_wdt->rst);
+ }
+ 
+ #ifdef CONFIG_OF
 -- 
 2.43.0
 
