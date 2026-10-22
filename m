@@ -1,100 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792676646;
-	b=O0izmG9EljZ6HtwL1QNU7a7UWt6/QyfcDTmHlMj6fnVVKRJf52r/4lYTV4I7MGJFNJsD
-	 OffdT2RkacEq+5GhHJ8hspPZOC25YvQ12yIglrBRVnWKryLBt0EW65HG6vEAm1Z8e6bi6
-	 lsiQLbaut3YccqvLfjNmUbhqz7Gba7r7HSy/gE04e3GTDo8Kr1uJV0gBNV+CYaPWdVLw2
-	 Pz+DuMuxhZ6G/q+lluWIoW8QZStiUCwOq9u/hS/Tgp7ihKYfe4vgJ0MwwRttOc397Lpfj
-	 IPohtvz5eBxH0VaKCrPWwcC2I6+chpOOrIZBjLiovGVDp0bZJa4Pq7RMSt2SLCcsZyQ==
+	t=1792681793;
+	b=LTcrjq26rxBC1VpHITInf9QZAa45v1JHHusWddJ47e2l/D4xBfkgJE0qPJmY+CM/8c2Y
+	 zEbkUmzgbK4jf0DI8vTCc5DnH/dfk6pjgl/vAvbmF7aLgzy3Y0VED2tAP3YnsAYQHJyjO
+	 xD2v8JMtkB0g19/zJTww+ek3Kd4Lhgvj1jONrohT2DWyoVJ1vwUYclIpVzHHOwmt5wtHJ
+	 mp5/dWGZIAdk6D/SumFtl7P10Om11cvY0HqJ2tEV94+uB6BJ0FdEz+uFg9wGAk9sf6k7c
+	 dDCdrFAqGtwh53uY95sfH6/C3EyiALuQfpimCB8z4cKQHP/kDLpKfQ7ZX1RiNd8OIAA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792676646;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=IGum0Dhauevbw3Uwf/HnryttWD3FBap3x0GWqK5kUvw=;
-	b=JqerO6NT1HQH7iIFx8FKo5Kxk6R55xL1MK5WaiF2GtUgfrI2fv5WShLGIhPa8fc6qDUo
-	 V2wdZMOYO4Y/IwXgqPCj9ZdTbnFtBWss7vdAgYViZN7UppaFsLk84Y7UThOrGa93i5ewi
-	 qSeGCYZOCMK7Jw7hz4GxSJzs+VPNAyfrkRU8ObdOuW3UCYgY8UgMMTblSJEOEdkLWDfnE
-	 V4uHyx30gVsmTiVavLzFaIwFfnn+0apivpiJtvrW3k1mBuV4A5Ab+95iqiAvkjFxqIQZ/
-	 vxMYZ5Tv+AIDVJNLaW7Uib9IRYrJIolnuyNwlfBoDoXSKAqSK5CdGk5QTrK3fitSv5Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792681793;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=J8GucFFt2SUKZd5ajHpdJB2lsv/eRd0ZaK/jdlnHp8M=;
+	b=IJkmC3Wfl5dIrgvVAT7j7My5weyv/Wc8S6FCzos/Rwyl3mrOI76ie1YvPx8YisxtLpS1
+	 4vfG3r9qYbymebh3PLNSTWm9WHXJ68xyFVPA5YsXkScKAvZ8XXFXXvxfG8RBbPc7cXtSN
+	 UOYlVv21f4JdsiY6zYq7Eu5QH0YQ3SANLl6Eupoj37ac5q8RjlFgfh2sPC83CcvS+Vzcm
+	 j19fCO4DwWydDAvRdABYx1M8YirSBOsWpGPu0+twxrNGMrYI9OVU/s5NBCq56bRY3k49d
+	 NZ01cttLpgSulSHRps1zc3EBeGb1RtdkRMSRHFJMuj/8CC2ngOXohuDj7qZwleklLbA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=RDuE7dhM;
-	arc=none smtp.remote-ip=209.85.221.45
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TZS6e9eX;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C658560A4AE1
-	for <linux-watchdog@vger.kernel.org>; Thu, 22 Oct 2026 13:44:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C658560A4AE1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C15F8606A33E;
+	Thu, 22 Oct 2026 15:09:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=RDuE7dhM
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-48dfaa3fa12so692015f8f.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Oct 2026 06:44:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792676644; x=1793281444; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=IGum0Dhauevbw3Uwf/HnryttWD3FBap3x0GWqK5kUvw=;
-        b=RDuE7dhMDt1vV9VLy12Ek2t7MzQ+oYNV07RvBAd8r1kjlXbCDVxyLhJNy5Q6rPNH+M
-         w87bO61Ixv3pZoLJuOR6TLEBQNdCOdDVR1h3h3pOM/OkBhz8Grs2doXeUmuO2vZCYs0O
-         c5utiXuvyfxxOSOsItpycomUxvIOnNDEshoXG8F+S87tooFO+4bDyiZZC8PgLWuI9CDd
-         cqHPFLb25X1GqhWVYkkUazlb3GkOOXT2PxOlrvyOP+LgXeSTwOEMvT5j5B7MWosfqP7R
-         5GN5M8+Ox0aiHXkw0nz82TKxL4bi9iqJANtd3AlqaSn82uJFBYAcwl/7WTZavtSkJE9q
-         5FbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792676644; x=1793281444;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=IGum0Dhauevbw3Uwf/HnryttWD3FBap3x0GWqK5kUvw=;
-        b=w/0Y+Y2wAUC95+VS8ZBncg+2h7xqE2ox3k34LGf4SFtUPKl+jhvptS8+oB/GpjSTaz
-         jhkJAoq2pD0MKPlBVB1uBcKP/QkpDLyDu+QjrGwhS77Wwk/aKVn2z6XG5FqhyJVnvRWU
-         hHIvu2foL9tS2uXC5W0YRVCr+CDYBx5mDkMv6PEIB+Naz84Nz7y+zgCBO2P2bMPqVRmX
-         TsRzcBGPYNeNXgv9+/2NuOkbXQrElqI8oG1YFoVf/pJzltAA9Gsw8k4TYNaXNeDqiX/0
-         IEVA0GgxvAi5lBRsDDgBBhzlqeOepD2Z3EyadBgNvTtEt26LgjRo2XsI12CLlU+xglw2
-         d0gw==
-X-Forwarded-Encrypted: i=1; AKwUvBzi0x6fkgFYkkUzSzyIm5p1dpaTyePPd8Mnyk6vd40AkteXXYxJQUWb+JR4cmkTH/6c6aYP7hrzCXpWaEctBA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKC1M62VIFefR3SoMgGjRELCp/qkqjQL/3p7KIcxoYjNucpOd5W
-	8yAJoOw4efJRUUSbBR/8nr8WmZl20RbEnq8XQ3yuQY8LMWfFSRxzxaev
-X-Gm-Gg: AYBFou0QwkMzOD+JeCVFFAu8CYE3fMzAwZomrJX3i+HBK8bXUCeMTwwEjilQwb038iB
-	pbIQ5Mj4SRhNIlzn4PanwqDgJCAP3HAzf6jq8ROfqFkbjDjokYDEyuPc9DzdoM++dOFjqnve5GT
-	LqSC9PqrXr982mxbDgv3uiDUyDN9cCzrpiJ/ociJDE4c41+C+ErYVk70ReIF4I0GSvKknHsvozS
-	sSVywgqPwCmAdhq05E4x8vQv1pnLItk+thnL0iY/oez3qDo5/EblLWkAHd4Jno+/oA2HGOAuIcV
-	Ed5a0GvANdFzWBtIzjJ+6jONzXo+rC87ntNqRC65cZpWJ+uHvRy6+Zd8atgnRwig/Swcz91gTHk
-	Iu9+KhcXdkyVxk5sYjqcrdfoHgCky0UBgMAwzjkmnWTkjRF2ZJ0sob+JxuYX8arzGVi/AZun30q
-	+XQVwHR7Ed5wi4b3atm3nn6W5qlgZ+yGO8y9422hi9pH73/Occ9xW4+Ag4bKkxmuBLUttEXP+NQ
-	EXLvUkrpQUOK+zECdnRA0TD8YQtCUJ1zskdP/DFZ3N3P99bc1Ol2wsBKQ==
-X-Received: by 2002:a05:6000:22c7:b0:48d:f852:c66b with SMTP id ffacd0b85a97d-48e2d26b3dfmr5786135f8f.22.1792676644028;
-        Thu, 22 Oct 2026 06:44:04 -0700 (PDT)
-Received: from NB-6746.. ([188.243.183.76])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e25835b1dsm13621390f8f.40.2026.10.22.06.44.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 06:44:03 -0700 (PDT)
-From: Artem Shimko <a.shimko.dev@gmail.com>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	p.zabel@pengutronix.de,
-	Sergey.Semin@baikalelectronics.ru,
-	mika.westerberg@linux.intel.com,
-	andi.shyti@kernel.org,
-	iav@iav.lv
-Cc: Artem Shimko <a.shimko.dev@gmail.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] watchdog: dw_wdt: clean up error paths in resume function
-Date: Thu, 22 Oct 2026 16:43:51 +0300
-Message-ID: <20261022134354.534642-4-a.shimko.dev@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261022134354.534642-1-a.shimko.dev@gmail.com>
-References: <y>
- <20261022134354.534642-1-a.shimko.dev@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TZS6e9eX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463BE1F01825;
+	Thu, 22 Oct 2026 15:09:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792681792;
+	bh=J8GucFFt2SUKZd5ajHpdJB2lsv/eRd0ZaK/jdlnHp8M=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=TZS6e9eX+6V+mQGJBFYf9cZJts52Zfr72j3v98XJK/8FZmINRakub/RjGvDmFs/0n
+	 TgTLS1ncmanEf/MZxxZF/vJB43uqTePPc6YTLcUqnIBwAvMgTf3a0gEww/q4kP4tBR
+	 1VIDBVqvPtwHTELdGmVe1+7uPMLLT4HLSUhCx5e6DwbYqy8RhqxnRxvUechmPFbFSU
+	 bT7093dU/GoFc12bbVuI1PAI9tJdeo2icpoSUrz29JBG/kzM0rab3lguYjmswlZOwZ
+	 xycnrW7LcA7lREZdJnxfJR7q/+1HPcQOgD55svgj5Fu9JSQpNxDUQsfZq8cvnZf9of
+	 rJBY86HemWh8Q==
+Date: Thu, 22 Oct 2026 15:09:49 +0000
+From: Tzung-Bi Shih <tzungbi@kernel.org>
+To: Paul Louvel <paul.louvel@bootlin.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v5 5/5] watchdog: w83627hf_wdt: Add minute mode counting
+Message-ID: <atonPYaCken3EItA@google.com>
+References: <20261020-w83627hf_wdt-improvements-v5-0-90b226684fc7@bootlin.com>
+ <20261020-w83627hf_wdt-improvements-v5-5-90b226684fc7@bootlin.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -104,52 +59,92 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261020-w83627hf_wdt-improvements-v5-5-90b226684fc7@bootlin.com>
 
-Clean up of dw_wdt_resume() function.
+On Tue, Oct 20, 2026 at 10:11:58AM +0200, Paul Louvel wrote:
+> @@ -258,21 +263,10 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+>  		break;
+>  	}
+>  
+> -	t = superio_inb(data->sio->addr, data->reg->timeout);
+> -	if (t != 0) {
+> -		if (early_disable) {
+> -			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
+> -			superio_outb(data->sio->addr, data->reg->timeout, 0);
+> -		} else {
+> -			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+> -				wdog->timeout);
+> -			superio_outb(data->sio->addr, data->reg->timeout, wdog->timeout);
+> -			set_bit(WDOG_HW_RUNNING, &wdog->status);
+> -		}
+> -	}
+> +	data->early_timer_val = superio_inb(data->sio->addr, data->reg->timeout);
 
-Rework the error handling to use properly named labels that match the
-cleanup order. Use unprepare_clk for clock disable and unprepare_pclk
-for pclk disable path.
+I failed to figure out why this block needs to move to probe().  It looks
+equivalent to me while introducing a redundant `early_timer_val`.
 
-Signed-off-by: Artem Shimko <a.shimko.dev@gmail.com>
----
- drivers/watchdog/dw_wdt.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+>  	t = superio_inb(data->sio->addr, data->reg->control) &
+> -	    ~(WDT_CTRL_MINUTE_MODE | WDT_CTRL_RISING_EDGE_KBD_RESET);
+> +	    ~WDT_CTRL_RISING_EDGE_KBD_RESET;
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index ec6a09673da4..11caf40d6771 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -393,16 +393,15 @@ static int dw_wdt_suspend(struct device *dev)
- static int dw_wdt_resume(struct device *dev)
- {
- 	struct dw_wdt *dw_wdt = dev_get_drvdata(dev);
--	int err = clk_prepare_enable(dw_wdt->clk);
-+	int err;
- 
-+	err = clk_prepare_enable(dw_wdt->clk);
- 	if (err)
- 		return err;
- 
- 	err = clk_prepare_enable(dw_wdt->pclk);
--	if (err) {
--		clk_disable_unprepare(dw_wdt->clk);
--		return err;
--	}
-+	if (err)
-+		goto unprepare_clk;
- 
- 	err = reset_control_deassert(dw_wdt->rst);
- 	if (err)
-@@ -417,6 +416,7 @@ static int dw_wdt_resume(struct device *dev)
- 
- unprepare_pclk:
- 	clk_disable_unprepare(dw_wdt->pclk);
-+unprepare_clk:
- 	clk_disable_unprepare(dw_wdt->clk);
- 
- 	return err;
--- 
-2.43.0
+Why this change?  Wouldn't wdt_set_time() overwrite WDT_CTRL_MINUTE_MODE
+anyway?
 
+> @@ -297,6 +292,15 @@ static int wdt_set_time(struct watchdog_device *wdog, unsigned int timeout)
+>  		return ret;
+>  
+>  	superio_select(data->sio->addr, W83627HF_LD_WDT);
+> +
+> +	ctrl = superio_inb(data->sio->addr, data->reg->control);
+> +
+> +	if (data->minute_mode)
+> +		ctrl |= WDT_CTRL_MINUTE_MODE;
+> +	else
+> +		ctrl &= ~WDT_CTRL_MINUTE_MODE;
+> +
+> +	superio_outb(data->sio->addr, data->reg->control, ctrl);
+
+It doesn't need to set `data->reg->control` if `!timeout`.
+
+> @@ -305,7 +309,9 @@ static int wdt_set_time(struct watchdog_device *wdog, unsigned int timeout)
+>  
+>  static int wdt_start(struct watchdog_device *wdog)
+>  {
+> -	return wdt_set_time(wdog, wdog->timeout);
+> +	struct w83627hf_data *data = watchdog_get_drvdata(wdog);
+> +
+> +	return wdt_set_time(wdog, data->timer_val);
+>  }
+>  
+>  static int wdt_stop(struct watchdog_device *wdog)
+> @@ -315,6 +321,17 @@ static int wdt_stop(struct watchdog_device *wdog)
+>  
+>  static int wdt_set_timeout(struct watchdog_device *wdog, unsigned int timeout)
+>  {
+> +	struct w83627hf_data *data = watchdog_get_drvdata(wdog);
+> +
+> +	if (timeout > 255) {
+> +		data->minute_mode = true;
+> +		data->timer_val = DIV_ROUND_UP(timeout, 60);
+> +		timeout = data->timer_val * 60;
+> +	} else {
+> +		data->minute_mode = false;
+> +		data->timer_val = timeout;
+> +	}
+> +
+>  	wdog->timeout = timeout;
+
+Can't it just use `wdog->timeout` instead of introducing a new
+`data->timer_val`?
+
+> @@ -332,6 +349,8 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
+>  
+>  	superio_select(data->sio->addr, W83627HF_LD_WDT);
+>  	timeleft = superio_inb(data->sio->addr, data->reg->timeout);
+> +	if (data->minute_mode)
+> +		timeleft *= 60;
+>  	superio_exit(data->sio->addr, data->sio->cfg_leave);
+
+The scaling can move out of the superio_* block.
