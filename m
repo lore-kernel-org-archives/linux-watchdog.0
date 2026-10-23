@@ -1,72 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.36.163.20
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792782948;
-	b=FkXYqAhw4tnq8Xg9WDHnhsBOf0KT+qOvS3cKsGVtQoAkpFiT5CKlzCJx9knWtuz3wZPR
-	 yLdrXQUjqo2FKmSNpJ05BUe8oN0t6Pex6ZUfC0QVQLv2NvKhJjsOvA8rP1PgJMJpnqp6Y
-	 scc4+HvzKKXcODoTaRVZrn05HDPW3UopgltHNZb4gtjUWt82EAIki4N23YXDby3yFf91G
-	 zNE8jbZfMWQ0A2lMvjGkmZkKPGxCJaRxLs4buqgBPAkNalEwpqf5tZ1Ta7iv5bUSEnRs7
-	 Nt27b9nwEeiFrQEbw7KYxwdQagGFsLNOOO7W1xlEuBix8W52jB4DRQs0EDEHUwKx6Pw==
+	t=1792784336;
+	b=u1nI1E4S92h3QntfJws1aFnd3V1GWgWsoRMzwTovbQN9a8DeFt7Os6ga7enP3d0I6NFF
+	 kfETaBA1bMBNCHtGr83mOqAGBwvTV+TNd62dXS5n+ovbtJs8A0uakd0KyDl1nFSPqVkTC
+	 57ivFUzW4NGpeIqsc6pC/wTSM1psfLG36dHqJz0u1RdA07BJYSVbciexQNBakbxGQOJqP
+	 MDNS1vwJ9vjdGHLKUC0qnAlr9vpd2/CWBCaUf9HE8YSp3nyMDvEUuY3rjXvvdzWp10faw
+	 PTyT7SHmKBG3PQ6adec6igc81xJBdVxxiJCnMRqNq6itfwsfbzDjaRlV4V9H5OG3Jwg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792782948;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-SEG-SpamProfiler-Analysis:
-	 X-SEG-SpamProfiler-Score:x-atlnz-ls;
-	bh=GYDpi5RtVlsK0rkun9mc+EYvL0sZ5wpDL9jLCDRL5PE=;
-	b=3Ve7E2P+gDKHc0zH4YpZw7UG8+44S3tULwbuWgoXN0eO4LKjevqhzv9KbRsl+hLAxUE3
-	 nCIL95HXiTFdULtruKIZX2nmty4/Ko0Ow2Ny6HhiMNflMCZfnkXvFFl95+2pRRttRuH1R
-	 XAFNl1ewX5B2EsdV8p/TgUV4LygVPhQxrTgGZJuHLBdV80VgPiuoWUz6hX2nhDExaXj5d
-	 qeGvydAKSdlEnioMFDILJi48+FdN4oiN/1lWadDgJqpUMwVKnttMdxNZR1PUFtiYnppwo
-	 OoyfAg8e873vBBWdZA+ZMvA8Jt93FyxQk5gnBGZ97x9NUflwmadv4foE2D/TrUUe+zQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792784336;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=9hepJ/0RhKbpniqaAoeTQp7wePFt1SLXV7JBtX3slUM=;
+	b=JAPnqvn5wYGKks8OWLZu1d8NE5YPVJVP6hZOrGzkzZtyY0AaXS/rFnJrKbpNaiCwqgVI
+	 QX+L9MnSjk3WcniUNlvhtl/h2yt2n1k1sN+FWatXQuanGf4tPzUx8jNtvYzbJfI/plQpM
+	 e+gyNYE+wyh7UWWBcNwziDeBsJivaK30lwRkUBiXxdp5qKvHu02UjR+6/Q8sLIPlTksoP
+	 ycn1eah8eBAWxXqrgLTS1FVXLWHUKTNOnLCROdW3dT28Twz1bQxh7RUHi/E9eLYbNhmLk
+	 8lM9c08IEQsmKMx37qDzs4yJboe3DJ7MWGtu4Rid1Q8jNCOYH2CyXqSoouat/yd+hqw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=alliedtelesis.co.nz;
-	spf=pass smtp.mailfrom=alliedtelesis.co.nz;
-	dkim=pass header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.a=rsa-sha256 header.s=mail181024 header.b=CCRfGykf;
-	arc=none smtp.remote-ip=202.36.163.20
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B11EncSj;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7839606A31F
-	for <linux-watchdog@vger.kernel.org>; Fri, 23 Oct 2026 19:15:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E7839606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15F5B606A321
+	for <linux-watchdog@vger.kernel.org>; Fri, 23 Oct 2026 19:38:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.a=rsa-sha256 header.s=mail181024 header.b=CCRfGykf
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 3E6112C034E;
-	Sat, 24 Oct 2026 08:15:39 +1300 (NZDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-	s=mail181024; t=1792782939;
-	bh=GYDpi5RtVlsK0rkun9mc+EYvL0sZ5wpDL9jLCDRL5PE=;
-	h=From:To:Cc:Subject:Date:From;
-	b=CCRfGykfWdSCc2Jg8sJK3wQfYlYnKpTuILyDQsu7MBwjvLPebwlrGLeXkA5enQmLM
-	 BhNCaz2tt7x4MOtpXOjAWubIlpn1UpmKruQMcwKiZmvREOvvD6Ijfu/ZxMWu4NxROy
-	 3+vueRaQY/Nn14u7mJdWhpHfYVFnLZaxPfL57esUFcMOhETxmPXJqtlwbjF2badSBB
-	 Ds/KmEwMZvpSEu5eReO7mdkXVMnJw4ekxiRXrQQ6zBErqJnwN1RpEbwKMGYZQdrkWU
-	 tWbo1DMK2UXT1UfpGdm3kybdrRPoCNLiHuC44pH1fEqcDwZuZ7jzdwp7mdeEXezHnt
-	 IpNRHB8koZf/w==
-Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B6adbb25a0000>; Sat, 24 Oct 2026 08:15:38 +1300
-Received: from carls-dl.ws.atlnz.lc (carls-dl.ws.atlnz.lc [10.33.25.22])
-	by pat.atlnz.lc (Postfix) with ESMTP id EE0ED13ED56;
-	Sat, 24 Oct 2026 08:15:38 +1300 (NZDT)
-Received: by carls-dl.ws.atlnz.lc (Postfix, from userid 1474)
-	id ECF9420388; Sat, 24 Oct 2026 08:15:38 +1300 (NZDT)
-From: Carl Smith <carl.smith@alliedtelesis.co.nz>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Carl Smith <carl.smith@alliedtelesis.co.nz>
-Subject: [PATCH] watchdog: octeon-wdt: Add a panic_on_timeout parameter
-Date: Sat, 24 Oct 2026 08:15:30 +1300
-Message-ID: <20261023191530.327734-1-carl.smith@alliedtelesis.co.nz>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B11EncSj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C0FB1F01825;
+	Fri, 23 Oct 2026 19:38:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792784335;
+	bh=9hepJ/0RhKbpniqaAoeTQp7wePFt1SLXV7JBtX3slUM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=B11EncSjVBHGNeIwS1GCF73AxjurUiowBx64TrQ1gTCqCIwVOQBXEeZUx7GLAZN0E
+	 vBhP85V5aWpCmmmvOhLIyBv1Sv9Q1PFUD/WCj4cTLvRuiybyo21RSyx6UDSiEhfzyx
+	 ohgf/WsIHMPZonbG4oAq0A5gxQDxb+pICgMyEtpuMj5LkoktfjNhGHxbonS9p7PZ/F
+	 MG3G338w3HUy22amRrTwxAp5Zb8VE5Uk7L8XIL7UR+OoqsukS+lOg7PvGzVQDcTgTG
+	 3Vfwsidy3rKWcs83UGDYpiq04NC9uPE9EdanzsYFzkUmN8z6mp0kbbKpI3IPem0e/m
+	 vwVdWIkBLaC+g==
+Message-ID: <sashiko-outbox-183127@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: octeon-wdt: Add a panic_on_timeout parameter
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Carl Smith" <carl.smith@alliedtelesis.co.nz>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20261023191530.327734-1-carl.smith@alliedtelesis.co.nz>
+References: <20261023191530.327734-1-carl.smith@alliedtelesis.co.nz>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 23 Oct 2026 19:38:55 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -75,60 +58,53 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=FJW4xPos c=1 sm=1 tr=0 ts=6adbb25b a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=LF8zZQ1HZBz04lkw01wA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
-x-atlnz-ls: pat
 
-The hardware watchdog period is only a few seconds, so the driver counts
-the heartbeat in software and stops poking the hardware when it expires.
-The resulting reset leaves no record for crash loggers such as mtdoops.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] watchdog: octeon-wdt: undocumented panic_on_timeout module parameter
+--
 
-Add a panic_on_timeout module parameter, off by default like softdog's
-soft_panic, that panics when the heartbeat expires. The panic is logged,
-and the hardware watchdog still resets the board.
+commit 3f30c4c06ea7c605e88ff05165b08aa4592f832c
+Author: Carl Smith <carl.smith@alliedtelesis.co.nz>
 
-Tested on a CN7130 board with mtdoops.
+watchdog: octeon-wdt: Add a panic_on_timeout parameter
 
-Signed-off-by: Carl Smith <carl.smith@alliedtelesis.co.nz>
----
-Note: octeon-wdt doesn't support pretimeouts, so the panic pretimeout gov=
-ernor
-can't be used.
+This commit adds a panic_on_timeout module parameter to the octeon-wdt driv=
+er
+so that a kernel panic can be triggered when the software heartbeat expires,
+allowing crash loggers such as mtdoops to record the event before the
+hardware watchdog resets the board.
 
- drivers/watchdog/octeon-wdt-main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon=
+> diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon=
 -wdt-main.c
-index 171b46d780e6..d29a63899847 100644
---- a/drivers/watchdog/octeon-wdt-main.c
-+++ b/drivers/watchdog/octeon-wdt-main.c
-@@ -107,6 +107,11 @@ module_param(disable, int, 0444);
- MODULE_PARM_DESC(disable,
- 	"Disable the watchdog entirely (default=3D0)");
-=20
-+static bool panic_on_timeout;
-+module_param(panic_on_timeout, bool, 0444);
-+MODULE_PARM_DESC(panic_on_timeout,
-+	"Panic when the heartbeat expires, instead of a silent reset (default=3D=
-0)");
-+
- static struct cvmx_boot_vector_element *octeon_wdt_bootvector;
-=20
- void octeon_wdt_nmi_stage2(void);
-@@ -143,6 +148,8 @@ static irqreturn_t octeon_wdt_poke_irq(int cpl, void =
-*dev_id)
- 			/* Bad news, you are about to reboot. */
- 			disable_irq_nosync(cpl);
- 			cpumask_clear_cpu(cpu, &irq_enabled_cpus);
-+			if (panic_on_timeout)
-+				panic("Watchdog timeout");
- 		}
- 	} else {
- 		/* Not open, just ping away... */
---=20
-2.55.0
+> index 171b46d780e6f..d29a638998475 100644
+> --- a/drivers/watchdog/octeon-wdt-main.c
+> +++ b/drivers/watchdog/octeon-wdt-main.c
+> @@ -107,6 +107,11 @@ module_param(disable, int, 0444);
+>  MODULE_PARM_DESC(disable,
+>  	"Disable the watchdog entirely (default=3D0)");
+> =20
+> +static bool panic_on_timeout;
+> +module_param(panic_on_timeout, bool, 0444);
+> +MODULE_PARM_DESC(panic_on_timeout,
+> +	"Panic when the heartbeat expires, instead of a silent reset (default=
+=3D0)");
 
+[Severity: Low]
+Should the new panic_on_timeout parameter in drivers/watchdog/octeon-wdt-ma=
+in.c
+also be documented in Documentation/admin-guide/kernel-parameters.txt (and
+Documentation/watchdog/watchdog-parameters.rst)?
+
+Because panic_on_timeout is registered with module_param() with mode 0444 a=
+nd
+CONFIG_OCTEON_WDT defaults to built-in on CAVIUM_OCTEON_SOC, passing
+octeon_wdt.panic_on_timeout on the kernel command line is the primary way to
+enable it when built-in, and kernel parameters exposed via module_param() a=
+re
+expected to be documented in Documentation/admin-guide/kernel-parameters.tx=
+t.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261023191530.3277=
+34-1-carl.smith@alliedtelesis.co.nz?part=3D1
