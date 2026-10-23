@@ -1,68 +1,68 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792747126;
-	b=ngaR28FTUHaflpf0cJ/00xXEbq77X+7HTI1YrcE9HUFl1lddx8l1xSDfnMFxfCd0XQRq
-	 PjEnJGiyyAyj5Guj0X4JXJCyIUnXpwe1JrGB67IuWx05YIKSURbvwqCX3Bbbgs6t1PdRH
-	 TPEa09l3+PJjIJaHs1gaVB80mpyTLHA0HlqhkyKFL4tGkKoqHFZM/ha6+lzSHnjl0KA6+
-	 4z9Tgmlx0stwnw1r2CVDB/iQnPYl9wxeuNQep7LsNdG7QXFkfRQVNckVW/SCoglD9sPjN
-	 odVAOWH4qoolosiFUPQnf+ds5NtMYM1OZHAHarjm2oUCS0liSnAMd9BQAQCJwczcrkQ==
+	b=A9jnqAYNJ9nni1RSCgEReARm3pilp24RtMLjBGVOVyUd6i2+I5ch2J1zFkvwVMPFD5vT
+	 E/5yU317Xcy2WqQfXS4D4CdaZthH5JtmYgza4TxBYjqxPozaDBynsz8QOigGh7+9KrkuE
+	 IMKjsKjb4lb2DAAp+y21f3jc6x2SBKyTq7UfS5OjmlPh4VyodLbCNmSLt2QtKX5xRWGdX
+	 YpdX8W8OC5mzujZq0dhR6VuFevpOaEBij5uur7vUj2vCdBfmfh70Gu7ITzsdiLYrOTAtp
+	 K2rXVhn+Jnh4vMVq2d5F4w5XiB0dNBQQM1AP4cl1+J8ss/UR8pDEy4rkx9a28h7tpLA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792747126;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:From:
-	 Subject:Date:Message-Id:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Proofpoint-Reinject:X-QCInternal:X-QCInternal:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=HVbfw3LWtA41Gw7QpcFN5osov7cP7IWH2VaLMp5lUsI=;
-	b=AQ5D95rT+aVzr/ESDesIIzKLePwUGecGqHBaBNThsMCVwSA/kvmkmahY54JpiFvpnM5J
-	 T3Xj3YvFtPJCgWwPZ4sCELD4sifqVlg3hpSZU/DoAOEv5OvML90A20J/1f3toGAUTOduh
-	 2NpSvgdFHm3hz3IVFQn2mQuboxUF7AXe6cxFo+sGLcXLhHRUAAGG4YCZTvw4FKwbT6Gx7
-	 a97xZlYvkaKg4dkHylXPBOz0YQmoEzta1MTx3wn21HntWe/UQsDxa8RejRfqNsBypBuBQ
-	 wQXxiVkpsrS08wXqZcWcC/H0TSib5LnfW1xyPoONFlskO0X6IcPMizSDXTcTzi+omGw==
+	 Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Proofpoint-Reinject:X-QCInternal:X-QCInternal:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=57Cnjaqh9yW07mFneXNL8nTFOdmBF8ZmnDJCevxnPDo=;
+	b=o3GvSSWaRAV4J9C4NfKYQaZ0S8BTq3LvajUTeLLDcSUK2Dem6neNlTzeGGSHOz3uiHYq
+	 SduV7ptnFRafjfrlm5aPFbMplCzf2oNYi4gTQ7plKG8GMiAqrmz2uH1g7Dq6IKgl9FEVo
+	 2ojbqDJtRsk4y6Pc8iG0BiAUhPWLdsQ5N+IdYOL7EQODZcFiu2gVdksylfn0oluAdIsp5
+	 sZVOSSQ9/UDRbBPTrYuFUIdZXQ7/1V7oZFz49BgXboWD/uz7+iHtKTQ2ycg4M7EIQ/QWd
+	 c4M389jrZWW1lMRNTwv24WBIi7O2WmkdOx29Y6uJZ39qRZ8gBKAS81zv+ZZTaUoP8/g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=oss.qualcomm.com;
 	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=gImSatuU;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b="l0N/kShF";
 	arc=none smtp.remote-ip=205.220.180.131
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACD9B606A31A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF4B606A31B;
 	Fri, 23 Oct 2026 09:18:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ACD9B606A31A
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ACF4B606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=gImSatuU
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69N7FP5X1048719;
-	Fri, 23 Oct 2026 09:18:18 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=l0N/kShF
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69N7FAEa2092783;
+	Fri, 23 Oct 2026 09:18:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=qcppdkim1; bh=HVbfw3LWtA41Gw7QpcFN5o
-	sov7cP7IWH2VaLMp5lUsI=; b=gImSatuUmY4gyDKSDiRO0XM9dOckXvNNO+gbsf
-	r/u+gUka42VQIiI3+y8Xo4WI0pNPf55V82UN2tN5Pe2s0lhqCSCaqtFN8YLddG7/
-	IByf905vhrQMHgDKK0WqwWjPFDeTePpsFxQmkWjXcgQbpP1uBT0PGDJc2NLm6f77
-	OiSYqsjd51QiajKxY/of6wEGb1iNuu0aZl7xNBJLuiV5P0h3gpo4ww4xZ9LVc0Q2
-	3aYF+RVb/cuMnujm2XPu5GFvzNwNl5C7xAsMqh0qoP5q7vUsHLlmaveuhgGHTtRz
-	l7uEEal79oSsa4LxlrprrksRbNHBtpXp8OLMALjYib259xNw==
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	57Cnjaqh9yW07mFneXNL8nTFOdmBF8ZmnDJCevxnPDo=; b=l0N/kShF2uhix4xK
+	nFjlqRqoeQo0u2aFPb1fq/dLuNJHNWVkYazkYVXmLJUPvOjfVhWLAJJaXQKjWOy7
+	8zn27MdAOMdyYz/UPNgzgBUuZy0sBIGf6Z90CUJ8h3YPLXUHr5XnwdrZwnVWxf9R
+	hTBD7ORj6AJtu+aINPSMkjHkbWfaCYcOgnRANCTRRId5rEaKF3xWkFSaYV0kQEZu
+	lMqdp8pbuOb2hWoc3YIzo+E2QmrUa1xWwaoGIbOBAhsXy+6yb+cfBqjH7npc4jiq
+	iPk2RKtlVjITAgPnKwGTCr82vOxsvMcbZ7Pp2V+ckiiTYdCPOFkRRttZEmdBctCd
+	8KwOdg==
 Received: from apblrppmta01.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hfqmbjyup-1
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hftyga4ra-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 23 Oct 2026 09:18:17 +0000 (GMT)
+	Fri, 23 Oct 2026 09:18:19 +0000 (GMT)
 Received: from pps.filterd (apblrppmta01.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA01.qualcomm.com (8.18.1.11/8.18.1.11) with ESMTP id 69N9IESN4054733;
-	Fri, 23 Oct 2026 09:18:14 GMT
+	by APBLRPPMTA01.qualcomm.com (8.18.1.11/8.18.1.11) with ESMTP id 69N9IGVc4054764;
+	Fri, 23 Oct 2026 09:18:16 GMT
 Received: from hu-ffaruque-hyd.qualcomm.com (hu-ffaruque-hyd.qualcomm.com [10.147.245.31])
-	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 69N9IEN14054700;
-	Fri, 23 Oct 2026 09:18:14 +0000 (GMT)
+	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTP id 69N9IEN34054700;
+	Fri, 23 Oct 2026 09:18:15 +0000 (GMT)
 From: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
-Subject: [PATCH v4 0/3] power: reset: Add NVMEM recorder provider for PSCRR
-Date: Fri, 23 Oct 2026 14:47:52 +0530
-Message-Id: <20261023-pscrr-provider-v4-0-e70fabb7e927@oss.qualcomm.com>
+Date: Fri, 23 Oct 2026 14:47:54 +0530
+Subject: [PATCH v4 2/3] power: reset: Add PSCRR NVMEM recorder
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -73,13 +73,10 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAEAm22oC/23OTWrDMBAF4KsErStV/7ayyj1KF4k8TgSxpYxsk
- RB896j2ItCWgYE3MB/vSTJggEz2uydBKCGHONagP3bEX47jGWjoaiaSS8tbbmnKHpEmjCV0gPT
- k+rbXRjRcAKlPCaEP9xX8+t4ywm2u7rQdN6lRgjtTh0lnubFU0MgQhgTXQ4LxPE8Yx3BnHXySH
- +YS8hTxsdYs8u20wv1uVCTl1PFGqlYB73V3iDmz23y8+jgMrK5VLOqtOKH/KKoqXht/EtZoCe0
- /yrIsL3aZLitAAQAA
-X-Change-ID: 20260806-pscrr-provider-b9f8f451701e
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261023-pscrr-provider-v4-2-e70fabb7e927@oss.qualcomm.com>
+References: <20261023-pscrr-provider-v4-0-e70fabb7e927@oss.qualcomm.com>
+In-Reply-To: <20261023-pscrr-provider-v4-0-e70fabb7e927@oss.qualcomm.com>
 To: Oleksij Rempel <o.rempel@pengutronix.de>,
         Pengutronix Kernel Team <kernel@pengutronix.de>,
         Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
@@ -102,115 +99,376 @@ Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         avaneesh.dwivedi@oss.qualcomm.com,
         Umang Chheda <umang.chheda@oss.qualcomm.com>,
-        Faruque Ansari <faruque.ansari@oss.qualcomm.com>,
-        Abel Vesa <abel.vesa@oss.qualcomm.com>
+        Faruque Ansari <faruque.ansari@oss.qualcomm.com>
 X-Mailer: b4 0.14.3
 X-Proofpoint-Reinject: loops=2 maxloops=12
 X-QCInternal: smtphost
 X-QCInternal: smtphost
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfX3wnX1LCr7Z6i
- C8vmXxsE5v6nNm6A6AyQ5x/4awqYxbcOfEywOT8r2hVdOlb3CHRUE3MrenQlx3uF5Q8L3lGr8yb
- LR4b9zHAoTZM9HOoaPsOwxf/TsjcurQ=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfXx+WivEEOl+Pd
- lDN8LcgS6pxGzDWJKKEvCVDberiT1XjenAP7kJG0LSm7WkloRzUYcdMRb4J89QTKVqoq0MYE432
- KEVZYobXjHKg+EayrWvJtmcKdNlCYxgu6OTkVvZ/sCFzA3vtZT7+0cPISrr4pHAKUgltcv918Nn
- m+qRCophIX80Taa/1JgxmI0IPEKMptPggrLzRAvKiJA9ymL9hE3s/IrIXzBUJcvtDC6ELEZ4/mT
- x6bpO1hSdVVft9CZATe6jzP1UjAD7F0o79UAmZXhkhOG01pMU2sjwb8vr9KjWFZfm+gkt8CL4P5
- wkIKHoRYBq1BXCjTf5em95IVGP9cgzqEUQ5L8Fpds0XSjV/tC6DMxQClFUYug5EuJxW+NxtnnRI
- L63YOtsAL3kxt1OExQmSTpvTBMCqa3esgnEDPJlFEyJeOpYvsQhQQW7+bbQP+KecDYU4rT2Hdm+
- wq65tM6HBN8qvt0UIBQ==
-X-Proofpoint-ORIG-GUID: XgRRe7D-AMa8veb5gkhCzCIMKvdR16ir
-X-Authority-Analysis: v=2.4 cv=Nt1E4MdJ c=1 sm=1 tr=0 ts=6adb265a cx=c_pps
+X-Authority-Analysis: v=2.4 cv=cZpHPXDM c=1 sm=1 tr=0 ts=6adb265b cx=c_pps
  a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22 a=VwQbUJbxAAAA:8
- a=EUspDBNiAAAA:8 a=bC-a23v3AAAA:8 a=Tb4baJqIJvETSDKJSKYA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=FO4_E8m0qiDe52t0p3_H:22
-X-Proofpoint-GUID: XgRRe7D-AMa8veb5gkhCzCIMKvdR16ir
+ a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22 a=EUspDBNiAAAA:8
+ a=VwQbUJbxAAAA:8 a=4NpiubGSDSypE1FgfBwA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfXzBtbZnhy9HQd
+ 0ASjlzO5CMsb7xE4Ei1qNh8wjIEgS4cf9W+JoUyHDZGQBfmClUy6GOHLbp5Ex+IGAHjOfZ6PEdI
+ boGnB2+GCkblPCctX2ULB4ZMqVzhwjs=
+X-Proofpoint-GUID: b6Edjw1dLjExPNeDESSMLPlUj3xn6ylE
+X-Proofpoint-ORIG-GUID: b6Edjw1dLjExPNeDESSMLPlUj3xn6ylE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfX0Apnow9BQSWZ
+ mI02uHzCVE8IZabYu1A5xEg6uNgqCBMSn/fLbI5NATSvvP8fFbBGids2AS+UAolv+UoespM2cS6
+ NMUvLwO0v+OgG1njOWAz21IFk1V4lb/niU062xbVSZOiHFu8GGxFiwQM7wGr6EoO54zHRrfTBGa
+ d19gNqjRatWaT2Vk2Y7p1s7tTvkjoWYrjIG2Kv+P9U1FSVgaf/zgcPXB4mtyPFQg5f/VzqfMDS1
+ 3TzuABeknnad4vT9ZlwHMwTdZ2GDirAloMKigikw8MAuxlyyiVkjKLySDTQAhKvvP5zJF2DkI14
+ 69exlIqYQR7drsDgWniAloR2iewRXtK8Cj3lwVbIBOObcMSh4QciAGEBYwZ7Y8irZ9Fr++RQzbp
+ UVFD63Gq2RvzLXuwLft92y0bM0NcUUDX7+svsoA4QuhQsOVBdjfugD4wcgqV6P4LScihJIa4O07
+ a0tQkQ/p4L95+uMxcRg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-23_02,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 impostorscore=0 suspectscore=0 malwarescore=0
- phishscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0
+ suspectscore=0 phishscore=0 malwarescore=0 adultscore=0 priorityscore=1501
+ clxscore=1015 spamscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610230036
 
-The PSCRR framework[1] currently does not provide a recorder provider
-capable of persisting power state change reasons across power cycles.
+Record the power state change reason into a NVMEM cell (a PMIC
+SDAM byte, RTC scratch register, or EEPROM) and read it back on the
+next boot, so the cause survives a power cycle.
 
-This series extends the PSCRR framework[1] with support for an
-NVMEM-cell recorder provider, integrating PSCRR-recorded power state
-change reasons with the NVMEM subsystem.
+The recorder is implemented as an NVMEM layout driver: it owns the
+single cell described by its layout binding and adds it to the
+parent NVMEM device, rather than acting as a standalone consumer of
+someone else's cell.
 
-The recorder writes the power state change reason into a small NVMEM cell
-(e.g. a PMIC SDAM byte or RTC scratch register) before shutdown or reset,
-so the cause survives a power cycle and is available via
-/sys/kernel/pscrr/ on the next boot.
-
-Only the NVMEM-cell provider is included here. The PMIC hardware-register
-provider will be submitted as a separate series.
-
-[1] https://lore.kernel.org/all/20261019-pscrr-framework-v17-0-69ea6cdf4731@oss.qualcomm.com/
-
+Co-developed-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Faruque Ansari <faruque.ansari@oss.qualcomm.com>
 ---
-Changes in v4:
-- Move the PSCRR NVMEM provider recorder from drivers/power/reset/pscrr/
-  to drivers/nvmem/layouts/ and relocate its Kconfig/Makefile/MAINTAINERS
-  entries accordingly, as suggested by Srinivas Kandagatla.
-- Reject a layout that declares more than one reason cell with -EINVAL
-  instead of silently using the first one - Srinivas Kandagatla.
-- Consolidate the probe error paths onto a single of_node_put() unwind
-  label instead of repeating the put on every failure - Srinivas Kandagatla.
-- add Reviewed-by tags from Abel Vesa and Rob Herring.
-- Link to v3: https://lore.kernel.org/r/20260914-pscrr-provider-v3-0-c45cb16542e8@oss.qualcomm.com
+ MAINTAINERS                         |   1 +
+ drivers/nvmem/layouts/Kconfig       |  10 ++
+ drivers/nvmem/layouts/Makefile      |   1 +
+ drivers/nvmem/layouts/pscrr-nvmem.c | 270 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 282 insertions(+)
 
-Changes in v3:
-- Drop unnecessary nvmem_cell_get_size() and core compatibility
-  detection changes because the layout now owns the compatible.
-- Patch 1/3 (dt-bindings): Move compatible from the cell to the
-  nvmem-layout node, relocate binding to nvmem/layouts/, and
-  simplify the cell to a plain reg/bits child.
-- Drop the trailing "binding" from the subject, as suggested by
-  Krzysztof.
-- Patch 2/3 (driver): Convert pscrr-nvmem from a consumer-based
-  platform driver to an nvmem_layout_driver that directly manages
-  its cell.
-- Patch 3/3 (dts): Update DTS to place compatible on the layout
-  node, add bits to reboot_reason_persist, and remove the separate
-  reboot-reason consumer node.
-- Link to v2: https://patch.msgid.link/20260819-pscrr-provider-v2-0-9072383e0f4d@oss.qualcomm.com
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 51f31e95f4ea..6c3e72114826 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -21694,6 +21694,7 @@ L:	linux-pm@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/ABI/testing/sysfs-kernel-pscrr
+ F:	Documentation/devicetree/bindings/nvmem/layouts/pscrr-nvmem.yaml
++F:	drivers/nvmem/layouts/pscrr-nvmem.c
+ F:	drivers/power/reset/pscrr/
+ F:	include/linux/pscrr.h
+ F:	tools/testing/selftests/pscrr/
+diff --git a/drivers/nvmem/layouts/Kconfig b/drivers/nvmem/layouts/Kconfig
+index 5e586dfebe47..fcd234b8ad88 100644
+--- a/drivers/nvmem/layouts/Kconfig
++++ b/drivers/nvmem/layouts/Kconfig
+@@ -37,6 +37,16 @@ config NVMEM_LAYOUT_U_BOOT_ENV
+ 
+ 	  If unsure, say N.
+ 
++config NVMEM_LAYOUT_PSCRR
++	tristate "PSCRR NVMEM recorder provider"
++	depends on PSCRR
++	help
++	  PSCRR recorder that stores the power state change reason in a
++	  small NVMEM cell (such as an RTC scratch register) and reads it
++	  back on the next boot, so the cause survives a power cycle.
++
++	  If unsure, say N.
++
+ endmenu
+ 
+ endif
+diff --git a/drivers/nvmem/layouts/Makefile b/drivers/nvmem/layouts/Makefile
+index dd6c6c70b1a9..0079e935c4ad 100644
+--- a/drivers/nvmem/layouts/Makefile
++++ b/drivers/nvmem/layouts/Makefile
+@@ -7,3 +7,4 @@ obj-$(CONFIG_NVMEM_LAYOUTS) += fixed-layout.o
+ obj-$(CONFIG_NVMEM_LAYOUT_SL28_VPD) += sl28vpd.o
+ obj-$(CONFIG_NVMEM_LAYOUT_ONIE_TLV) += onie-tlv.o
+ obj-$(CONFIG_NVMEM_LAYOUT_U_BOOT_ENV) += u-boot-env.o
++obj-$(CONFIG_NVMEM_LAYOUT_PSCRR) += pscrr-nvmem.o
+diff --git a/drivers/nvmem/layouts/pscrr-nvmem.c b/drivers/nvmem/layouts/pscrr-nvmem.c
+new file mode 100644
+index 000000000000..ba501f126117
+--- /dev/null
++++ b/drivers/nvmem/layouts/pscrr-nvmem.c
+@@ -0,0 +1,270 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * pscrr-nvmem.c - NVMEM layout driver for PSCRR
++ *
++ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
++ * Copyright (C) 2025 Pengutronix, Oleksij Rempel <o.rempel@pengutronix.de>
++ */
++
++#include <linux/bitops.h>
++#include <linux/module.h>
++#include <linux/nvmem-consumer.h>
++#include <linux/nvmem-provider.h>
++#include <linux/of.h>
++#include <linux/pscrr.h>
++#include <linux/slab.h>
++
++struct pscrr_nvmem {
++	struct nvmem_device *nvmem;
++	u32 offset;		/* byte offset of the cell, from reg[0] */
++	u32 bit_offset;		/* 0 when the cell has no "bits" property */
++	u32 nbits;		/* BITS_PER_BYTE when the cell has no "bits" property */
++	enum psc_reason reason;
++};
++
++static inline u8 pscrr_nvmem_mask(struct pscrr_nvmem *priv)
++{
++	return (u8)GENMASK(priv->bit_offset + priv->nbits - 1, priv->bit_offset);
++}
++
++static int pscrr_nvmem_raw_read(struct pscrr_nvmem *priv, u8 *raw)
++{
++	int ret;
++
++	ret = nvmem_device_read(priv->nvmem, priv->offset, sizeof(*raw), raw);
++
++	return ret < 0 ? ret : 0;
++}
++
++static int pscrr_nvmem_raw_write(struct pscrr_nvmem *priv, u8 raw)
++{
++	int ret;
++
++	ret = nvmem_device_write(priv->nvmem, priv->offset, sizeof(raw), &raw);
++
++	return ret < 0 ? ret : 0;
++}
++
++static int pscrr_nvmem_cell_read(struct pscrr_nvmem *priv, u8 *out)
++{
++	u8 raw, mask = pscrr_nvmem_mask(priv);
++	int ret;
++
++	ret = pscrr_nvmem_raw_read(priv, &raw);
++	if (ret)
++		return ret;
++
++	*out = (raw & mask) >> priv->bit_offset;
++
++	return 0;
++}
++
++static int pscrr_nvmem_cell_write(struct pscrr_nvmem *priv, u8 val)
++{
++	u8 raw, mask = pscrr_nvmem_mask(priv);
++	int ret;
++
++	/* Sub-byte cell: preserve the neighbouring bits, read-modify-write. */
++	if (priv->nbits < BITS_PER_BYTE) {
++		ret = pscrr_nvmem_raw_read(priv, &raw);
++		if (ret)
++			return ret;
++	} else {
++		raw = 0;
++	}
++
++	raw = (raw & ~mask) | ((val << priv->bit_offset) & mask);
++
++	return pscrr_nvmem_raw_write(priv, raw);
++}
++
++static int pscrr_nvmem_read_reasons(struct pscrr_provider *p,
++				    unsigned long *reasons)
++{
++	struct pscrr_nvmem *priv = p->priv;
++
++	/*
++	 * Report the reason latched at probe (or overwritten by a later
++	 * record); the cell itself was cleared at probe, so it is not read
++	 * live here.
++	 */
++	set_bit(READ_ONCE(priv->reason), reasons);
++
++	return 0;
++}
++
++static int pscrr_nvmem_write_reason(struct pscrr_provider *p,
++				    enum psc_reason reason)
++{
++	struct pscrr_nvmem *priv = p->priv;
++	int ret;
++
++	if (reason >= PSCR_REASON_COUNT)
++		return -EINVAL;
++
++	ret = pscrr_nvmem_cell_write(priv, reason);
++	if (ret)
++		return ret;
++
++	WRITE_ONCE(priv->reason, reason);
++
++	return 0;
++}
++
++static const struct pscrr_provider_ops pscrr_nvmem_ops = {
++	.read_reasons = pscrr_nvmem_read_reasons,
++	.write_reason = pscrr_nvmem_write_reason,
++};
++
++static struct device_node *pscrr_nvmem_get_cell(struct device *dev,
++						struct nvmem_device *nvmem,
++						u32 reg[2])
++{
++	struct device_node *layout_np, *cell_np = NULL;
++
++	layout_np = of_nvmem_layout_get_container(nvmem);
++	if (!layout_np)
++		return ERR_PTR(-ENOENT);
++
++	for_each_child_of_node_scoped(layout_np, child) {
++		if (of_property_read_u32_array(child, "reg", reg, 2))
++			continue;
++
++		/*
++		 * The binding describes a single reason cell. Reject a layout
++		 * that lists more than one rather than silently using the first.
++		 */
++		if (cell_np) {
++			of_node_put(cell_np);
++			of_node_put(layout_np);
++			return ERR_PTR(dev_err_probe(dev, -EINVAL,
++						     "expected a single pscr nvmem cell\n"));
++		}
++
++		cell_np = of_node_get(child);
++	}
++	of_node_put(layout_np);
++
++	return cell_np ?: ERR_PTR(dev_err_probe(dev, -ENOENT,
++						"missing pscr nvmem cell\n"));
++}
++
++static int pscrr_nvmem_add_cells(struct nvmem_layout *layout)
++{
++	struct device *dev = &layout->dev;
++	struct pscrr_nvmem *priv;
++	struct device_node *cell_np;
++	struct nvmem_cell_info info = { };
++	u32 reg[2], bits[2];
++	u8 val;
++	int ret;
++
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->nvmem = layout->nvmem;
++
++	cell_np = pscrr_nvmem_get_cell(dev, priv->nvmem, reg);
++	if (IS_ERR(cell_np))
++		return PTR_ERR(cell_np);
++
++	/* The reason is a single byte; a bit cell still occupies one. */
++	if (reg[1] != sizeof(val)) {
++		ret = dev_err_probe(dev, -EINVAL,
++				    "unsupported pscr nvmem cell size\n");
++		goto err_put;
++	}
++	priv->offset = reg[0];
++
++	if (!of_property_read_u32_array(cell_np, "bits", bits, ARRAY_SIZE(bits))) {
++		priv->bit_offset = bits[0];
++		priv->nbits = bits[1];
++	} else {
++		priv->bit_offset = 0;
++		priv->nbits = BITS_PER_BYTE;
++	}
++
++	if (priv->bit_offset + priv->nbits > BITS_PER_BYTE * reg[1]) {
++		ret = dev_err_probe(dev, -EINVAL, "bits exceed cell size\n");
++		goto err_put;
++	}
++
++	/* PSCR_REASON_COUNT must fit in the allotted bits. */
++	if (PSCR_REASON_COUNT > (1U << priv->nbits)) {
++		ret = dev_err_probe(dev, -EINVAL,
++				    "too few bits for the reason range\n");
++		goto err_put;
++	}
++
++	ret = pscrr_nvmem_cell_read(priv, &val);
++	if (ret) {
++		dev_err_probe(dev, ret, "failed to read the pscr nvmem cell\n");
++		goto err_put;
++	}
++
++	priv->reason = val < PSCR_REASON_COUNT ? val : PSCR_UNKNOWN;
++
++	ret = pscrr_nvmem_cell_write(priv, PSCR_UNKNOWN);
++	if (ret) {
++		dev_err_probe(dev, ret, "failed to clear the pscr nvmem cell\n");
++		goto err_put;
++	}
++
++	info.name = kasprintf(GFP_KERNEL, "%pOFn", cell_np);
++	if (!info.name) {
++		ret = -ENOMEM;
++		goto err_put;
++	}
++	info.offset = reg[0];
++	info.bytes = reg[1];
++	info.bit_offset = priv->bit_offset;
++	info.nbits = priv->nbits;
++	info.np = cell_np;
++
++	ret = nvmem_add_one_cell(priv->nvmem, &info);
++	kfree(info.name);
++	if (ret)
++		goto err_put;
++
++	return PTR_ERR_OR_ZERO(devm_pscrr_provider_register(dev, "nvmem",
++							    &pscrr_nvmem_ops, NULL,
++							    priv));
++
++err_put:
++	of_node_put(cell_np);
++	return ret;
++}
++
++static int pscrr_nvmem_probe(struct nvmem_layout *layout)
++{
++	layout->add_cells = pscrr_nvmem_add_cells;
++
++	return nvmem_layout_register(layout);
++}
++
++static void pscrr_nvmem_remove(struct nvmem_layout *layout)
++{
++	nvmem_layout_unregister(layout);
++}
++
++static const struct of_device_id pscrr_nvmem_of_match[] = {
++	{ .compatible = "pscrr-nvmem" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, pscrr_nvmem_of_match);
++
++static struct nvmem_layout_driver pscrr_nvmem_layout = {
++	.driver	= {
++		.name		= "pscrr-nvmem",
++		.of_match_table	= pscrr_nvmem_of_match,
++	},
++	.probe	= pscrr_nvmem_probe,
++	.remove	= pscrr_nvmem_remove,
++};
++module_nvmem_layout_driver(pscrr_nvmem_layout);
++
++MODULE_AUTHOR("Oleksij Rempel <o.rempel@pengutronix.de>");
++MODULE_AUTHOR("Faruque Ansari <faruque.ansari@oss.qualcomm.com>");
++MODULE_DESCRIPTION("NVMEM recorder provider for PSCRR");
++MODULE_LICENSE("GPL");
 
-Changes in v2:
-- Add reviewers to To/Cc list.
-- Update patch 1/4:
-   * Rename DT node from pscr-reason to reboot-reason.
-   * Update DT binding example to use fixed-layout NVMEM layout.
-   * Add reboot_reason_persist NVMEM cell under fixed-layout.
-   * Update Qualcomm DTS example accordingly.
-- Update patch 2/4 based on Uwe Kleine-König feedback:
-   * Remove unnecessary #include <linux/mod_devicetable.h>
-- Link to v1: https://lore.kernel.org/all/20260817-pscrr-provider-v1-0-88a318c13d41@oss.qualcomm.com/
-
----
-Faruque Ansari (3):
-      dt-bindings: nvmem: layouts: Add PSCRR NVMEM layout
-      power: reset: Add PSCRR NVMEM recorder
-      arm64: dts: qcom: lemans: Add PSCRR NVMEM recorder node
-
- .../bindings/nvmem/layouts/nvmem-layout.yaml       |   1 +
- .../bindings/nvmem/layouts/pscrr-nvmem.yaml        |  87 +++++++
- MAINTAINERS                                        |   2 +
- arch/arm64/boot/dts/qcom/lemans-pmics.dtsi         |  11 +
- drivers/nvmem/layouts/Kconfig                      |  10 +
- drivers/nvmem/layouts/Makefile                     |   1 +
- drivers/nvmem/layouts/pscrr-nvmem.c                | 270 +++++++++++++++++++++
- 7 files changed, 382 insertions(+)
----
-base-commit: be461b2185ea3ff6d9c92deedcee0a62a57e1332
-change-id: 20260806-pscrr-provider-b9f8f451701e
-
-Best regards,
 -- 
-Faruque Ansari <faruque.ansari@oss.qualcomm.com>
+2.34.1
 
