@@ -1,100 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.46
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792953178;
-	b=dWJjVUQ2EpOg6VrKncGp/g5pAT8IczCFsF4H0FnyJao2cnpYDsGeYpiv5PDNlCcVPEC/
-	 7kDlciFG7FGBXK8l5XPPFzkiA46gTqomL29RLB2xJ/HaMvjmiLdJtLpvQPIs/WZ76kSCC
-	 3NOLjrDrx8uLgLbt0SmAW2z9hMv8qqrQIg+xjoIkBKVoNFgw1B1v4pvgKT8LbQtLcDhRG
-	 oQQXYnveVrJ/UXjGyDI/Qz2P+LETG5WX88apL5JQjJMNkoQeOMLDiHdPf7J1AmU27jT5x
-	 W76ZB2S5UzDhm6XG9++f735QNktJi/R2ltN4glC3UbbTOFEgKMFNy0gGWp0TIK+v/Hw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792953178;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=cHnV8YcGeqlxYOjKsLG51tneNJM+mDCweNekVpvy4Xk=;
-	b=ysI2RmrJ0gTWXtKypms/XiMihSTG1y76fgH7v0ZtgCAC/L6nO93Vis51+pADDYkBQDPP
-	 SjMf1y3/7qWadqxsO24LRnisal599PNQSsRxLoJri/AWEt3/tXEhfXv8s7Rfh7d3/7LGm
-	 NLv0aHFdyO9ntyCT+mViiZeoLgUeQxis6668T0JzAeRdpbJyIo5OqQHsBxpX/4Daebsdr
-	 Ug2GEZML0g1TKAzRFzn9TJH28vwYaPpyL04PQPTpVKJqfiEcqMXrAJ3sO49nGuIebAkU6
-	 Kcf8KYLBzk16+55tX8vxWWXtW63zdf3LFY82q6cUJTs7DcCCNt+dk3Z+ZSc+MGdicEw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=TkdaEY20;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.46
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.36.163.20
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792954526;
+	b=dop5TlHFMfjXddQLKKW6w2SnfxWKzHePgJtpt7IPbGzSi8GMa2BFXWnZ9+mtJABo8tkQ
+	 Em4LUPOVXRZvYTBFfNPKp39g7IBGIOCRha7MtNPqp+3wK/yOj9gR8v5Efy9Snvxb8nlCg
+	 kMAK+FHIC4B6cmnZcqhch4qrMoR1WNffGLs53pk1VPEJ1wQNgE/YP1ix/gnRVDLgcCqnb
+	 hScuMfyNIv2VHs0N0EBfaAVmnxtUFvy8iFtt7smZVbprF/p2S+/1eR5o7QfU7yeW4xgLy
+	 4yS4mtejWgzqcZzX0G2olXak9T2YOYitz1KPcoJ9ei7gHiIyGtp6VGVYZnbR0KGLZtg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792954526;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:From:
+	 To:CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+	 In-Reply-To:Accept-Language:Content-Language:X-MS-Has-Attach:
+	 X-MS-TNEF-Correlator:x-originating-ip:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:X-SEG-SpamProfiler-Analysis:
+	 X-SEG-SpamProfiler-Score;
+	bh=EkyTLH9O2VFlugHBZrm1Y4nRaa319co6IyajjDX9P+A=;
+	b=IpRLpYxXzm2+wmPtgoL0MsrKGSYi1ck/u/5M11VzxyPj6KGUvZ5bjGNv1iwzZV9cxqub
+	 BlgCXgOB0yUfiGOzsz7ZR0zRO2/DUn8OBz7bs8cMugDvp6qacvvjsKFmANpBUHZa6jyHh
+	 o9qvL83igT68LBGz2FQCjWADFtcuiwO8zdKnnqjJ+INvCznrcsgmtduATaaQPk8ZvSVci
+	 4F96GFmd+/gIkUkex6ybNY/8KpKYHUOAtM4Yn0bWS25VVAepj8X0p8hZY4poTk4ONXiY4
+	 h4b/o5yCTsOqmv9dXiWt6Q1MB3UwWI+KFg0GU6HWB2GHjtxldfuLOBvcPnQMseYgO4g==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=alliedtelesis.co.nz;
+	spf=pass smtp.mailfrom=alliedtelesis.co.nz;
+	dkim=pass header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.a=rsa-sha256 header.s=mail181024 header.b=fuvEbl4E;
+	arc=none smtp.remote-ip=202.36.163.20
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5F76606A324
-	for <linux-watchdog@vger.kernel.org>; Sun, 25 Oct 2026 18:32:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D5F76606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7E8C606A31B
+	for <linux-watchdog@vger.kernel.org>; Sun, 25 Oct 2026 18:55:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D7E8C606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=TkdaEY20
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-c4395d31228so345320866b.1
-        for <linux-watchdog@vger.kernel.org>; Sun, 25 Oct 2026 11:32:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792953176; cv=none;
-        d=google.com; s=arc-20260327;
-        b=szG4rrC9tmQdvpUXetkSmVALxNKQnYGaCK5LD8dOUImkY1TBiP47oKG3zge2m9MFrU
-         O7BQsbcgagXjtYW5NsomLf7K3XxZSsf1LqwNFPCuS3WS89G1vhFw9GX18hG/avN0mbeP
-         HRtWdkUko9UcvVVRYYKpJOyYQlke0LS3kAloUGtYAmuGDBdcLWvhSeSwJNl5VZR4g3Sm
-         CfoLUAdJF1N2L0EMFIiOSuDzcRoVgxoHoiH2IUtLjmCMC82jrJDLDjwmI3HuB9iFTtu9
-         R30FKQbjrekvJZHI9l64BggP4YbynvVs2EPQU8bge7zILy8hTuPPF8dJEl2pH7qdyV6t
-         EemQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=cHnV8YcGeqlxYOjKsLG51tneNJM+mDCweNekVpvy4Xk=;
-        fh=LjEgEBPhdbZ42rJQjHYe4yruC/dI2QpV8bv2TnevfW0=;
-        b=eCFvyaGmYTAg/WvDIe8m3s+p3nW46Ml9O5T37xVlzUcGpacE1JEqBVh723ZCcif+3K
-         K12Rr7x4URQ8WJsjd2mOiqUZ9oJrm7JuxAIIKazz0Iw2c89aXf3MlaOHeCoZbGEaAAd/
-         Rs9N0qobQaeYK24vfoDRwe6NmmGqTlCiQ3xswfZVFGLwyBt1wjFV5jwLwonbURxOAx7E
-         pncBP1ah4A6N4CYFrVQ2t1JrxDLxdTMvVvqDjrmU4ghjXVbgYQMQCgC1ARNcGxTZZyni
-         BJJ9yc0qhXEuwg6ovJ46S2DPAJMb0IfW/zlu8SIa6y1yyE1See3K8/Moh9WJt1ZOgwr3
-         8OQA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792953176; x=1793557976; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=cHnV8YcGeqlxYOjKsLG51tneNJM+mDCweNekVpvy4Xk=;
-        b=TkdaEY20As3ISZFDUG5YHBlqBF3FD75KBS8Dw858E6znrd6AL1k95VE6R6Q7HZbfF9
-         DSKPFslUfFhTEwjGkHSPM+NwsZ7PabiuQFPNbz5eDr5SDdGluFzGFaqNf5UrnX7ZPQsn
-         NxbWVh9zz5bIm/D2JNv5HkbXCjKdAZBdKqxenB1EDCU3AiIBoeO1uFvfv3hTMRaIsIjf
-         uhUNjUKHrySYnSdvjDzoLkhTPsBhO0nwL+AdZ2uSgfSeTAngUhF7SMr3zF+bKZzhxWPj
-         jbHDz6FVt0FUMDdGj/KW5gAkwdwADbmz2u/WLu0F8X91yfbkYQlLTivMSmAIwoDLfEwr
-         FvkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792953176; x=1793557976;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=cHnV8YcGeqlxYOjKsLG51tneNJM+mDCweNekVpvy4Xk=;
-        b=Bd+u0BQGsrmu99fZ7R07K3rxLWQxaQDgIIcO39Ts8jf5aXz3pu4CMOM8gtrWrXU5tT
-         kOpt4+uHAm8mh/VHRhbPQLU30v8SvTuL5kp71Z4rucXNPP22yrMWLoKaRfkShSRBZIX1
-         w6MzUFlpyNpdM7D4qoghVhtq73663Y+zCkRyDE97KsXuKLO9ypyAFQWyfQsQPxFaUSJu
-         8NQ1Wd3weSDE+Ie9vzx7xpcRNPQWIM0JYKnfUeYOQblnnHYM090LvlLdKcmWrO6b7a7H
-         XvsPFXDSmlrxOrT8orzi8w568WhqieS98HmQqgOhbF55iwSzaWAMkIrZ1KMT4eRYFMzT
-         SbIg==
-X-Forwarded-Encrypted: i=1; AKwUvBzO/HWHgYhstij+SmHJNRt18cnZPe7Gotg6oVaDecvgz/dwj+qNHYPxfQe68F1EfuOvAmQrn9o7OVxqcvQ01Q==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIv2d0fSuZzD/ee6YrE/AKY2WlFs/J2I4ttD+5GIfSrg/AfYIPs
-	enzULhgMAqUMjAxzjdp2pvMo4R8TCpPiYkc5S2oBKv/zXVeg4HFRVO1wf3mHj093Ivu4+NlpGs8
-	2tZpOE2wWACDHx5/eNxPNCYRIt0mRbYQ=
-X-Gm-Gg: AYBFou2PVJq76xxuCjbKdz75pPqvxmyv3jBgmjJ459klZE6ib+86brks70FDu8u7TIB
-	evcExJ6/r/Z1bduT163IFVm86lwu1pI3+aaBCDUgOZhW98/0u0thwisHtFdSyIDeHLUWB6sAFwU
-	VzMpmi5MkNZEHau/9JHd3ETI69tixtz2aJDu1joTbUp23JLEFTiH5DFxXVzXINN5Z46xrAjz8I8
-	+x4fTDZaXrwpcwdL0Y/Q/lB+POSfGWqfATDcQbAtA72dtuaOEToYorOF/KStKND6NoeauILg/e/
-	nDCb2X/Ik7ozrmiVZjof99rLFbAENnDWgYhHdfeLBMWOZnvpU0AnDfce0GcX5aOr5oxyRIWO7p9
-	+DZPBSXljbs9CnRmDzH22Ac0vfHC4IT18w/QVnA==
-X-Received: by 2002:a17:907:3faa:b0:c24:6f60:3f7e with SMTP id
- a640c23a62f3a-c46bdacd03fmr618060466b.2.1792953175995; Sun, 25 Oct 2026
- 11:32:55 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.a=rsa-sha256 header.s=mail181024 header.b=fuvEbl4E
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 698602C041D;
+	Mon, 26 Oct 2026 07:55:16 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+	s=mail181024; t=1792954516;
+	bh=EkyTLH9O2VFlugHBZrm1Y4nRaa319co6IyajjDX9P+A=;
+	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+	b=fuvEbl4EKTLelfgrg5rBfeeLx3FWULqW+UtemjtlA3KYDErakqlcU7H2qf3S091/I
+	 foIX959VV7a1AJnZLKhtxAzpVHyw0PQ0W/Hj9zUEWPfizOAiyqBEfUm4YDOfcyaTnU
+	 5p/PujIIrzyQMRhmYG3c/2+PaEkxDMvsyL5eBY3rafY0CYSAj0Vskoz7Bck/7KNleY
+	 brY6l8Wu5Ot1IWiXuE112hOAt2t2d9+VlZG84R5/GQItM/v7DKfKQpHPQzPTFE6T/7
+	 m0WRlVlcJCfDZ00YkuZisFIop1OT8zWQbeOLGZRSn7u2NyoFqDIs8BBhCBX5qhzNYv
+	 IY1oRidHFPHDQ==
+Received: from svr-chch-ex2.atlnz.lc (Not Verified[2001:df5:b000:bc8::76]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+	id <B6ade50940001>; Mon, 26 Oct 2026 07:55:16 +1300
+Received: from svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8:f753:6de:11c0:a008) by
+ svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8:f753:6de:11c0:a008) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.53; Mon, 26 Oct 2026 07:55:03 +1300
+Received: from svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567]) by
+ svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567%15]) with mapi id
+ 15.02.2562.053; Mon, 26 Oct 2026 07:55:03 +1300
+From: Carl Smith <Carl.Smith@alliedtelesis.co.nz>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+	<linux@roeck-us.net>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"sashiko-reviews@lists.linux.dev" <sashiko-reviews@lists.linux.dev>
+Subject: Re: [PATCH] watchdog: octeon-wdt: Add a panic_on_timeout parameter
+Thread-Topic: [PATCH] watchdog: octeon-wdt: Add a panic_on_timeout parameter
+Thread-Index: AQHdYyLqlyPOp/BBjUy/2OPLTlmRs7cKrBOAgAPuoyw=
+Date: Sun, 25 Oct 2026 18:55:03 +0000
+Message-ID: <9f6fb41b5af14c09818980273307e2ca@alliedtelesis.co.nz>
+References: <20261023191530.327734-1-carl.smith@alliedtelesis.co.nz>,<sashiko-outbox-183127@kernel.org>
+In-Reply-To: <sashiko-outbox-183127@kernel.org>
+Accept-Language: en-NZ, en-US
+Content-Language: en-NZ
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -104,61 +89,23 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261024140854.25664-1-a.shimko.dev@gmail.com>
- <20261024140854.25664-3-a.shimko.dev@gmail.com> <20261024-dw-wdt-shimko-v4-resume-imbalance@iav.lv>
-In-Reply-To: <20261024-dw-wdt-shimko-v4-resume-imbalance@iav.lv>
-From: Artem Shimko <a.shimko.dev@gmail.com>
-Date: Sun, 25 Oct 2026 21:32:44 +0300
-X-Gm-Features: AclHuK_uk5ewP18MJ4wJQiIWyDu_xkRz4DfpyBdkJPDFnOGsejWdEyAsYxw39Eo
-Message-ID: <CAOPX745u-2S4V_HfwPjkeiC+SLn6Z1GxQOTE3SqMFX75eZRKTw@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] watchdog: dw_wdt: manage reset line during system suspend/resume
-To: Igor Velkov <iav@iav.lv>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, p.zabel@pengutronix.de, 
-	Sergey.Semin@baikalelectronics.ru, mika.westerberg@linux.intel.com, 
-	andi.shyti@kernel.org, Tzung-Bi Shih <tzungbi@kernel.org>, linux-watchdog@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=FJW4xPos c=1 sm=1 tr=0 ts=6ade5094 a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=oKJsc7D3gJEA:10 a=8nJEP1OIZ-IA:10 a=660iZSQnnn4A:10 a=eOYEQobSZ2qJzmjsaD4A:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+X-SEG-SpamProfiler-Score: 0
 
-Hi Igor,
+> Should the new panic_on_timeout parameter in drivers/watchdog/octeon-wdt-=
+main.c
+> also be documented in Documentation/admin-guide/kernel-parameters.txt (an=
+d
+> Documentation/watchdog/watchdog-parameters.rst)?
 
-On Sat, Oct 24, 2026 at 9:46=E2=80=AFPM Igor Velkov <iav@iav.lv> wrote:
->
-> On Sat, Oct 24, 2026 at 05:08:51PM +0300, Artem Shimko wrote:
-> >       err =3D clk_prepare_enable(dw_wdt->pclk);
-> > -     if (err) {
-> > -             clk_disable_unprepare(dw_wdt->clk);
-> > -             return err;
-> > -     }
-> > +     if (err)
-> > +             goto unprepare_clk;
-> > +
-> > +     err =3D reset_control_deassert(dw_wdt->rst);
-> > +     if (err)
-> > +             goto unprepare_pclk;
->
-> If clk_prepare_enable() fails in dw_wdt_resume(), we return with the rese=
-t
-> still asserted. The _deasserted devres then asserts it once more at unbin=
-d,
-> and on a shared control with deassert_count already at 0 that is a WARN_O=
-N
-> and -EINVAL; the next suspend hits the same. Deasserting before the clock=
-s
-> are enabled (or on the error paths) keeps every exit balanced.
-> Not tested on hardware: I can't make the clock enable fail.
+kernel-parameters.txt does not list per-driver watchdog parameters; none
+of the watchdog drivers have entries there, including softdog's
+soft_panic.
 
-The official datasheet DW_apb_wdt_databook says:
-The reset must be de-asserted synchronously after the rising edge of tclk.
-
-That means we can't switch the sequence of clk and reset in suspend/resume.
-
-At the same time, we can't do a deassert reset in the error paths by this
-reason as well (when we have errors in clocks).
-
-Given this, i think the WARN_ON on a clock failure is a minor concern
-comparing to violating the hardware synchronization requirement. I'd
-prefer to keep v4 as it is and not to send v5.
-
-Best regards,
-Artem
+watchdog-parameters.rst has no section for octeon-wdt at all, so its
+existing heartbeat, nowayout and disable parameters are not documented
+either. I can add an octeon_wdt section there covering all four
+parameters, either in a v2 of this patch or as a separate patch,
+whichever you prefer.
+ =20
+Carl=
