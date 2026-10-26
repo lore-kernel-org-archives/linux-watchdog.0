@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793010973;
-	b=QBPLsyC35LPeAFUhaE+6VLoGJ10uKoLNGHQd6hODhx/aUsGSouTvUrHE0sSgfhApp1iY
-	 L06wHNj3fxhdD6DICu5QxI8npJEfHS4VOUe4QvUUGjuBdfzliJ/lRv+S/YuSl0PJ8UXpH
-	 6yPIASVABsGyi1dh2cOTLchHAQhtdzyTFqkKdNcwzDctUSk1SA9HNQ379dyF/EAJaitcq
-	 UqamCKVYNlHbhSCjGls3jZs4NZx6hqBynn3CP4g2bXYSe6n7bF0lCcVhTfMWZKr3FBQYF
-	 ehLg+WvyjOpRie2CGwBTod5wY3EU3BztatkemTdaVH/3yyFtnQKjwF9khrnJYMXlPXg==
+	t=1793011950;
+	b=n8aZlS0P6A1CAkQfIcFtutcGQZKDpBvzD7vv/qjswPosM+9uQjgVhJ+uwIzh2nwfXC3/
+	 DnR7Z0OjAdzVXkgLTEavga3QLAIKe2g2Wcq0ZUAc1dWlB0QBU0KXEKuN+y7YjMSRFhl07
+	 yv3QfOAVVnYBqmnbZjELgzu8Iy5ZtN3jm0mkddUswqCZaAQHNCve/xedoKcMsJllY/CRW
+	 Ia1jhElBAX7vGqW1HVttFtTqwKuqQdsnErAtJPEtFImWOMzS9MocbSUC5rCZNOdr8I2Gg
+	 VPQu3ZVk/vAPMhFpO88jKzxbqm2aB1elRS+p5kuH/9BfWkVB91WXVeTL/bx7oNec5cA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793010973;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793011950;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1mhzcflxquF8ObSwJmynSsabPfSs0R8YC+fiqPz1aZg=;
-	b=RH7D9FhLgJCjn3Ur1jB2fcQBT5T53b3JEQz07gUO/4Jw498m7uIGHSQexUXaa2oGvSJs
-	 8d57bvZkO5UG4Th8SEAhQl6aQHX1hHHCc5tnY3054kpP6GDYLC9eqhsAD3g4XxOGkXd+J
-	 bTUJTZMs+/nzWLKZPi1svzXJQ8BcrsPzTEbwcDwbX5j2By0zE9rpcYh0J3sD47OHZH4mj
-	 OFJNGc8LVJRfkWXgZDHCUomh4SKBrZteylLu/niVgJlH8HqdoTdydPsTbd4AHKsO3gBbv
-	 c0MYfv8Kgae/r757fqezt3snSrnnv4dA4rX+RG09AQZHp4qejWazdA5Y+jl2O5eQmMQ==
+	bh=EdqkhNIUFcUZ/f+8a4VgxpZB0JrsLbGY0cktm4hV6vg=;
+	b=uPcm4CmAqXaNmw57Jm12wBQHRRqM7F8xJta8WGxdRr7g0xTCoDujSQPI033nibcPWhaK
+	 pEa0G7w1xaD0th0qDFRZU0xE+f0JjgRAYkmJ2hqUNegdB/976NuoInqyS9FMH4MU0OV/g
+	 qq6WG6V97M3JAePbcqPQaujvBZKHN9PSl4Hj8TxxvsQi+Hpycx8Q3fp3cpjO1824VOAHh
+	 VQtje14GgLT91BonwIPUMto6fK3kzwFPaau4YSqvZifanN8kUpB8MBzbxxHqjT7NsgdIR
+	 AA/AyA883Pz1ybuqBQuHQ6r7BKgatz+D/eHQVQPREN2iO/kc5GDia1GxI7664hvfAHg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ilv4AZP1;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c5A+Xg94;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DED2606A322;
-	Mon, 26 Oct 2026 10:36:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1738B606A31A;
+	Mon, 26 Oct 2026 10:52:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ilv4AZP1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B97121F01828;
-	Mon, 26 Oct 2026 10:36:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c5A+Xg94
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2031F01825;
+	Mon, 26 Oct 2026 10:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793010973;
-	bh=1mhzcflxquF8ObSwJmynSsabPfSs0R8YC+fiqPz1aZg=;
+	s=k20260515; t=1793011949;
+	bh=EdqkhNIUFcUZ/f+8a4VgxpZB0JrsLbGY0cktm4hV6vg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ilv4AZP1bNj+x6S/DrRxzh/iop40+JbST5pmBPTECInKMpz8e9iyVBVIdckg6zrVL
-	 CH1IOTX2bYWsozDMkAMOl+hazbP4QaXLU2Clg3ZnZAVIIH6Qs1EUJX2iJbLgxd25JC
-	 7p6hxXZE8K29btQE94R/JSLFWNc3Ixcp54/HUkmyh/kbyHhlW8hKltz+PdIb5rgnnz
-	 ZxerZvVRtQiS4neWAJ1kZwgHuz9ICNtg8sTnJFcdbGxa+egpzIqP26alP2fEf+f5hn
-	 EG0dk4ZmqUS9Hin1XWXQTMQxiQQj4DDUqgi7gnAQHIKxZRxgOr+z6xx0FbtTyssSeP
-	 f0HhQoeATOcvg==
-Message-ID: <sashiko-outbox-184969@kernel.org>
+	b=c5A+Xg94Z/YatAPN9sgq5wOtTrdhSaXJG4FpIGcxEQ/JpiG71f+waGtNVJ+Hm1LcQ
+	 Mosnxck+KDSxQm3mCFtLBN/gmM95IfdjJkfURQFqKjteQiCPhUBQ0IQiFpB1Lqz0ao
+	 SAQs4h40zPD/ghxGM7NnW22kg3syBEsNrL07RdCIqxrIv3dICyALo311OAnFJ+yARl
+	 LeRDc3fXO+OTER7+ltVUbZjD9oLeV05Mz3KXFPxOt13UCk0xCPk+HZegQ16PGyq/5v
+	 /vS3ZO/RbsohOgDy78Kq+5N8wlQ4ARhJP5quWI4J4FEMI8axVw87cwihri7gtHPiWD
+	 wjfw6+bxNeKZQ==
+Message-ID: <sashiko-outbox-185021@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 2/5] rtc: pcf85363: support reporting battery
- switch-over via RTC_VL
+Subject: Re: [PATCH v8 3/5] rtc: pcf85363: add timestamp support with
+ configurable timestamp mode
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lakshay Piplani" <lakshay.piplani@nxp.com>, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org
 Cc: robh@kernel.org, conor+dt@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261026094712.205214-2-lakshay.piplani@nxp.com>
+In-Reply-To: <20261026094712.205214-3-lakshay.piplani@nxp.com>
 References: <20261026094712.205214-1-lakshay.piplani@nxp.com>
- <20261026094712.205214-2-lakshay.piplani@nxp.com>
+ <20261026094712.205214-3-lakshay.piplani@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 10:36:12 +0000
+Date: Mon, 26 Oct 2026 10:52:28 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -61,112 +61,181 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] rtc: pcf85363: unacknowledged FLAGS_A1F holds INTA low in wakeup=
--only mode
+- [Medium] rtc: pcf85363: lost event and swallowed read error in pcf85363_c=
+ollect_events()
+- [Medium] rtc: pcf85363: unmasked INT_BSIE and INT_TSRIE in pcf85363_probe=
+() when no IRQ
 --
 
-commit 655ad6de5d4c27a6bb5b02bf6ca7a7a0b68d6b38
+commit f94f2e86fc8ade444598e079370c102ba8cc732b
 Author: Lakshay Piplani <lakshay.piplani@nxp.com>
 
-rtc: pcf85363: support reporting battery switch-over via RTC_VL
+rtc: pcf85363: add timestamp support with configurable timestamp mode
 
-This commit adds support for reporting and clearing the battery switch-over
-flag (FLAGS_BSF) via the RTC_VL_READ and RTC_VL_CLR ioctls, introduces
-pcf85363_clear_flags() for write-0-to-clear flag handling, and updates
-pcf85363_probe() to selectively mask unused interrupt sources and clear
-stale flags instead of zeroing CTRL_FLAGS.
+This commit adds timestamp capture register support for PCF85263/PCF85363,
+configuring the capture source via the nxp,timestamp-mode property and
+exposing captured timestamps via sysfs attributes.
 
 > diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index ccc7834e57599..00f37ffcca260 100644
+> index 00f37ffcca260..db832cad0b0b6 100644
 > --- a/drivers/rtc/rtc-pcf85363.c
 > +++ b/drivers/rtc/rtc-pcf85363.c
 [ ... ]
-> @@ -435,17 +577,52 @@ static int pcf85363_probe(struct i2c_client *client)
+> @@ -306,23 +345,131 @@ static int pcf85363_rtc_set_alarm(struct device *d=
+ev, struct rtc_wkalrm *alrm)
+[ ... ]
+>  /*
+> - * Latch a pending battery-switch event into the software cache. Runs fr=
+om
+> - * the IRQ handler and the RTC_VL_READ path, so it is seen with or witho=
+ut
+> - * an interrupt line. BSF is cached before it is cleared so it survives
+> - * re-arming. Caller must hold pcf85363->lock. Returns a negative errno =
+on
+> - * a register-access failure, otherwise the handled flag mask.
+> + * Latch pending events into the cache. First-event modes hold the value
+> + * until the flag is cleared, so cache before clearing; last-event modes
+> + * overwrite every event, so clear first then read until stable. Runs fr=
+om
+> + * the IRQ and sysfs paths; caller holds the lock. Returns a negative er=
+rno
+> + * on a register-access failure (including -EAGAIN for a torn last-event
+> + * read), otherwise the handled flag mask.
+>   */
+>  static int pcf85363_collect_events(struct pcf85363 *pcf85363)
+>  {
+>  	unsigned int flags;
+>  	int handled =3D 0;
+> -	int ret;
+> +	int i, ret;
 > =20
->  	wakeup_source =3D device_property_read_bool(&client->dev,
->  						  "wakeup-source");
-> -	if (client->irq > 0 || wakeup_source) {
-> -		err =3D regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
-> -		if (err)
-> -			return dev_err_probe(&client->dev, err,
-> -					     "failed to clear flags\n");
+>  	ret =3D regmap_read(pcf85363->regmap, CTRL_FLAGS, &flags);
+>  	if (ret)
+>  		return ret;
 > =20
-> -		err =3D regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
-> +	/*
-> +	 * Latch and clear any battery-switch event that occurred before
-> +	 * probe (for example while the main supply was off) instead of
-> +	 * blanket clearing CTRL_FLAGS, so the cached state is preserved.
-> +	 */
-> +	scoped_guard(mutex, &pcf85363->lock) {
-> +		ret =3D pcf85363_collect_events(pcf85363);
-> +		if (ret < 0)
-> +			return dev_err_probe(&client->dev, ret,
-> +					     "Failed to latch boot-time events\n");
-> +	}
+> +	for (i =3D 0; i < PCF85363_NUM_TS; i++) {
+> +		if (!(flags & pcf85363_ts_flag[i]))
+> +			continue;
 > +
-> +	/*
-> +	 * Battery-backed registers can retain stale state across a power cycle.
-> +	 * A stale asserted flag would storm the level-triggered INTA line, so
-> +	 * disable only the interrupt sources and Alarm2 enables this driver
-> +	 * never services and clear their flags; leave the managed sources
-> +	 * (A1IE, BSIE) and Alarm1 for their own paths to arm. WDIE is masked
-> +	 * too so a bootloader-armed watchdog cannot storm INTA before the
-> +	 * driver is ready to service it.
-> +	 */
-> +	ret =3D regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
-> +				 INT_WDIE | INT_A2IE | INT_OIE | INT_PIE | INT_ILP,
-> +				 0);
-> +	if (ret)
-> +		return dev_err_probe(&client->dev, ret,
-> +				     "Failed to mask unused INTA sources\n");
+> +		if (pcf85363->ts_last_event[i]) {
+> +			/*
+> +			 * Clearing the flag acknowledges the interrupt, so mark
+> +			 * the source handled as soon as the clear succeeds. A
+> +			 * later data-read failure is a data error, not an
+> +			 * acknowledgment failure: log it and move on to the
+> +			 * remaining flags instead of returning an error.
+> +			 */
+> +			ret =3D pcf85363_clear_flags(pcf85363,
+> +						   pcf85363_ts_flag[i]);
+> +			if (ret)
+> +				return ret;
 > +
-> +	ret =3D regmap_update_bits(pcf85363->regmap, DT_ALARM_EN,
-> +				 ALRM_MIN_A2E | ALRM_HR_A2E | ALRM_DAY_A2E, 0);
-> +	if (ret)
-> +		return dev_err_probe(&client->dev, ret,
-> +				     "Failed to mask Alarm2 enables\n");
+> +			handled |=3D pcf85363_ts_flag[i];
 > +
-> +	ret =3D pcf85363_clear_flags(pcf85363, FLAGS_A2F | FLAGS_PIF);
-> +	if (ret)
-> +		return dev_err_probe(&client->dev, ret,
-> +				     "Failed to clear stale flags\n");
+> +			ret =3D pcf85363_read_ts_stable(pcf85363, i);
+> +			if (ret) {
+> +				dev_warn_ratelimited(&pcf85363->rtc->dev,
+> +						     "timestamp %d read failed: %d\n",
+> +						     i + 1, ret);
+> +				continue;
+> +			}
 > +
-> +	if (client->irq > 0 || wakeup_source) {
-> +		ret =3D regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
->  					 PIN_IO_INTAPM, PIN_IO_INTA_OUT);
-> -		if (err)
-> -			return dev_err_probe(&client->dev, err,
-> -					     "failed to set interrupt pin mode\n");
-> +		if (ret)
-> +			return dev_err_probe(&client->dev, ret,
-> +					     "Failed to configure INTA pin\n");
->  	}
+> +			pcf85363->ts[i].valid =3D true;
 
 [Severity: Medium]
-On boards configured with wakeup-source where client->irq <=3D 0 (for examp=
-le,
-when INTA is wired to a PMIC or power-on circuit rather than a dedicated SoC
-IRQ, or when devm_request_threaded_irq() fails and clears client->irq),
-can leaving FLAGS_A1F uncleared in pcf85363_probe() keep the level-low INTA
-pin permanently asserted after an alarm wakes or boots the system?
+When a timestamp register uses a last-event mode (such as PCF85363_TSR1_LE,
+PCF85363_TSR2_LB, PCF85363_TSR2_LV, PCF85363_TSR2_LE, PCF85363_TSR3_LB, or
+PCF85363_TSR3_LV) and pcf85363_read_ts_stable() fails with -EAGAIN on a torn
+read or an I2C error from regmap_bulk_read(), does skipping the error via
+continue lose the event and hide the failure from sysfs callers?
 
-Previously, pcf85363_probe() cleared all flags in CTRL_FLAGS when
-client->irq > 0 || wakeup_source, which acknowledged a boot-time FLAGS_A1F
-event and released INTA.
+In pcf85363_timestamp_show():
 
-With this change, pcf85363_probe() only clears FLAGS_BSF (via
-pcf85363_collect_events()) and FLAGS_A2F | FLAGS_PIF, leaving INT_A1IE and
-FLAGS_A1F asserted. When client->irq <=3D 0, pcf85363_rtc_handle_irq() is n=
-ot
-registered to clear FLAGS_A1F. In addition, devm_rtc_register_device() ->
-rtc_initialize_alarm() -> __rtc_read_alarm() -> pcf85363_rtc_read_alarm()
-reads alrm->enabled =3D 1 with tm_year =3D -1, which rolls the expired alarm
-forward to the next year and enqueues rtc->aie_timer without touching the
-hardware registers, leaving INTA driven low and causing wakealarm_store() to
-return -EBUSY unless the alarm is explicitly disabled or overwritten.
+	ret =3D pcf85363_collect_events(pcf85363);
+	if (ret < 0)
+		return ret;
+
+	if (!pcf85363->ts[index].valid)
+		return sysfs_emit(buf, "00-00-00 00:00:00\n");
+
+	return pcf85363_format_timestamp(pcf85363->ts[index].regs, buf);
+
+Because pcf85363_collect_events() swallows the error from
+pcf85363_read_ts_stable() and returns the non-negative handled mask
+(contrary to the function comment above it), a sysfs read in
+pcf85363_timestamp_show() will not see a negative errno and will instead
+return "00-00-00 00:00:00" or stale cached data from an earlier event.
+
+Furthermore, because pcf85363_clear_flags() already cleared FLAGS_TSRnF in
+CTRL_FLAGS before pcf85363_read_ts_stable() failed, if no further hardware
+event arrives to re-assert FLAGS_TSRnF, subsequent calls to
+pcf85363_collect_events() will see !(flags & pcf85363_ts_flag[i]) and never
+retry reading DT_TIMESTAMPn, leaving the captured timestamp in hardware
+unreachable.
+
+[ ... ]
+> @@ -575,80 +856,118 @@ static int pcf85363_probe(struct i2c_client *clien=
+t)
+[ ... ]
+>  	ret =3D regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
+>  				 INT_WDIE | INT_A2IE | INT_OIE | INT_PIE | INT_ILP,
+>  				 0);
+>  	if (ret)
+> -		return dev_err_probe(&client->dev, ret,
+> -				     "Failed to mask unused INTA sources\n");
+> +		return dev_err_probe(dev, ret, "Failed to mask unused INTA sources\n");
+[ ... ]
+> -	if (client->irq > 0 || wakeup_source) {
+> -		device_init_wakeup(&client->dev, true);
+> +	if (irq_a > 0 || wakeup_source) {
+> +		/*
+> +		 * The alarm can be delivered either through our own IRQ line or
+> +		 * via an external wakeup path (INTA routed to a PMIC), so route
+> +		 * INTA to its interrupt output and keep the alarm feature in
+> +		 * both cases; rtcwake relies on it for wakeup-source-only boards.
+> +		 */
+> +		ret =3D regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
+> +					 PIN_IO_INTAPM, PIN_IO_INTA_OUT);
+> +		if (ret)
+> +			return dev_err_probe(dev, ret,
+> +					     "Failed to configure INTA pin\n");
+> +
+> +		if (irq_a > 0) {
+> +			u8 inta_en =3D INT_BSIE;
+> +
+> +			/*
+> +			 * Enable the timestamp interrupt only when a capture
+> +			 * mode is configured; always enable battery-switch.
+> +			 * Only relevant when we service the IRQ ourselves.
+> +			 */
+> +			if (ts_mode_configured)
+> +				inta_en |=3D INT_TSRIE;
+> +
+> +			ret =3D regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
+> +						 INT_BSIE | INT_TSRIE, inta_en);
+> +			if (ret)
+> +				return dev_err_probe(dev, ret,
+> +						     "Failed to enable INTA sources\n");
+> +		}
+
+[Severity: Medium]
+What happens in pcf85363_probe() when irq_a <=3D 0 (for example on a
+wakeup-source-only board where INTA is routed to a PMIC, or if
+devm_request_threaded_irq() fails with a non-deferral error) and the
+battery-backed CTRL_INTA_EN register already has INT_BSIE or INT_TSRIE set
+from firmware or a previous boot?
+
+The earlier CTRL_INTA_EN update only clears INT_WDIE | INT_A2IE | INT_OIE |
+INT_PIE | INT_ILP, leaving INT_BSIE and INT_TSRIE untouched, and the block
+above only updates INT_BSIE | INT_TSRIE when irq_a > 0. When wakeup_source
+is true and irq_a <=3D 0, CTRL_PIN_IO is configured to PIN_IO_INTA_OUT while
+stale INT_BSIE or INT_TSRIE bits remain enabled in CTRL_INTA_EN with no IRQ
+handler registered to service and clear them, which could leave the INTA
+wakeup line asserted if a battery switch-over or timestamp event occurs.
+Should INT_BSIE | INT_TSRIE be cleared when irq_a <=3D 0?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261026094712.2052=
-14-1-lakshay.piplani@nxp.com?part=3D2
+14-1-lakshay.piplani@nxp.com?part=3D3
