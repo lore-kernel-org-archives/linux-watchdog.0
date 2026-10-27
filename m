@@ -1,91 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793114832;
-	b=LX/ND9IdHpLWAQ+QSxLRUCPLjPlzOu6Jd1O0WRYE9AaYMmCCwKuNw1kMeIXTHvVwo5j2
-	 R4UvqYYMm5NwDxDMuRxuSZvpTOyFHz2LqprUv70Vgw4AjY4DDDhCyxP9wVzEbAo79OlLa
-	 WJ49ZVRsDWdsFZniY1WjatLuua2t8gbhhOCkGXPsSxaxcPjvfY9NTchd5VyqOxiJEWYEg
-	 d7viKweWJxSsYv/5Vae89Slu/YB0x40DK9KDHmab3jkezGn/8jQE90OLi7Xx4NhQDSGOw
-	 Lex/KVPKWQ0gPK9XtuBPUH84/I6Di9tMy2k2Dq67ywD35TaAXH3vVD+hCxm6Mp5KvoA==
+	t=1793116089;
+	b=FyAU+lXJCDESss935NEUwGc5I+dudftvsuKV+GXt5FcrE69xK9cOQJRk5sBoKHMrO5pQ
+	 8lQD407H26AeH72mhs2xeI+1JAoRbvoykL8eTD5YNhGPkD8GyrEjS45nhKINY+xDNyiU9
+	 WyaWhR4sDUiTVvnq+YPvDchGpKcE8F/ZkWETIyo9ZNX0xHGsXYFLigAtAbS2z99vdHDpt
+	 0KuESAtOmaJZM024Gmq3j7MYVZcQblkVnXin/aVzvQzAmMUSIsGjDV1MS2bU13D19G2nu
+	 TGCx1fmwz1nTZ7OatZ40B1bXoAeJct0bmuh7fYaGlMdFyCnYTGPslt4GZy51KDM1yQA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793114832;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793116089;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=hcVetJ3j4Yw0L4vaeF4Sin3e+Kqt87+IIjhgJbDSvlc=;
-	b=f1rrSdV53fsYzoEY8Ste9POuoZpo7pbinjJZJeYtX2ZUJRcorifePGlItc9SP26hViRm
-	 8KGx0y/iD5wzu0/gt+fwG8eB7yAMDBo611cJnD2UAWm0urKOYSZ7TuFQUJNcFZv534OQb
-	 aKQ7z9zNluFJyJTUH8xk7O6wpDDKpP8o6GlI/YjS05n3kZoDx3/BVncMR0Fl5IFoDnQ5J
-	 pQiMQame7U1bPdYcwrbnYUB8FEM8dMS2AIRfvusJyWLQCwk0wp7axsDGjSywvIrk/00EA
-	 p8D90cBDEpo3Q61FgaY9xiFE/YKpg4i2k9MkMBTkc/K6httdWPp/xMVB2KY3/DDZSUQ==
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=HaMcViHs4mZAGNd/aGk/6wfB6kzUE81Ykf5QMSbmQUE=;
+	b=IVl1w1gV8pe8sMiWfOKGnpu30A60pULFmhetAlRMN2iN/SMYxDD3F2T8jPCku23oi/le
+	 KypDoko8RnSuFdj9T6plHCJoXg7XT0oIX4cBp//Aan2X6y1MUrpXZY0aZnssCTNQy9KKF
+	 kxcxca/rsdpodeBr2CaL1ekkbCJ4KVwquWizKvq2TwyLjgeG34zm9f9T8vOyIUEsQ1762
+	 T4yJESA0ON0QuLWIbX1e+VFloWMIwDLCn7c1DE990YBLkDQP6MvzETnSJ+hlcLqYaZ5T+
+	 7OWTQWENamxYag9jwbm6KzPNXa7tz68TTZ3s2o745V1PLtdvH34I22TlQydBCB0CijQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=FmxUwmAs;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=tpixQQSq;
+	arc=none smtp.remote-ip=44.202.169.39
+Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74998606A31D
-	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:27:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 74998606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE816607351C
+	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:48:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE816607351C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=FmxUwmAs
-Received: from eig-obgw-6005b.ext.cloudfilter.net ([10.0.30.162])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=tpixQQSq
+Received: from eig-obgw-6007b.ext.cloudfilter.net ([10.0.30.166])
 	by cmsmtp with ESMTPS
-	id LiDQxqkmiaC0ULj4yxgeN3; Tue, 27 Oct 2026 15:27:12 +0000
+	id LgmaxzvctMylkLjPExBjjx; Tue, 27 Oct 2026 15:48:08 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id Lj4xxvBKZuPyvLj4xxkPvn; Tue, 27 Oct 2026 15:27:12 +0000
-X-Authority-Analysis: v=2.4 cv=Oc2YDgTY c=1 sm=1 tr=0 ts=6ae0c2d0
+	id LjPDxPkN1PkM0LjPDxSDQK; Tue, 27 Oct 2026 15:48:07 +0000
+X-Authority-Analysis: v=2.4 cv=S47ZwJsP c=1 sm=1 tr=0 ts=6ae0c7b7
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=xkLUNt4dAAAA:8
- a=zk4-lHRcAAAA:8 a=X3a0BiUdAAAA:8 a=_jlGtV7tAAAA:8 a=OpKgjLFNguK3uynLL7kA:9
- a=CjuIK1q_8ugA:10 a=A2EApc-QTtVVSfvlwUcc:22 a=7cv85riZL9-k45RWW8P6:22
- a=aWu3muFgq6otJbhCXpL5:22 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
+ a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=Y2L8bdpWb0MasUv1VHAA:9
+ a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
 	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=hcVetJ3j4Yw0L4vaeF4Sin3e+Kqt87+IIjhgJbDSvlc=; b=FmxUwmAs7mF4dF4b3MQBl8bdVb
-	tiCn1dYzKJ0/5zMuy3Dkl5KtJ1CdWrSMhaagLq87Gx1uPeduOFJAZZReNPm7krFrp0E60KhUlLIDc
-	70bByHiXUwq6iK+SuZfP+qFgtQERObuDjcXRMpBCSrAB+a4BQNBCvwyL7kA0dqv78KyQ6qQWLmyRA
-	Hq42mLTB+P7mkwhAHTZEbxhOIJ8RQ+dr6VZLeMOToBzgTx990t+r2R8igmo3YeZYI720aXTIoEzEs
-	LnG2PVoLpX07aKgbwkJl8Q9l2uD8LdzNHoRsOylbfZGPe9Q4HIZozVgI9EWjY8N/Ouib2/Lj2x8ET
-	IhcPGRCw==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:41180 helo=server.roeck-us.net)
+	bh=HaMcViHs4mZAGNd/aGk/6wfB6kzUE81Ykf5QMSbmQUE=; b=tpixQQSqQZXO/DbmQQaRlGl1qS
+	2nCTgPz7bn9L/MaFOBjC/0a8ZdfY85mt4AvbSBUAq8YpRv84WO/UovaqlurEpZhm9zc458vci4nhM
+	Bp+Q0V/PlbKmd9RMEfTQ12Dn7Um5cmAd6rtWzlMFY5BJOpRgyPFd8E4hp23Jey6BMatrZ5Qy3fcge
+	8TH47SrP8mSGopx9/CLQPbSPEVRqEHucZfqU1p3vyKnj1cAIJ5se+3G4KeCm4qbgNoOyiWBeOj8e4
+	BB4tbZNSr50FbiTLhcM7ehOpNTjU66FlPGN9mM6nU5hNL58BoKlcWU1wf8FeTtqJS7kXEula9JMQ8
+	DCElOXMg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37918 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xLj4v-00000000Fjr-01VO;
-	Tue, 27 Oct 2026 20:57:09 +0530
-Date: Tue, 27 Oct 2026 08:27:07 -0700
+	id 1xLjPD-00000000TfN-0Qh5;
+	Tue, 27 Oct 2026 21:18:07 +0530
 From: Guenter Roeck <linux@roeck-us.net>
-To: Primoz Fiser <primoz.fiser@norik.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Lee Jones <lee@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	devicetree@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	mfd@lists.linux.dev, linux-watchdog@vger.kernel.org,
-	upstream@lists.phytec.de, andrej.picej@norik.com
-Subject: Re: [PATCH v2 3/4] watchdog: da9062: Add support for dlg,wdt-sd
- property
-Message-ID: <2365680e-3319-4ee1-90f4-33041e8f701b@roeck-us.net>
-References: <20260924065044.368341-1-primoz.fiser@norik.com>
- <20260924065044.368341-4-primoz.fiser@norik.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v2 0/8] watchdog: core: Fix locking, lifetime, suspend, and state management bugs
+Date: Tue, 27 Oct 2026 08:47:57 -0700
+Message-ID: <20261027154805.2518806-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.45.2
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -95,9 +80,7 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260924065044.368341-4-primoz.fiser@norik.com>
+Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -106,44 +89,105 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xLj4v-00000000Fjr-01VO
+X-Exim-ID: 1xLjPD-00000000TfN-0Qh5
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:41180
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37918
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 22
+X-Email-Count: 42
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfFfSJ4ElubBI89+wRQvfdpEhHQV8a0yJjkfjsrEgsa5e2qEC0zDZO3LwPQHmUTIN3rEEOWCPoBZVJp6mYXwX5JDHTui1emKT3iHPrud6t/A0vhleyLF7
- SHagPp1bhVvv16ebLSmX1nAbIixpP0fgb+YW9WywYJr0ahGljlQ4z0Z2ZRYcUgTS9vzGpY0ijw+Rf90mxjy8n4I/qbnwCXvzRSJX2uXaVQ/QjpiYW0uyBVQi
+X-CMAE-Envelope: MS4xfEuqdyzeY9yuPqo2cBry4t3GMabIb0rTW8lX0OiH9iKh9loI9X0uDKvN50+GZuAJjzhDRV2KznfB1FgHmwqlK38xVRQZdcPXuP5ikFeNAgaZ5LH/DIoC
+ UPxBpNLOJTBPalufqUKuLLYJK4BTBlwdYKa+RokuYXSwyEQPddyHxsYis6tOutn+hTj+K6GDUzWyH4MhK5lWxg1Q9QQvhu2LEOUqkQOyp1wBYYNNryZoWJbB
 
-On Thu, Sep 24, 2026 at 08:50:43AM +0200, Primoz Fiser wrote:
-> From: Andrej Picej <andrej.picej@norik.com>
-> 
-> Implement a method to change watchdog timeout configuration based on the
-> "dlg,wdt-sd" devicetree property. Setting the WATCHDOG_SD bit enables
-> SHUTDOWN mode, and clearing it enables POWERDOWN mode on watchdog
-> timeout.
-> 
-> If no devicetree property is specified, the WATCHDOG_SD bit stays in the
-> default configuration, not breaking behaviour of devices which might
-> depend on default fuse configuration.
-> 
-> Signed-off-by: Andrej Picej <andrej.picej@norik.com>
-> Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-> Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
+This series fixes several locking, reference counting, object lifetime,
+suspend/resume, and state management bugs in the watchdog core character
+device and timer handling:
 
-Applied.
+1. watchdog: core: Clear wd_data pointer on errors
+   Clear wdd->wd_data on all registration error paths in
+   watchdog_cdev_register(), and clear wd_data->wdd under wd_data->lock
+   when failing after misc_register() may have exposed the device to
+   userspace, preventing dangling pointers.
 
-Note that this depends on the mfd patches making CONFIG_I writeable. Those
-patches have been accepted but are (as of this writing) not yet upstream.
-Assumption is that both this and the CONFIG_I patches will be applied
-with the 7.5 merge window.
+2. watchdog: core: Add missing locks
+   Acquire wd_data->lock in watchdog_open(), across watchdog_stop() and
+   pretimeout teardown in watchdog_cdev_unregister(), and in
+   watchdog_set_last_hw_keepalive(). Also protect old_wd_data with
+   old_wd_data_lock to prevent races when opening or unregistering
+   /dev/watchdog.
 
-Thanks,
-Guenter
+3. watchdog: core: Prevent ping worker from re-arming timer on suspend
+   Introduce a _WDOG_SUSPENDED flag in wd_data->status, set under
+   wd_data->lock during suspend and cleared on resume, and check it in
+   watchdog_worker_should_ping(), watchdog_need_worker(), and
+   __watchdog_ping() so an in-flight worker or deferred ping cannot
+   re-arm wd_data->timer while suspended.
+
+4. watchdog: core: Stop pretimeout hrtimer on suspend
+   Stop the software pretimeout hrtimer in watchdog_dev_suspend(),
+   prevent watchdog_hrtimer_pretimeout_start() from arming it while
+   _WDOG_SUSPENDED is set, and restart it in watchdog_dev_resume() if
+   the hardware watchdog is running.
+
+5. watchdog: core: Restore WDOG_HW_RUNNING if stopping watchdog fails
+   In watchdog_stop(), WDOG_HW_RUNNING is cleared before calling
+   wdd->ops->stop(). Restore WDOG_HW_RUNNING if wdd->ops->stop() returns
+   an error so the core continues to track the running hardware state
+   and retains its module and device references.
+
+   v2: Move restore of WDOG_HW_RUNNING to stop() error handler
+
+6. watchdog: core: Cancel timer if cdev_device_add() fails
+   Initialize wd_data and acquire running-watchdog module and device
+   references prior to calling misc_register(). On registration failure
+   (and in watchdog_cdev_unregister()), stop the watchdog if appropriate,
+   stop the pretimeout hrtimer, release unclaimed running-watchdog
+   references if the device is not open, and cancel wd_data->timer and
+   wd_data->work before dropping the initial device reference.
+
+7. watchdog: core: Fix unbalanced module_put() in watchdog_open()
+   In watchdog_open(), try_module_get() is skipped when hw_running is
+   true because the module reference was already taken when the running
+   watchdog was registered. Guard module_put() on the watchdog_start()
+   error path with !hw_running to avoid dropping a reference that
+   watchdog_open() did not acquire.
+
+8. watchdog: core: Update last_keepalive in watchdog_start()
+   When starting a watchdog whose hardware is already running, set
+   WDOG_ACTIVE and update wd_data->last_keepalive to started_at before
+   calling __watchdog_ping() so that watchdog_get_timeleft() reports the
+   correct remaining time and watchdog_update_worker() inside
+   __watchdog_ping() evaluates the active state and new keepalive
+   timestamp rather than a potentially expired open_deadline. If
+   __watchdog_ping() fails, clear WDOG_ACTIVE and update the worker.
+
+Disclaimer: I started this series to fix a number of bugs reported
+by Sashiko in the watchdog core. After several fix-review rounds, I did
+not get closer to fixing all issues reported by Sashiko; either my patches
+turned out to be incomplete or buggy. I finally gave up and fed Sashiko's
+review feedback into an AI engine, asking it to fix the reported problems.
+It still took some 10+ rounds of review/fix, but the resulting patches
+should fix at least the most critical race conditions in the watchdog core.
+
+Given the complexity of the changes, the plan is to apply the series
+during the next commit window, to be released with v7.5, and to
+eventually back-port it to older kernel branches.
+
+----------------------------------------------------------------
+Guenter Roeck (8):
+      watchdog: core: Clear wd_data pointer on errors
+      watchdog: core: Add missing locks
+      watchdog: core: Prevent ping worker from re-arming timer on suspend
+      watchdog: core: Stop pretimeout hrtimer on suspend
+      watchdog: core: Restore WDOG_HW_RUNNING if stopping watchdog fails
+      watchdog: core: Cancel timer if cdev_device_add() fails
+      watchdog: core: Fix unbalanced module_put() in watchdog_open()
+      watchdog: core: Update last_keepalive in watchdog_start()
+
+ drivers/watchdog/watchdog_core.h               |   1 +
+ drivers/watchdog/watchdog_dev.c                | 155 ++++++++++++++++++-------
+ drivers/watchdog/watchdog_hrtimer_pretimeout.c |   3 +-
+ 3 files changed, 117 insertions(+), 42 deletions(-)
