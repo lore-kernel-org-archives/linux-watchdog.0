@@ -1,63 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793089697;
-	b=o621oK3bL5SFPkl3+zWJMqWLw7dg1lEsVUE4Dg/DSuDlDfFppLr4YgY8yGktnu4im32v
-	 hSj6UVVCKFwAAbexd+ZhyzGGal6411ZsWylNVOLmXr8PqGQYDoa0d/jcS5EjCGG7jiaZV
-	 wj0oDSRXj/Dk33K9aeq62vo6vopwojFqMS9J7qkHXzxkA1Yil+aDmLdp/P4lmLHJTzsko
-	 jR1/B3OeBFgzQhmLHEt8yAtEbvAPVviVBT+qhvXVWOuWyziVdYL1lilZ7DBGzv88neUTu
-	 w6DrnjVH7G+FMq/jASenft6JAH67knsbzpfKzg4R7zv9RNImbzqnLYlquSywD/zv43g==
+	t=1793105005;
+	b=1EWb1HQ/mRHCozwwRuKzuvp+iRLSLJWdUd+/QLIrHoPIzenKE6gIupE4NKNwwwrNwYQr
+	 49ewZyo/L+h1vu/A1XtAt/VEcm9jVhkFuoG2wbaWPcIkEnHXzzlWk68wbnTtME4Hp/mTn
+	 Rt13e3dc1xfjeREdUdls7AyuXWMYuiiH6jbfzals8bsPJgByB053Nl9FNqnUNrKGJj/A8
+	 Ju4PtJd55ucRb2dzBWPW/PMl+mCF6XavOY5Z/HDlM/WF6SEOrEQ3/C3FLtb35d5mWhKlw
+	 pWE1E6sinYe62rmA2DR+4oQcyu9umkF9mDaPsbmpag6gFuIv8IDpUPwYaXbUSsFX6bA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793089697;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793105005;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=YiGvfPO8lWPcTMujIOBDkGnAATfXB+3gMom+JivhP4I=;
-	b=gLTBcdOOQcyoo691OvqhCKRI+GVCPlkd83BYnQuUnG70yDSPXRRDagnk1iDzhu7DyfIo
-	 HBRi7PEZa2QnK1eKwTyZY8JmaRh+C8bhpM+KZlSOHy5GRoU4UBk/Z2+YyxZZ6Q1dXfOVX
-	 Rvf9r+lxTyp08iZTUNxEz8K5VDtOpIjcK3CQNBe/0Vn32uqD4teBd4W1YuKndPZW8anjN
-	 WVGrrjxrLFzTl0rcEjbp0cnYgtcmpiRODXmHmPIb1nQ9WuY/H6iuOb7V6xKLNSy4FzzNf
-	 E/s2XZIRvLbrJ2+K9GVPVYvqIk03LBnyQEN3vLuJVZIA3NfTgWmThfy/ILga0ZLiyIQ==
+	bh=ggQkqgk2U5BTlGQlSEIq07Z71Cj07Wa6DZDZXmMq/eA=;
+	b=JAiYMz/A68SOQJK7aDCYrk5iIO1APyiMAtbkJ+lEM/LnOhxW04NGQ3OXBJ36MRFFKj9a
+	 aq1AGe7jRU2hbl4Wl7KXbdO2fXaf12MLukmRr8b7rLhMAzf5Z979FFoMHjXDoG+X+MPm9
+	 HvG8fShaD44disHmRZTk4B7yLKYNRd5DR9HZD2IouZisoGq6m4Bo6nBBlZLBhP9BNA8sV
+	 vl1USQc/Cg1TQYfvJwo/2Ug5JBoIPsqoTnz/gqV4vq+oJmc6FasVDkeepYHbExkDyb8B5
+	 QE38qCyJYm9I89tf3sUysjhwcIQYYECfoOPq4FrD1ukpZX+ImYVGixcJXqWVB7IJcxQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="GDxOg+/O";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="UqPomS/w";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id E1913606A31B;
-	Tue, 27 Oct 2026 08:28:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56584606A31B;
+	Tue, 27 Oct 2026 12:43:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDxOg+/O
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 040911F01825;
-	Tue, 27 Oct 2026 08:28:15 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UqPomS/w
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A301F01828;
+	Tue, 27 Oct 2026 12:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793089696;
-	bh=YiGvfPO8lWPcTMujIOBDkGnAATfXB+3gMom+JivhP4I=;
+	s=k20260515; t=1793105004;
+	bh=ggQkqgk2U5BTlGQlSEIq07Z71Cj07Wa6DZDZXmMq/eA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=GDxOg+/OidGDh+op4PZKFPmGJZX6FIqs1fNvpzf3+QrVikwfnnkRapy3E8/9MRtMn
-	 +Z+0tXC+bGwAUE5882CibfYvjj25yCv04lmM1HY1v+hVl3mqeLEqwMIDv1x+BZak2W
-	 DtH2WXyT4aFv96+qvfNQOuj5ICd8U6OaDj257AwsZCm2Rn4UqLC1hv1YtFzRVF08jJ
-	 1LKDLEOY8npycHhNpORGGbiqp3jz5cICTkInnCurqB/JIIOycw//BlbqJ4k9En1nN9
-	 QynPbMK3adqDOafKQ18jukHXpzkD9gxwvpSPZcKgHGvgiZVZk03Lxav6K7lOWbwdNU
-	 xNIFHI4/uzTaw==
-Date: Tue, 27 Oct 2026 09:28:13 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
-	Neal Gompa <neal@gompa.dev>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
-	Lorenzo Pieralisi <lpieralisi@kernel.org>, Hector Martin <marcan@marcan.st>, 
-	Sasha Finkelstein <k@chaosmail.tech>, Linus Walleij <linusw@kernel.org>, 
-	Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 06/10] dt-bindings: pwm: apple,s5l-fpwm: Add t8142
- compatible
-Message-ID: <auBgZhx0qcbAgHnF@monoceros>
-References: <20261027-apple-m5-initial-devicetrees-v1-0-1356181bc50d@cyberchaos.dev>
- <20261027-apple-m5-initial-devicetrees-v1-6-1356181bc50d@cyberchaos.dev>
+	b=UqPomS/wo0mAz/Nr3NJ7qEBEtHxqQdw+H2pwiqEzoROGhNjGRcFoQN3A21mXGjHNZ
+	 UDMuaWNpqfKWKqU//5bMmWYe1f/ICiJhoPMmTGW0U69jmlo4n6pRrDX/Eejtsvu6jJ
+	 CCAZTGr/1dW0br5v54H658hIha0C3dQMABDphOgns/jwZ6Sa0PgLLEllO47ylvB/h5
+	 9h8MhinglHIvvLe+gqNjRp0+ME6urMWJXr/ATZZu1O7J9bkTV28ObfS4KrH72kHpHA
+	 kAamFHcozMkdeaSueuhsLaZKwDzOjt6mgAp3QeMS/DOKQns2+CsUfOQmCZP+SHIki0
+	 NZB2CgCbO7Wag==
+Date: Tue, 27 Oct 2026 07:43:20 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Robert Marko <robert.marko@sartura.hr>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Conor Dooley <conor+dt@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: watchdog: add reset-from-wdt-gpios
+ binding
+Message-ID: <179310499987.1543508.773226301896482465.robh@kernel.org>
+References: <20261013-v7-3-topic-gpio-wdt-v1-0-bc98f05a4578@pengutronix.de>
+ <20261013-v7-3-topic-gpio-wdt-v1-1-bc98f05a4578@pengutronix.de>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -67,66 +62,23 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="osff576hwwbj3tks"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-6-1356181bc50d@cyberchaos.dev>
+In-Reply-To: <20261013-v7-3-topic-gpio-wdt-v1-1-bc98f05a4578@pengutronix.de>
 
 
---osff576hwwbj3tks
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 06/10] dt-bindings: pwm: apple,s5l-fpwm: Add t8142
- compatible
-MIME-Version: 1.0
-
-Hello,
-
-On Tue, Oct 27, 2026 at 09:03:26AM +0100, Yureka Lilian wrote:
-> The PWM controller on the Apple silicon t8142 (M5) SoC is compatible
-> with t8103. Add "apple,t8142-fpwm" as SoC specific compatible under
-> "apple,s5l-fpwm".
->=20
-> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+On Tue, 13 Oct 2026 07:54:27 +0200, Steffen Trumtrar wrote:
+> A wdt-gpio can buffer the reset signal over the reboot, to signal that the
+> reset was issued by the watchdog.
+> 
+> Add support for a new gpio 'reset-from-wdt-gpios' that allows reading this
+> buffered value.
+> 
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 > ---
->  Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml b/=
-Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
-> index 48cafd391ca2..7c9e148727a7 100644
-> --- a/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
-> +++ b/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
-> @@ -20,6 +20,7 @@ properties:
->            - apple,t8112-fpwm
->            - apple,t8122-fpwm
->            - apple,t8132-fpwm
-> +          - apple,t8142-fpwm
->            - apple,t6000-fpwm
->            - apple,t6020-fpwm
->            - apple,t6030-fpwm
+>  Documentation/devicetree/bindings/watchdog/linux,wdt-gpio.yaml | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
 
-Fine for me to let this go via apple-soc.
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
-Acked-by: Uwe Kleine-K=F6nig <ukleinek@kernel.org>
-
-Best regards
-Uwe
-
---osff576hwwbj3tks
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrgYJsACgkQj4D7WH0S
-/k4YKQf/eh5CHfao6qpCs5ensLJARYPiQLmM7MEnVTmuzRzfOmxDGCcz78bwmYPM
-N1vos/TZlbRIBml0Ci+lx2nuJBKqCWVW3KqxHpSm3xaOoxExRuRKOeGhvgxsmnLO
-AdAXkYxedLQvYEykoMB3S8m1c/e8dkF2Wt7jIx+NOMk3xVyTWIJttmYpCVQX6sdI
-U6O9qXIfZz4S2Tza4z7IPQDPtO3sTH/pOCT7AUy71gfAgfxI8Kjl090c5dYGVtHI
-3mzNK5S3Vfm/BanI5WdEV4WsU6oTxNjjE5DaG/f5yyod/dOYR3VT3O/8Fq92GNVB
-hPx73VUJrqd3dTtu7nEkhJZgLopppw==
-=9oZQ
------END PGP SIGNATURE-----
-
---osff576hwwbj3tks--
