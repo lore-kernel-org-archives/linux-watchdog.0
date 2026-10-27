@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793114482;
-	b=4XhFG82KWLlSm/K+cvQYRU1GsAJfomH+jhYWcUa/3UZyfMqZeP0AW/2vVsXol8WGTh4c
-	 Wc3XSsCmAYUK1GMEaqxnvuF1Ka2GIxWV4Ohc6JA/RKigzvVtgpzACRXMf/iK0LSb33AS8
-	 rjq14vFVkD9P0az6AuRwhPO02hgfLO5N/zyuI2GMQZHmFua9Vpmab8RNTiGGoy2xi8b8P
-	 QRfiHlO5vqQeUGrlycBZqIIDqDFLdH45vV1jGa6wHDnpQAcTioDdgb3OXr6yv32TNzSWT
-	 +Dl3feynTyRyXwFQXXwQ+7A4E0BG+kNJYxhtyAqT1EkSJnC/A3t7YdEi0VVs9vCs7Vw==
+	t=1793114832;
+	b=LX/ND9IdHpLWAQ+QSxLRUCPLjPlzOu6Jd1O0WRYE9AaYMmCCwKuNw1kMeIXTHvVwo5j2
+	 R4UvqYYMm5NwDxDMuRxuSZvpTOyFHz2LqprUv70Vgw4AjY4DDDhCyxP9wVzEbAo79OlLa
+	 WJ49ZVRsDWdsFZniY1WjatLuua2t8gbhhOCkGXPsSxaxcPjvfY9NTchd5VyqOxiJEWYEg
+	 d7viKweWJxSsYv/5Vae89Slu/YB0x40DK9KDHmab3jkezGn/8jQE90OLi7Xx4NhQDSGOw
+	 Lex/KVPKWQ0gPK9XtuBPUH84/I6Di9tMy2k2Dq67ywD35TaAXH3vVD+hCxm6Mp5KvoA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793114482;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793114832;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
@@ -15,70 +15,77 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=bEVYe4qrtgBeDUfBP0eqQvzjZWX5q85+496DoNmFXDU=;
-	b=F5tK//rNzMD7lFSo9csuxXMAb+dCODTE5BYnIyDdNEUWOGaZJGCeheCtAbc9mgKmCsw5
-	 fL0YhVrNol+9VYtbKFw5IK/S75qcW0FBowVZeAKVLE4LzYK7qfe47ledmRA0bhJNk0VER
-	 mGi+lU/Axm/YuK1yC6OxYLftGP1L84GlUExBQzY6EIt6YH2KG78DohkWDLuAhkvOYCcJj
-	 93HhIITnv5BcZAZxBqyoH3IllgJ2C157bMKsWD9cX4i6U+zGF3cxvzdlaCujx8SsWodcf
-	 xQsC/4vPGVQQb7ycSAN/YxoTdx0lsZohTAFt65oDR9qtSvoB9TLm+wI2siHZ+NZ4qCA==
+	bh=hcVetJ3j4Yw0L4vaeF4Sin3e+Kqt87+IIjhgJbDSvlc=;
+	b=f1rrSdV53fsYzoEY8Ste9POuoZpo7pbinjJZJeYtX2ZUJRcorifePGlItc9SP26hViRm
+	 8KGx0y/iD5wzu0/gt+fwG8eB7yAMDBo611cJnD2UAWm0urKOYSZ7TuFQUJNcFZv534OQb
+	 aKQ7z9zNluFJyJTUH8xk7O6wpDDKpP8o6GlI/YjS05n3kZoDx3/BVncMR0Fl5IFoDnQ5J
+	 pQiMQame7U1bPdYcwrbnYUB8FEM8dMS2AIRfvusJyWLQCwk0wp7axsDGjSywvIrk/00EA
+	 p8D90cBDEpo3Q61FgaY9xiFE/YKpg4i2k9MkMBTkc/K6httdWPp/xMVB2KY3/DDZSUQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=E1it5Hot;
-	arc=none smtp.remote-ip=35.89.44.37
-Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=FmxUwmAs;
+	arc=none smtp.remote-ip=35.89.44.33
+Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE33606A31D
-	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:21:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EBE33606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74998606A31D
+	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:27:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 74998606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=E1it5Hot
-Received: from eig-obgw-5004b.ext.cloudfilter.net ([10.0.29.208])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=FmxUwmAs
+Received: from eig-obgw-6005b.ext.cloudfilter.net ([10.0.30.162])
 	by cmsmtp with ESMTPS
-	id LgmZxxTqav0ndLizJxL2i7; Tue, 27 Oct 2026 15:21:21 +0000
+	id LiDQxqkmiaC0ULj4yxgeN3; Tue, 27 Oct 2026 15:27:12 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id LizIx98YboYFCLizIxWLpb; Tue, 27 Oct 2026 15:21:21 +0000
-X-Authority-Analysis: v=2.4 cv=b4Cy4sGx c=1 sm=1 tr=0 ts=6ae0c171
+	id Lj4xxvBKZuPyvLj4xxkPvn; Tue, 27 Oct 2026 15:27:12 +0000
+X-Authority-Analysis: v=2.4 cv=Oc2YDgTY c=1 sm=1 tr=0 ts=6ae0c2d0
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10
- a=P7C5aodvrJ57ttQV5vYA:9 a=CjuIK1q_8ugA:10 a=wKdU7H82fLsV3NogPdHx:22
- a=KPbNTLLc3YvdawN95zVk:22
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=xkLUNt4dAAAA:8
+ a=zk4-lHRcAAAA:8 a=X3a0BiUdAAAA:8 a=_jlGtV7tAAAA:8 a=OpKgjLFNguK3uynLL7kA:9
+ a=CjuIK1q_8ugA:10 a=A2EApc-QTtVVSfvlwUcc:22 a=7cv85riZL9-k45RWW8P6:22
+ a=aWu3muFgq6otJbhCXpL5:22 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
 	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
 	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=bEVYe4qrtgBeDUfBP0eqQvzjZWX5q85+496DoNmFXDU=; b=E1it5HotZ73aNEa7gWbQTS+itu
-	rgcRUVb8YX+QQVgjADAdDsYZK4PAUBQrl2Z1ZZs2gX4WfGLUp9ZcQ63+t+ZC8u2hiAilSegtT5cRa
-	HUf0f5DMxb7YqFtI0vg8zfBRQru61Sxni+qHChb1aWY87GMP1u3O5rrT7eBcOvvIe8e612Jzt3nBV
-	J5l/XMQhgK3KUfIRafYj8zpHNQ8BYtfZym+qwJVvKqZ9uAva3tbEuwHmGHPjGy9h1lDaoDVpp9Asq
-	5Xb5yw9+QOEcyWPLQ+BCEVp4PQFjfQ/OkhGGxqz3dMI1yOHrgQ1vay5iWg4/2wX4MYe/xA2p0XZvC
-	xPKjXXEg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:58230 helo=server.roeck-us.net)
+	bh=hcVetJ3j4Yw0L4vaeF4Sin3e+Kqt87+IIjhgJbDSvlc=; b=FmxUwmAs7mF4dF4b3MQBl8bdVb
+	tiCn1dYzKJ0/5zMuy3Dkl5KtJ1CdWrSMhaagLq87Gx1uPeduOFJAZZReNPm7krFrp0E60KhUlLIDc
+	70bByHiXUwq6iK+SuZfP+qFgtQERObuDjcXRMpBCSrAB+a4BQNBCvwyL7kA0dqv78KyQ6qQWLmyRA
+	Hq42mLTB+P7mkwhAHTZEbxhOIJ8RQ+dr6VZLeMOToBzgTx990t+r2R8igmo3YeZYI720aXTIoEzEs
+	LnG2PVoLpX07aKgbwkJl8Q9l2uD8LdzNHoRsOylbfZGPe9Q4HIZozVgI9EWjY8N/Ouib2/Lj2x8ET
+	IhcPGRCw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:41180 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xLizI-00000000CoQ-158C;
-	Tue, 27 Oct 2026 20:51:20 +0530
-Date: Tue, 27 Oct 2026 08:21:19 -0700
+	id 1xLj4v-00000000Fjr-01VO;
+	Tue, 27 Oct 2026 20:57:09 +0530
+Date: Tue, 27 Oct 2026 08:27:07 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Robert Marko <robert.marko@sartura.hr>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] watchdog: gpio: add reset-from-wdt support
-Message-ID: <09731eed-13c6-46bd-a1b0-c8c1a6c50ecf@roeck-us.net>
-References: <20261013-v7-3-topic-gpio-wdt-v1-0-bc98f05a4578@pengutronix.de>
- <20261013-v7-3-topic-gpio-wdt-v1-2-bc98f05a4578@pengutronix.de>
+To: Primoz Fiser <primoz.fiser@norik.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Lee Jones <lee@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	devicetree@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	mfd@lists.linux.dev, linux-watchdog@vger.kernel.org,
+	upstream@lists.phytec.de, andrej.picej@norik.com
+Subject: Re: [PATCH v2 3/4] watchdog: da9062: Add support for dlg,wdt-sd
+ property
+Message-ID: <2365680e-3319-4ee1-90f4-33041e8f701b@roeck-us.net>
+References: <20260924065044.368341-1-primoz.fiser@norik.com>
+ <20260924065044.368341-4-primoz.fiser@norik.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -90,7 +97,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261013-v7-3-topic-gpio-wdt-v1-2-bc98f05a4578@pengutronix.de>
+In-Reply-To: <20260924065044.368341-4-primoz.fiser@norik.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -99,29 +106,44 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xLizI-00000000CoQ-158C
+X-Exim-ID: 1xLj4v-00000000Fjr-01VO
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:58230
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:41180
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 12
+X-Email-Count: 22
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfIrmsTX9c+c/fJ3/iOqHNF77KkVN+ykLh5oiRzuKqbv+dAhTRHVeqho1Ldgzk9zsBquTtX0WopJ8ozn1hVqHoJjFjRzZd9YHbtCDjWzNIgypqsqFMBfz
- ZtEwp0bG4uD+EaJcEsMV4uVIhu39cmEYd9yUEd/Csu1iN2zuS9y1fOT7IR2e9IwhTSstazfizGBLgjqehlO2K1BKDaoGsdXZfJ8ESUj/5ewQzxAgDg35NZ7z
+X-CMAE-Envelope: MS4xfFfSJ4ElubBI89+wRQvfdpEhHQV8a0yJjkfjsrEgsa5e2qEC0zDZO3LwPQHmUTIN3rEEOWCPoBZVJp6mYXwX5JDHTui1emKT3iHPrud6t/A0vhleyLF7
+ SHagPp1bhVvv16ebLSmX1nAbIixpP0fgb+YW9WywYJr0ahGljlQ4z0Z2ZRYcUgTS9vzGpY0ijw+Rf90mxjy8n4I/qbnwCXvzRSJX2uXaVQ/QjpiYW0uyBVQi
 
-On Tue, Oct 13, 2026 at 07:54:28AM +0200, Steffen Trumtrar wrote:
-> The reset-from-wdt is a GPIO that signals, that the last reset was
-> issued by the gpio-wdt.
+On Thu, Sep 24, 2026 at 08:50:43AM +0200, Primoz Fiser wrote:
+> From: Andrej Picej <andrej.picej@norik.com>
 > 
-> When this GPIO is provided, read its value and set the watchdog
-> bootstatus.
+> Implement a method to change watchdog timeout configuration based on the
+> "dlg,wdt-sd" devicetree property. Setting the WATCHDOG_SD bit enables
+> SHUTDOWN mode, and clearing it enables POWERDOWN mode on watchdog
+> timeout.
 > 
-> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> If no devicetree property is specified, the WATCHDOG_SD bit stays in the
+> default configuration, not breaking behaviour of devices which might
+> depend on default fuse configuration.
+> 
+> Signed-off-by: Andrej Picej <andrej.picej@norik.com>
+> Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+> Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
 
 Applied.
+
+Note that this depends on the mfd patches making CONFIG_I writeable. Those
+patches have been accepted but are (as of this writing) not yet upstream.
+Assumption is that both this and the CONFIG_I patches will be applied
+with the 7.5 merge window.
 
 Thanks,
 Guenter
