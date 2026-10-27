@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793116092;
-	b=JmqvPJ9+DqLKsYVFEFLtYCsj5b+ISwT2WqJ4ak8+LExHMkJitv6rKjWFIO7QIoO6jb/I
-	 hiRgaMMLCX9E+KJNGKq2l0fQlBChOPYqCdgYgG4S0uORQuuWiG8EcqbK1rHXLMe8yz02P
-	 IBaLmcHHJXGpRsdzure0tR6dKcobWCWGg5R4cVmcIUST0+UQCNhFMLfBe6V8VVGxIOa19
-	 FQn+jyKXJ9dp0dwxpKJKvwac2yvfIVo4KncjXPMdb5wPPitbYNFo46H1w27xgSGC1n2t6
-	 xJtKXBUzNIDjtrGhCiXUx7AWvsMauikqGT4c9fcimbYoqsvCepVlTS6ZI6pob6mIv6Q==
+	t=1793116094;
+	b=lf9ZBImRG6UEWBNIgJdJQj/A8I0Nb9iEDdZcKXLayXXCyqPg8Yr30l11szpI4uOka+S2
+	 d7dzfg0Me9cH0mcXAAbl4C2ON8rneBU8K6kXHhjisU5MqdywbQCpucKMcObkGZK6Wy6gv
+	 41TOGV5qPeKzE+qTTgz/G/KbCTgyZ2AZPOelxQx58RB5MTPAKjD/Z3IOucDieSLbYvtHh
+	 LT7y09RBhw5Hy1JAkwJ/lKoscmq3pGlJdd0wWq/fccn0Ms4+u+E1Z+4nvVfCY3J7S4Wrb
+	 M8z0HfZGYbSoluEXXVQejUtkz+OZn4C0oMrPRrfOKd1lac/m1M4lfmy1FAnTqEOX7xw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793116092;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793116094;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding:X-AntiAbuse:
@@ -15,62 +15,62 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-IP:X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=8AAC2DvYMVm3X7kh9fZIoqASoYfKVm15YrgVxJtPndE=;
-	b=3pLqJjOcjvY3UpZnxllqP8n6tbMod21n8dtpV7LxgXFLb8JyqwhdC4CaKC77ZoOHPSIk
-	 E9Cd9ruzGU/YshFBRDyC9RZVhqegUrMMKSQUQ9LYjhJpabwEZiaPMOTi6Yxn7U7S8GfCb
-	 USvkStsxASK7R//jWPAz8CxJjea7sy/PEXbZCaIDWZJooz5x8d+80VMeCUp32IYbzLgWw
-	 rdO1DDG0/puS8l5z2S0Rp3SycyrXWlNoL6uqdVydWazM1C62ocxrytuduEma9ywWfa63y
-	 0k8E1K64aJFCY+3eQSvgFvUXztrXUKEOCQnqdFY5ZzVZ54dOCR6/poS63YqntvQBZIg==
+	bh=P/10AHWvTXXg1IeFeEr3jCvHIaauZayPfb4XOkRgwq4=;
+	b=RZ6YTtHbAzJgiRw7IUVNSHlIqHHdKPo/U/9HMd8mga6QEk0g4hAsopzGU0fXoBwqcnQ8
+	 NvXPEqJV3ucoKOs4ynsJAJyCdyL6L1KN4+FM7hMumlkaWyfsNEzGEyFZOGkLhqdKMI0fa
+	 XzFbe0IdnihKFsBT+r5pf7ns3ciMFaD2VIAAW1qZDo/z0OTL3JLGNIAb2A5f+9EAIe1n/
+	 uLhMxo5A6dfkxxeGo95owwABxo1VPJgLmx7A8s2rbMttmgrNdmUnDlclPK0B+B41libZr
+	 lQsDY2Dywdj3G2gBjIpUeKACJCMwaMGFCMmGw62Ypv0tWt7V1GksOHgVlhvZgHzGm+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=qmGXOPXk;
-	arc=none smtp.remote-ip=44.202.169.37
-Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IaXKvHgr;
+	arc=none smtp.remote-ip=35.89.44.39
+Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2942607351C
-	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:48:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F2942607351C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75676607351E
+	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:48:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 75676607351E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=qmGXOPXk
-Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IaXKvHgr
+Received: from eig-obgw-5006b.ext.cloudfilter.net ([10.0.29.217])
 	by cmsmtp with ESMTPS
-	id Ld1nxYZKKJFmFLjPHxKNul; Tue, 27 Oct 2026 15:48:11 +0000
+	id Lcv1xF1oQc3XsLjPKxhdgp; Tue, 27 Oct 2026 15:48:14 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id LjPGxmdJnf7H4LjPGx6eHU; Tue, 27 Oct 2026 15:48:11 +0000
-X-Authority-Analysis: v=2.4 cv=KrVN2XWN c=1 sm=1 tr=0 ts=6ae0c7bb
+	id LjPHxrtbS9DdjLjPIxIhgR; Tue, 27 Oct 2026 15:48:13 +0000
+X-Authority-Analysis: v=2.4 cv=edA9f6EH c=1 sm=1 tr=0 ts=6ae0c7bd
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8 a=_jlGtV7tAAAA:8
- a=VfW3V8pwLglsGW-52dUA:9 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
+ a=5yiXoIB1VdVXcjoALQYA:9 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
 	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
 	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=8AAC2DvYMVm3X7kh9fZIoqASoYfKVm15YrgVxJtPndE=; b=qmGXOPXkavOX
-	CjL+9JpQWFfDDnW60STtM8vNBOO8RFZ1a2TdY1ivnRzpiLmQqRd/KNDc+UPZkLaMX2E3cvjd9pO5O
-	5jQ6UObPmgXcOTKWsr3DeyFV86Aibbi06cf34CosD+vgtgPlnnmeZKQYzwycm4xA24FrwcjY9Lbxr
-	XrJ/UE1Ev0bvc2eiYnEGSMK1YGlMGwwRXcvzvoYlc93FtEI+nP3QC/vDPODPe8EWXuRpEu/H6vLLB
-	Qywrf4eQDzOWezfQQ0vByYIwr07bEH0cUrB5S6wgH8B3zxR2KdlcdGEB/FtnMnLgd79FvtAGs9Aw5
-	u3wVKyM/8LyVNJeHpZ9p9Q==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37960 helo=server.roeck-us.net)
+	List-Archive; bh=P/10AHWvTXXg1IeFeEr3jCvHIaauZayPfb4XOkRgwq4=; b=IaXKvHgr8MvF
+	Bt2Vc7Kdy8tw85KVQnaJdlBij2Ly5Q8HIEgMTG+A22pZumVgOKoq8N2RXBZIL6B480f7hQtWovvQP
+	6fp/Jzs+dnMmLtlWPbRY3KnL0mz6wFG70KqFEttMES0VDoqC2JvpFoO4dNPsvUazqlMcsC5/xKSEj
+	/kdFGt47aI+LdhzyKZOUQN/W7GUOEcRmFQAWFGKDgOkpAG1lcH6iulIMRFe7v3RsZuk2gAQCY2P9C
+	Qy4V0uGKqhrGuEatopcvJnqsqA0kcNHvtFz6bADnVHe4X1Z1n5KnsS4Cls7P37ycAe2HgFICqv/jg
+	OadNhggcan6Y1zWcWc0qUw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37966 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xLjPG-00000000Tk1-1Ihh;
-	Tue, 27 Oct 2026 21:18:10 +0530
+	id 1xLjPH-00000000TlK-09lg;
+	Tue, 27 Oct 2026 21:18:11 +0530
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 4/8] watchdog: core: Stop pretimeout hrtimer on suspend
-Date: Tue, 27 Oct 2026 08:48:01 -0700
-Message-ID: <20261027154805.2518806-5-linux@roeck-us.net>
+Subject: [PATCH v2 5/8] watchdog: core: Restore WDOG_HW_RUNNING if stopping watchdog fails
+Date: Tue, 27 Oct 2026 08:48:02 -0700
+Message-ID: <20261027154805.2518806-6-linux@roeck-us.net>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20261027154805.2518806-1-linux@roeck-us.net>
 References: <20261027154805.2518806-1-linux@roeck-us.net>
@@ -92,77 +92,51 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xLjPG-00000000Tk1-1Ihh
+X-Exim-ID: 1xLjPH-00000000TlK-09lg
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37960
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37966
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 50
+X-Email-Count: 52
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfBMtyfUuLyO0RzAgsVtOJnLc/VCrYj7TpIRNiKm1D8Sar/VOXi1uXbasqqIL9eSp3cMn6gB8CL5QSRVLSGdoe5J/Rm+xEfOUXYq7Lkl0Xic61Df2nQCd
- SeIfFLGTaaXWAwzGLua1qlYS2rwY9Tpw/WDZNg29qb4OU9pF4uqyKJMRaTAYnOtlQjyq4hguA8QpV1Mbp3HxzXJ/u1up+KZ/XrW1/37nJk553YhvTUSedSCi
+X-CMAE-Envelope: MS4xfICfSzXLBllkchChg1hXdsm/mMnnp1hyXElwhY5r5X2t8GTgaLJYJZ6a5XmWyBRhBmztLPygcm9RUObsN4hzF9qlE6kBEjdkAU0OZBA1MMSIugdr9ij9
+ Mh3N4tWLWNMevKpZahTsyjTO1IB2ajCDorBznMTrCRVmip8WGsz2HvjKFlMThB/D2iGY2ejvqhydhfzNTrivdyujRrWFsycFfdT53Ml1WCr8in+9HyU1N0YC
 
-During system suspend, watchdog_dev_suspend() pings the watchdog (which
-restarts the software pretimeout hrtimer) and stops the keepalive ping
-worker, but fails to stop the pretimeout hrtimer. Because
-CLOCK_MONOTONIC continues ticking until the system fully suspends, a
-suspend process taking longer than the configured pretimeout will
-trigger a spurious pretimeout event.
+In watchdog_stop(), WDOG_HW_RUNNING is cleared before calling
+wdd->ops->stop(). If wdd->ops->stop() returns an error, WDOG_ACTIVE
+remains set, but WDOG_HW_RUNNING is left cleared. As a result,
+subsequent calls to watchdog_ping() become no-ops, and
+watchdog_release() sees watchdog_hw_running() as false and drops the
+module and device references while the ping worker (guided by
+WDOG_ACTIVE) continues to run.
 
-Stop the pretimeout hrtimer in watchdog_dev_suspend(), prevent
-watchdog_hrtimer_pretimeout_start() from starting it while the watchdog
-is suspended, and restart it in watchdog_dev_resume() if the hardware
-watchdog is running.
+Restore WDOG_HW_RUNNING if wdd->ops->stop() fails.
 
-Fixes: 60bcd91aafd2 ("watchdog: introduce watchdog_dev_suspend/resume")
+Fixes: 3c10bbde10fe ("watchdog: core: Clear WDOG_HW_RUNNING before calling the stop function")
 Assisted-by: LLM
-Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Cc: Tzung-Bi Shih <tzungbi@kernel.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v2: Added Reviewed-by: tag
+v2: Moved setting WDOG_HW_RUNNING to error handling after stop() call
 
- drivers/watchdog/watchdog_dev.c                | 3 +++
- drivers/watchdog/watchdog_hrtimer_pretimeout.c | 3 ++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/watchdog/watchdog_dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index e38f1ef8e683..af756ee228b2 100644
+index af756ee228b2..47b0735ed6ac 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -1334,6 +1334,7 @@ int watchdog_dev_suspend(struct watchdog_device *wdd)
- 	 * suspended
- 	 */
- 	hrtimer_cancel(&wd_data->timer);
-+	watchdog_hrtimer_pretimeout_stop(wdd);
- 	kthread_cancel_work_sync(&wd_data->work);
- 
- 	return 0;
-@@ -1355,6 +1356,8 @@ int watchdog_dev_resume(struct watchdog_device *wdd)
- 	clear_bit(_WDOG_SUSPENDED, &wd_data->status);
- 	if (watchdog_worker_should_ping(wd_data))
- 		ret = __watchdog_ping(wd_data->wdd);
-+	if (watchdog_hw_running(wdd) && !ret)
-+		watchdog_hrtimer_pretimeout_start(wdd);
- 	mutex_unlock(&wd_data->lock);
- 
- 	return ret;
-diff --git a/drivers/watchdog/watchdog_hrtimer_pretimeout.c b/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-index 49a05ea60c97..5c88e6467994 100644
---- a/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-+++ b/drivers/watchdog/watchdog_hrtimer_pretimeout.c
-@@ -31,7 +31,8 @@ void watchdog_hrtimer_pretimeout_start(struct watchdog_device *wdd)
- {
- 	if (!(wdd->info->options & WDIOF_PRETIMEOUT) &&
- 	    wdd->pretimeout &&
--	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout))
-+	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout) &&
-+	    !test_bit(_WDOG_SUSPENDED, &wdd->wd_data->status))
- 		hrtimer_start(&wdd->wd_data->pretimeout_timer,
- 			      ktime_set(wdd->timeout - wdd->pretimeout, 0),
- 			      HRTIMER_MODE_REL);
+@@ -312,6 +312,7 @@ static int watchdog_stop(struct watchdog_device *wdd)
+ 		clear_bit(WDOG_HW_RUNNING, &wdd->status);
+ 		err = wdd->ops->stop(wdd);
+ 		if (err < 0) {
++			set_bit(WDOG_HW_RUNNING, &wdd->status);
+ 			pr_err("watchdog%d: Failed to stop watchdog: %pe\n",
+ 			       wdd->id, ERR_PTR(err));
+ 		}
 -- 
 2.45.2
 
