@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793116091;
-	b=YBDZOvZZ+jckf38WaqfY6evWgjSaeZrO1jlCurfQZRxMI67LbTn2R4/rvOwBcFA7jw5g
-	 9jioNLvrFBlroPG0DencOmdj8/75YrHJHbGpwn0A1Nkcav8va5z29l+v08NwRWASuLXfi
-	 UOzUNW3ioE0v5EQpAwFTEFC5KMF9vtrUa1wBV90a+0tUjoexdPKeii3LnIFsrgUnFmS+L
-	 532jEy2aWdUTarRv1tZgCpmsq/v9nNpN5xniZkcxD3wD3mUkcJXov+bLUnhMhx247v/+7
-	 mPpHgvEYQEW5MkiHjoBS095HtEwW9rBB2D5WxpRqWFCc6LkE6xYWaGzm14HSJ0ozP4g==
+	t=1793116092;
+	b=JmqvPJ9+DqLKsYVFEFLtYCsj5b+ISwT2WqJ4ak8+LExHMkJitv6rKjWFIO7QIoO6jb/I
+	 hiRgaMMLCX9E+KJNGKq2l0fQlBChOPYqCdgYgG4S0uORQuuWiG8EcqbK1rHXLMe8yz02P
+	 IBaLmcHHJXGpRsdzure0tR6dKcobWCWGg5R4cVmcIUST0+UQCNhFMLfBe6V8VVGxIOa19
+	 FQn+jyKXJ9dp0dwxpKJKvwac2yvfIVo4KncjXPMdb5wPPitbYNFo46H1w27xgSGC1n2t6
+	 xJtKXBUzNIDjtrGhCiXUx7AWvsMauikqGT4c9fcimbYoqsvCepVlTS6ZI6pob6mIv6Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793116091;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793116092;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding:X-AntiAbuse:
@@ -15,62 +15,62 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-IP:X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=4tf5jp72b9mmtNlArsH2jcFwIQOwqOIebwrOBPuEsBU=;
-	b=V/TBdEm2u0S9clHzQKPeGhv7ngIwDGPUT8lasdSgpfJ70/ZdEaEPV/Dio/TarWYkhC6G
-	 UoD1iKmHw41/7vZHsNBdx8UbuohtYIT108Zzl84SD0fgSOZYQFM42DwCq9xbyaJQVHql9
-	 8wvu+fM2AhTnkSlv+dfZBXDyWpMGo441SKrxO2fJLV3U0AgOsnHs6szTjSnGdSqS+098M
-	 yRO7Tm/9Mz/iMY12YPtkT11652qp2pftP20dzdZa/YE7n1Has/gHl4xYecu486VU3FQvf
-	 jOCsdwA1QsyK/96mMkhaenv70Ss276yWIIgf+EOT2mPCYeD81hgLF1XwJYKgNFMmzeg==
+	bh=8AAC2DvYMVm3X7kh9fZIoqASoYfKVm15YrgVxJtPndE=;
+	b=3pLqJjOcjvY3UpZnxllqP8n6tbMod21n8dtpV7LxgXFLb8JyqwhdC4CaKC77ZoOHPSIk
+	 E9Cd9ruzGU/YshFBRDyC9RZVhqegUrMMKSQUQ9LYjhJpabwEZiaPMOTi6Yxn7U7S8GfCb
+	 USvkStsxASK7R//jWPAz8CxJjea7sy/PEXbZCaIDWZJooz5x8d+80VMeCUp32IYbzLgWw
+	 rdO1DDG0/puS8l5z2S0Rp3SycyrXWlNoL6uqdVydWazM1C62ocxrytuduEma9ywWfa63y
+	 0k8E1K64aJFCY+3eQSvgFvUXztrXUKEOCQnqdFY5ZzVZ54dOCR6/poS63YqntvQBZIg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vW38oH58;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=qmGXOPXk;
 	arc=none smtp.remote-ip=44.202.169.37
 Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436F7607351C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2942607351C
 	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:48:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 436F7607351C
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F2942607351C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vW38oH58
-Received: from eig-obgw-5002b.ext.cloudfilter.net ([10.0.29.226])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=qmGXOPXk
+Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
 	by cmsmtp with ESMTPS
-	id LhmVxZhwTJFmFLjPHxKNud; Tue, 27 Oct 2026 15:48:11 +0000
+	id Ld1nxYZKKJFmFLjPHxKNul; Tue, 27 Oct 2026 15:48:11 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id LjPFxkdwvCWbvLjPGxIwKe; Tue, 27 Oct 2026 15:48:10 +0000
-X-Authority-Analysis: v=2.4 cv=bNEWIO+Z c=1 sm=1 tr=0 ts=6ae0c7ba
+	id LjPGxmdJnf7H4LjPGx6eHU; Tue, 27 Oct 2026 15:48:11 +0000
+X-Authority-Analysis: v=2.4 cv=KrVN2XWN c=1 sm=1 tr=0 ts=6ae0c7bb
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8 a=_jlGtV7tAAAA:8
- a=7vxEA1HKIkwBDEoJgLAA:9 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
+ a=VfW3V8pwLglsGW-52dUA:9 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
 	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
 	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=4tf5jp72b9mmtNlArsH2jcFwIQOwqOIebwrOBPuEsBU=; b=vW38oH58SUgN
-	obs6SjJhClQIlWVFt7JcHZfQdjnkjCb9N/+lAkHP8fNp7szj9m9NYerZc44i1fW4rtjLyXFs7gCEG
-	/NqD5jaufBVTwDzbgYNSL7CfNAmhuqPEa2y+olZQ8IwAlIcy/V2ut1x5W9OYHzF6l2JNgoT5z0DOl
-	sqyAx5FU+VCnAliTFbOB6e3xSBCeF2G5vIBEnIi/Pby7JJfqANZigsl5/3kLiHA+wu+YopkkAWoj3
-	gVkBC9rkP9wdvzEA042rzbj3Aq8QeqNaCiEDd4icvPRrnGgPGSp/39WL75tWkdCQHVaW2WRJKfMSn
-	yGLAeaOO1aPyLlSQ0gfUyg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37946 helo=server.roeck-us.net)
+	List-Archive; bh=8AAC2DvYMVm3X7kh9fZIoqASoYfKVm15YrgVxJtPndE=; b=qmGXOPXkavOX
+	CjL+9JpQWFfDDnW60STtM8vNBOO8RFZ1a2TdY1ivnRzpiLmQqRd/KNDc+UPZkLaMX2E3cvjd9pO5O
+	5jQ6UObPmgXcOTKWsr3DeyFV86Aibbi06cf34CosD+vgtgPlnnmeZKQYzwycm4xA24FrwcjY9Lbxr
+	XrJ/UE1Ev0bvc2eiYnEGSMK1YGlMGwwRXcvzvoYlc93FtEI+nP3QC/vDPODPe8EWXuRpEu/H6vLLB
+	Qywrf4eQDzOWezfQQ0vByYIwr07bEH0cUrB5S6wgH8B3zxR2KdlcdGEB/FtnMnLgd79FvtAGs9Aw5
+	u3wVKyM/8LyVNJeHpZ9p9Q==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37960 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xLjPF-00000000Tie-1O4z;
-	Tue, 27 Oct 2026 21:18:09 +0530
+	id 1xLjPG-00000000Tk1-1Ihh;
+	Tue, 27 Oct 2026 21:18:10 +0530
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 3/8] watchdog: core: Prevent ping worker from re-arming timer on suspend
-Date: Tue, 27 Oct 2026 08:48:00 -0700
-Message-ID: <20261027154805.2518806-4-linux@roeck-us.net>
+Subject: [PATCH v2 4/8] watchdog: core: Stop pretimeout hrtimer on suspend
+Date: Tue, 27 Oct 2026 08:48:01 -0700
+Message-ID: <20261027154805.2518806-5-linux@roeck-us.net>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20261027154805.2518806-1-linux@roeck-us.net>
 References: <20261027154805.2518806-1-linux@roeck-us.net>
@@ -92,32 +92,30 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xLjPF-00000000Tie-1O4z
+X-Exim-ID: 1xLjPG-00000000Tk1-1Ihh
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37946
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37960
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 48
+X-Email-Count: 50
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfJeUCrQ04ceV2c2s6Sgelvm8cmXkHhGYb/jiymcrl35TggH1BMQjIAUaWbsLiBnM8PQ4gowxlyQwv/t2xKuSfX5N6EdDGmGeqxBJCF0wDSX54UI6NX+X
- O2RMuG1xNDCgATQshslYqFRWCCDEENZUO16VvCV+9r1Lhvs6jR0yLyiC2MLKQ2dp4zjljf1nn3reQhyW8FVKBVjFmAorSk/y7zRLkeXAWS/o3I4HHEiYx1pQ
+X-CMAE-Envelope: MS4xfBMtyfUuLyO0RzAgsVtOJnLc/VCrYj7TpIRNiKm1D8Sar/VOXi1uXbasqqIL9eSp3cMn6gB8CL5QSRVLSGdoe5J/Rm+xEfOUXYq7Lkl0Xic61Df2nQCd
+ SeIfFLGTaaXWAwzGLua1qlYS2rwY9Tpw/WDZNg29qb4OU9pF4uqyKJMRaTAYnOtlQjyq4hguA8QpV1Mbp3HxzXJ/u1up+KZ/XrW1/37nJk553YhvTUSedSCi
 
-In watchdog_dev_suspend(), hrtimer_cancel() is called before
-kthread_cancel_work_sync(). If the timer expired just before
-hrtimer_cancel() and queued watchdog_ping_work(), the worker can run
-and acquire wd_data->lock while kthread_cancel_work_sync() waits for it
-to finish. Because no state flag indicates that the watchdog is
-suspended, watchdog_worker_should_ping() returns true and
-__watchdog_ping() re-arms wd_data->timer while the device is suspended.
+During system suspend, watchdog_dev_suspend() pings the watchdog (which
+restarts the software pretimeout hrtimer) and stops the keepalive ping
+worker, but fails to stop the pretimeout hrtimer. Because
+CLOCK_MONOTONIC continues ticking until the system fully suspends, a
+suspend process taking longer than the configured pretimeout will
+trigger a spurious pretimeout event.
 
-Add a _WDOG_SUSPENDED internal status bit to wd_data->status, set it
-under wd_data->lock in watchdog_dev_suspend(), clear it under
-wd_data->lock in watchdog_dev_resume(), and check it in
-watchdog_worker_should_ping(), watchdog_need_worker(), and
-__watchdog_ping() so the timer cannot be armed while suspended.
+Stop the pretimeout hrtimer in watchdog_dev_suspend(), prevent
+watchdog_hrtimer_pretimeout_start() from starting it while the watchdog
+is suspended, and restart it in watchdog_dev_resume() if the hardware
+watchdog is running.
 
 Fixes: 60bcd91aafd2 ("watchdog: introduce watchdog_dev_suspend/resume")
 Assisted-by: LLM
@@ -126,76 +124,45 @@ Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Added Reviewed-by: tag
 
- drivers/watchdog/watchdog_core.h |  1 +
- drivers/watchdog/watchdog_dev.c  | 15 +++++++++++----
- 2 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/watchdog/watchdog_dev.c                | 3 +++
+ drivers/watchdog/watchdog_hrtimer_pretimeout.c | 3 ++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-index ab825d9f9248..c6df5a584357 100644
---- a/drivers/watchdog/watchdog_core.h
-+++ b/drivers/watchdog/watchdog_core.h
-@@ -60,6 +60,7 @@ struct watchdog_core_data {
- #define _WDOG_DEV_OPEN		0	/* Opened ? */
- #define _WDOG_ALLOW_RELEASE	1	/* Did we receive the magic char ? */
- #define _WDOG_KEEPALIVE		2	/* Did we receive a keepalive ? */
-+#define _WDOG_SUSPENDED		3	/* Suspended ? */
- };
- 
- /*
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 50224877ff49..e38f1ef8e683 100644
+index e38f1ef8e683..af756ee228b2 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -81,6 +81,9 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
- 	unsigned int hm = wdd->max_hw_heartbeat_ms;
- 	unsigned int t = wdd->timeout * 1000;
- 
-+	if (test_bit(_WDOG_SUSPENDED, &wdd->wd_data->status))
-+		return false;
-+
- 	/*
- 	 * A worker to generate heartbeat requests is needed if all of the
- 	 * following conditions are true.
-@@ -154,9 +157,10 @@ static int __watchdog_ping(struct watchdog_device *wdd)
- 	now = ktime_get();
- 
- 	if (ktime_after(earliest_keepalive, now)) {
--		hrtimer_start(&wd_data->timer,
--			      ktime_sub(earliest_keepalive, now),
--			      HRTIMER_MODE_REL_HARD);
-+		if (!test_bit(_WDOG_SUSPENDED, &wd_data->status))
-+			hrtimer_start(&wd_data->timer,
-+				      ktime_sub(earliest_keepalive, now),
-+				      HRTIMER_MODE_REL_HARD);
- 		return 0;
- 	}
- 
-@@ -207,7 +211,7 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
- {
- 	struct watchdog_device *wdd = wd_data->wdd;
- 
--	if (!wdd)
-+	if (!wdd || test_bit(_WDOG_SUSPENDED, &wd_data->status))
- 		return false;
- 
- 	if (watchdog_active(wdd))
-@@ -1318,6 +1322,8 @@ int watchdog_dev_suspend(struct watchdog_device *wdd)
- 	mutex_lock(&wd_data->lock);
- 	if (watchdog_worker_should_ping(wd_data))
- 		ret = __watchdog_ping(wd_data->wdd);
-+	if (!ret)
-+		set_bit(_WDOG_SUSPENDED, &wd_data->status);
- 	mutex_unlock(&wd_data->lock);
- 
- 	if (ret)
-@@ -1346,6 +1352,7 @@ int watchdog_dev_resume(struct watchdog_device *wdd)
- 	 * ping worker if needed.
+@@ -1334,6 +1334,7 @@ int watchdog_dev_suspend(struct watchdog_device *wdd)
+ 	 * suspended
  	 */
- 	mutex_lock(&wd_data->lock);
-+	clear_bit(_WDOG_SUSPENDED, &wd_data->status);
+ 	hrtimer_cancel(&wd_data->timer);
++	watchdog_hrtimer_pretimeout_stop(wdd);
+ 	kthread_cancel_work_sync(&wd_data->work);
+ 
+ 	return 0;
+@@ -1355,6 +1356,8 @@ int watchdog_dev_resume(struct watchdog_device *wdd)
+ 	clear_bit(_WDOG_SUSPENDED, &wd_data->status);
  	if (watchdog_worker_should_ping(wd_data))
  		ret = __watchdog_ping(wd_data->wdd);
++	if (watchdog_hw_running(wdd) && !ret)
++		watchdog_hrtimer_pretimeout_start(wdd);
  	mutex_unlock(&wd_data->lock);
+ 
+ 	return ret;
+diff --git a/drivers/watchdog/watchdog_hrtimer_pretimeout.c b/drivers/watchdog/watchdog_hrtimer_pretimeout.c
+index 49a05ea60c97..5c88e6467994 100644
+--- a/drivers/watchdog/watchdog_hrtimer_pretimeout.c
++++ b/drivers/watchdog/watchdog_hrtimer_pretimeout.c
+@@ -31,7 +31,8 @@ void watchdog_hrtimer_pretimeout_start(struct watchdog_device *wdd)
+ {
+ 	if (!(wdd->info->options & WDIOF_PRETIMEOUT) &&
+ 	    wdd->pretimeout &&
+-	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout))
++	    !watchdog_pretimeout_invalid(wdd, wdd->pretimeout) &&
++	    !test_bit(_WDOG_SUSPENDED, &wdd->wd_data->status))
+ 		hrtimer_start(&wdd->wd_data->pretimeout_timer,
+ 			      ktime_set(wdd->timeout - wdd->pretimeout, 0),
+ 			      HRTIMER_MODE_REL);
 -- 
 2.45.2
 
