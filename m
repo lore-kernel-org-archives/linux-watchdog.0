@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793116090;
-	b=ch8xScQp2MkAZE+KuL+H4RuwsOgElOSIj01JzMHDzIKLJR8tdQHEyyuWcHPbNCvNj9dI
-	 c9dvk+scAatgkN6QiYHutxjyzB4OKp+QWqjpVMsHhJ9gekfFSwXmTvr6F8NNmgBmC4psL
-	 qZoptLFwzerACA75QIAVls47WC62T04OAD1AF5+0X8YJ2Bsylk+XkpN0sIuOuh3+FHTX/
-	 fhxTIZ/rn/+yUvf5zvpXZmtty9woVYEasMl/S0WLHx5DvLnHQVdZmPy5pD20WthnsSyMf
-	 yW2UOpY07AcCwq2j1EWdm5TDG8SxNxYkyMRuJHf0IWLXQMvZ+xPfn4JucF9N1kfE1iA==
+	t=1793116091;
+	b=YBDZOvZZ+jckf38WaqfY6evWgjSaeZrO1jlCurfQZRxMI67LbTn2R4/rvOwBcFA7jw5g
+	 9jioNLvrFBlroPG0DencOmdj8/75YrHJHbGpwn0A1Nkcav8va5z29l+v08NwRWASuLXfi
+	 UOzUNW3ioE0v5EQpAwFTEFC5KMF9vtrUa1wBV90a+0tUjoexdPKeii3LnIFsrgUnFmS+L
+	 532jEy2aWdUTarRv1tZgCpmsq/v9nNpN5xniZkcxD3wD3mUkcJXov+bLUnhMhx247v/+7
+	 mPpHgvEYQEW5MkiHjoBS095HtEwW9rBB2D5WxpRqWFCc6LkE6xYWaGzm14HSJ0ozP4g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793116090;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793116091;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding:X-AntiAbuse:
@@ -15,62 +15,62 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-IP:X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=l4PIwHarvU3x6l6mvAUeWbDvn4alE/qwD9vM0tpTFxU=;
-	b=GHqQJwZE69Paqe+3PADZ95Uu51g6vHCRUbjr9OXGtbasdFhe6xaX07ILAvY0TVGRMJLh
-	 4/YRABhtqeQriddB7gQpje9LcCAoPn7YjYuFveM5UfbxtUQUNd/E2Gp6mCUIX2gHvg+L2
-	 iMuEQanCkc/Iki9AWPyKaFcgJZQ8zqyC4j2OXU+EXH+zqPAboCgGhz6eZYUMsDqHDCjM8
-	 jylYCQwOWDg0L6aFdBCHVPs9qrGnc7Dpsg98WNVAvgfUNQOzod49QNz5+D+f5EwZAawSo
-	 WCRCeyMe/NNB3vkPRfzkhLvD7QJ+L1MYqXltkRxtgR7Qw0/Mm/Rl8R7QyLRIfdkd/aw==
+	bh=4tf5jp72b9mmtNlArsH2jcFwIQOwqOIebwrOBPuEsBU=;
+	b=V/TBdEm2u0S9clHzQKPeGhv7ngIwDGPUT8lasdSgpfJ70/ZdEaEPV/Dio/TarWYkhC6G
+	 UoD1iKmHw41/7vZHsNBdx8UbuohtYIT108Zzl84SD0fgSOZYQFM42DwCq9xbyaJQVHql9
+	 8wvu+fM2AhTnkSlv+dfZBXDyWpMGo441SKrxO2fJLV3U0AgOsnHs6szTjSnGdSqS+098M
+	 yRO7Tm/9Mz/iMY12YPtkT11652qp2pftP20dzdZa/YE7n1Has/gHl4xYecu486VU3FQvf
+	 jOCsdwA1QsyK/96mMkhaenv70Ss276yWIIgf+EOT2mPCYeD81hgLF1XwJYKgNFMmzeg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=5fhR0k5E;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vW38oH58;
 	arc=none smtp.remote-ip=44.202.169.37
 Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0386607351C
-	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:48:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E0386607351C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436F7607351C
+	for <linux-watchdog@vger.kernel.org>; Tue, 27 Oct 2026 15:48:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 436F7607351C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=5fhR0k5E
-Received: from eig-obgw-6004b.ext.cloudfilter.net ([10.0.30.210])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vW38oH58
+Received: from eig-obgw-5002b.ext.cloudfilter.net ([10.0.29.226])
 	by cmsmtp with ESMTPS
-	id LcyMxYYb0JFmFLjPExKNsz; Tue, 27 Oct 2026 15:48:09 +0000
+	id LhmVxZhwTJFmFLjPHxKNud; Tue, 27 Oct 2026 15:48:11 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id LjPExRwktH2S8LjPExHjWa; Tue, 27 Oct 2026 15:48:08 +0000
-X-Authority-Analysis: v=2.4 cv=Mfxsu4/f c=1 sm=1 tr=0 ts=6ae0c7b8
+	id LjPFxkdwvCWbvLjPGxIwKe; Tue, 27 Oct 2026 15:48:10 +0000
+X-Authority-Analysis: v=2.4 cv=bNEWIO+Z c=1 sm=1 tr=0 ts=6ae0c7ba
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8 a=_jlGtV7tAAAA:8
- a=5xi0HWLX7wOsXyuw-usA:9 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
+ a=7vxEA1HKIkwBDEoJgLAA:9 a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
 	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
 	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=l4PIwHarvU3x6l6mvAUeWbDvn4alE/qwD9vM0tpTFxU=; b=5fhR0k5Equzd
-	tJkHCgJsHV9Bn4q11Yq1ibyyfpZWgHceqSljhDyQEbmfMPw4h4iKY/PLx29g96NHAy2+aqf0aGdw3
-	ekYfv51rtSV/JG1O2/Jy4pfeWJcpLTHGrKDoJPwxTE9QuycbX+Gpv1HPz/i3WswMbmXaOdsS2ugnB
-	khrJzcL5iMk8wZMb5RbwRE7UeIUWkZUfb6Y/9LRPtw0/Hf6RRA2TNld8i0gw4l3NdPOulIMZLvc9S
-	w58BzP64nDq89zE036v0+qxoTuHOvwnSwDkGx74n/i5En3B3h2qeQQNTy5YyDj6YAGNPsfwz8eY/7
-	V18JGW0lWjh3GyjLKXOu5g==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37930 helo=server.roeck-us.net)
+	List-Archive; bh=4tf5jp72b9mmtNlArsH2jcFwIQOwqOIebwrOBPuEsBU=; b=vW38oH58SUgN
+	obs6SjJhClQIlWVFt7JcHZfQdjnkjCb9N/+lAkHP8fNp7szj9m9NYerZc44i1fW4rtjLyXFs7gCEG
+	/NqD5jaufBVTwDzbgYNSL7CfNAmhuqPEa2y+olZQ8IwAlIcy/V2ut1x5W9OYHzF6l2JNgoT5z0DOl
+	sqyAx5FU+VCnAliTFbOB6e3xSBCeF2G5vIBEnIi/Pby7JJfqANZigsl5/3kLiHA+wu+YopkkAWoj3
+	gVkBC9rkP9wdvzEA042rzbj3Aq8QeqNaCiEDd4icvPRrnGgPGSp/39WL75tWkdCQHVaW2WRJKfMSn
+	yGLAeaOO1aPyLlSQ0gfUyg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37946 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xLjPD-00000000TgO-3kcO;
-	Tue, 27 Oct 2026 21:18:07 +0530
+	id 1xLjPF-00000000Tie-1O4z;
+	Tue, 27 Oct 2026 21:18:09 +0530
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 1/8] watchdog: core: Clear wd_data pointer on errors
-Date: Tue, 27 Oct 2026 08:47:58 -0700
-Message-ID: <20261027154805.2518806-2-linux@roeck-us.net>
+Subject: [PATCH v2 3/8] watchdog: core: Prevent ping worker from re-arming timer on suspend
+Date: Tue, 27 Oct 2026 08:48:00 -0700
+Message-ID: <20261027154805.2518806-4-linux@roeck-us.net>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20261027154805.2518806-1-linux@roeck-us.net>
 References: <20261027154805.2518806-1-linux@roeck-us.net>
@@ -92,87 +92,110 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xLjPD-00000000TgO-3kcO
+X-Exim-ID: 1xLjPF-00000000Tie-1O4z
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37930
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37946
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 44
+X-Email-Count: 48
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfEGb16MuyedNH/vH5eu18P8SQE1mOP82Ax/2cxtCuR24HYmwydD+1KbWxD4bqzmsY0c0IWhxOUsuEXr+F9TYlrHTCCok70EO8Tm2ZniKXu5h/zN/AWXx
- 4WQZT/f7syYNJyXqWQhTtQj0tHW9khy5pxXc+aT2wwPKI6tGKKHzuTqUHX73nKLYJtDZQ+50YcgRG02FifST6jG4f4xkcxfwVAZt5q8nQupiVuMDyV/S9jAh
+X-CMAE-Envelope: MS4xfJeUCrQ04ceV2c2s6Sgelvm8cmXkHhGYb/jiymcrl35TggH1BMQjIAUaWbsLiBnM8PQ4gowxlyQwv/t2xKuSfX5N6EdDGmGeqxBJCF0wDSX54UI6NX+X
+ O2RMuG1xNDCgATQshslYqFRWCCDEENZUO16VvCV+9r1Lhvs6jR0yLyiC2MLKQ2dp4zjljf1nn3reQhyW8FVKBVjFmAorSk/y7zRLkeXAWS/o3I4HHEiYx1pQ
 
-In watchdog_cdev_register(), if device registration fails after the core
-watchdog_core_data structure is allocated and assigned to the persistent
-watchdog_device structure, the function frees the data but leaves a
-dangling pointer.
+In watchdog_dev_suspend(), hrtimer_cancel() is called before
+kthread_cancel_work_sync(). If the timer expired just before
+hrtimer_cancel() and queued watchdog_ping_work(), the worker can run
+and acquire wd_data->lock while kthread_cancel_work_sync() waits for it
+to finish. Because no state flag indicates that the watchdog is
+suspended, watchdog_worker_should_ping() returns true and
+__watchdog_ping() re-arms wd_data->timer while the device is suspended.
 
-During device registration, watchdog_cdev_register() links the newly
-allocated wd_data to wdd->wd_data. If a subsequent initialization step
-fails, such as the watchdog_kworker validation, dev_set_name(),
-misc_register(), or cdev_device_add(), the function cleans up by freeing
-wd_data via kfree() or put_device(). However, it fails to clear the
-wdd->wd_data pointer before returning. Furthermore, if cdev_device_add()
-fails after misc_register() exposed /dev/watchdog to userspace, a
-concurrent open may hold a reference to wd_data while the caller frees wdd,
-leaving wd_data->wdd dangling.
+Add a _WDOG_SUSPENDED internal status bit to wd_data->status, set it
+under wd_data->lock in watchdog_dev_suspend(), clear it under
+wd_data->lock in watchdog_dev_resume(), and check it in
+watchdog_worker_should_ping(), watchdog_need_worker(), and
+__watchdog_ping() so the timer cannot be armed while suspended.
 
-Fix the problem by clearing wdd->wd_data on all error paths during
-watchdog registration, and clearing wd_data->wdd under wd_data->lock if
-cdev_device_add() fails.
-
-Fixes: b4ffb1909843 ("watchdog: Separate and maintain variables based on variable lifetime")
+Fixes: 60bcd91aafd2 ("watchdog: introduce watchdog_dev_suspend/resume")
 Assisted-by: LLM
 Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Added Reviewed-by: tag
 
- drivers/watchdog/watchdog_dev.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/watchdog/watchdog_core.h |  1 +
+ drivers/watchdog/watchdog_dev.c  | 15 +++++++++++----
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
+index ab825d9f9248..c6df5a584357 100644
+--- a/drivers/watchdog/watchdog_core.h
++++ b/drivers/watchdog/watchdog_core.h
+@@ -60,6 +60,7 @@ struct watchdog_core_data {
+ #define _WDOG_DEV_OPEN		0	/* Opened ? */
+ #define _WDOG_ALLOW_RELEASE	1	/* Did we receive the magic char ? */
+ #define _WDOG_KEEPALIVE		2	/* Did we receive a keepalive ? */
++#define _WDOG_SUSPENDED		3	/* Suspended ? */
+ };
+ 
+ /*
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index e8c1fcb53c56..ed5b35184271 100644
+index 50224877ff49..e38f1ef8e683 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -1033,6 +1033,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 	wdd->wd_data = wd_data;
+@@ -81,6 +81,9 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
+ 	unsigned int hm = wdd->max_hw_heartbeat_ms;
+ 	unsigned int t = wdd->timeout * 1000;
  
- 	if (IS_ERR_OR_NULL(watchdog_kworker)) {
-+		wdd->wd_data = NULL;
- 		kfree(wd_data);
- 		return -ENODEV;
++	if (test_bit(_WDOG_SUSPENDED, &wdd->wd_data->status))
++		return false;
++
+ 	/*
+ 	 * A worker to generate heartbeat requests is needed if all of the
+ 	 * following conditions are true.
+@@ -154,9 +157,10 @@ static int __watchdog_ping(struct watchdog_device *wdd)
+ 	now = ktime_get();
+ 
+ 	if (ktime_after(earliest_keepalive, now)) {
+-		hrtimer_start(&wd_data->timer,
+-			      ktime_sub(earliest_keepalive, now),
+-			      HRTIMER_MODE_REL_HARD);
++		if (!test_bit(_WDOG_SUSPENDED, &wd_data->status))
++			hrtimer_start(&wd_data->timer,
++				      ktime_sub(earliest_keepalive, now),
++				      HRTIMER_MODE_REL_HARD);
+ 		return 0;
  	}
-@@ -1046,6 +1047,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 	dev_set_drvdata(&wd_data->dev, wdd);
- 	err = dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
- 	if (err) {
-+		wdd->wd_data = NULL;
- 		put_device(&wd_data->dev);
- 		return err;
- 	}
-@@ -1066,6 +1068,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 				pr_err("%s: a legacy watchdog module is probably present.\n",
- 					wdd->info->identity);
- 			old_wd_data = NULL;
-+			wdd->wd_data = NULL;
- 			put_device(&wd_data->dev);
- 			return err;
- 		}
-@@ -1084,6 +1087,10 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 			misc_deregister(&watchdog_miscdev);
- 			old_wd_data = NULL;
- 		}
-+		mutex_lock(&wd_data->lock);
-+		wd_data->wdd = NULL;
-+		wdd->wd_data = NULL;
-+		mutex_unlock(&wd_data->lock);
- 		put_device(&wd_data->dev);
- 		return err;
- 	}
+ 
+@@ -207,7 +211,7 @@ static bool watchdog_worker_should_ping(struct watchdog_core_data *wd_data)
+ {
+ 	struct watchdog_device *wdd = wd_data->wdd;
+ 
+-	if (!wdd)
++	if (!wdd || test_bit(_WDOG_SUSPENDED, &wd_data->status))
+ 		return false;
+ 
+ 	if (watchdog_active(wdd))
+@@ -1318,6 +1322,8 @@ int watchdog_dev_suspend(struct watchdog_device *wdd)
+ 	mutex_lock(&wd_data->lock);
+ 	if (watchdog_worker_should_ping(wd_data))
+ 		ret = __watchdog_ping(wd_data->wdd);
++	if (!ret)
++		set_bit(_WDOG_SUSPENDED, &wd_data->status);
+ 	mutex_unlock(&wd_data->lock);
+ 
+ 	if (ret)
+@@ -1346,6 +1352,7 @@ int watchdog_dev_resume(struct watchdog_device *wdd)
+ 	 * ping worker if needed.
+ 	 */
+ 	mutex_lock(&wd_data->lock);
++	clear_bit(_WDOG_SUSPENDED, &wd_data->status);
+ 	if (watchdog_worker_should_ping(wd_data))
+ 		ret = __watchdog_ping(wd_data->wdd);
+ 	mutex_unlock(&wd_data->lock);
 -- 
 2.45.2
 
