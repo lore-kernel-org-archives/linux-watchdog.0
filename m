@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793199188;
-	b=wk2f74gygMWG5mHvZBk3+Bc4y8um14DX1usnvM+WdwtcHj2o676u2IqM8n/AzMGhNB4O
-	 sHP5EADDnVq6b9UCPsjVE+UnRpNI12Zbl/5kZ8Jve0SnCOEfR6IxI/1OPL/ALSjAQ68c1
-	 Qjv2xszeuMjLsVHZ57R0givNaF+JmwBvydoYDr4Kv869J92BEmqqjc8QJd8ADJD/u0Wps
-	 z1wX0b00ZMCyKZFuKI6PlmOPphtswlFJJ5WeyfP74CImhsAxfLeIGhOGrkH79cpL5KoFd
-	 RZoAZ6w39i0XQX0+TltpSgMwhseyWHkcy/OSTverboiPW1bcPcEhZ8sn41X0KQSlmIQ==
+	t=1793199615;
+	b=RMFXHphimeMWHo0dmDkAGJFjIX2llUQxon2xiYJkhOa/8ssjX/rR+7heCT64lttlGsLe
+	 1e045lPA9YZ7umaKn16YJz9QKRy9Qg1Z3yvKxW4vWxC3JKpax4JXUCNkcpv8aUEKGguUE
+	 EXIVC3chcp9q8cJyVpyJjHz7aMWPtwToa0xYx4OwceU8mpqnEQIZrmSUN7YF+XSChi9uC
+	 tRYX457PJvpCHJIPyPVUOAmEMNXa9TlkSfFJoBeE0VM1IFV94pNKtm1Oys8QxfOBFAiF+
+	 U5WGCaTeMhA13qOQLjGBG04JLS3co7QyoFbf2D3kErGc1sWaw08jbLvo8bueLBDtjrQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793199188;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793199615;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
 	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
@@ -15,58 +15,58 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
 	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
 	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=P1GIpgUgATjRtmShaLmb9WJ65EK51EMomNgm/lz9AjM=;
-	b=hIKOUCAKk1Q7WG2ojdez2228jj9N3J9Jl5m2/ifsTDYVEsJ7lg6Qco4wK87hhNFWAuGd
-	 8wdTYEjyyKRJmCT8lA7paKDeJCVhbM9XUr9UIyzFWPtqUoasgOWoEZjsmftRfNCo0D9PI
-	 0W7RMEKMyt0HSpjkdTd+2+utn0iJ+CbMZTEx/JB6dkLrUiAh2yDX8/+6qs6ouoFuHVB7f
-	 /FUdtiWbd0Vw+5tQngQO4tgrO8Rn5wt8htQ08WYy3EGI6RcAHED5T8dMfXmVIWqN6k21y
-	 +fKUbOh6Q3XMNEEB//GQZMyjM9GupVQEwfEhItcl31mxKuzFa1iu3HEZkqI20gyNULw==
+	bh=stfruKt+aiwqlbm9/Bblco4Ug/FO9pwQc+ORGOEXpgE=;
+	b=X1LHcIbSj2asrucuA14cC+hQ2vJbfMF3pgmAeigB58eE/xupgZYEfOYiyWwckJLPrjMf
+	 WezldXNUSZAKlDZwnToTB9/b9GuTdiHFEZCoq5h6clx55GRSTy8+RmOGhkUyNNEajl9gP
+	 k+HNgDbIxdehJxg3Vc+t/ZQ+slnmKdKi30i4aRCvdurKt1gQGglJ/hZhNlJtTHO+hywyS
+	 WVTpVj4GFq7hrT9V2RVLTDvh2H+Q/DVnOTyxTLO7gbpO7i/Nr+fpPOFVO+ZtawRzHZXE2
+	 78RlNAPQoYFFLthX32YZmQQK3gE6LR5RXAbvgtiLHeN8+I1cd1Y9GtGxl0qFViA7W1w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b="mSJpWq6/";
-	arc=none smtp.remote-ip=35.89.44.39
-Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4TomNgJC;
+	arc=none smtp.remote-ip=35.89.44.35
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FF09606A31C
-	for <linux-watchdog@vger.kernel.org>; Wed, 28 Oct 2026 14:53:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5FF09606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B2A0606A320
+	for <linux-watchdog@vger.kernel.org>; Wed, 28 Oct 2026 15:00:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3B2A0606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=mSJpWq6/
-Received: from eig-obgw-5006b.ext.cloudfilter.net ([10.0.29.217])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4TomNgJC
+Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
 	by cmsmtp with ESMTPS
-	id Lv2YxJJqic3XsM51XxrGsW; Wed, 28 Oct 2026 14:53:07 +0000
+	id LsxRxqqCAusRSM58LxCUD2; Wed, 28 Oct 2026 15:00:09 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id M51WxEDeyWZOZM51XxLMqP; Wed, 28 Oct 2026 14:53:07 +0000
-X-Authority-Analysis: v=2.4 cv=UfZRSLSN c=1 sm=1 tr=0 ts=6ae20c53
+	id M58IxNvjnf7H4M58IxdYMV; Wed, 28 Oct 2026 15:00:06 +0000
+X-Authority-Analysis: v=2.4 cv=KrVN2XWN c=1 sm=1 tr=0 ts=6ae20df8
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=Byx-y9mGAAAA:8 a=Zefr6VZ22Yr9aPQxvcwA:9 a=QEXdDO2ut3YA:10
- a=KPbNTLLc3YvdawN95zVk:22
+ a=_jlGtV7tAAAA:8 a=Mtospv3cSgqDDPbIWF0A:9 a=QEXdDO2ut3YA:10
+ a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
 	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
 	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=P1GIpgUgATjRtmShaLmb9WJ65EK51EMomNgm/lz9AjM=; b=mSJpWq6/+oO0
-	yLuDGrC5uwCv4kTgX5kx7qnJO2Xit0zwUbr7guTTkMP3s8EVLCBIsCCw54TjcolN69pfKDKawPkeB
-	VzNSfCU+6N/yI67upJkWxnIdV7iLb3AV84nI4qDGWuDtsxIcMqvAMAjp73DzylBpGvIRro4JaNO+S
-	XjNvaaPxTqnPeg3zn785tPRJPjrpxzdAbbTU9Z1xxZ3t/Fi/2V1PD93k7PWLXkA9xuycEcVcXPLaB
-	uDLlTw+F9ES+yP0pkDmiwgYKfQ5wOrEJE1b/tXLZZrHQHn8waEH+r++dj9pvuh2aljk344sGcxlqv
-	rKbLwI2Z9X4h7nz2cIemAg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:45432)
+	List-Archive; bh=stfruKt+aiwqlbm9/Bblco4Ug/FO9pwQc+ORGOEXpgE=; b=4TomNgJCTWbt
+	IJjBgEC5RblyJt/zyatwo8ZHUyvGTXaJqtTU8tou8n70ouaXFzHKygxRdA6eewvnd8pXhfav9veMf
+	xdSBMwopIImM4LAc0nRszeeM4j1P68+KHX1nM+l8Uy7wQ86+Ho1Ip/qOgT6J8oK41WnWUG29ZgNUK
+	frGN2ph6fZaebfQ9cmMyZvqTPeDewYUwKsFMjTOodpPllSizjIypb7N5iI9yazKkHf3l8Ujq9iqIN
+	urGeZqkTlqquGm9WrFU+khgSG/4RnCQO3WVR43RqswckpAQE+W+8yTpv+f1/ym/d5Xz17pCk67Bgc
+	RXy07WxZhR4LmAnF4hdh5A==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:58310)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xM51W-00000004EWL-1ljv;
-	Wed, 28 Oct 2026 20:23:06 +0530
-Message-ID: <fe262c42-6657-4e98-912b-f6d37b145ec8@roeck-us.net>
-Date: Wed, 28 Oct 2026 07:53:05 -0700
+	id 1xM58I-00000004JTs-0ixI;
+	Wed, 28 Oct 2026 20:30:06 +0530
+Message-ID: <57f5b578-6ed8-4288-9965-0e2ffaf5931a@roeck-us.net>
+Date: Wed, 28 Oct 2026 08:00:05 -0700
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -77,14 +77,12 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6/6] watchdog: rdc321x: initialize device state before
- registration
-To: Jiale Yao <yaojiale02@163.com>, Wim Van Sebroeck
- <wim@linux-watchdog.org>, Florian Fainelli <florian.fainelli@telecomint.eu>,
- linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-References: <20261028044828.96177-1-yaojiale02@163.com>
- <20261028044828.96177-7-yaojiale02@163.com>
+Subject: Re: [PATCH v2 5/8] watchdog: core: Restore WDOG_HW_RUNNING if
+ stopping watchdog fails
+To: Tzung-Bi Shih <tzungbi@kernel.org>
+Cc: linux-watchdog@vger.kernel.org
+References: <20261027160302.2519282-1-linux@roeck-us.net>
+ <20261027160302.2519282-6-linux@roeck-us.net> <auFoj8dTQc9YORh3@google.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -130,7 +128,7 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261028044828.96177-7-yaojiale02@163.com>
+In-Reply-To: <auFoj8dTQc9YORh3@google.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -141,70 +139,39 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xM51W-00000004EWL-1ljv
+X-Exim-ID: 1xM58I-00000004JTs-0ixI
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:45432
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:58310
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 3
+X-Email-Count: 1
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfMOVdiQbkte75tksttkqq3TfTLo2h5/JPPhZOadZcjyIvv0oynI62yN6Ueh/kcUnVR2oEStRyPUdtIQWFCFthaevPZqDvuSNJRsdEXJ5GoHR6KPHB87R
- aYSY9cEI5r7NIukOYVjPLrmh1qhNaO2bXK6xmT0JUf6lxnOlEXlaJwj8v90ktOKtANpHcBiIOPBv3Shkk4KVWWlMkiZmDv4Ax1/rc5mcw0QaBacuycMVeO2F
+X-CMAE-Envelope: MS4xfFzlgvc7ZxNzQu+sR+EG47YaD13NbQzki0FcXwM7ZZsM0cWtNq4fwkT7xKTPDAj9SjrbId5WadvYUoj4n8MEchMVK6v0i1hBiLNzR1QTIKgX5TFjiPqu
+ +XJBhV54PruDosfL+LBwaCQC0LVu73cTK3QhN8ksU/cMF0iuCBgNbav5zXe1EWgXsE1tvwmIKMlcO3DVmDrXK9FXg48aesemhq3pjRigThhag5ZFTsZNfP8d
 
-On 10/27/26 21:48, Jiale Yao wrote:
-> misc_register() exposes the watchdog before its lock, completion, and
-> timer are initialized. A userspace operation racing probe can therefore
-> use any of these objects before it is ready.
+On 10/27/26 20:14, Tzung-Bi Shih wrote:
+> On Tue, Oct 27, 2026 at 09:02:59AM -0700, Guenter Roeck wrote:
+>> In watchdog_stop(), WDOG_HW_RUNNING is cleared before calling
+>> wdd->ops->stop(). If wdd->ops->stop() returns an error, WDOG_ACTIVE
+>> remains set, but WDOG_HW_RUNNING is left cleared. As a result,
+>> subsequent calls to watchdog_ping() become no-ops, and
+>> watchdog_release() sees watchdog_hw_running() as false and drops the
+>> module and device references while the ping worker (guided by
+>> WDOG_ACTIVE) continues to run.
+>>
+>> Restore WDOG_HW_RUNNING if wdd->ops->stop() fails.
+>>
+>> Fixes: 3c10bbde10fe ("watchdog: core: Clear WDOG_HW_RUNNING before calling the stop function")
+>> Assisted-by: LLM
+>> Cc: Tzung-Bi Shih <tzungbi@kernel.org>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > 
-> Finish initializing the watchdog state before registering the misc
-> device.
-> 
-> Fixes: b3e8f2c13ae9 ("[WATCHDOG] Add support for the built-int RDC R-321x SoC watchdog")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jiale Yao <yaojiale02@163.com>
+> Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
 
-I am not going to apply this (or similar) patches.
-If you do have hardware utilizing this watchdog, pleae convert the driver
-to use the watchdog subsystem. Otherwise, please leave it alone.
+Thanks a lot for the reviews!
 
-Thanks,
 Guenter
-
-> ---
->   drivers/watchdog/rdc321x_wdt.c | 12 ++++++------
->   1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
-> index 8955177072fa..a2520d8d5c90 100644
-> --- a/drivers/watchdog/rdc321x_wdt.c
-> +++ b/drivers/watchdog/rdc321x_wdt.c
-> @@ -233,12 +233,6 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
->   	rdc321x_wdt_device.queue = 0;
->   	rdc321x_wdt_device.default_ticks = ticks;
->   
-> -	err = misc_register(&rdc321x_wdt_misc);
-> -	if (err < 0) {
-> -		dev_err(&pdev->dev, "misc_register failed\n");
-> -		return err;
-> -	}
-> -
->   	spin_lock_init(&rdc321x_wdt_device.lock);
->   
->   	/* Reset the watchdog */
-> @@ -251,6 +245,12 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
->   
->   	timer_setup(&rdc321x_wdt_device.timer, rdc321x_wdt_trigger, 0);
->   
-> +	err = misc_register(&rdc321x_wdt_misc);
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "misc_register failed\n");
-> +		return err;
-> +	}
-> +
->   	dev_info(&pdev->dev, "watchdog init success\n");
->   
->   	return 0;
 
