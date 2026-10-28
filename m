@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793194345;
-	b=41OcN64eRPYM/eizNLfjcBA3fjqa2PAcKvhORc2UCEd2HVZk21gFMpNowOuzBWrj1jh0
-	 54Jl3UiwmDeTNuRDESyWhF5LKufMhbYGjMXCU+Opf8NryzH3UYLs6u07nLowUtWkh6oqX
-	 Oa2vZbuudgIDcO2L28/Bj65L4zl4oYLCsZB7NzPVQFSIz9xKhnfTQOV5SBMLzTpfkwr71
-	 Dpdj20hNJegwLzV8iSqeuUFi1n2IEepp7t4WuwsS62xuWNU1ABna1gLi7jkDiFEJ5Sv8o
-	 Ohc0Noux5aM3cMsYpdYkymgT6liS3iHsOYtXaSK8ETJFFcTRljZQ95+OYdpkDky2jqw==
+	t=1793194385;
+	b=MfLFCBY9dOwloAehsUW5CNZVW2tF5rgRKsrGcBlC61huBqf3zkngisgVn23lBjKVuCQ0
+	 XOUHLvyH1vCdWqtpVBQtqXbhwBh1p2AIxXKLZp2yLm5ht22dxEliigkmTQXfBGIuDWcJJ
+	 auIsjvW5YrC1rVWBLo1K32QldR11+Mp1ecPyHd59KXY7lCiIv5b5CCXM7y7ZS7pUZe1lY
+	 4aQsAzHW0YAATFdw28V08Eh8KT1pE+OtElOXbM8A6yFiCq92bii+kvwKvkvQbHO31Kju2
+	 BLK0z8Cmg2e56vWHYp9pzoIlC4gn1wqzzFqcgIGuQS56oyOcEmEDuq5hYX8+r2TxVog==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793194345;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793194385;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=mgaExbvnghCg31gnn54x4d+C6t6alfhG7i2H1RjCe5A=;
-	b=5D2swOJEty9tviZF/4nAsjIhHlxiImJ2PiZ3B3dC1BkWbxKrqwZR6oJO27rjdvFHyKEr
-	 zlt2haW6L6ToMfRRf++lpT2ujiUjyqINHmNLTlOrGwHEfOeouaBen5EqhxwRODPhq3eub
-	 jhajYN75a+IwBhKS9VXq/lMhr2r/cnPQAEZ8+p0WUxt56gskAfWdKbleQtryuMmzeFbtT
-	 l4DRiwXKMveNZoyajdZc/CtShkAb+s1m0Mq+Mog0WetY/k/LhpaJLiSr5NH09K++a5bR6
-	 huBadaHOn7+BQM8W+fZeveACSWUob9dJdn3ojUg4vud3Z1h+8lezMGgY6yfN/fsas5A==
+	bh=vJiYJ2IsilIwmVzS1k6YMZ9rFUOVDWV3fT63vEQKSD4=;
+	b=kJlPW5Q76Y84HDhzLcsw90SZFNodFC585NjzdNvDryVuUfLz0d8chzbqYwUZ8lgal1oL
+	 kv1/zWaoMxxgbDxt4eF2fWfYvay7Gh1MqlMxIps9QAIHvFoQxJgE3bazJ9eYwktfxbhhc
+	 YpsDsWa+PAfnU+GnHRhXnn+/japXE90wEY0DybRTYLVMMwTRwCcDz66BeOmcX9E6VAYk1
+	 rLL8qsicTkPnPLDiSk3tOLAGGwsKj6XOtcRBa4XOwMfGq3mLtQUnYbMAaQ+djn3baBwcG
+	 wWCj1xaJGfnxl890zT9v/qQppXrSDaU5GChomthAcLIR4jzOeGRfS5Y8W2c2i27lE3g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bOWvRrde;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hsvG9Jr1;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25124606A31D;
-	Wed, 28 Oct 2026 13:32:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07ADA606A31A;
+	Wed, 28 Oct 2026 13:33:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bOWvRrde
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3CA51F01825;
-	Wed, 28 Oct 2026 13:32:23 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hsvG9Jr1
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237661F01825;
+	Wed, 28 Oct 2026 13:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793194344;
-	bh=mgaExbvnghCg31gnn54x4d+C6t6alfhG7i2H1RjCe5A=;
+	s=k20260515; t=1793194384;
+	bh=vJiYJ2IsilIwmVzS1k6YMZ9rFUOVDWV3fT63vEQKSD4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=bOWvRrdeUnHYioSZaC5f8If9tjlM+7mCemmNsVYNzXBDL81TIpncPRCB29Evee1i8
-	 Ue1F+3otI1pxWLCjOvNwJ5MOH9KQ4JseVfWkue+Y1/EGGv1+Mj4MqHDMZIcHvv3atH
-	 66f0/dMj95GeP+xU2+OWhNnZbgWRo5VuoD5pDmQqLm8ncAc+VeEIjl1JMCe0hAAzuE
-	 tjROXmaSqoGiYkVP9dPvNc6QlmKXtP0pIrUteMqqlYumfWjSqvBdG/eVky1WWO2QKP
-	 1dQOw9OWfaKwDWoxQJ+kMw6tTTcnsgD4a7K/SsQksCvc7nLEdsbCzgmB4dBxGfjzBZ
-	 GU1AN1lunQ1BQ==
-Date: Wed, 28 Oct 2026 14:32:21 +0100
+	b=hsvG9Jr1y9pHMKOD1l+/76s8H2Lw4G48Da4qm361dB66ivZWYZ3PKRbNiqaMLXHcw
+	 dmn8HBB/hRwkU3PXOD4h9SIMrCUgVQ/1T/K9dnEWKGHwnoIGS94/WAROZoRlylkk1q
+	 RAH8vpd5yWhGtjqV60OyGF0rrVzH6uDHe8xPmAlzU5hPnC2B1Fii3owMiFi5z1wKx/
+	 0YMIP/RvCebPbowQKvhgVWur5NnxdodCUoIxU22cB6JCsfy2EPKnCkH/HFo2NTU3Jv
+	 iklkvckaSA5y6hbv1oALOTl3AODT7YZWT/wNB9wp+XAkyHXkmar5V0PGMSMDhcIJxl
+	 hkQf6jFVXPkKw==
+Date: Wed, 28 Oct 2026 14:33:01 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Yureka Lilian <yureka@cyberchaos.dev>
 Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
@@ -53,11 +53,11 @@ Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>,
 	Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-pwm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 03/10] dt-bindings: arm: cpus: Add Apple M5 CPU core
- compatibles
-Message-ID: <20261028-stylish-thick-numbat-f4f8fc@quoll>
+Subject: Re: [PATCH 07/10] dt-bindings: pinctrl: apple,pinctrl: Add t8142
+ compatible
+Message-ID: <20261028-quizzical-proficient-stallion-ddeb59@quoll>
 References: <20261027-apple-m5-initial-devicetrees-v1-0-1356181bc50d@cyberchaos.dev>
- <20261027-apple-m5-initial-devicetrees-v1-3-1356181bc50d@cyberchaos.dev>
+ <20261027-apple-m5-initial-devicetrees-v1-7-1356181bc50d@cyberchaos.dev>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -69,20 +69,32 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-3-1356181bc50d@cyberchaos.dev>
+In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-7-1356181bc50d@cyberchaos.dev>
 
-On Tue, Oct 27, 2026 at 09:03:23AM +0100, Yureka Lilian wrote:
-> Add "apple,hidra-e" and "apple,hidra-p" compatibles for the M5
-> efficiency and performance CPU cores respectively.
-> The compatible strings are chosen based on SoC codename ("Hidra") plus
-> core type (E-Core / P-Core).
+On Tue, Oct 27, 2026 at 09:03:27AM +0100, Yureka Lilian wrote:
+> The pin controller on the Apple Silicon T8142 (M5) SoCs is compatible
+> with t8140. Add "apple,t8142-pinctrl" as SoC specific compatible under
+> "apple,t8140-pinctrl".
 > 
 > Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
 > ---
->  Documentation/devicetree/bindings/arm/cpus.yaml | 2 ++
->  1 file changed, 2 insertions(+)
+>  Documentation/devicetree/bindings/pinctrl/apple,pinctrl.yaml | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/pinctrl/apple,pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/apple,pinctrl.yaml
+> index 0984e4e58af3..a4a15b117035 100644
+> --- a/Documentation/devicetree/bindings/pinctrl/apple,pinctrl.yaml
+> +++ b/Documentation/devicetree/bindings/pinctrl/apple,pinctrl.yaml
+> @@ -17,6 +17,9 @@ description: |
+>  properties:
+>    compatible:
+>      oneOf:
+> +      - items:
+> +          - const: apple,t8142-pinctrl
+> +          - const: apple,t8140-pinctrl
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+List should be after apple,t8103-pinctrl list, as entries are ordeded by
+fallback compatible.
 
 Best regards,
 Krzysztof
