@@ -1,82 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793195587;
-	b=fyipsKlzKF25ZXh089AFtwxpKcz3uXD0OxU8jKNFxYPe+AzdJtcF2K/BeBfWBzsf0jBi
-	 c3Ig3xYjr+DsjtYopND85pnUMGVchoG1HsmC+4NvKkjczAFrnAq9daWs2Nxv+NI6OWYVi
-	 RR7am3Zy825EIET1RqF1ulVbf5MIuG1SZk5J6x9pgD4h6t1kzYoSYtWXvfdkKMrqYhN1+
-	 LZj/QQ9kmlepfBIsL+KUesKzjVU5I5mst5w+5PUaks2jA59cnoGdMnMxZ51vWx3xG4Xsz
-	 TfBbjrYg//EKOeKS6yj3ENaFJ9Hqghh/7wFiwGlfJN0tAlTRAvgCTTJSlnhOd0PL8hg==
+	t=1793199188;
+	b=wk2f74gygMWG5mHvZBk3+Bc4y8um14DX1usnvM+WdwtcHj2o676u2IqM8n/AzMGhNB4O
+	 sHP5EADDnVq6b9UCPsjVE+UnRpNI12Zbl/5kZ8Jve0SnCOEfR6IxI/1OPL/ALSjAQ68c1
+	 Qjv2xszeuMjLsVHZ57R0givNaF+JmwBvydoYDr4Kv869J92BEmqqjc8QJd8ADJD/u0Wps
+	 z1wX0b00ZMCyKZFuKI6PlmOPphtswlFJJ5WeyfP74CImhsAxfLeIGhOGrkH79cpL5KoFd
+	 RZoAZ6w39i0XQX0+TltpSgMwhseyWHkcy/OSTverboiPW1bcPcEhZ8sn41X0KQSlmIQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793195587;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=SxymvfAlNS0X8/xbI9/XRQHmV9LZfSmga4dSHsFV4Hk=;
-	b=ZpPkASvwxPkkIeacxEZaSRCbDTpwHXSV51HjTTSSnFzNuOyMKJNOPdyzLjWDezren5Ji
-	 2T88+LuzFWgNnPHWLJyGP6Iy9o21jKjMy8+YWa49HkqsNsAU12eIlku0sl2/Qxc5VjlQR
-	 bOar2TlZMfqNEdyz+nQ5R5AKbNMHVsBeN2uzk3SEcpFk1TotNxhMZAqbFI4nIVtQbCV0I
-	 7V2TiWYH7a/pzpDUpjAYSht1ozTBjWieb15CoWXZPkznplCyPjS0N/iBNQqL39jBb/xGD
-	 XSuOwYU2CzZwgx9pM9j8s/gkXFEJJ6Zg446g0lRhuM79HR87zR39uVRnlBfWH6YeX9A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793199188;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=P1GIpgUgATjRtmShaLmb9WJ65EK51EMomNgm/lz9AjM=;
+	b=hIKOUCAKk1Q7WG2ojdez2228jj9N3J9Jl5m2/ifsTDYVEsJ7lg6Qco4wK87hhNFWAuGd
+	 8wdTYEjyyKRJmCT8lA7paKDeJCVhbM9XUr9UIyzFWPtqUoasgOWoEZjsmftRfNCo0D9PI
+	 0W7RMEKMyt0HSpjkdTd+2+utn0iJ+CbMZTEx/JB6dkLrUiAh2yDX8/+6qs6ouoFuHVB7f
+	 /FUdtiWbd0Vw+5tQngQO4tgrO8Rn5wt8htQ08WYy3EGI6RcAHED5T8dMfXmVIWqN6k21y
+	 +fKUbOh6Q3XMNEEB//GQZMyjM9GupVQEwfEhItcl31mxKuzFa1iu3HEZkqI20gyNULw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=AjWDTT3c;
-	arc=none smtp.remote-ip=198.175.65.16
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b="mSJpWq6/";
+	arc=none smtp.remote-ip=35.89.44.39
+Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4875C606A320;
-	Wed, 28 Oct 2026 13:53:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4875C606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FF09606A31C
+	for <linux-watchdog@vger.kernel.org>; Wed, 28 Oct 2026 14:53:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5FF09606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=AjWDTT3c
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793195586; x=1824731586;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+0hcYzDXE2GYoXsQ0MP6klFZxsUOFBht4tZhtoGv83o=;
-  b=AjWDTT3cAd77LTPUBK9Lgxpr1UsgmakAvb78kRlJDC+QFofEsRm6Vglw
-   YIsO3n2legf6TUD5/gcZv2EZGJ14Y8+HOCq8llRtfR38XyT1AHe5LDCqI
-   sti7ZHrzkA+wH2pUi/J4rmglx+DWN/tXyK6CpRZ+xCBR94Qqj5LTC2CVk
-   24tfsoOhBl+vcaEHm0LymA937cp3XsY25KLp9MovgJF1gvVLTDSsDYzZS
-   elCy78OpKmLkolwL/Ons3+0wnJUrPygvQweDPVri1s81pgy+N9PTsog9W
-   MpLVPwtBgB9yyTI9wHLlhavJk3o6gKcu2CyEuz1lpG+cuy5V0u6GzefVA
-   Q==;
-X-CSE-ConnectionGUID: 3/DC+L49QfGjI6HeEqK0fg==
-X-CSE-MsgGUID: V6ExW2teTam+90kURm11pQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11949"; a="1904406"
-X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
-   d="scan'208";a="1904406"
-Received: from fmviesa012.fm.intel.com ([10.60.135.152])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2026 06:53:06 -0700
-X-CSE-ConnectionGUID: emGC5Cc7RHmxfp5uMqR2QA==
-X-CSE-MsgGUID: l+3uM1XCTVevg1M65njuRg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
-   d="scan'208";a="6618376"
-Received: from abityuts-desk1.ger.corp.intel.com (HELO localhost) ([10.245.244.117])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2026 06:53:03 -0700
-Date: Wed, 28 Oct 2026 15:52:59 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: claudiu beznea <claudiu.beznea@tuxon.dev>
-Cc: geert+renesas@glider.be, mturquette@baylibre.com, sboyd@kernel.org,
-	wim@linux-watchdog.org, linux@roeck-us.net, ulf.hansson@linaro.org,
-	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Subject: Re: [PATCH v4 4/4] watchdog: rzg2l_wdt: Power on the watchdog domain
- in the restart handler
-Message-ID: <auH-O0LwqdmgzrQf@ashevche-desk.local>
-References: <20241015164732.4085249-1-claudiu.beznea.uj@bp.renesas.com>
- <20241015164732.4085249-5-claudiu.beznea.uj@bp.renesas.com>
- <auC7FueGYTiLOpcX@black.igk.intel.com>
- <0602847f-4fef-49b6-a1eb-3240d7c1ecbc@tuxon.dev>
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=mSJpWq6/
+Received: from eig-obgw-5006b.ext.cloudfilter.net ([10.0.29.217])
+	by cmsmtp with ESMTPS
+	id Lv2YxJJqic3XsM51XxrGsW; Wed, 28 Oct 2026 14:53:07 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id M51WxEDeyWZOZM51XxLMqP; Wed, 28 Oct 2026 14:53:07 +0000
+X-Authority-Analysis: v=2.4 cv=UfZRSLSN c=1 sm=1 tr=0 ts=6ae20c53
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
+ a=Byx-y9mGAAAA:8 a=Zefr6VZ22Yr9aPQxvcwA:9 a=QEXdDO2ut3YA:10
+ a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=P1GIpgUgATjRtmShaLmb9WJ65EK51EMomNgm/lz9AjM=; b=mSJpWq6/+oO0
+	yLuDGrC5uwCv4kTgX5kx7qnJO2Xit0zwUbr7guTTkMP3s8EVLCBIsCCw54TjcolN69pfKDKawPkeB
+	VzNSfCU+6N/yI67upJkWxnIdV7iLb3AV84nI4qDGWuDtsxIcMqvAMAjp73DzylBpGvIRro4JaNO+S
+	XjNvaaPxTqnPeg3zn785tPRJPjrpxzdAbbTU9Z1xxZ3t/Fi/2V1PD93k7PWLXkA9xuycEcVcXPLaB
+	uDLlTw+F9ES+yP0pkDmiwgYKfQ5wOrEJE1b/tXLZZrHQHn8waEH+r++dj9pvuh2aljk344sGcxlqv
+	rKbLwI2Z9X4h7nz2cIemAg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:45432)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xM51W-00000004EWL-1ljv;
+	Wed, 28 Oct 2026 20:23:06 +0530
+Message-ID: <fe262c42-6657-4e98-912b-f6d37b145ec8@roeck-us.net>
+Date: Wed, 28 Oct 2026 07:53:05 -0700
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -86,57 +76,135 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0602847f-4fef-49b6-a1eb-3240d7c1ecbc@tuxon.dev>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 6/6] watchdog: rdc321x: initialize device state before
+ registration
+To: Jiale Yao <yaojiale02@163.com>, Wim Van Sebroeck
+ <wim@linux-watchdog.org>, Florian Fainelli <florian.fainelli@telecomint.eu>,
+ linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+References: <20261028044828.96177-1-yaojiale02@163.com>
+ <20261028044828.96177-7-yaojiale02@163.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <20261028044828.96177-7-yaojiale02@163.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xM51W-00000004EWL-1ljv
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:45432
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 3
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfMOVdiQbkte75tksttkqq3TfTLo2h5/JPPhZOadZcjyIvv0oynI62yN6Ueh/kcUnVR2oEStRyPUdtIQWFCFthaevPZqDvuSNJRsdEXJ5GoHR6KPHB87R
+ aYSY9cEI5r7NIukOYVjPLrmh1qhNaO2bXK6xmT0JUf6lxnOlEXlaJwj8v90ktOKtANpHcBiIOPBv3Shkk4KVWWlMkiZmDv4Ax1/rc5mcw0QaBacuycMVeO2F
 
-On Wed, Oct 28, 2026 at 02:45:15PM +0200, claudiu beznea wrote:
-> On 10/27/26 16:54, Andy Shevchenko wrote:
-> > On Tue, Oct 15, 2024 at 07:47:32PM +0300, Claudiu wrote:
-
-...
-
-> > > Commit e4cf89596c1f ("watchdog: rzg2l_wdt: Fix 'BUG: Invalid wait
-> > > context'") dropped the pm_runtime_get_sync() and replaced it with
-> > > clk_prepare_enable() to avoid invalid wait context due to genpd_lock()
-> > > in genpd_runtime_resume() being called from atomic context. But
-> > > clk_prepare_enable() doesn't fit for this either (as reported by
-> > > Ulf Hansson) as clk_prepare() can also sleep (it just not throw invalid
-> > > wait context warning as it is not written for this).
-> > 
-> > > Because the watchdog device is marked now as IRQ safe (though this patch)
-> > 
-> > ...which is complete hack and has to be avoided.
-> > 
-> > Can it be solved differently?
+On 10/27/26 21:48, Jiale Yao wrote:
+> misc_register() exposes the watchdog before its lock, completion, and
+> timer are initialized. A userspace operation racing probe can therefore
+> use any of these objects before it is ready.
 > 
-> Can't tell ATM. This solution was suggested by Ulf.
-
-With all respect to Ulf, this is a bad idea. We need to get rid of
-pm_runtime_irq_safe() sooner and avoid adding new users of this hack.
-
-> > (Note, OMAP, for example, got patches in the past
-> > and become pm_runtime_irq_safe()-free.)
+> Finish initializing the watchdog state before registering the misc
+> device.
 > 
-> I'll look through it.
+> Fixes: b3e8f2c13ae9 ("[WATCHDOG] Add support for the built-int RDC R-321x SoC watchdog")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jiale Yao <yaojiale02@163.com>
 
-Thank you!
+I am not going to apply this (or similar) patches.
+If you do have hardware utilizing this watchdog, pleae convert the driver
+to use the watchdog subsystem. Otherwise, please leave it alone.
 
-> > > the irq_safe_dev_in_sleep_domain() call from genpd_runtime_resume() returns
-> > > 1 for devices not registering an IRQ safe PM domain for watchdog (as the
-> > > watchdog device is IRQ safe, PM domain is not and watchdog PM domain is
-> > > always-on), this being the case for RZ/G3S with old device trees and
-> > > the rest of the SoCs that use this driver, we can now drop also the
-> > > clk_prepare_enable() calls in restart handler and rely on
-> > > pm_runtime_resume_and_get().
-> > 
-> > > Thus, drop clk_prepare_enable() and use pm_runtime_resume_and_get() in
-> > > watchdog restart handler.
+Thanks,
+Guenter
 
--- 
-With Best Regards,
-Andy Shevchenko
-
+> ---
+>   drivers/watchdog/rdc321x_wdt.c | 12 ++++++------
+>   1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
+> index 8955177072fa..a2520d8d5c90 100644
+> --- a/drivers/watchdog/rdc321x_wdt.c
+> +++ b/drivers/watchdog/rdc321x_wdt.c
+> @@ -233,12 +233,6 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
+>   	rdc321x_wdt_device.queue = 0;
+>   	rdc321x_wdt_device.default_ticks = ticks;
+>   
+> -	err = misc_register(&rdc321x_wdt_misc);
+> -	if (err < 0) {
+> -		dev_err(&pdev->dev, "misc_register failed\n");
+> -		return err;
+> -	}
+> -
+>   	spin_lock_init(&rdc321x_wdt_device.lock);
+>   
+>   	/* Reset the watchdog */
+> @@ -251,6 +245,12 @@ static int rdc321x_wdt_probe(struct platform_device *pdev)
+>   
+>   	timer_setup(&rdc321x_wdt_device.timer, rdc321x_wdt_trigger, 0);
+>   
+> +	err = misc_register(&rdc321x_wdt_misc);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "misc_register failed\n");
+> +		return err;
+> +	}
+> +
+>   	dev_info(&pdev->dev, "watchdog init success\n");
+>   
+>   	return 0;
 
