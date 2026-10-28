@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793195284;
-	b=xi9xwFf4CaCKuY0DGh5ymNm8QgMuxgzz1/zQt4I9pW6us+wsUYfYd+3vbgvzKxgQd+Wi
-	 f2mfVf0TDdr4YNRdoGddSx4KdhACKPJmDy269H4X+tROrqZKbmDm4KZ+nK07F6XOIihcT
-	 wsTiK61VJPLWArKNnpmB3weHxiR2soTdeYYBwPMW4+4lQ8doFznHQnBshP+zQmQPKsTJs
-	 /kDDNsNuUptvYbHd96Zgv8VY9XGKnSNvQ1PSe8oDv0XVp+2nYq07DNBb5JskxKDo2qAgb
-	 yMijIjrnZPENz+kD7FKA7BYnm8gH69liNuZIm58KFIaYKby9WVsOqSyCJmsp6ay6/eQ==
+	t=1793195304;
+	b=sxbUY61GLiZAZiJrnxO8wrDujJahH600/KlBqQ0xFodZJTbRG63mT2chUdF7MsnEdvzf
+	 I4O3fpg7RvYVDfMdc1nLUByBB8yNWb6aZWEY0A/cFt5orMjEfWcBHMR2hikAUCVrVwpcB
+	 zd+RuJZlIZiigV3GlLoz+mm+gC39eFzD2pnhOLanNwNeuPJ1pQ1Yt8G+tcu/hQsQDZ/qB
+	 /MBvbfHYohVHg4WzmA7ao69ifTRdAE0NOd+UvspaekcjVKmgv45+7QwepJ6XxAgJAXWnO
+	 jEstTuAbchMjXcA695kM15LKSsyLbefMEOQ3MNs03rT3gE249StXKrfBd0LzaKTP0lg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793195284;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793195304;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=EK+K9qrLcWGfFuyJXBU9FNLXhFL/gszCgTQEAYirt60=;
-	b=ZjJAcqVcfg3QX56AvAqBWMYwo2OCf7BOs+4h0Txx8u7RtR7QG9M+z/o4E9tigm7ubdjy
-	 9SlU/zm0vUXVGhc1AG3aZWErhIFFPtEs//iPFcmCpDOK1wlkAX2idHrYlrnoywM3Kn4O0
-	 3u6D1WW1y8PWSMhZ+wgjC09miOfhsrhPIsSN4BvRJCZ0tA/PbalLvW0gJwQRIaY3ocLvj
-	 xKsFvFzODo3RXJ1p5FMR+4yttOw4gKI50r7t58Wq69pU2KHCGMdyWy4diL9T3BI1THE1+
-	 zveG9rk6MvkoQwnsBrbix+h5fJ8j+PK57xG2759++sgiNtwVCB6DBm5tXFAk5ieeZng==
+	bh=0ooKXWeY0e7A+cuVjpBUsBgmOIh24PcaXz1sFnrQ4fM=;
+	b=JxIMsemiXj7GeTDKOixOFOAEKiIeI4Zoulp5jg3G5kgAjXlp0xdqHDp4wxkMaLvyN4+c
+	 7hrOO7PVFKhMWObil257RVD1ggXIlZbfXaAmjogNfork9JNv29q8TRgfbnARpgvlO79j5
+	 eFxL5VhZFj6dde/uckLSH0e8l/OhIFyanrNWDrf+V3+FkMtisV8+MVAG5ibF7cHxZ/F1y
+	 nB+2Qa5UZ4KfIztM13XVbZ8/kiZsxbeYp9SvNGL49xT/lLgnW6rWnHqGsC/EFa3WH3RQ6
+	 rxTt7eoH9GauLUkDZCffrvansuS22uWa/8no3B5LC/oSBfnXylo1YPYiphWurmJEq+A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EyWASZTF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z5vpilQ7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE70E606A321;
-	Wed, 28 Oct 2026 13:48:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FBDA606A31D;
+	Wed, 28 Oct 2026 13:48:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EyWASZTF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82ABA1F01828;
-	Wed, 28 Oct 2026 13:48:02 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z5vpilQ7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC59A1F01825;
+	Wed, 28 Oct 2026 13:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793195283;
-	bh=EK+K9qrLcWGfFuyJXBU9FNLXhFL/gszCgTQEAYirt60=;
+	s=k20260515; t=1793195303;
+	bh=0ooKXWeY0e7A+cuVjpBUsBgmOIh24PcaXz1sFnrQ4fM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=EyWASZTF9xJvCW12+5wPYsP5WXMRB6HGXmkJ9i0tu6Jxheh4z/m2T+wjtCwI762t8
-	 Ovg9kHQlhk3x0vDq7ZlVQh+fPds4V/l+Jn7XVXmjkKzS12pildNSZyDN18mqUOaCZL
-	 SRnypw0hQLY5g3mN7pG4Kt/lbgm9FxNKHtwSKFAWw5FXGRHtwOoh15HHzGT6fxOr/k
-	 Zsai9a1LsxJ7gzOMn6uIhE+HJZohtTqSyVfeVwsaKrGBeL+DAPjolfg4wboT6ABv5W
-	 GUY2VN7SmwkMQlYLESoTxVXNi9OIRYWy+oPoySD+Mapj0f3YTGdXagozPthHoUjObD
-	 w5LTkpyuDSXkw==
-Date: Wed, 28 Oct 2026 14:47:59 +0100
+	b=Z5vpilQ7PNSjA4l86QAE5jE8wKTYRLOPm7/ETBRqj1umF13SyEZF+5ffwObn95W2I
+	 91KPJsJFPk4c7uJHp5Ft7YqOdgbFFXrCNXac9BMTpKtJUDe2L+ElpMh24tgFHcNFLd
+	 UABIfjaEnkTC0jAC9luDzwM7U8IplIjMBPMHxQmsCb4hsGlDksNErQSchPfymWDhe3
+	 MGil62ygEofOw5L/XFCGblF01lC2kk0r5m+UhZ0fgLH7BuQqLxFJOy8IJ4cLz9RuKg
+	 8ST+NaVvnbgKjYlfcZwk1QPXWJTphCq5QmVogKv6J5EMwJY8tZ4ZZbreWXtXudW6j4
+	 Qb4wzMwhLE8NQ==
+Date: Wed, 28 Oct 2026 14:48:20 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Yureka Lilian <yureka@cyberchaos.dev>
 Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
@@ -53,11 +53,10 @@ Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>,
 	Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-pwm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 05/10] dt-bindings: arm: apple: apple,pmgr: Add t8142
- compatible
-Message-ID: <20261028-teal-platypus-of-poetry-a2febf@quoll>
+Subject: Re: [PATCH 09/10] dt-bindings: arm: apple: Add M5 based devices
+Message-ID: <20261028-teal-boa-of-attraction-dc0381@quoll>
 References: <20261027-apple-m5-initial-devicetrees-v1-0-1356181bc50d@cyberchaos.dev>
- <20261027-apple-m5-initial-devicetrees-v1-5-1356181bc50d@cyberchaos.dev>
+ <20261027-apple-m5-initial-devicetrees-v1-9-1356181bc50d@cyberchaos.dev>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -69,17 +68,16 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-5-1356181bc50d@cyberchaos.dev>
+In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-9-1356181bc50d@cyberchaos.dev>
 
-On Tue, Oct 27, 2026 at 09:03:25AM +0100, Yureka Lilian wrote:
-> The PMGR blocks on the Apple Silicon M5 SoC (t8142) are compatible
-> with the M1-M4 SoCs. Add "apple,t8142-pmgr" as M5 specific
-> compatible.
+On Tue, Oct 27, 2026 at 09:03:29AM +0100, Yureka Lilian wrote:
+> Only the MacBook Pro (14-inch) and MacBook Air (13/15-inch) were offered
+> with the M5 (t8142) SoC. Add the corresponding compatibles.
 > 
 > Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
 > ---
->  Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml | 1 +
->  1 file changed, 1 insertion(+)
+>  Documentation/devicetree/bindings/arm/apple.yaml | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
