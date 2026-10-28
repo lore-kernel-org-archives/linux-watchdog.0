@@ -1,87 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.5
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793163020;
-	b=IDcQ/k9EkAAgmd2TCMyPQyoHuGkdwluihWBoDbDwxX32hO20CKy4WeQoJFeFQSBQ5koB
-	 1yKhGjH/KkIIapwGGINTrUCbAVG0TqhDEtNoNpzg8XMOtCwGP3KPM2ml+ozLY5d5RKJ+g
-	 Z3DWrB+H+PKYvmd4zSmA95cbAIAi56svDO14XI/7WGqxzSCOr5tBGGMaMNF3gUSdk5k9d
-	 m+rzMiEw4OLobSjkbvV8e0X2RCT4cxb54Vnt3hrIFGTO/7lqWd51V1sFt1oKIQRsPhjlI
-	 wM8Lri45yIezpBQj/iO7ztuvjo0A+An74Xx9miExKhAbZAmarPyDWZm1g5+89VH+/Jg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793163020;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Subject:Date:Message-Id:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding:X-CM-TRANSID:
-	 X-Coremail-Antispam:X-CM-SenderInfo;
-	bh=5eX6ZERtxMma6IIiwk4zjHSJGCnTW5TdkQ89tZL/8dM=;
-	b=GmxtOGfyUj5pCCr4aqR0JioNiimFurOzK9YRtRlglGWJpfIKgJ987Fj/+EPj6frdd9VP
-	 OZi/sW3bgP5+u7xP42PaGohspt/uhERJLLeUnmU1uCOl/iF/OncY2YOXrpolVUiLlUQNX
-	 sdCCAsSxP59wd1Oijbf1kLiQCoaWfiXQG4qBJSJLiXFuQeDbYIPebH8EEJCDaOnQddyK0
-	 BNkZWC2k1pO4PBlyfYn8Ehs4n6td59E9NlJznKUNJzsd4kuZxhZ2ZKXVnVbw8+NhiaAKc
-	 /pfL8u6VwErNkSObK6xg+cXK4YUkG0C/5WC6ErYXtsjiNjocnfvZDc8ozUKTQQr4oYg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=163.com;
-	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b="Pmoe/AMv";
-	arc=none smtp.remote-ip=220.197.31.5
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793186356;
+	b=4C/5y7YXelbxTfkksErLEXHp2hDF2sOOJuv1czJ+YOZHS8t/nmZuzASNFq+oaQg8KeMj
+	 aBBRubhDb1Dt5vqPLTO/i1Fp10hjaUxQFnpctZGIDzF790/NH7hNuAcjsYGKI0BdmYKA4
+	 /XXYKZ75XIQxiCJer1b3A2kdDijjtlVqAIZq4/ckkWQNcep9hONNaqRViNUnA4wDgPR5K
+	 P1Enqhu60yJypZzuCJSkiVX/htNZAEJ8QT5FacCvCYjZmBKHa/KvTDmKB3F/I2m8W+HA9
+	 1Elbpc5eHgltzySsJcTlvv6Bs9vGgXBC+XnieYVm1JmZJOK3bD0akXa2ST8rEKXEIbQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793186356;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=siDHJNCTopPCSRKzCL5cJLzJZg1AuYQ0QITbIwpTbio=;
+	b=nRQpgY6jMYTA121QbbGrIMw9tYcery1rzzZZfdam4GkIqqFxcNCKcJmr4K+2+WA+8Ypv
+	 TG5QmIHba5Lt4p50IREYWt7ruzRBg4saDmkoEPFOmcmCFvfx3Tyef77yTJ1XHC3/aXRz0
+	 zl4uHS34Jw1vuH1dCBbliZxdDU+tQQfB3ED81XHEbyJThLgAqUgL9ooIZl5dFJiD5rfrZ
+	 lOE058nZj+xKHTElsZoFXpDIYXoWLhmGHRvGVfmyY1g/naAidu2FcTPGdoaln7Jqs4xUx
+	 yiNGOoVnQeSMC4wXRU/eSQf+aLps/TeTOfzk9crcV8ppidXaOTevK61sUZ1Yn1KY5Eg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmO8pI+9;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 305CC606A323;
+	Wed, 28 Oct 2026 11:19:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmO8pI+9
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793186355;
+	b=ijaMYTEFGzK2f4TER2x+LHt8z8+I9z0IHeKO+OMeMBEg7+wLUGuJP6CALOse6S1QG1Le
+	 RGy43wErfV+jU2KtBd3z8MoZrXCT7nCVntU/AntDtg5OANSGXSq+8p6Beo+mZ4tSzT+QK
+	 Y2UZ+2PZABZvxPjkCfdYED0xT7qoGCXro6h2U6k0M6iXVoR4J8copSHN//W2EEZxOkk1/
+	 IwALQ4TJznWUrHuw50ybjsnNexC/D+2TY+0ff0AMeTgYkiKZZ1p9ncPLpc0Z2xVN9JROY
+	 HVLUIU/EkHP4kbnsiw8+veuPDbw2L07AYKospztrWz3zhz/cP7uZvfydgwYOhNqd+pw==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793186355;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=siDHJNCTopPCSRKzCL5cJLzJZg1AuYQ0QITbIwpTbio=;
+	b=1Jsz7Wu/69sOSKwBBejDC6dqzlPlvovdBBC+MVCgR+b4zPjQKxcE+NtexQMWrXPcPoEj
+	 L0Tx+EkDWseEKgfSJxbuws466CJxtvAZ7N/RZORVCYjDJ2i+WMc97jzAcUhPGjBwvWfGQ
+	 +3SRFSX86bDNLwvzSxgjyVdUK+qIoP6sLsh24zfZgnVlvZQJ00U3SvBA4JivbKJjZf73n
+	 Wake/HAO6M+mGLyJvWSE2pCUYim4sHKHkLJ+pfDvlio+tqdWtd6N5IPj/UxmVNHRSPF6P
+	 0+bPU7elUmETco6M8WPWc7nb7IwZt4idnMkwMu2LR8Wd4Ye13xRX/nc0+nwzOyza8MA==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD134606A31A;
-	Wed, 28 Oct 2026 04:50:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD134606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=Pmoe/AMv
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=5e
-	X6ZERtxMma6IIiwk4zjHSJGCnTW5TdkQ89tZL/8dM=; b=Pmoe/AMv61DOoUS7hw
-	fJtrZ1OMVnBesqPe6v4a8+oGDtdeJ3Kmtf4tf4a4NHv6eHPXLarg1WgKZ5yBzh2D
-	sCKfYqy6c0tdGZ0XZrY36teHjocwbfTitnmOp/cu5Kq9/4MNwk/sKJvQ7YHsj4rp
-	O2kCYpKzGX/5HwlY9DZzq6lCs=
-Received: from pc.localdomain (unknown [])
-	by gzsmtp2 (Coremail) with SMTP id PSgvCgDXXyGcfuFqI22BCQ--.35298S2;
-	Wed, 28 Oct 2026 12:48:30 +0800 (CST)
-From: Jiale Yao <yaojiale02@163.com>
-To: Justin Sanders <justin@coraid.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Ioana Ciornei <ioana.ciornei@nxp.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	Brad Warrum <bwarrum@linux.ibm.com>,
-	Ritu Agarwal <rituagar@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-	Anirudh Rayabharam <anrayabh@linux.microsoft.com>,
-	Mukesh Rathor <mrathor@linux.microsoft.com>,
-	Muminul Islam <muislam@microsoft.com>,
-	Nuno Das Neves <nunodasneves@linux.microsoft.com>,
-	Steven Royer <seroyer@linux.vnet.ibm.com>,
-	Adam Reznechek <adreznec@linux.vnet.ibm.com>,
-	"Bryant G. Ly" <bryantly@linux.vnet.ibm.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Florian Fainelli <florian.fainelli@telecomint.eu>,
-	linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-hyperv@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH 0/6] Initialize device state before userspace registration
-Date: Wed, 28 Oct 2026 12:48:20 +0800
-Message-Id: <20261028044828.96177-1-yaojiale02@163.com>
-X-Mailer: git-send-email 2.34.1
+	by smtp.kernel.org (Postfix) with ESMTPS id 659EF1F031E4;
+	Wed, 28 Oct 2026 11:19:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793186355;
+	bh=siDHJNCTopPCSRKzCL5cJLzJZg1AuYQ0QITbIwpTbio=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=VmO8pI+9XEysYnVPcbvvMQ3zwQX0Mrijloscy0v+EgLCb04WLWiit3y2yn3hY3gjB
+	 xiFyCyjb3AMhoRxX/8EAU5KG357rhVcaQKsqtN58KY8k+7DL5d44mbanGrHmTHntf4
+	 8dQqp0eyvJ06UdkVyOBIfNJikoyqOmu7hVNJvDmKtaRpdk8x01pKMqVLzTMObav/bN
+	 +UCqd//ZEAavEiloGr93lbgyyp6JaH3VfJm2smL9a2qqYG9CzpHPi2tzjhlFBTWsFh
+	 O5nlcd/DoinnkRxTPX/PM+lvrn0BsbJ/27QuDU9zRYsH4sYOfob0rTUvNfVVYrVhSq
+	 zmLtCeEOouOGQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id DF6D345427;
+	Wed, 28 Oct 2026 11:19:12 +0000 (UTC)
+From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
+Date: Wed, 28 Oct 2026 14:17:25 +0300
+Subject: [PATCH v6 06/11] dt-bindings: clock: qcom,a53pll: Add MSM8952
+ compatible
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -91,39 +83,104 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PSgvCgDXXyGcfuFqI22BCQ--.35298S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7XFWfGw4fZr1kWFy5Xry5Jwb_yoW8Jry3pa
-	1Sg3sYy392krW7Xr43Zay7Ga4Fga48uayUCF90kw1FgFs5CFyvqFW0qay8tFWDJFWxA3W0
-	qF10vrWxGFWUCrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UpE_NUUUUU=
-X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC7x7ZFGrhfp6IQwAA3c
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261028-msm8952-initial-support-v6-6-e07ddd8bcf4c@mainlining.org>
+References: <20261028-msm8952-initial-support-v6-0-e07ddd8bcf4c@mainlining.org>
+In-Reply-To: <20261028-msm8952-initial-support-v6-0-e07ddd8bcf4c@mainlining.org>
+To: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
+ Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
+ Konrad Dybcio <konradybcio@kernel.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Rajendra Nayak <quic_rjendra@quicinc.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Jassi Brar <jassisinghbrar@gmail.com>, Abel Vesa <abelvesa@kernel.org>, 
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
+ Jerome Brunet <jbrunet+clk@baylibre.com>, 
+ Rob Clark <robin.clark@oss.qualcomm.com>, 
+ Dmitry Baryshkov <lumag@kernel.org>, 
+ Abhinav Kumar <abhinav.kumar@linux.dev>, 
+ Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
+ Marijn Suijten <marijn.suijten@somainline.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ Krishna Manikandan <quic_mkrishn@quicinc.com>, 
+ Mathieu Poirier <mathieu.poirier@linaro.org>, 
+ Manivannan Sadhasivam <mani@kernel.org>, Kees Cook <kees@kernel.org>, 
+ Tony Luck <tony.luck@intel.com>, 
+ "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, 
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
+ linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, 
+ linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org, 
+ Muzaffer Kadir <muzafferkadir@mainlining.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793186351; l=1385;
+ i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
+ bh=BrzMm8QIgqROsRwWhO5mUK+pBiKnEr9sw/uWcqoVjmc=;
+ b=wJUCS0E1QC//bgwIhJ3rv8QS6QJhatBac3eV4Z4kJIhHk3lq1qq8Wv76ghgEB0Mch99FNWQ52
+ fC2U63mJeS7CQN+r9MsE/3AZPX50PJ88XHH6JWDM1dfngE7vz67tdY3
+X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
+ pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
+X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
+ with auth_id=954
+X-Original-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Reply-To: muzafferkadir@mainlining.org
+Content-Transfer-Encoding: 7bit
 
-Several drivers register character devices or sysfs attributes before
-initializing synchronization objects and related state used by their
-userspace entry points. Registration makes those entry points immediately
-available, so a concurrent access can reach partially initialized state.
+From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Move each initialization ahead of the corresponding registration. The
-patches are independent and cover AoE, fsl-mc, MSHV, IBM VMC, DCSSBLK,
-and the RDC321x watchdog.
+Document the a53pll found on MSM8952.
 
-Jiale Yao (6):
-  aoe: initialize error message synchronization before registration
-  bus: fsl-mc: initialize UAPI state before device registration
-  Drivers: hv: initialize partition table before device registration
-  misc: ibmvmc: initialize HMC state before device registration
-  s390/dcssblk: initialize device semaphore before sysfs registration
-  watchdog: rdc321x: initialize device state before registration
+Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
+---
+ .../devicetree/bindings/clock/qcom,a53pll.yaml     | 25 +++++++++++++---------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
- drivers/block/aoe/aoechr.c       |  6 +++---
- drivers/bus/fsl-mc/fsl-mc-uapi.c |  6 ++----
- drivers/hv/mshv_root_main.c      |  6 +++---
- drivers/misc/ibmvmc.c            | 16 ++++++++--------
- drivers/s390/block/dcssblk.c     |  3 ++-
- drivers/watchdog/rdc321x_wdt.c   | 12 ++++++------
- 6 files changed, 24 insertions(+), 25 deletions(-)
+diff --git a/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml b/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
+index 1eec77e75a0a..4abfaa24bc71 100644
+--- a/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
++++ b/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
+@@ -15,16 +15,21 @@ description:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - qcom,ipq5018-a53pll
+-      - qcom,ipq5210-a53pll
+-      - qcom,ipq5332-a53pll
+-      - qcom,ipq6018-a53pll
+-      - qcom,ipq8074-a53pll
+-      - qcom,ipq9574-a73pll
+-      - qcom,msm8226-a7pll
+-      - qcom,msm8916-a53pll
+-      - qcom,msm8939-a53pll
++    oneOf:
++      - enum:
++          - qcom,ipq5018-a53pll
++          - qcom,ipq5210-a53pll
++          - qcom,ipq5332-a53pll
++          - qcom,ipq6018-a53pll
++          - qcom,ipq8074-a53pll
++          - qcom,ipq9574-a73pll
++          - qcom,msm8226-a7pll
++          - qcom,msm8916-a53pll
++          - qcom,msm8939-a53pll
++      - items:
++          - enum:
++              - qcom,msm8952-a53pll
++          - const: qcom,msm8939-a53pll
+ 
+   reg:
+     maxItems: 1
 
 -- 
-2.34.1
+2.55.0
+
 
