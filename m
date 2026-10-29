@@ -1,79 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793307767;
-	b=LvmxhgcYVnSDuhHvtaJulYDNCBTeqMlA62s9i1v8CVVKq0cGukG2pBtpKC8B5e4TEQBs
-	 EfXCRC9ytuxGJz53wc92oFXI7StX8eE03Yss8yFvDs68aoiObsKZkeFhrsNAN3R4Zwxzh
-	 SGaM2t4p7JgV3Sk4FDEgG/x5CbF6CfaNZ/JReFccFwc+ngR7xzfySWeL7OuDZtIweJ2ma
-	 vaWR5kH/TLeFDZL0y3zWJv8OPBxTF08zaCnUiDYGr6S63C8bvmv2OL8y+ovIEkXyKVPFL
-	 cHcoUx6DQ1f3Jnb8aOUJzbWMbE5Tjg5QJZ1s0wf2kilHJKc3fMvYqCZPku11HonIrNg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793307767;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=w41sq28x/ASq4lXyo8/BhZ5wcP8Nly9VwoK1OLW/Pp8=;
-	b=5ZSKgxWJsnkI7jhGQnihxDquCX52XWGTjLz7v3Fw+2uvQLYixYylRnvvPvJnqiwUhJfK
-	 ZMQ7fG/bHv8JabsAJtFN1Z/x+2AmIO+7zt7p5Kxj/DetJ3coIl/tvLA3sshnjB5HUnbWJ
-	 CqAY6oN/T37klTnAyTGPzviX/aDgSqIrjhjveP1Sm1YN+gHPlbm7gwWWodc4XZDXI2hob
-	 Ys4MjGiV3/LTQc37k4PZORephgeDJBeqV4DUxuP6vIt/+xbnF/4nx2paFos2fRDKGqAoT
-	 7GpMKSVAJ65e+K5aYct7OgQ2wREz06MUvzMDqeJBIBG830oN1r8wLtzsMVMFwlx+Vgg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Orrk8FxC;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793311822;
+	b=VfeVyXN+UVEfdn3VFlmsddNsIGSv2MS4JhyQEBeSUXXuI7XsTAxv/k0BKrebbJz9OP1C
+	 WLKO93CMo64Q/8hiVnhKDWXonEnSK1oQ5bgtSTK8CYnU/Gr143gnF+1g6mhNFNnS2U2vu
+	 H8/51viaszxDCpmIF9w5wIbDD9jzIYgfkpaZ1C+mgUq5XZCPrDTEQMmWUaUPGiNHftYGu
+	 eXdbRjVvI+7WDTg25IUT1k+TLvg+se6dRphXr5h1Vl3MN7fptVlsv71P5N5iGb5cmF/F0
+	 +hnj/ZMoVk1y904E6NMqPrYyBRt+6meKUUpaQeYw+RlRfWzyKDyejLrps3olb0AGZ/w==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793311822;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=cER8Rp0mkVj+HJCMph+6srnNJM6smXhNIXGmscx1YwU=;
+	b=jL6U1NRANsaIQrOOUdVeKSqLpNRThxF74R7DoiqCExthDBO1hxgSdPUc2h3t/s6Yetw5
+	 eF9a3p5o6KSjrznPpIxGcxrzFN2mfeZ0fH+K5nJIABHMRi1l8Rvrt8g/d3l35fH8eU9V2
+	 Nl+vzwtMC5WOY8oZyAaGeLq+DA7Y0ikWqhgnAzrOHU4yZImxrjD/RpiLURU6hi0ZDwuYD
+	 17QqGLYXI1iWKbjJFv1k7dE/wPehT+K5SQZFJto1YkrNRm/Vzty4lOraxV46psHbAvKr7
+	 gy3BB0fIqKuaH9ujdJbjDFejjmQ9LU5v8PwKYgIeiHytkHOLMY1EC1o7x0dXsx6aA4w==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iIedwWNr;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C50D60A260B;
-	Thu, 29 Oct 2026 21:02:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36651606A31A;
+	Thu, 29 Oct 2026 22:10:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Orrk8FxC
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793307762;
-	b=CrEiYe9583yQZ6g8kWuM6h4hLnWw6W6h7FKk+UrKR24EiuHTM+tIAwMoTfHFK9ZkfhQz
-	 xhV6PJvNOkb73MDxoORr/EowHvBAKoHmsZpDGbPYsLxu8hH9F8ZHflnoefMqu+kjblcB4
-	 ICRaq+LQH0fmMlpnaXnlYMJz5j9xZjSIccErlVY9/yzJgs1MaUk0jbw1IBN9ojXwYychx
-	 pJ+6h3AkJcypR3U/+KCRtSygUX5IGxlIqe9icEEVoXVgST3ft5dAKstJdx63u+mjiPluJ
-	 02R9ik8LVs1qkGz33VVZKEsuV3EnuAgAVRV1yO8FC9YgWnJVf5TX+ftEPUnKzGL0b+g==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793307762;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=w41sq28x/ASq4lXyo8/BhZ5wcP8Nly9VwoK1OLW/Pp8=;
-	b=uK+gEhU37dZ3t9Q6XSA/Xzw8ZBVYF0P++6rb6iLBBKlDNuwCn2vikPgzLxD7ev/BoS63
-	 WHxjVDpolGeb9mG4+xYkMHAOQ3eRh+cI82EIZQ414AT5k5RguU66JSsgu/bT6H1+0JAqe
-	 R7SNYjyz2f1VHHIk2TI4w/iyk8DVKUd/Hwzfn2njNfTB+T8a04z9TnwKWLkarRCnAhfQl
-	 fLY/vULIv9AMXOFdHFJK+7YPrjXXyEsDQoUVGT7MmMHa7CvQiiD+5EFdglaG1Wp3YZjGV
-	 DiRpRAEESulv9JPku3iLovynnZGyCmGeapys0hHvECOYLeusvTuduS9qYSO+F6xfA5g==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 2C06A1F031E2;
-	Thu, 29 Oct 2026 21:02:40 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iIedwWNr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CDF1F01816;
+	Thu, 29 Oct 2026 22:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793307762;
-	bh=w41sq28x/ASq4lXyo8/BhZ5wcP8Nly9VwoK1OLW/Pp8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=Orrk8FxCJocyKLi8FRsai06fgyaLKlitCXzV0JGryyWT6TuXkz5dgoa5dhKvX8BRG
-	 b7EDSaqIbSfYIcKQuj28bEknENtOwdhZ9iMTyDMYa2M7TK8ACosB129NwY2mJQG5Gj
-	 YGxKKPGWn2r4xWuDJgj539wHN/cJBpnWx5Kb3HcwSIXKisQh79FMKsRoDluwoNLYPg
-	 RlA3jNgMgnFcLUEXeTdbeHHQ3/6zmY+QmC9yqMJpu87QgfmNoovw1g8RMAKBeuWfXz
-	 l+zv8gpUmwH4y8C3Zn1YsleWoRnF55QauqQGUKPkIQ/q7gbfiYNVSwa0I1ln6MQK1L
-	 S052DhEksGIWw==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 3836E459DE;
-	Thu, 29 Oct 2026 21:02:38 +0000 (UTC)
-From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Fri, 30 Oct 2026 00:02:41 +0300
-Subject: [PATCH v7 10/11] dt-bindings: input: touchscreen: goodix: Add
- binding for GT970
+	s=k20260515; t=1793311821;
+	bh=cER8Rp0mkVj+HJCMph+6srnNJM6smXhNIXGmscx1YwU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=iIedwWNr6tCBfcz03QRbc75sNGsOaMj2hWA05O5TBAwYeNG5Jvg5GerXNZqK/dEdV
+	 0fr4fojBA8G2Pt423oZIl5848i8fn1vhhI1GSlhkhlISnVLv9v7wd3C9Axa/w07it1
+	 PYKegdeyohjI81Z5xkGh7KzuEklcIbV4WFcg+decIGiDsmZgys/V1LvG+O8naGjHlU
+	 u+l3DHiIO50zk5EPosjF5Hyj0994TMjkyaW3qzwrTQPDqTxJ0BX7OaaM1AJwvtDpFA
+	 cCv05+Eodvqrl+MejBKrjzgftGwLgvAFwbpvFWmV6J+BJTIEJjypJQ0XHtJSo1daKw
+	 p9aEdnNi5a6Hg==
+Message-ID: <sashiko-outbox-190050@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v7 09/11] arm64: dts: qcom: Add initial support for
+ MSM8952
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
+Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261030-msm8952-initial-support-v7-9-ad748ace375d@mainlining.org>
+References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
+ <20261030-msm8952-initial-support-v7-9-ad748ace375d@mainlining.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 29 Oct 2026 22:10:20 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -82,118 +60,293 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261030-msm8952-initial-support-v7-10-ad748ace375d@mainlining.org>
-References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
-In-Reply-To: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
-To: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
- Konrad Dybcio <konradybcio@kernel.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, 
- Rajendra Nayak <quic_rjendra@quicinc.com>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Jassi Brar <jassisinghbrar@gmail.com>, Abel Vesa <abelvesa@kernel.org>, 
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
- Jerome Brunet <jbrunet+clk@baylibre.com>, 
- Rob Clark <robin.clark@oss.qualcomm.com>, 
- Dmitry Baryshkov <lumag@kernel.org>, 
- Abhinav Kumar <abhinav.kumar@linux.dev>, 
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
- Marijn Suijten <marijn.suijten@somainline.org>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- Krishna Manikandan <quic_mkrishn@quicinc.com>, 
- Mathieu Poirier <mathieu.poirier@linaro.org>, 
- Manivannan Sadhasivam <mani@kernel.org>, Kees Cook <kees@kernel.org>, 
- Tony Luck <tony.luck@intel.com>, 
- "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
- linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, 
- linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org, 
- Muzaffer Kadir <muzafferkadir@mainlining.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793307755; l=1656;
- i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=WcI6NF2jH7/1jsgO/qq/6GfopHH27DV/LBlXLYlg2yo=;
- b=KaVq6JMZuo3i7wkTjbLJsHd9Jmfne5+q+ucL4Yn9K7uwr8fdG/0pQ6H8NdBv0fDg2nySA2G7s
- XCRYwH3A72GAEr18ksMnVvsYSFPJtptrjY7nrZRMU5r8xHer6DbMIDY
-X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
- pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
-X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
- with auth_id=954
-X-Original-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Reply-To: muzafferkadir@mainlining.org
-Content-Transfer-Encoding: 7bit
 
-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [High] arm64: dts: qcom: msm8952: CPU cooling-maps bound to hot trips
+- [High] arm64: dts: qcom: msm8952: MPM pin 53 collision between mdss and g=
+pio62
+- [High] arm64: dts: qcom: msm8952: missing bam_clk on cryptobam and usbbam
+- [High] arm64: dts: qcom: msm8952: missing TBU clocks on mdss_mdp and gpu_=
+iommu
+--
 
-GT970 works with GT911 driver, document it to be
-used with GT911 compatible.
+commit 209938af6e516d37174e16e2a184d278eb7397c9
+Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
----
- .../bindings/input/touchscreen/goodix.yaml         | 35 ++++++++++++----------
- 1 file changed, 20 insertions(+), 15 deletions(-)
+arm64: dts: qcom: Add initial support for MSM8952
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-index a26a54d63a1c..4be2c137abd7 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-@@ -14,21 +14,26 @@ allOf:
- 
- properties:
-   compatible:
--    enum:
--      - goodix,gt1151
--      - goodix,gt1158
--      - goodix,gt5663
--      - goodix,gt5688
--      - goodix,gt911
--      - goodix,gt9110
--      - goodix,gt912
--      - goodix,gt9147
--      - goodix,gt917s
--      - goodix,gt927
--      - goodix,gt9271
--      - goodix,gt928
--      - goodix,gt9286
--      - goodix,gt967
-+    oneOf:
-+      - enum:
-+          - goodix,gt1151
-+          - goodix,gt1158
-+          - goodix,gt5663
-+          - goodix,gt5688
-+          - goodix,gt911
-+          - goodix,gt9110
-+          - goodix,gt912
-+          - goodix,gt9147
-+          - goodix,gt917s
-+          - goodix,gt927
-+          - goodix,gt9271
-+          - goodix,gt928
-+          - goodix,gt9286
-+          - goodix,gt967
-+      - items:
-+          - enum:
-+              - goodix,gt970
-+          - const: goodix,gt911
- 
-   reg:
-     enum: [ 0x5d, 0x14 ]
+This commit adds the initial device tree source include file for the
+Qualcomm MSM8952 SoC, including support for CPUs, RPM, MPM, QFPROM,
+TSENS, TLMM, GCC, MDSS, IOMMUs, SDHCI, BLSP, USB, and ADSP.
 
--- 
-2.55.0
+> diff --git a/arch/arm64/boot/dts/qcom/msm8952.dtsi b/arch/arm64/boot/dts/=
+qcom/msm8952.dtsi
+> new file mode 100644
+> index 0000000000000..ee932f6b2a9c8
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/qcom/msm8952.dtsi
+> @@ -0,0 +1,2909 @@
 
+[ ... ]
 
+> +	rpm: remoteproc {
+> +		compatible =3D "qcom,msm8952-rpm-proc",
+> +			     "qcom,rpm-proc";
+> +
+> +		mpm: interrupt-controller {
+> +			compatible =3D "qcom,mpm";
+> +
+> +			interrupts =3D <GIC_SPI 171 IRQ_TYPE_EDGE_RISING>;
+> +
+> +			mboxes =3D <&apcs1 1>;
+> +			interrupt-controller;
+> +			#interrupt-cells =3D <2>;
+> +			#power-domain-cells =3D <0>;
+> +			interrupt-parent =3D <&intc>;
+> +			qcom,rpm-msg-ram =3D <&apss_mpm>;
+> +			qcom,mpm-pin-count =3D <64>;
+> +			qcom,mpm-pin-map =3D <2 184>, /* TSENS UPLOW */
+> +					   <49 140>, /* USB ASYNC */
+> +					   <53 72>, /* MDSS */
+> +					   <58 134>, /* USB */
+> +					   <62 190>; /* SPMI */
+> +		};
+
+[Severity: High]
+Does mapping MPM pin 53 to GIC SPI 72 in qcom,mpm-pin-map (and routing
+mdss through <&mpm 53 IRQ_TYPE_LEVEL_HIGH> below) collide with TLMM GPIO
+62?
+
+In drivers/pinctrl/qcom/pinctrl-msm8952.c, msm8952_mpm_map[] maps GPIO 62
+to MPM wakeup pin 53:
+
+	{ 45, 24 }, { 46, 25 }, { 48, 26 }, { 54, 14 }, { 58, 17 }, { 62, 53 },
+
+When an interrupt is requested on a wakeup-capable TLMM GPIO via
+msm_gpio_irq_domain_alloc() -> qcom_mpm_alloc(), drivers/irqchip/irq-qcom-m=
+pm.c
+checks whether the MPM pin is in qcom,mpm-pin-map:
+
+	map =3D get_mpm_gic_map(priv, pin);
+	if (map =3D=3D NULL)
+		return irq_domain_disconnect_hierarchy(domain->parent, virq);
+
+Because pin 53 is present in qcom,mpm-pin-map as <53 72>, get_mpm_gic_map()
+does not return NULL for GPIO 62, so qcom_mpm_alloc() fails to disconnect
+the GIC hierarchy and instead binds GPIO 62 to GIC SPI 72, colliding with
+mdss on both MPM pin 53 and GIC SPI 72.
+
+Since MDSS is in the collapsible MDSS_GDSC power domain rather than an
+always-on MPM wakeup source, should <53 72> be dropped from
+qcom,mpm-pin-map and mdss use interrupts =3D <GIC_SPI 72 IRQ_TYPE_LEVEL_HIG=
+H>
+directly?
+
+[ ... ]
+
+> +		cryptobam: dma-controller@704000 {
+> +			compatible =3D "qcom,bam-v1.7.0";
+> +			reg =3D <0x00704000 0x20000>;
+> +			interrupts =3D <GIC_SPI 207 IRQ_TYPE_LEVEL_HIGH>;
+> +			#dma-cells =3D <1>;
+> +			num-channels =3D <16>;
+> +			qcom,ee =3D <1>;
+> +			qcom,num-ees =3D <4>;
+> +			qcom,controlled-remotely;
+> +		};
+
+[Severity: High]
+Could omitting clocks =3D <&gcc GCC_CRYPTO_AHB_CLK> and
+clock-names =3D "bam_clk" on cryptobam (and similarly omitting
+<&gcc GCC_USB_HS_AHB_CLK> on usbbam: dma-controller@78c4000 below) lead to
+unclocked MMIO accesses?
+
+When qcom,controlled-remotely is set without bam_clk in the DT node,
+bam_dma_probe() in drivers/dma/qcom/bam_dma.c sets bdev->bamclk to NULL via
+devm_clk_get_optional(bdev->dev, "bam_clk").
+
+For cryptobam, qce_crypto_probe() in drivers/crypto/qce/core.c requests the
+DMA channels and then autosuspends via qce_runtime_suspend(), gating off
+GCC_CRYPTO_AHB_CLK (or suspends immediately via the
+PM_RUNTIME_ACQUIRE_AUTOSUSPEND guard if probe fails after
+devm_qce_dma_request()). If the crypto device is later unbound or unwinds
+from a probe failure, qce_dma_release() -> dma_release_channel() ->
+bam_free_chan() resets the BAM channels and masks interrupts at 0x00704000
+while GCC_CRYPTO_AHB_CLK is disabled.
+
+Similarly, usbbam is enabled by default while usb@78db000 is disabled, so
+bam_dma_remove() will access 0x078c4000 with GCC_USB_HS_AHB_CLK gated off
+if usbbam is unbound.
+
+Should cryptobam and usbbam specify their respective AHB clocks as bam_clk?
+
+[ ... ]
+
+> +		mdss: display-subsystem@1a00000 {
+> +			compatible =3D "qcom,mdss";
+> +			reg =3D <0x01a00000 0x1000>,
+> +			      <0x01ac8000 0x3000>;
+> +			reg-names =3D "mdss_phys",
+> +				    "vbif_phys";
+> +
+> +			ranges;
+> +			#address-cells =3D <1>;
+> +			#size-cells =3D <1>;
+> +
+> +			power-domains =3D <&gcc MDSS_GDSC>;
+> +
+> +			clocks =3D <&gcc GCC_MDSS_AHB_CLK>,
+> +				 <&gcc GCC_MDSS_AXI_CLK>,
+> +				 <&gcc GCC_MDSS_VSYNC_CLK>;
+> +			clock-names =3D "iface",
+> +				      "bus",
+> +				      "vsync";
+> +
+> +			interrupts-extended =3D <&mpm 53 IRQ_TYPE_LEVEL_HIGH>;
+> +
+> +			interrupt-controller;
+> +			#interrupt-cells =3D <1>;
+> +
+> +			resets =3D <&gcc GCC_MDSS_BCR>;
+> +
+> +			status =3D "disabled";
+> +
+> +			mdss_mdp: display-controller@1a01000 {
+> +				compatible =3D "qcom,msm8952-mdp5",
+> +					     "qcom,mdp5";
+> +				reg =3D <0x01a01000 0x89000>;
+> +				reg-names =3D "mdp_phys";
+> +
+> +				interrupt-parent =3D <&mdss>;
+> +				interrupts =3D <0>;
+> +
+> +				clocks =3D <&gcc GCC_MDSS_AHB_CLK>,
+> +					 <&gcc GCC_MDSS_AXI_CLK>,
+> +					 <&gcc GCC_MDSS_MDP_CLK>,
+> +					 <&gcc GCC_MDSS_VSYNC_CLK>;
+> +				clock-names =3D "iface",
+> +					      "bus",
+> +					      "core",
+> +					      "vsync";
+> +
+> +				operating-points-v2 =3D <&mdp_opp_table>;
+> +				power-domains =3D <&gcc MDSS_GDSC>;
+> +
+> +				iommus =3D <&apps_iommu 0x17>;
+
+[Severity: High]
+Are mdss_mdp and gpu_iommu (iommu@1f08000 below) missing their TBU clocks?
+
+In drivers/clk/qcom/gcc-msm8952.c, gcc_mdp_tbu_clk (GCC_MDP_TBU_CLK) and
+gcc_gfx_tbu_clk (GCC_GFX_TBU_CLK) are registered as non-critical votable
+branch clocks:
+
+	static struct clk_branch gcc_gfx_tbu_clk =3D {
+		.halt_reg =3D 0x12010,
+		.halt_check =3D BRANCH_HALT_VOTED,
+		.clkr =3D {
+			.enable_reg =3D 0x4500c,
+			.enable_mask =3D BIT(3),
+	...
+	static struct clk_branch gcc_mdp_tbu_clk =3D {
+		.halt_reg =3D 0x1201c,
+		.halt_check =3D BRANCH_HALT_VOTED,
+		.clkr =3D {
+			.enable_reg =3D 0x4500c,
+			.enable_mask =3D BIT(4),
+
+Because neither clock is referenced in msm8952.dtsi, clk_disable_unused()
+will clear their vote bits at late_initcall. When mdss_mdp enables its
+clocks in mdp5_enable() or gpu_iommu enables its clocks in
+qcom_iommu_resume(), the MDP and GPU TBUs will remain unclocked during
+IOMMU translations.
+
+Should mdss_mdp include <&gcc GCC_MDP_TBU_CLK> with clock-names "tbu", and
+gpu_iommu include <&gcc GCC_GFX_TBU_CLK> with clock-names "tbu"?
+
+[ ... ]
+
+> +	thermal-zones {
+> +		qdsp-thermal {
+> +			thermal-sensors =3D <&tsens 2>;
+> +
+> +			trips {
+> +				qdsp_alert0: trip-point0 {
+> +					temperature =3D <75000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "hot";
+> +				};
+> +			};
+> +		};
+> +
+> +		cpu4-thermal {
+> +			thermal-sensors =3D <&tsens 5>;
+> +
+> +			cooling-maps {
+> +				map0 {
+> +					trip =3D <&cpu4_alert1>;
+> +					cooling-device =3D <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+> +							 <&cpu5 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+> +							 <&cpu6 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+> +							 <&cpu7 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+> +				};
+> +			};
+> +
+> +			trips {
+> +				cpu4_alert0: trip-point0 {
+> +					temperature =3D <75000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "passive";
+> +				};
+> +
+> +				cpu4_alert1: trip-point1 {
+> +					temperature =3D <85000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "hot";
+> +				};
+> +
+> +				cpu4_crit: cpu-crit {
+> +					temperature =3D <110000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "critical";
+> +				};
+> +			};
+> +		};
+
+[Severity: High]
+In cpu4-thermal (as well as cpu5-thermal, cpu6-thermal, cpu7-thermal, and
+cpu0-3-thermal below), map0 binds the CPU cooling devices to cpuX_alert1
+(which has type =3D "hot") while leaving cpuX_alert0 (type =3D "passive")
+unbound, and omits polling-delay-passive.
+
+In the thermal framework, thermal governors ignore THERMAL_TRIP_HOT trips
+when managing cooling devices, for example in
+drivers/thermal/gov_step_wise.c:step_wise_manage():
+
+	for_each_trip_desc(tz, td) {
+		const struct thermal_trip *trip =3D &td->trip;
+
+		if (trip->temperature =3D=3D THERMAL_TEMP_INVALID ||
+		    trip->type =3D=3D THERMAL_TRIP_CRITICAL ||
+		    trip->type =3D=3D THERMAL_TRIP_HOT)
+			continue;
+
+		thermal_zone_trip_update(tz, td, td->threshold);
+	}
+
+In addition, without polling-delay-passive in these zones,
+tz->passive_delay_jiffies is 0, so monitor_thermal_zone() in
+drivers/thermal/thermal_core.c will not schedule periodic polling while a
+passive trip is active (and pid_controller() in
+drivers/thermal/gov_power_allocator.c divides by
+jiffies_to_msecs(tz->passive_delay_jiffies)).
+
+Should map0 in cpu4-thermal, cpu5-thermal, cpu6-thermal, cpu7-thermal, and
+cpu0-3-thermal reference the passive trip (cpuX_alert0) instead of
+cpuX_alert1 (or change cpuX_alert1 to type =3D "passive"), and define
+polling-delay-passive on those zones?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261030-msm8952-in=
+itial-support-v7-0-ad748ace375d@mainlining.org?part=3D9
