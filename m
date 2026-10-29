@@ -1,52 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=77.81.229.115
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793285621;
-	b=RG7cL/RPfe8PqUQ+Gz2L4B+O94M9nL7f9405yvdasRr6zGmemyym/y63QLYDBbn4CCmI
-	 kTtG5us5ZP1rFY0FX5bJQyXzpQFCG61z4iWJdGCJS/pH9C0WmwY0QLwFy8fdADG8bg1PJ
-	 Q7iNNQYfU/vbbcIvfa3ixxsE5ZbvvVT80gpaz7wCIkBpNNq78E5fHSUsIRP5A7Hoyt0yH
-	 vuwLYDlC1+grX5sv0ZYJXKH2zgvUNZOfsTQYbj2pbVokqsjwdrWzY2wsp/2bgEXUP2KIQ
-	 DGhEMYpkIpSoSVaFBWOjEB8+BAyiLHKtcb7VdaWPbz2mTJJRdrTmtEZ/MGo96TO3hqg==
+	t=1793285841;
+	b=j1WfAjzpGQV9/RI+fkK7J23YsiLIw3WaQ7RIUm3UwzrKXokoLpOEM2KmVla8DgwP/XTq
+	 voCEgRrKEOvgozbWqhBPgY9ZTf9wzNqvmQfz/h7pyuUlTjINmMVWqxBJyuXSgoPkXGyRR
+	 LeLvuCujfmthGyFQGZTjb+b2XOuRVMqjxidtHumzyr1X1QZcS4tJd/GrusbN5C1jfAXjv
+	 uRDXe3+fyETagfldkZD464hd8SCZcUyorHjoCkPMrDsV8//kECEiQQibVcuEb9WjGV8A1
+	 jkTAwauasIy2OmCwHo4zHweI+zJzuJ6bwBT1E36baQ32gxMle6r1KfWpN1hJNzWMNmQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793285621;
-	h=DMARC-Filter:Received:DKIM-Signature:Content-Type:MIME-Version:
-	 Subject:From:In-Reply-To:Date:Cc:Content-Transfer-Encoding:Message-Id:
-	 References:To;
-	bh=UbSiEL7++BWQVToI7FmOqiyK9zuBqGN72UpL4qL+D0U=;
-	b=LxdT979BRUdHjVoxjtEb6xyas2BrJNGLn8f3rzNPSZLHS2xUzdzOGzXUwnTc/4VMJRuL
-	 +hCKCzb/ZUKKmoYAOYBWQZwffPz52do2+Y2HC0BlNvay8AP+iiX0NzMgas9kGtXRTy8K3
-	 7Yw3GGyUJfUZR8yEE6TjBVKerLHbsSWktq4M/h1pdgaLSni3Kul2LtJHt2oYIk4uWLf0B
-	 vbYmUSGEU1oLwO3D0aR+HH+1FcWp62bV1rGTVP7CVvxZzZZwgWGtdaU2Ee1GrHkuXULSh
-	 BRTQcUaTcEMVKetzlXUZBaRRZjHJxvDnn5XZT+ihpMNaUE5iWeHu4Hy3u8M0uD/5b5w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793285841;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=U+2ydOmNxdFcp2uzdWp9Gv/U50gZkw/vvEZzNifIXlo=;
+	b=SHPyURPqzcME2qfxc+j85CVPvWg/jIqEiKQWwLrdUtn7m1JqSo5lIIvTABtGSA74GuEv
+	 nX7bC1mn/Q7ws9wIFDAqd7YVDVB94v1zI2TSLQ6cNEHyrb/VRZvSzgLim7KACb6L4Zi6A
+	 ddo6HtaojH5eKh4+eqiP6HWqXNuoPagsoACtLXU/yqETmFBmPA8wCJCRNEu3ae+VS+4zp
+	 svRJwAvQX2yBJLYzW9Xyt9AEZwAM+7cLDWa3AoyDZIu+B9YA5vJKEAY0+yKcQxily+gOr
+	 8OXhZt5k0Ph5aXu4rVfoPN11D1qM+kWlOQ1ZvSDDz1CqwYY8LktehX7pztyUcp1nZPA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chaosmail.tech;
-	spf=pass smtp.mailfrom=chaosmail.tech;
-	dkim=pass header.d=chaosmail.tech header.i=@chaosmail.tech header.a=rsa-sha256 header.s=mail header.b=JB0kqTmV;
-	arc=none smtp.remote-ip=77.81.229.115
-Received: from chaosmail.tech (chaosmail.tech [77.81.229.115])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e87iFxTe;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE747606A324;
-	Thu, 29 Oct 2026 14:53:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE747606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=chaosmail.tech
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chaosmail.tech
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76785606A31F;
+	Thu, 29 Oct 2026 14:57:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chaosmail.tech header.i=@chaosmail.tech header.a=rsa-sha256 header.s=mail header.b=JB0kqTmV
-Received: by chaosmail.tech (Postfix) id AA44C1C8AAF;
-	Thu, 29 Oct 2026 14:53:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chaosmail.tech;
-	s=mail; t=1793285617;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UbSiEL7++BWQVToI7FmOqiyK9zuBqGN72UpL4qL+D0U=;
-	b=JB0kqTmVG4H4ja0Pp0Eah0YzrRch2nw5+T2+ML1Vpc13jMJHEYCHgQdssFpAxSYtsF+Vhc
-	lxr/E6ukKsAYSFkTL14uCwyPFc9tJHoY58kAIAacAdrjWZvC2+VU0K1J2hjatCqtQu2uKP
-	ianM2iZH8ZTIgpcbtXl0LW2Vy85GaGE=
-Content-Type: text/plain;
-	charset=us-ascii
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e87iFxTe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C0E81F01825;
+	Thu, 29 Oct 2026 14:57:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793285841;
+	bh=U+2ydOmNxdFcp2uzdWp9Gv/U50gZkw/vvEZzNifIXlo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=e87iFxTeM3BaGTTSEFSGjZwq6NojB9gGZQIQHFRm/lUiarzF8f7u5ziby3ipkmH3Y
+	 F2tLvGlte0ZBRGWJ0C0aNjshFcEGEq4B2x1NiW/Pc0KuneJKkqCXRQA7iCjaBmnxTN
+	 Tuv2SnbRRzHp1MyZjVoe9q/C3x/yiZ0vTMHOEjp76V8nbR+Q42cY7DfU1SXc14BT0L
+	 ITtq/r8Vg0WlI8fY9DY/ing+vwy9Kc9kOFayWUp9zIeJCN2pNRhwMA5Y7dibeSPHn9
+	 Ok1ka4t6Y4J3B2YYtzhFZ3bzs8ppkZRJ5BMguHdebyD2LiyWt4ft+xWWaJVZEvmtkr
+	 8nya3YnjoPQLg==
+Message-ID: <sashiko-outbox-189560@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v9 4/4] watchdog: aaeon: Add watchdog driver for
+ SRG-IMX8P MCU
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?VGhvbWFzIFBlcnJvdCAoU2NobmVpZGVyIEVsZWN0cmljKQ==?= <thomas.perrot@bootlin.com>
+Cc: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, imx@lists.linux.dev, linux-watchdog@vger.kernel.org, mfd@lists.linux.dev, robh@kernel.org, conor+dt@kernel.org, Frank.Li@kernel.org, lee@kernel.org
+In-Reply-To: <20261029-dev-b4-aaeon-mcu-driver-v9-4-f9b6d0cc180d@bootlin.com>
+References: <20261029-dev-b4-aaeon-mcu-driver-v9-0-f9b6d0cc180d@bootlin.com>
+ <20261029-dev-b4-aaeon-mcu-driver-v9-4-f9b6d0cc180d@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 29 Oct 2026 14:57:20 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -55,95 +60,63 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Subject: Re: [RFC PATCH 14/14] mfd/macsmc: add ioctl to access smc keys
-From: Sasha Finkelstein <k@chaosmail.tech>
-In-Reply-To: <20261029143926.1246-1-atharvatiwarilinuxdev@gmail.com>
-Date: Thu, 29 Oct 2026 15:53:23 +0100
-Cc: alexandre.belloni@bootlin.com,
- andy@kernel.org,
- asahi@lists.linux.dev,
- bhelgaas@google.com,
- bp@alien8.de,
- brgl@kernel.org,
- dave.hansen@linux.intel.com,
- dlechner@baylibre.com,
- dmitry.kasatkin@gmail.com,
- eric.snowberg@oracle.com,
- griffin@kroah.com,
- hansg@kernel.org,
- hpa@zytor.com,
- ilpo.jarvinen@linux.intel.com,
- j@jannau.net,
- jarkko@kernel.org,
- jic23@kernel.org,
- jmorris@namei.org,
- lee@kernel.org,
- lenb@kernel.org,
- linusw@kernel.org,
- linux-acpi@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org,
- linux-gpio@vger.kernel.org,
- linux-hwmon@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- linux-pci@vger.kernel.org,
- linux-pm@vger.kernel.org,
- linux-rtc@vger.kernel.org,
- linux-watchdog@vger.kernel.org,
- linux@roeck-us.net,
- mfd@lists.linux.dev,
- mingo@redhat.com,
- neal@gompa.dev,
- nuno.sa@analog.com,
- paul@paul-moore.com,
- pavel@kernel.org,
- platform-driver-x86@vger.kernel.org,
- rafael@kernel.org,
- roberto.sassu@huawei.com,
- serge@hallyn.com,
- sre@kernel.org,
- sven@kernel.org,
- tglx@kernel.org,
- wim@linux-watchdog.org,
- x86@kernel.org,
- zohar@linux.ibm.com
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <0683C803-C578-4C55-B893-BC03EBF9A9F1@chaosmail.tech>
-References: <525E5B4D-A947-4567-9FCD-5FFF2CA8B161@chaosmail.tech>
- <20261029143926.1246-1-atharvatiwarilinuxdev@gmail.com>
-To: Atharva Tiwari <atharvatiwarilinuxdev@gmail.com>
 
-On Oct 29, 2026, at 15:39, Atharva Tiwari =
-<atharvatiwarilinuxdev@gmail.com> wrote:
-> 1. The patch is required, atleast on intel macs, as without writing =
-GPU and CPU
-> states to smc, the system gives PROCHOT signal under small load
-> , and heats up a lot.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] watchdog: aaeon: missing kernel-parameters.txt entry for timeout pa=
+ram
+--
 
-In that case, why are you exposing a generic smc key interface instead
-of one that just does that? If you think that this data should be set
-from userspace - whitelist the set of keys that are needed.
+commit 56cdb5c8b2505a3a5bbfb7ace81364353e737628
+Author: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
 
+watchdog: aaeon: Add watchdog driver for SRG-IMX8P MCU
 
-> 2. the smc dosent expose keys of nature that can physically damage the =
-system
-> it only exposes power/volt data, and the most you can poke is reboot
-> keys and gpu/cpu p-states.
+This commit adds a watchdog driver for the Aaeon SRG-IMX8P onboard
+microcontroller, supporting configurable software timeouts via ioctl,
+Device Tree, or a module parameter.
 
-Are you willing to make that claim for every smc-equipped device, not
-just T2? Are you willing to make the same claim for future versions of
-smc firmware?
+[ ... ]
 
-> 3. If a person is randomly touching keys, Its their problem and not =
-ours.
->=20
-> 4. There are a lot of things that can mess the system way more and =
-permanently
-> than smc (undervolting for example), but they are not safe guarded, =
-why
-> should this be then?
+> diff --git a/drivers/watchdog/aaeon_mcu_wdt.c b/drivers/watchdog/aaeon_mc=
+u_wdt.c
+> new file mode 100644
+> index 0000000000000..beded3d6326fd
+> --- /dev/null
+> +++ b/drivers/watchdog/aaeon_mcu_wdt.c
+> @@ -0,0 +1,171 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * Aaeon MCU Watchdog driver
+> + *
+> + * Copyright (C) 2026 Bootlin
+> + * Author: J=C3=A9r=C3=A9mie Dautheribes <jeremie.dautheribes@bootlin.co=
+m>
+> + * Author: Thomas Perrot <thomas.perrot@bootlin.com>
+> + */
+> +
+> +#include <linux/mfd/aaeon-mcu.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define AAEON_MCU_PING_WDT		0x73
+> +
+> +#define AAEON_MCU_WDT_TIMEOUT		240
+> +#define AAEON_MCU_WDT_HEARTBEAT_MS	25000
+> +/* The MCU cannot expire earlier than its fixed heartbeat. */
+> +#define AAEON_MCU_WDT_MIN_TIMEOUT	(AAEON_MCU_WDT_HEARTBEAT_MS / 1000)
+> +
+> +static unsigned int timeout;
+> +module_param(timeout, uint, 0);
+> +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
 
-I think it is inadvisable to leave a loaded footgun around and then
-blame the user for using it. As an "OS Vendor" you have a duty of care
-to your users.
+[Severity: Low]
+Should this new timeout module parameter (accessible on the kernel command
+line as aaeon_mcu_wdt.timeout) also be documented in
+Documentation/admin-guide/kernel-parameters.txt?
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029-dev-b4-aae=
+on-mcu-driver-v9-0-f9b6d0cc180d@bootlin.com?part=3D4
