@@ -1,72 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793374676;
-	b=O9NgqgVng7PsWAe0Ee5urdiH6njfNL1SjjlxfHJXNC/cwiBB3VA9rR/y8Y8XIu7eolqz
-	 TxE9ptLaW9TS/R3siIc4t+WwFgk8KVFqdTW2msSQhiTBSXuunxbUxAeg0Lvu6rnoow/Ba
-	 mK8oaNW/yt1wpzIb2Ah2IeDzk4VHEAe768HOM3SpUPWGwY0SCtDbTD1b+wRWIqQl7VBTW
-	 ZPqqiFsOP/ldxgz/oqN3MBvNsioL39kI/GskkwZR2Ca/LzzAn2cYzuFBThQvhDgef0nVe
-	 iU/j0qquSIUR49E4MWa+jWBg5XLhoMaVFAbNeav5VJ//LiHqasgfVkSSe5yM4wkKygg==
+	t=1793378827;
+	b=lCwm+WWaw/dsdkcHwWPuIjdLCLbtzKNDgawTuQLCAnG0NBvX5XX/QkZKq7PANRs3RAU2
+	 EMbO2Ui4gRB5tSC6aGgtQtD9BaDE9Z2Xs79YBPpAELO5Agx3oGfY/y/qc7XNes/Gc2YF/
+	 qzNNq+rVNt/hxr9h3wyTLDnd7/cU3kBVAVDRBp9lP1i57BhRTOEQV24AtQ7/LUmE8t8pX
+	 s4OBhPwXQd59jeJBoWeButwaHw0qZkN4/bKFvneAPknnyjF2H6sw6MMzbaDguXr4wH1MU
+	 V22NHWbDw/6x/vyjjPv/aLh2R35DzhkHql1WI80wAGWwwJa2JAPh/vlXJmLRgTXCY9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793374676;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:
-	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=Eb083Lhc9S6Iyxxmprup0mjMXvghWUY0aQYzPG3iQiA=;
-	b=YEWTF/zwrm/RXoYnZdu3+6WGClXLBjB6rz8eY48/NNWnytwWmiCKkX3Q6qpvQCGQVNOW
-	 AcWDUJiDwilhiIkdYL0iQXtIn+L/wDVHeF2JbyVAdTbWJ1QZP/8VpDt8HjYv9UU46Dpmp
-	 M4Go1zKeqaOi0C1kIb9t+Aoe4NDXJ6QMIDZpj+4IP4sD/3v9rFqmoe52IauZy5Wlljdoj
-	 xzPhkSeZBMc0JMFkU4XdUMAkwVlCMVmkF35FYbpHJTT624clUk92ncvT8aJDk0fLrRwrw
-	 8US5wHbSv7aCCqqhA+1/Tl1detzdAyWPOHzY03tx9LNCe39vOy89RK8IDBFNvc6RwzQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793378827;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=mY5PvwJKwFmptWdKvfQLtKhWBG7XaqgROKtzg4HO8Gk=;
+	b=lkTL+Sv38IXMCpkPnR2GtOElJohdc2vbJni6JueSDnhvuwK2bILufu7Mq1Zs+pyXrrEV
+	 J4Qu3SxDawBb8Yvbo80MlVayYfse/4MBhmsztQldy027rK312uzl2WQgoO6YBA7GHL6Oy
+	 0z8sGijiMQLVoSoNNOMzZ4qHFa2wNSz1HH0MBoNsIqUR15YN+GRzv46Y2heEL2VibSa9S
+	 vxSvD6R8mtnNtWe+O3VEH00qMoa+LmrJSmMvwEq7cjVLtxiaDFDMPnQX1yfMKyIEmRz0v
+	 spagFsy+9sRh+Pbz9oH4szntTUMo7J6Aq1YYN2nFfcRAiDDqWh0ILe0DMd6j8Dl8iww==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4rrdJh7a;
-	arc=none smtp.remote-ip=35.89.44.39
-Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=dHpyzwoW;
+	arc=none smtp.remote-ip=198.137.202.133
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32B67606A321
-	for <linux-watchdog@vger.kernel.org>; Fri, 30 Oct 2026 15:37:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32B67606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82AA1606A322;
+	Fri, 30 Oct 2026 16:47:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 82AA1606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4rrdJh7a
-Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
-	by cmsmtp with ESMTPS
-	id MgXPxTlHfc3XsMofuxBxb6; Fri, 30 Oct 2026 15:37:50 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id Moftxfq79sTgvMoftxBS1z; Fri, 30 Oct 2026 15:37:50 +0000
-X-Authority-Analysis: v=2.4 cv=DPiP4zNb c=1 sm=1 tr=0 ts=6ae4b9ce
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=EUspDBNiAAAA:8
- a=_jlGtV7tAAAA:8 a=VwQbUJbxAAAA:8 a=ehfqsZ6UyqGNEVwpBysA:9 a=QEXdDO2ut3YA:10
- a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=dHpyzwoW
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:To:Subject:MIME-Version:Date:Message-ID:Sender:
-	Reply-To:Cc:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=Eb083Lhc9S6Iyxxmprup0mjMXvghWUY0aQYzPG3iQiA=; b=4rrdJh7acYmG
-	CXCYblfhWCeYV2jFGxSlDOq0j35sSrQcluKiiOOzoCIvwM/6EodrtGOMj5nkc+PdKXQ6d3PQ5AV8k
-	EMeV2S5OEP0Xt34UCMLFKZgJL+l1AniObzwXX8Gn8fVU+wOG40gfijeI54j6o/W4tCdYx/FmXy9Tv
-	lwd/COPSb+Ctc1wG31apOjCXAW16I4AMmrw4kGUzrPTDJ9vlQj+vk5cFJ+ZFT0SMkoKbjNtNFDi0x
-	pk27jBhxusmHYlu5ukH8qqnjexALbOWlSIZFsb0m9e+KS+tKmW0ZmunS4vf1aRy7Sb7wtrM/IQ6Fv
-	gfH7ntK1UQOZ1AeIg2vv2w==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:39764)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xMoft-00000001ayA-1Z98;
-	Fri, 30 Oct 2026 21:07:49 +0530
-Message-ID: <4b64860b-322b-4646-b132-0b75efb0086d@roeck-us.net>
-Date: Fri, 30 Oct 2026 08:37:48 -0700
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
+	:Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=mY5PvwJKwFmptWdKvfQLtKhWBG7XaqgROKtzg4HO8Gk=; b=dHpyzwoWsOJRgypIJvn5IQREZO
+	9QCrGB9mJLBLVsAfAygFQOwixJPFfbiwjvMn0b4Wb4ntChwrmiSoO9M0Bh/KVpqCYB8zaYuRAXMOH
+	3XlrtK5LuSiAb2pGiqo58sFffT034F3GRIK0FI1/XxWGxXnrjb3nNCPlIzbbeJ0FD16eMNx90qvZl
+	YpKbL/503ZdIVGl34/6ToVtemfsuCDJa7xLFm3dHMFABwqHrSf9EedO7FsX+3lrOAiWFxBBXxhh3P
+	Ks2pNx9e1iOqG/Ozo+1457TWuNarYeEpmwNseVFV/6Xxzm+c6fWtPU74rrLTXoWwRxuRhTs5xrFSh
+	7Z+NGVUw==;
+Received: from [50.53.43.113] (helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xMpkq-0000000C9vQ-1R0Q;
+	Fri, 30 Oct 2026 16:47:00 +0000
+From: Randy Dunlap <rdunlap@infradead.org>
+To: patches@lists.linux.dev
+Cc: Randy Dunlap <rdunlap@infradead.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-mips@vger.kernel.org,
+	linux-edac@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 7/8] MIPS: Octeon: pci: fix missing function prototype warnings
+Date: Fri, 30 Oct 2026 09:46:56 -0700
+Message-ID: <20261030164657.2808262-8-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261030164657.2808262-1-rdunlap@infradead.org>
+References: <20261030164657.2808262-1-rdunlap@infradead.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -76,120 +69,44 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] MAINTAINERS: mfd: Drop MEN F21BMC (bouncing email)
-To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
- Lee Jones <lee@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- mfd@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org
-References: <20261030152821.283215-2-krzysztof.kozlowski@oss.qualcomm.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261030152821.283215-2-krzysztof.kozlowski@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xMoft-00000001ayA-1Z98
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:39764
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 14
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfAWxbObYQu5TJsWPRLWaoU16gp1yqDQPZH0Z+sCuAaRX+TnDAqKBUuLUpfv8SgHN8ORz9zOiy695enb4yLyQzzxd+F9pd+pYw5l+wvMjFXCHva6zpZV3
- AotYjxzP+4kOrlRRbyxE+uhpFgGcuFqQ661gge91xYY4pcK5av99XgLAzhdAUS+LcU+mFVWgzAk1ZpUFozG9nD82bgP7gCfU+EwPbw9ZYeHGsS7xZM2udYgG
+Content-Transfer-Encoding: 8bit
 
-On 10/30/26 08:28, Krzysztof Kozlowski wrote:
-> Emails to Andreas Werner bounce ("reason: 550 5.4.1 Recipient address
-> rejected: Access denied.), so apparently driver is not supported
-> anymore.  Last emails from Andreas Werner are from 2016.  Drop the entry
-> completely.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> 
+The octeon_pci[e]_pcibios_map_irq() functions are not used outside of
+their source files, so they can be static to eliminate build warnings:
 
-Makes sense.
+arch/mips/pci/pci-octeon.c:234:12: warning: no previous prototype for 'octeon_pci_pcibios_map_irq' [-Wmissing-prototypes]
+  234 | int __init octeon_pci_pcibios_map_irq(const struct pci_dev *dev,
+arch/mips/pci/pcie-octeon.c:1471:5: warning: no previous prototype for 'octeon_pcie_pcibios_map_irq' [-Wmissing-prototypes]
+ 1471 | int octeon_pcie_pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+---
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
 
-> ---
-> 
-> Maybe this can go via MFD tree?
-> ---
->   MAINTAINERS | 9 ---------
->   1 file changed, 9 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 365bec8eb7fb..51673747ab91 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -17998,15 +17998,6 @@ F:	Documentation/driver-api/men-chameleon-bus.rst
->   F:	drivers/mcb/
->   F:	include/linux/mcb.h
->   
-> -MEN F21BMC (Board Management Controller)
-> -M:	Andreas Werner <andreas.werner@men.de>
-> -S:	Supported
-> -F:	Documentation/hwmon/menf21bmc.rst
-> -F:	drivers/hwmon/menf21bmc_hwmon.c
-> -F:	drivers/leds/leds-menf21bmc.c
-> -F:	drivers/mfd/menf21bmc.c
-> -F:	drivers/watchdog/menf21bmc_wdt.c
-> -
->   MEN Z069 WATCHDOG DRIVER
->   M:	Johannes Thumshirn <jth@kernel.org>
->   L:	linux-watchdog@vger.kernel.org
+ arch/mips/pci/pci-octeon.c  |    2 +-
+ arch/mips/pci/pcie-octeon.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+--- linux-next-20261028.orig/arch/mips/pci/pcie-octeon.c
++++ linux-next-20261028/arch/mips/pci/pcie-octeon.c
+@@ -1468,7 +1468,7 @@ static int cvmx_pcie_rc_initialize(int p
+  *		 as it goes through each bridge.
+  * Returns Interrupt number for the device
+  */
+-int octeon_pcie_pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
++static int octeon_pcie_pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
+ {
+ 	/*
+ 	 * The EBH5600 board with the PCI to PCIe bridge mistakenly
+--- linux-next-20261028.orig/arch/mips/pci/pci-octeon.c
++++ linux-next-20261028/arch/mips/pci/pci-octeon.c
+@@ -231,7 +231,7 @@ const char *octeon_get_pci_interrupts(vo
+  *		 as it goes through each bridge.
+  * Returns Interrupt number for the device
+  */
+-int __init octeon_pci_pcibios_map_irq(const struct pci_dev *dev,
++static int __init octeon_pci_pcibios_map_irq(const struct pci_dev *dev,
+ 				      u8 slot, u8 pin)
+ {
+ 	int irq_num;
