@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793378828;
-	b=oTkJC6tArCkwsZcPRzDlsm29IwyV0Sa3fl6OgTp0xGnvt02g8u+QgwRR75N80ouFJ3ga
-	 i9jWFqEos9AhODuc3RTI7bVD1YPNIs/PfVNceRZuAcnj8Bjum3pPkUoAzS7CV4FdRy+fi
-	 jB7tHb5r0Fx14ux4Q5LuSifJFJwEXTrFGQxHIZKWXDEzox+/i/bAo0cPrKRMyNzpHLNMf
-	 BteeNNzQvo4ZdloHU/2ALE4QRk3Fq0QTgpUXtcyTBnpfp9uIxL4YGyZfuPBVD2o4LSUhN
-	 27BVj0MCRBHxVKrObvg96kXzZKS4cKLS9JDmdHm6RX52N6knP+Bb8qh8v1kbYzJ6NwA==
+	b=lUTqmBIAoaf1vhG18a7rJt310lODO0/0zG+QbgZNYF0V+A/2i0xYJwluQu8644m4YibK
+	 wJsQ0fTTAgwC4bqKu2U3AygvFONCsEADmm2+cvssSxmhYAdcJtjzzV/D7bmCX9nKiKIYN
+	 w7EBl1JRik69NQv1pDNv/3WTsVnPzlApQPi6n9iscvS73Ef/tEUUGZrk/wbHcxPCCS8K3
+	 EEfVZ/3AZLZCGDx1r2+JlFzrBe+9yzZ4CG2Ek8ssXs2r0709NgFrJbGAnBYFeN9CMPsCs
+	 CIRKz4TCbTQWsX/WpJqX7w6vNKPKqX9zA8ZcEC04MgOGNtPN8t9F0hHetRF9wQBRmzQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793378828;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=9p1GuUEXJDhpEntzHN7rpZzjkEvrs5EXLhtizQRPF9g=;
-	b=TW6khviAVFi7ADVMysWYpOxawOFJqy0yfNR5mJQBETTWKJVdlzks75/+n4Qk5SNzq5ik
-	 PfHC3KgIWHBy/kiJLSjO9GfKXykKi6AtsuV+uSu2dyy6R6U2BeV21MthV/8/tjfOKgnK3
-	 AgIpETjRhf93ScfEMoWURzgApCI0dlyUEqcUArgkFnEt2ji0XYMhKQEHpHp5az5wj/Gf6
-	 j/7gEvUgElF6SHU3k+BKIPuJjTCkkRdSNkVwo7zQO92n6pB55V130fuJvbhEdhiR0zZLo
-	 xqDXSEoMN7VoSGBqM1+2y/LEvImIt+mui77tmgfh5uIC7MJR3ICX5ATSyfD1Z7TukBQ==
+	bh=jHbQL+MbMZA/zMuYfyerMN5HlZZtBCqArbZB2S+HM5Q=;
+	b=XTNi42GHyHQ/9LUDEOyVXTq5W5SCXfPnZKfMfhQynTM8REZiuVdfUQhl0J1+QE1EMGJ0
+	 VROI5RFnKeAkBO/DFdAPgi7BsokOvLzZfyR9E24CjSTU+q2f98yMZZF2BsdPzLfPryNIy
+	 HFg2nyZ7EDH0FJjnN3hfLR50FyuMCN52YGqD7TBl8alNUtMih1L/4BWj24Ge5SASoI/uH
+	 zO7nG/7N5lZJWq3+NoFOnu4RsVi0IduODc085dPYiEIEWjoJQ28tO3NPEmIdFSJB3v9CA
+	 2UCAoxzLBt+48RySsHDyKueCOmlkRLurADXOdZYw7ryLLEBw+FTUPzClHyCWhtceHLw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=infradead.org;
 	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=sKfgIY0w;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=rtD5Jn4U;
 	arc=none smtp.remote-ip=198.137.202.133
 Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 829AE606A321;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82ACC606A323;
 	Fri, 30 Oct 2026 16:47:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 829AE606A321
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 82ACC606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=sKfgIY0w
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=rtD5Jn4U
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=9p1GuUEXJDhpEntzHN7rpZzjkEvrs5EXLhtizQRPF9g=; b=sKfgIY0w6IEuz6XI5QUeBSnhyO
-	12+sGBEymM17vQpJY0iqf/tygY8sD8vPoKtZgtOTBcUKhRCeKEJHZcynCXzZggqDtsAB7w0Eu3TkU
-	4dtO+qn4ZY/dkrCnRLpkoc37p0/qZzIKQiQSpussqPKZpFW+qlX2zVFs8a2SMWKFBXEVS0NRBRhKO
-	mf1U8+N5aGUBMp3YwP6UCYGX9yHmk94zdAsU+35bzEsKKHRDDItbFqvyAJ9KP2FDbJnzCGsU0AlUE
-	zZLRSZemcy9Exv03T/FgtINlG7QOpmnYP8qBEQN3U9IRUqcl/z/4g7FaE3Ydbxh54t7YAFeh8eUHm
-	rvzbIcJQ==;
+	bh=jHbQL+MbMZA/zMuYfyerMN5HlZZtBCqArbZB2S+HM5Q=; b=rtD5Jn4UJ59yMLr+TfmFnMvhM9
+	WlBTTOTsd1VRM/QAFskfyXhmWK8jgw2w8ZRGu58Wa76QFrDBYIXWoEgnH/D5eEjoYpY2aSGpd6vjF
+	FyChip146x8wfBz0ZsWF4T8q/ZY9tgflmRi016cBGqF3djikYeyyT+yLDqJZrKzmHK6h9rLCMLoXs
+	nXpN5eg6vxSDUPEtE9WM0kF1BIFURmx0meGiszivboTBHjUlMSqD8QfrhCFCPEsMm6+Z4I/yrPIig
+	5o4LYNJg+vTimFrwhxXIXmTKP1tfND341JYxi3N4ZLv0Mzwd0nIThJL+DaRWvsn2Iu57gKh6nSHUa
+	YYn3z55Q==;
 Received: from [50.53.43.113] (helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xMpkq-0000000C9vQ-0ThR;
+	id 1xMpkq-0000000C9vQ-2Pss;
 	Fri, 30 Oct 2026 16:47:00 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: patches@lists.linux.dev
@@ -54,9 +54,9 @@ Cc: Randy Dunlap <rdunlap@infradead.org>,
 	linux-mips@vger.kernel.org,
 	linux-edac@vger.kernel.org,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 6/8] MIPS: msi-octeon: fix missing function prototype warning
-Date: Fri, 30 Oct 2026 09:46:55 -0700
-Message-ID: <20261030164657.2808262-7-rdunlap@infradead.org>
+Subject: [PATCH 8/8] MIPS: Octeon: octeon.h: fix missing function prototype warning
+Date: Fri, 30 Oct 2026 09:46:57 -0700
+Message-ID: <20261030164657.2808262-9-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261030164657.2808262-1-rdunlap@infradead.org>
 References: <20261030164657.2808262-1-rdunlap@infradead.org>
@@ -71,28 +71,28 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-octeon_msi_intialize() isn't used outside of this source file so it can
-be static to eliminate a build warning:
+Add the missing octeon_wdt_nmi_stage3() function prototype to
+<asm/octeon/octeon.h> to eliminate a build warning:
 
-arch/mips/pci/msi-octeon.c:343:12: warning: no previous prototype for 'octeon_msi_initialize' [-Wmissing-prototypes]
-  343 | int __init octeon_msi_initialize(void)
+drivers/watchdog/octeon-wdt-main.c:211:6: warning: no previous prototype for 'octeon_wdt_nmi_stage3' [-Wmissing-prototypes]
+  211 | void octeon_wdt_nmi_stage3(u64 reg[32])
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 ---
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
 
- arch/mips/pci/msi-octeon.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/octeon/octeon.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- linux-next-20261028.orig/arch/mips/pci/msi-octeon.c
-+++ linux-next-20261028/arch/mips/pci/msi-octeon.c
-@@ -340,7 +340,7 @@ OCTEON_MSI_INT_HANDLER_X(3);
- /*
-  * Initializes the MSI interrupt handling code
-  */
--int __init octeon_msi_initialize(void)
-+static int __init octeon_msi_initialize(void)
- {
- 	int irq;
- 	struct irq_chip *msi;
+--- linux-next-20261028.orig/arch/mips/include/asm/octeon/octeon.h
++++ linux-next-20261028/arch/mips/include/asm/octeon/octeon.h
+@@ -49,6 +49,7 @@ extern void octeon_init_cvmcount(void);
+ extern void octeon_setup_delays(void);
+ extern void octeon_io_clk_delay(unsigned long);
+ void __init octeon_fill_mac_addresses(void);
++void octeon_wdt_nmi_stage3(u64 reg[32]);
+ 
+ #define OCTEON_ARGV_MAX_ARGS	64
+ #define OCTEON_SERIAL_LEN	20
