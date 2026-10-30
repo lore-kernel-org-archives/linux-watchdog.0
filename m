@@ -1,73 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=92.121.34.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793348339;
-	b=vWARb85smxwlSnP3RkjeqZ++7SLkxrFlL+eN/q+ggc/L5Q+QUd9W/dq517hcJgwkoAty
-	 Fco2LZ1ykVmZk+FHZY7v1XVEWbFRXotWbaVLuY2/lnxa3nUsiuctec1JxhpZ8FAE4ajUk
-	 5NtqDsPCN6AF3XfmSzEHQ3+F5FXc3ivXEXEPLWonuI7udLYBkmMRR01TnIB+KaV9vXfai
-	 bSfeVBfU6aZIEKv14pUPR6FXi9ud0w0kvDyS1L6O0hFet6WnLeQVFUnqZw7kEbD2DXNCw
-	 P8SD1LTZbe1HxlfqKcIDRxzZR5kmTvzB8VYK1XwuBKbXn5PdIlzV7no6YP5R5JUzZhg==
+	t=1793358144;
+	b=ptRyjlpsWy2u4pcc8hneAFNSPaJjpOLv2ovIWhn2jGa2pP9k1tDAdvIc1aH19PQlGSC4
+	 8f1/DHhJRtr/F2KVyiGZpgOFy85m8bRz6A9/RrnO3suhAsVYtPOt+AbIgb1IqqjgvwSYl
+	 LvSMQ3hzsXFiXdgejt0r5tJYsAT9zZhxdLGZyoRKMSIgauB5f5+SnhZ6LwcZYubJzDkyq
+	 ZlDXegngkXLohtcIERRSV9hM0lRzdUF91TOexnGI8CV3MvN/OfGrT2ginHXXeEHMZAYKq
+	 sM0mSRlyoTCq5mcT05/Tp8U2x2Tq2cqi6G87SBJ+GCb5xspCulqcNU82+MfE9vRWHEg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793348339;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=Mb9nK7C88AA0XX7+dkq9DLF84KPAyUNf2hmpuTFCm7A=;
-	b=wTR2UaW2wQQigE1RsMhiREjrW31u3f9Ef0Y/u6urDt+OiDxOhhMtIeSn9M3ilsAilmzo
-	 XWk4GSHL4QYE897dULFiazTydWOZlpGmlSi2EfcPpO9faNStybrabG6fzIt7Zr2KrjWyt
-	 xBEH7aVnmJ72ZF9S5RDctKwb/DxsNEG/t6XVUYVGWraRUFmG/xY6l8bWvgpQp2SkDaA7g
-	 53LjvHu4r3OLgrQ30npwHZACFC5p8tJ6b8yUrSLPw1Q3lwMtEyhKlhqd8HjEMgG2KccFg
-	 52FMXqX1RLL5yiH/Esl8KNb3pZR476S68MB4y/fWBTndueDWAyqQakP2fOJVyM8tnWw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793358144;
+	h=DMARC-Filter:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Virus-Scanned;
+	bh=dYsK9RCF4zGwTiyceQPJXihEmsN5wew5qV5M7Glsq3A=;
+	b=mjiJTb7KLM//UyRRkWOGzcCjptqL4CzDjtC4kBWCfqXwXfMpB9XvSDZTA1xgubvIkdw8
+	 5aMS5SjdXeIvfcuOVNRZm8Hq0DwYyDt2yJxZ49rwV33hGzqvLTRPuN++ZX0ruPLZqrXOi
+	 nvrP0+NvCz9jT4i3OvWu2jg9ykMEfh6elwMrRDkIEPIOaS6/f35GQ+iESj+eC6Xkq4xoh
+	 yqZkN1sk+kFP17DgHiN7dEjioXjschN5e9n2HEHWt/T+mnGofba2MnVQ2eLPKmBOIgoSX
+	 dlJH1kqwxtvjIC2Xxx0RPgvaKu1cd7OzFmODaBETkRZl67Lm7zlaThpvojG3MzWTuhw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aGi+krf7;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=nxp.com;
+	spf=pass smtp.mailfrom=nxp.com;
+	arc=none smtp.remote-ip=92.121.34.13
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 888C7606A31A;
-	Fri, 30 Oct 2026 08:18:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aGi+krf7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAB71F000C1;
-	Fri, 30 Oct 2026 08:18:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793348339;
-	bh=Mb9nK7C88AA0XX7+dkq9DLF84KPAyUNf2hmpuTFCm7A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=aGi+krf7xcDXjZG+aCrcGgkyMEdP0I3fr312ylcIHL5Et2iKMPq8Fw7kIY64ar+uR
-	 KoIYVG7NZPLH+o7p19hommRYKC4Nz90DVmSr4bGhrvD1k+njk7BD0EIemrLvqkAcl6
-	 dAAKbGpEfLhQF/63qbcJv/CnWcp6jdJcxYnCaI4SFLeDS/x5YEhEXxkDoEeCRgxvD0
-	 cy/G3LljTTFpRAKYc36ayAwb6RKh15aYm8qnKjwC+juFRSnioV2XLb6CUnDtLnVtQB
-	 ZhXHPJdE63+YBhHN6LHdXdnLnK5stfFGsL5S94nkKjGosdRlpyVVTGSkHfj0NDhViZ
-	 KmZQI/iHYHJ9A==
-Date: Fri, 30 Oct 2026 09:18:55 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	"Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
-	Robin Murphy <robin.murphy@arm.com>, Konrad Dybcio <konradybcio@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rajendra Nayak <quic_rjendra@quicinc.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Jassi Brar <jassisinghbrar@gmail.com>, Abel Vesa <abelvesa@kernel.org>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
-	Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov <lumag@kernel.org>, 
-	Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, 
-	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Krishna Manikandan <quic_mkrishn@quicinc.com>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>, 
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
-	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	freedreno@lists.freedesktop.org, linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v7 03/11] dt-bindings: watchdog: qcom-wdt: Document
- MSM8952 watchdog
-Message-ID: <20261030-encouraging-diligent-kudu-dbd1a7@quoll>
-References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
- <20261030-msm8952-initial-support-v7-3-ad748ace375d@mainlining.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FA7E606A31D;
+	Fri, 30 Oct 2026 11:02:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7FA7E606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id C7DFD1A0005;
+	Fri, 30 Oct 2026 12:02:15 +0100 (CET)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 922041A0002;
+	Fri, 30 Oct 2026 12:02:15 +0100 (CET)
+Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 987841800226;
+	Fri, 30 Oct 2026 19:02:14 +0800 (+08)
+From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+To: linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	alexandre.belloni@bootlin.com,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	conor+dt@kernel.org,
+	linux@roeck-us.net,
+	wim@linux-watchdog.org
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	lakshay.piplani@nxp.com,
+	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Subject: [PATCH v4 0/4] rtc: Add NXP PCF8525 RTC driver with watchdog and hwmon
+Date: Fri, 30 Oct 2026 16:31:35 +0530
+Message-Id: <20261030110139.1929109-1-shivprakash.gupta@nxp.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -77,20 +67,90 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261030-msm8952-initial-support-v7-3-ad748ace375d@mainlining.org>
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-On Fri, Oct 30, 2026 at 12:02:34AM +0300, Muzaffer Kadir wrote:
-> Document the watchdog found on MSM8952.
-> 
-> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
-> ---
->  Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
+The PCF8525 is an NXP I2C real-time clock using an external
+32.768-kHz crystal. It provides alarms, external timestamp capture,
+recording of the last calendar write, backup battery switch-over,
+a hardware watchdog timer, and an on-chip temperature sensor.
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+This series introduces DT bindings, the core RTC driver, watchdog
+support, and optional hardware-monitoring (temperature readout) via
+the hwmon subsystem.
 
-Best regards,
-Krzysztof
+Changes in v4:
+- Rework timestamp handling to serialize sysfs clear and IRQ
+  processing, read Timestamp1 before clearing TSF, and restore TSM
+  after the CTS command.
+- Correct Timestamp2 handling to report the last calendar write
+  instead of treating it as a second external timestamp capture.
+- Rework the INTA threaded IRQ handler to drain pending AF/MSF/TSF
+  events and re-read status registers, avoiding missed events on an
+  edge-triggered IRQ.
+- Preserve all CTRL2 Write-0-to-Clear status flags, including WDTF,
+  across register read-modify-write operations.
+- Rework watchdog support to use nINTB as the watchdog output without
+  a Linux watchdog IRQ or pretimeout notification; remove unsupported
+  pretimeout handling and write-only watchdog-value read.
+- Establish a known watchdog state at probe, clear stale WDTF before
+  enabling the watchdog output, and report the hardware-achieved
+  timeout.
+- Fix RTC feature and time-setting handling, including
+  update-interrupt capability reporting and writing the
+  hundredths-of-a-second register when setting the calendar.
+- Improve interrupt/wakeup and device-managed cleanup ordering so
+  hardware interrupt sources are safely masked on probe failure and
+  driver removal.
+- Rework hwmon registration and power-management handling so the
+  temperature readout is enabled before exposure to userspace and
+  cleanly disabled on failure, suspend, and removal.
 
+Changes in v3:
+- patch 2: protect the Write-0-to-Clear (W0C) status flags in the
+  CTRL2/CTRL3 read-modify-write cycles so concurrently asserted
+  interrupt events are not silently cleared
+- patch 2: replace the timestamp spinlock with a mutex and re-read
+  CTRL4 under it, closing the TOCTOU race between the threaded IRQ
+  handler and the sysfs timestamp store
+- patch 3: configure the nINTB/CLKOUT pin (CLKOE=0) before requesting
+  the watchdog IRQ to avoid a spurious interrupt storm
+- patch 3: add suspend/resume PM ops to stop and re-ping the watchdog
+  across system sleep
+- patch 3: add WDIOF_PRETIMEOUT so the watchdog core attaches a
+  pretimeout governor
+- patch 3: re-mask INTA/INTB interrupts on driver unbind via devm
+  cleanup actions
+- patch 4: enable TEMP_RD_EN before registering the hwmon device and
+  add a devm cleanup to disable it on unbind
+
+Changes in v2:
+- Fix include: use <linux/pm_wakeirq.h> instead of <pm_wakeup.h>
+- Add spinlock_t ts_lock to protect ts[]/ts_valid[] from IRQ/sysfs race
+- Fix W0C ordering: clear AF/TSF flags before acting on alarm/timestamp
+  events
+- Use dev_pm_set_wake_irq() for suspend wakeup wiring
+- Clear stale WDTF before unmasking watchdog interrupt on INTB to prevent
+  boot loop when battery-backed flag persists across resets
+- Add watchdog_notify_pretimeout() call in INTB IRQ handler
+- Set WDOG_HW_RUNNING if bootloader left watchdog running at probe time
+- Register hwmon device first, then enable PCF8525_CTRL5_TEMP_RD_EN only
+  after successful registration
+
+Shiv Prakash Gupta (4):
+  dt-bindings: rtc: Add NXP PCF8525 RTC
+  rtc: pcf8525: Add NXP PCF8525 RTC driver
+  rtc: pcf8525: Add watchdog support
+  rtc: pcf8525: Add temperature sensor support via hwmon
+
+ .../devicetree/bindings/rtc/nxp,pcf8525.yaml  |   86 +
+ MAINTAINERS                                   |    7 +
+ drivers/rtc/Kconfig                           |   25 +
+ drivers/rtc/Makefile                          |    1 +
+ drivers/rtc/rtc-pcf8525.c                     | 1608 +++++++++++++++++
+ 5 files changed, 1727 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
+ create mode 100644 drivers/rtc/rtc-pcf8525.c
+
+-- 
+2.34.1
