@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793378832;
-	b=xKefQXIxp5Nk8pM3lFbnBr0doRSclphCsNB7zlGGpcB+GxcEU+e3l8Q/oian9R5JGw/9
-	 SXuiZLZ8aWBMi+IxV8l0AtmwPZjXu1pHmsMsnBNskLmOrS/CxAtCiy+h0EZrGtvTWpqTR
-	 b4AB/vpO32AqG/FzHJL6ZcF25E6EtvepPX5Dt4EB5Bq0Ux+3P2+kLXu1EcRg+AeHZVFRv
-	 eJsKOUktnlTiKBvfoZNW74HDzgtPkWYpWh+6urS+a6NW4oLmJ3ToOqyeL5PBoEAMyNAJN
-	 5yb0qJtfLFYDjkchXwEOgnGmTw9IpPVo/Ii+jvoZ/auG6YL5Gb2zWMIxy0/fhk0US+Q==
+	t=1793378826;
+	b=f17dGTBPjOKfYrjyf+zHSQ2qMVzDCcZ7BqgpQ4CIMF9CXw4jU0RUbzL1wbBM67cGKT5G
+	 nmpODgBXykKZ2v5XNAF2PxIXZ9znH5LNzW0NHCOw0njxO+ZAq4KDE/xD9Qus0UKbLlris
+	 1J+LZrre4EUEoR9LMe1PQ6mYOIu5AuDoRy417fs697StcU26SL3eoK4Cn9gGrxFibk3N9
+	 mcZ8d8JefL2QnBqRyvk8rt3rVOw/Ch1CEi/e1aokqsdwmV2D8frP6rBhNOvmF3KeskCDQ
+	 XlTxoowrekAizBK+M+axPBNeX16TK+xLaqTCzDGEIpJr5ZhXbI0bX/yyfpBS75Jb4eQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793378832;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793378826;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=jFRMIwMZYfX6rjdCZI0F2E6qbwLWy+pIayUsY0ypjh8=;
-	b=EcqHI6Bx5BQ+x6c1zgN44doMw3qnKjKcrMXg4Mh/8UtanWGGdiDDz3UtWaOZXo8c2EsW
-	 9skw3QeDSMSNjLHsSPVnirfhtFTtAVMHg+eGb887O+CFZpTiZWn8AtZvQ9k25ptAd5ZS3
-	 zTUVemaFBGrcvrNL68KBtvZzNIioCdbYgKRYGEfrCIK6vnzqq0R9o6M0OxwqBDxNbfXoP
-	 fGeVnv7WoOAfRb8ZG4WSUmpZFHuv6NSAP/W3E7XSFLjxoYiLGmQuWd5SKQRlcarHjYs3w
-	 KSLwM5TfXJfT4f2QkLVqmEjuwNd5wDKrMZYzcDFRP7xq6Wi1RLG1tgdwr48bQqxCscg==
+	bh=ceyD02qD/1W2lVI+RKwnVqOLI7eVygA8LWM+/WVG2fY=;
+	b=jJwOyGwSfhe2jG/4U4sp4WFePtZiD9/LkkuKoas6l1rBmSaM/+BDAtG3QYQmWBTI4LbQ
+	 3+0viZaFKes1nH9KCWjcg4IgBaK7LlQOiziifFL5H7JXV0XUYbrMcc/wfxS4BN9dTJCBh
+	 8fzmlXRcg+yEdg4fE7rK5dW9b08PFzFilr7tNiJ8FLPf5NpatTckTRtYg9a2tj50ICjOl
+	 B0L8WZtyYdKKi5fovBoAOInMoy9j4THjse4BzOTEv9Upyq0ZF263LKRGesLo+dY19XpLl
+	 fkoW9+vSAezr80+qGgVo5FOQ+yHms5XiN1xvgH3TkQfkll8ff2EMXNsKltOB3qpZIKg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=infradead.org;
 	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=a2XYnDTt;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=i3Q2NDis;
 	arc=none smtp.remote-ip=198.137.202.133
 Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CBAB606A31F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CAA4606A31C;
 	Fri, 30 Oct 2026 16:47:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9CBAB606A31F
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9CAA4606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=a2XYnDTt
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=i3Q2NDis
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=jFRMIwMZYfX6rjdCZI0F2E6qbwLWy+pIayUsY0ypjh8=; b=a2XYnDTt8XG1FQ77u1zaEpaI2d
-	f49q90cg4znbGmWbaxnQiAuft8gcbvrXLVNFKnF7Qiyn4ptzwDu0gId0gEAbz5+lFCjeOtfDr6LaU
-	9yi4qI0mIXYWBktGlMLLmXuugHKyaTZEbn5LmKYe4I7HzhmSCoLwA1O5JGDG8nRKiDw6gHE1NVNeA
-	gAphxSAgb/rxZHpVVLCiCPGFXfGwBfpnazNH4E5EI340WDfjrwypcH65qQ1fU89N8ZI/G0lngpQ82
-	yki9hlUk0wdsNvWyZ+TN/zXwbNrXh7oNVWJ/dBHH+LW9tourLe5TBZ05ScbViik5K2IhfMEyYruMl
-	Wq9EXHIA==;
+	bh=ceyD02qD/1W2lVI+RKwnVqOLI7eVygA8LWM+/WVG2fY=; b=i3Q2NDisXkkghOE81u/w/NJBCM
+	XwcGoQ6Eo3cNxSmHlyu0W2hzlplj8AwcQk/jLlAxzYmWRot6l/qTIW4hly2EhBSi6xrZU2Sic/uLc
+	Ocrjns60Y1kPKyga5LdzmmlcCpnt7maYOnqOxyw3BClsu2+102s2Ls1C+BNXYmmUmoapVExqG70g9
+	aZsy+3mArJnzMyXg4wYJ/msjr7CV5hCfBIJhY1wZOyCvdGL9IHT4UMKpkNIbzPNY77NZZmhMv3XJB
+	thNW7mmRtELkAUrbQSwpOba+aeN/ReQlNLiRWpHS0IGDIce7mNfoZx6l75R/4nc6vKxgzUwagtwJo
+	b1lRMERw==;
 Received: from [50.53.43.113] (helo=bombadil.infradead.org)
 	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xMpkp-0000000C9vQ-1YAO;
+	id 1xMpkp-0000000C9vQ-2jXs;
 	Fri, 30 Oct 2026 16:46:59 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: patches@lists.linux.dev
@@ -54,9 +54,9 @@ Cc: Randy Dunlap <rdunlap@infradead.org>,
 	linux-mips@vger.kernel.org,
 	linux-edac@vger.kernel.org,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 3/8] MIPS: Octeon: cvmx-interrupt: fix missing function prototype warning
-Date: Fri, 30 Oct 2026 09:46:52 -0700
-Message-ID: <20261030164657.2808262-4-rdunlap@infradead.org>
+Subject: [PATCH 4/8] MIPS: c-octeon: fix missing function prototype warning
+Date: Fri, 30 Oct 2026 09:46:53 -0700
+Message-ID: <20261030164657.2808262-5-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261030164657.2808262-1-rdunlap@infradead.org>
 References: <20261030164657.2808262-1-rdunlap@infradead.org>
@@ -71,40 +71,38 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add the missing interrupt function prototype to <asm/octeon/cvmx-gmxx-defs.h>
-and remove the local prototype from cvmx-interrupt-rsl.c to eliminate
-a build warning:
+Add the missing IPI function prototype to <asm/octeon/octeon.h> and
+remove the local prototype from mm/c-octeon.c to eliminate a build warning:
 
-arch/mips/cavium-octeon/executive/cvmx-interrupt-decodes.c:53:6: warning: no previous prototype for '__cvmx_interrupt_gmxx_rxx_int_en_enable' [-Wmissing-prototypes]
-   53 | void __cvmx_interrupt_gmxx_rxx_int_en_enable(int index, int block)
+arch/mips/cavium-octeon/smp.c:100:6: warning: no previous prototype for 'octeon_send_ipi_single' [-Wmissing-prototypes]
+  100 | void octeon_send_ipi_single(int cpu, unsigned int action)
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 ---
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: linux-mips@vger.kernel.org
 
- arch/mips/cavium-octeon/executive/cvmx-interrupt-rsl.c |    2 --
- arch/mips/include/asm/octeon/cvmx-gmxx-defs.h          |    1 +
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ arch/mips/include/asm/octeon/octeon.h |    1 +
+ arch/mips/mm/c-octeon.c               |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- linux-next-20261028.orig/arch/mips/include/asm/octeon/cvmx-gmxx-defs.h
-+++ linux-next-20261028/arch/mips/include/asm/octeon/cvmx-gmxx-defs.h
-@@ -339,6 +339,7 @@ static inline uint64_t CVMX_GMXX_TX_XAUI
- }
+--- linux-next-20261028.orig/arch/mips/mm/c-octeon.c
++++ linux-next-20261028/arch/mips/mm/c-octeon.c
+@@ -62,7 +62,6 @@ static void local_octeon_flush_icache_ra
+  */
+ static void octeon_flush_icache_all_cores(struct vm_area_struct *vma)
+ {
+-	extern void octeon_send_ipi_single(int cpu, unsigned int action);
+ #ifdef CONFIG_SMP
+ 	int cpu;
+ 	cpumask_t mask;
+--- linux-next-20261028.orig/arch/mips/include/asm/octeon/octeon.h
++++ linux-next-20261028/arch/mips/include/asm/octeon/octeon.h
+@@ -298,6 +298,7 @@ static inline void octeon_npi_write32(ui
  
- void __cvmx_interrupt_gmxx_enable(int interface);
-+void __cvmx_interrupt_gmxx_rxx_int_en_enable(int index, int block);
- 
- union cvmx_gmxx_hg2_control {
- 	uint64_t u64;
---- linux-next-20261028.orig/arch/mips/cavium-octeon/executive/cvmx-interrupt-rsl.c
-+++ linux-next-20261028/arch/mips/cavium-octeon/executive/cvmx-interrupt-rsl.c
-@@ -39,8 +39,6 @@
- #define PRINT_ERROR(format, ...)
+ #ifdef CONFIG_SMP
+ void octeon_setup_smp(void);
++void octeon_send_ipi_single(int cpu, unsigned int action);
+ #else
+ static inline void octeon_setup_smp(void) {}
  #endif
- 
--void __cvmx_interrupt_gmxx_rxx_int_en_enable(int index, int block);
--
- /**
-  * Enable ASX error interrupts that exist on CN3XXX, CN50XX, and
-  * CN58XX.
