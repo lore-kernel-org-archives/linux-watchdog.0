@@ -1,43 +1,43 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=92.121.34.13
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=92.121.34.21
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793358144;
-	b=ptRyjlpsWy2u4pcc8hneAFNSPaJjpOLv2ovIWhn2jGa2pP9k1tDAdvIc1aH19PQlGSC4
-	 8f1/DHhJRtr/F2KVyiGZpgOFy85m8bRz6A9/RrnO3suhAsVYtPOt+AbIgb1IqqjgvwSYl
-	 LvSMQ3hzsXFiXdgejt0r5tJYsAT9zZhxdLGZyoRKMSIgauB5f5+SnhZ6LwcZYubJzDkyq
-	 ZlDXegngkXLohtcIERRSV9hM0lRzdUF91TOexnGI8CV3MvN/OfGrT2ginHXXeEHMZAYKq
-	 sM0mSRlyoTCq5mcT05/Tp8U2x2Tq2cqi6G87SBJ+GCb5xspCulqcNU82+MfE9vRWHEg==
+	b=wp2k2jHm2+LukebLrViRYdB3C32tZf4PJiVX9maAH/5KHulYYkfjVv79+VdRr2s4JITy
+	 mX2l7s4DgGzknFOjkRaxCfRi6GgZbnt6Krb9OpWDdvFmDBBqBMK/mKjwEMsw63bb+tgvx
+	 YAH2fb/UMIzzlwZ0kk8U5LzJXOXp0wW83ZRLsbMxGroIpO84D+OfXreNNMEvInyVLRVbm
+	 dRqidHG7SvGIwW1UHaq12XryK33cBIEfFdgZ2Z5IKtMyK/xa9WdqP9QV3eIZasBP2tMDz
+	 YQhitty5liTfeZsuhwfHx5zZqkxGyaCp8ZgqKFWVJhvLHk0GIoIWqiKVQH/2CIARSgA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793358144;
 	h=DMARC-Filter:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-Virus-Scanned;
-	bh=dYsK9RCF4zGwTiyceQPJXihEmsN5wew5qV5M7Glsq3A=;
-	b=mjiJTb7KLM//UyRRkWOGzcCjptqL4CzDjtC4kBWCfqXwXfMpB9XvSDZTA1xgubvIkdw8
-	 5aMS5SjdXeIvfcuOVNRZm8Hq0DwYyDt2yJxZ49rwV33hGzqvLTRPuN++ZX0ruPLZqrXOi
-	 nvrP0+NvCz9jT4i3OvWu2jg9ykMEfh6elwMrRDkIEPIOaS6/f35GQ+iESj+eC6Xkq4xoh
-	 yqZkN1sk+kFP17DgHiN7dEjioXjschN5e9n2HEHWt/T+mnGofba2MnVQ2eLPKmBOIgoSX
-	 dlJH1kqwxtvjIC2Xxx0RPgvaKu1cd7OzFmODaBETkRZl67Lm7zlaThpvojG3MzWTuhw==
+	 Message-Id:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-Virus-Scanned;
+	bh=/kmVht9cYMSe6QjwACc2sQOg3rzrAjdFK+Qye+8iWhE=;
+	b=ijNiIaDPT1QRWSCUyehFdgDEm/JuabgKApAh8Fdcud01fvibVxuKV1hVUbuJWhiHCEmO
+	 nfVWQJeVNGO+J6Ar7q1Ot1ejX+ml1Tt6uVqpEBB673DubEY0k2lY+VxFNa8o0EA/8WzUl
+	 3JV1g2QpH2GJn3BPMa1iwxLS/Dx3sL9tminYbI7js2TeBxEKBUtKFwIjZioT3Jlx/tURP
+	 /k+DAafuiJadetHAeTyd02s6sSi5/VjCzV2hFE+tpqgztl1FPunu3em+TV5uU5vpSOVUO
+	 srlFnecEoA1dqxxm0WtiiKe935dyjx8Azg/IPahA3vZ2uyqodNxgByiHK0y6UNe33eg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nxp.com;
 	spf=pass smtp.mailfrom=nxp.com;
-	arc=none smtp.remote-ip=92.121.34.13
-Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
+	arc=none smtp.remote-ip=92.121.34.21
+Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FA7E606A31D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82B03606A322;
 	Fri, 30 Oct 2026 11:02:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7FA7E606A31D
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 82B03606A322
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id C7DFD1A0005;
-	Fri, 30 Oct 2026 12:02:15 +0100 (CET)
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 9517D200014;
+	Fri, 30 Oct 2026 12:02:16 +0100 (CET)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 922041A0002;
-	Fri, 30 Oct 2026 12:02:15 +0100 (CET)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 60FD9200011;
+	Fri, 30 Oct 2026 12:02:16 +0100 (CET)
 Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 987841800226;
-	Fri, 30 Oct 2026 19:02:14 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 667CC180022C;
+	Fri, 30 Oct 2026 19:02:15 +0800 (+08)
 From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 To: linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
@@ -54,10 +54,12 @@ Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	lakshay.piplani@nxp.com,
 	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Subject: [PATCH v4 0/4] rtc: Add NXP PCF8525 RTC driver with watchdog and hwmon
-Date: Fri, 30 Oct 2026 16:31:35 +0530
-Message-Id: <20261030110139.1929109-1-shivprakash.gupta@nxp.com>
+Subject: [PATCH v4 1/4] dt-bindings: rtc: Add NXP PCF8525 RTC
+Date: Fri, 30 Oct 2026 16:31:36 +0530
+Message-Id: <20261030110139.1929109-2-shivprakash.gupta@nxp.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261030110139.1929109-1-shivprakash.gupta@nxp.com>
+References: <20261030110139.1929109-1-shivprakash.gupta@nxp.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -70,87 +72,118 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-The PCF8525 is an NXP I2C real-time clock using an external
-32.768-kHz crystal. It provides alarms, external timestamp capture,
-recording of the last calendar write, backup battery switch-over,
-a hardware watchdog timer, and an on-chip temperature sensor.
+Add a Devicetree binding for the NXP PCF8525 I2C RTC. Describe the
+optional INTA interrupt used for RTC alarm and timestamp events, and
+the INTB interrupt used by the watchdog.
 
-This series introduces DT bindings, the core RTC driver, watchdog
-support, and optional hardware-monitoring (temperature readout) via
-the hwmon subsystem.
+Add properties to select the external crystal load capacitance and
+temperature-compensation crystal model. Also allow the common
+start-year, wakeup-source and reset-source properties, with
+reset-source enabling watchdog registration
 
-Changes in v4:
-- Rework timestamp handling to serialize sysfs clear and IRQ
-  processing, read Timestamp1 before clearing TSF, and restore TSM
-  after the CTS command.
-- Correct Timestamp2 handling to report the last calendar write
-  instead of treating it as a second external timestamp capture.
-- Rework the INTA threaded IRQ handler to drain pending AF/MSF/TSF
-  events and re-read status registers, avoiding missed events on an
-  edge-triggered IRQ.
-- Preserve all CTRL2 Write-0-to-Clear status flags, including WDTF,
-  across register read-modify-write operations.
-- Rework watchdog support to use nINTB as the watchdog output without
-  a Linux watchdog IRQ or pretimeout notification; remove unsupported
-  pretimeout handling and write-only watchdog-value read.
-- Establish a known watchdog state at probe, clear stale WDTF before
-  enabling the watchdog output, and report the hardware-achieved
-  timeout.
-- Fix RTC feature and time-setting handling, including
-  update-interrupt capability reporting and writing the
-  hundredths-of-a-second register when setting the calendar.
-- Improve interrupt/wakeup and device-managed cleanup ordering so
-  hardware interrupt sources are safely masked on probe failure and
-  driver removal.
-- Rework hwmon registration and power-management handling so the
-  temperature readout is enabled before exposure to userspace and
-  cleanly disabled on failure, suspend, and removal.
-
-Changes in v3:
-- patch 2: protect the Write-0-to-Clear (W0C) status flags in the
-  CTRL2/CTRL3 read-modify-write cycles so concurrently asserted
-  interrupt events are not silently cleared
-- patch 2: replace the timestamp spinlock with a mutex and re-read
-  CTRL4 under it, closing the TOCTOU race between the threaded IRQ
-  handler and the sysfs timestamp store
-- patch 3: configure the nINTB/CLKOUT pin (CLKOE=0) before requesting
-  the watchdog IRQ to avoid a spurious interrupt storm
-- patch 3: add suspend/resume PM ops to stop and re-ping the watchdog
-  across system sleep
-- patch 3: add WDIOF_PRETIMEOUT so the watchdog core attaches a
-  pretimeout governor
-- patch 3: re-mask INTA/INTB interrupts on driver unbind via devm
-  cleanup actions
-- patch 4: enable TEMP_RD_EN before registering the hwmon device and
-  add a devm cleanup to disable it on unbind
-
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+---
 Changes in v2:
-- Fix include: use <linux/pm_wakeirq.h> instead of <pm_wakeup.h>
-- Add spinlock_t ts_lock to protect ts[]/ts_valid[] from IRQ/sysfs race
-- Fix W0C ordering: clear AF/TSF flags before acting on alarm/timestamp
-  events
-- Use dev_pm_set_wake_irq() for suspend wakeup wiring
-- Clear stale WDTF before unmasking watchdog interrupt on INTB to prevent
-  boot loop when battery-backed flag persists across resets
-- Add watchdog_notify_pretimeout() call in INTB IRQ handler
-- Set WDOG_HW_RUNNING if bootloader left watchdog running at probe time
-- Register hwmon device first, then enable PCF8525_CTRL5_TEMP_RD_EN only
-  after successful registration
-
-Shiv Prakash Gupta (4):
-  dt-bindings: rtc: Add NXP PCF8525 RTC
-  rtc: pcf8525: Add NXP PCF8525 RTC driver
-  rtc: pcf8525: Add watchdog support
-  rtc: pcf8525: Add temperature sensor support via hwmon
-
- .../devicetree/bindings/rtc/nxp,pcf8525.yaml  |   86 +
- MAINTAINERS                                   |    7 +
- drivers/rtc/Kconfig                           |   25 +
- drivers/rtc/Makefile                          |    1 +
- drivers/rtc/rtc-pcf8525.c                     | 1608 +++++++++++++++++
- 5 files changed, 1727 insertions(+)
+- No changes to DT binding
+---
+ .../devicetree/bindings/rtc/nxp,pcf8525.yaml  | 86 +++++++++++++++++++
+ 1 file changed, 86 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
- create mode 100644 drivers/rtc/rtc-pcf8525.c
 
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
+new file mode 100644
+index 000000000000..bee71ec3da80
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
+@@ -0,0 +1,86 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/nxp,pcf8525.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCF8525 Real Time Clock
++
++description:
++  The PCF8525 is an I2C real-time clock with alarm, timestamp, watchdog,
++  backup battery switch-over, and temperature compensation for an external
++  32.768 kHz crystal.
++
++allOf:
++  - $ref: rtc.yaml#
++
++maintainers:
++  - Lakshay Piplani <lakshay.piplani@nxp.com>
++  - Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
++
++properties:
++  compatible:
++    enum:
++      - nxp,pcf8525
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    minItems: 1
++    maxItems: 2
++    description:
++      INTA, followed by INTB when both interrupt outputs are connected.
++
++  interrupt-names:
++    minItems: 1
++    items:
++      - const: inta
++      - const: intb
++
++  quartz-load-femtofarads:
++    description:
++      Effective load capacitance of the external 32.768 kHz crystal.
++    enum: [6000, 7000]
++    default: 6000
++
++  nxp,xtal-type:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      Crystal model used by the temperature compensation engine.
++      Value 1 selects -0.035 ppm/degC^2 and value 2 selects
++      -0.04 ppm/degC^2.
++    enum: [1, 2]
++    default: 1
++
++  start-year: true
++
++  wakeup-source: true
++
++  reset-source: true
++
++required:
++  - compatible
++  - reg
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@51 {
++            compatible = "nxp,pcf8525";
++            reg = <0x51>;
++            interrupt-parent = <&gpio2>;
++            interrupts = <2 IRQ_TYPE_EDGE_FALLING>,
++                          <3 IRQ_TYPE_EDGE_FALLING>;
++            interrupt-names = "inta", "intb";
++            quartz-load-femtofarads = <7000>;
++            nxp,xtal-type = <2>;
++            reset-source;
++        };
++    };
 -- 
 2.34.1
+
