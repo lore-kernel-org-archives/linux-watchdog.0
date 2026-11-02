@@ -1,65 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793576829;
-	b=sp+oc+ydnHxIvQYEakR48wRw91bl522+GLxymPMbcBxUXfgwtydVdyEfWIvHw/xJ+pSk
-	 kcAx4CqZXggOeXeWsDf6nPSyMB+b4sDOmpnSuCeqho8qzneIpbZ/ShO7n8ELRGyGimMJr
-	 yynKmoivC/G1+bnkLM6+6kq9exAQsJSvLsK0C62RCiGA/8BPUl+IxR/iDdSAqVpMtK29T
-	 4klHm+ZKe5h/zKt2t8jyFdJIPgpjTYufOKMVMLhzRygaqBKp/b2bQ2t3O9kh99jiPTJgK
-	 kijOsN7IRRhSd2lkwazwafSxg78stfT7gBcaFNlcFAvxrFAS/6+Fp7iCU1Rig1k960w==
+	t=1793605302;
+	b=UXNTYOdleBrjTf3wk8biSo/11X0e2s/R49i135fKyPxhr0XFfT5s8wVeGW9oowS0ObFK
+	 qCV1NrOyj8Qxr5Z9cRjIRbnEsd3lVyDJdOq+lgqceJV9dk8W7o1ODz01z5xtg9PdbxRS4
+	 zVZ/LOWWKn2J6pZwmH5c9r++GHhIGrxTlWLVdaVlvt1iJWYQm/7B5hEePgep/8klzLxcb
+	 icCHS3E9tKayXU+AsebbW6nDI8W4jrcvCXNcts4qrc8eI29g/OMMb3RPhRbHAHuYFJrb/
+	 8yjqRb57zlhENa51rsr3Um+FUtHHvjUCHsCJwNX01xCK1EivvYN7jsowq6aX9NgK9tQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793576829;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=hcnX4djeYK0SpDsVXHlBjeqFMbrAduZsiPbBTsAkWkM=;
-	b=EodJZc8kgBj9cHyS/TenTyb2YmteW4Ly8JsG+lRRYT58Ffwphtvjc7kszMrDgbRdMuPR
-	 eRjl+3BWazi+ZjI9BGYKkzBe1pfN94wgcsM1YN0M4CERD7ShdbA3TZEiBq+xFSWIIwI2x
-	 Vd2n3ZMtbrr2ZwSpbeXKrr9BYR6r2BCelA/f+BKOCNarPNC+PEoxQzuNuXx0eFhFAgX4J
-	 SAv8+10r9EBcI1NudwoRFASjr1+7IH/TXPWZjPVzZtxaie1NZhsnxF5glAW9qfjR5vk5H
-	 BvGQfvfzuH7AMqZpUnbtvZwV0kZfgUTqASz37UDjxrcsB1cIOps0dAUq1x7EMTWiy+w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793605302;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=o3CXiVBXl+lfNC5fS2tE1jGGqJWXPOGLe9G07hWwZY0=;
+	b=GTGwQNHSB+qf0Vi/AKo6sDq2aWEVZACnmBl2XuYSnkejbBNKzfMANwHXX8wAgqN9fba1
+	 2B8cHRAnZReALQHcaBaIA/wLdzpllFVSNWWClytNDx8GtCe7X2Y4t0CUzYQygluyjQjiE
+	 HeUkILcN40UQDm7d0gLQ29Q7UkeQBP/Ty8MBqFs8oCcIHNkOj3cIHs1ckUeYMRw0nTLr+
+	 CNrIneCOpUfjGyNvX/nGz5c/qt6fUXcmLUYCGVDo91cYRItHnaT3EHOj+8F6y8zOTgDzd
+	 nBWfkiEOgR8s3TlRcUEbgYJez09KfsQa2kOzCEaKPvMwtB25IcdKFk6RKN7g/BM2NZw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b="AiwLAjp/";
-	arc=none smtp.remote-ip=198.137.202.133
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U09q1VwK;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BF03606A326;
-	Sun,  1 Nov 2026 23:47:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0BF03606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4875606A329;
+	Mon,  2 Nov 2026 07:41:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=AiwLAjp/
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=hcnX4djeYK0SpDsVXHlBjeqFMbrAduZsiPbBTsAkWkM=; b=AiwLAjp/DAEdzOXU+CKmbn5VeV
-	xyT3mYpYORLB5b/ABK5o2PqvLdgiCpZNMAKc8+N8JbKZZSbAGvoIGWEQuISb0L2WBjNo4ntondEAA
-	WGHapz/ttXKIWVSvsNW+Q/bHBaCjXnnJXDkiByHDxwrTzXwTlxe6c2CGntE8LtL5h26dLqb3h79o4
-	WlX5QqlfomKF7HCJ/Y1XrPfnwhzqDeBhf6X04GARdHzTU7Uhf+/HHk5oXXk+QyZSm8SbwhRAITWZi
-	4NQXrNORx+DKvr0O763LH/Pt87ZVWno8vI06qGDE0RhtgQejj8qdP+Hv0bLFEgt4afXUEmFgoYEqk
-	CKV1tYQA==;
-Received: from [50.53.43.113] (helo=bombadil.infradead.org)
-	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xNfGP-0000000FGD8-1c7g;
-	Sun, 01 Nov 2026 23:47:01 +0000
-From: Randy Dunlap <rdunlap@infradead.org>
-To: patches@lists.linux.dev
-Cc: Randy Dunlap <rdunlap@infradead.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	linux-mips@vger.kernel.org,
-	linux-edac@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 5/8] MIPS: Octeon: octeon-platform: fix missing function prototype warning
-Date: Sun,  1 Nov 2026 15:46:54 -0800
-Message-ID: <20261101234657.1820661-6-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261101234657.1820661-1-rdunlap@infradead.org>
-References: <20261101234657.1820661-1-rdunlap@infradead.org>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U09q1VwK
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1551D1F0093A;
+	Mon,  2 Nov 2026 07:41:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793605301;
+	bh=o3CXiVBXl+lfNC5fS2tE1jGGqJWXPOGLe9G07hWwZY0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=U09q1VwKKQhxiFlFh4imcH5lh7tFP1PJSEcx2sYF1V7QHYdI79yVOWJB5UCJv0A/Y
+	 W1H0wyRvoMTPkpxSdnW15glyu/xbXyjN4z8tbyPOqCrdfUJujO0CzQfaXAJWeCr1z3
+	 TvArFDAy/3M49foDCkQ2fKc13C4gCFGKdZ4LlvbJumVeKcwRbFnjGfDPC912vbI4/u
+	 ApsqFi4xafQl2Z1dGwP7W3+D6EzsStDEK54NjkpJCdg7Hhx+8ZuAgSgrqWSh5dhQAw
+	 nHVvkDwcfHHXAU/Y6an6hjlTOGPEkeyHKFTXjbAr9eawijtr6kn3M/whdfQVcPy5rf
+	 J1YhDQcI4keFw==
+Date: Mon, 2 Nov 2026 08:41:37 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	"Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>, Konrad Dybcio <konradybcio@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Rajendra Nayak <quic_rjendra@quicinc.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Jassi Brar <jassisinghbrar@gmail.com>, Abel Vesa <abelvesa@kernel.org>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
+	Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov <lumag@kernel.org>, 
+	Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, 
+	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Krishna Manikandan <quic_mkrishn@quicinc.com>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
+	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>, 
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
+	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	freedreno@lists.freedesktop.org, linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v7 04/11] dt-bindings: sram: qcom,imem: Document MSM8952
+ compatible
+Message-ID: <20261102-gleaming-aromatic-loris-e0dda4@quoll>
+References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
+ <20261030-msm8952-initial-support-v7-4-ad748ace375d@mainlining.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -69,44 +77,20 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261030-msm8952-initial-support-v7-4-ad748ace375d@mainlining.org>
 
-Add the missing octeon_fill_mac_addresses() function prototype to
-<asm/octeon/octeon.h> and remove the local prototype from setup.c to
-eliminate a build warning:
+On Fri, Oct 30, 2026 at 12:02:35AM +0300, Muzaffer Kadir wrote:
+> Document the IMEM block found on the MSM8952.
+> 
+> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
+> ---
+>  Documentation/devicetree/bindings/sram/qcom,imem.yaml | 1 +
+>  1 file changed, 1 insertion(+)
 
-arch/mips/cavium-octeon/octeon-platform.c:701:13: warning: no previous prototype for 'octeon_fill_mac_addresses' [-Wmissing-prototypes]
-  701 | void __init octeon_fill_mac_addresses(void)
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
----
-v2: no change
+Best regards,
+Krzysztof
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-
- arch/mips/cavium-octeon/setup.c       |    2 --
- arch/mips/include/asm/octeon/octeon.h |    1 +
- 2 files changed, 1 insertion(+), 2 deletions(-)
-
---- linux-next-20261028.orig/arch/mips/include/asm/octeon/octeon.h
-+++ linux-next-20261028/arch/mips/include/asm/octeon/octeon.h
-@@ -48,6 +48,7 @@ extern void octeon_user_io_init(void);
- extern void octeon_init_cvmcount(void);
- extern void octeon_setup_delays(void);
- extern void octeon_io_clk_delay(unsigned long);
-+void __init octeon_fill_mac_addresses(void);
- 
- #define OCTEON_ARGV_MAX_ARGS	64
- #define OCTEON_SERIAL_LEN	20
---- linux-next-20261028.orig/arch/mips/cavium-octeon/setup.c
-+++ linux-next-20261028/arch/mips/cavium-octeon/setup.c
-@@ -1156,8 +1156,6 @@ void __init prom_free_prom_memory(void)
- 	}
- }
- 
--void __init octeon_fill_mac_addresses(void);
--
- void __init device_tree_init(void)
- {
- 	const void *fdt = NULL;
