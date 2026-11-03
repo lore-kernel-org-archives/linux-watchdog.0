@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793698407;
-	b=cgtqkLJ6Q9RVYrFyY/qBxm2Nh278eoH3loiKHg+cU/+zY+HV0hH+Qmoudo09Z56VNBeC
-	 x4wMlYEb6OynjolHDm2cdfVqxVN5Iht47pMKaSm8OjghTjaZJr79ePPAArYmMBbDXYO28
-	 Gzkfe/Ve04RofsvaQSgI3OqmPFtfg9hCQ9++xO+r8VYwMnR36/gcR3V1uvVonTkwYwfx6
-	 8glKARWLIMAZod2/RwKtgd7IOHCuNBtQUU4M4gYCWe+tiDUufCluP8JztjU0SRAtmhjVP
-	 y28VrpOjQL/v/wlKzZYnTB8nZqCtax3ca74AEl3z1F4YsYXMRz2omw9eXc90m7Bn3IA==
+	t=1793702320;
+	b=UnJKZ4ZhtwX5pyfvtV4Y/vgsyP8bnTp3meAecCc+xTE2THXmi90JiVvQhyy5XCNll+fl
+	 82A5LmXa9sxIFNDLwyrIXfrUSVtEToD+fEfdU8ZhVRq5Sxb7tiyM9rY6w7646R6Ho8dQg
+	 NpykOgKLKbw382Ddr8YQ8zyNb148s7EKAlkZvBVEN1ckjc4AU+y+biFGr2fiH0jjhc2/U
+	 uOfVzSiMr2zbimGsooPv1vpo3kWK338LCe0mI0V2UNKriPRnhOy91rEbn9uKFz834F7zp
+	 rL+Dh838l+R5uJNs2RWlBTT9qPfGi/Wx4tIXuY26pdm16M/OxiAV7wA0IgyZ8lNfcGA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793698407;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793702320;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=ipybBpddf0p268OSOnOQL/8r5MWmqU5YBcO4856aeD0=;
-	b=kp1Ms4PWxw8/RTCoH7TL5XalAPAWfsGiMi9Ak61WBgxPc8sX5PnV7JFiC+wy0697N9XX
-	 J2Ys4h7BqLQ82CxZd0NE5RT0m4zjHwUoPYXS0ABskolOtlAhyyJpFrqw/5L9rxYt7U/M4
-	 HF0c3eh80PmF9lSvE/r0GrdR5kUmSQxrDH96C3pQf6rsjEle0ZzfEHLZlwd0cqxCHUV94
-	 XXox6t7Jvs8iGn9f8PrJA9vt2ncmXx5hXwc0KXg41fT7v9k+5FxUUgDQWQoolX+yzVJQg
-	 iiABb7dHFTTVRBeiwEubQkuoLbXiaMfcUfKt/ICZGjn4sCEJxxY9ojAiHe3IJm051vA==
+	bh=18p/3OUExDCqEZMFFUDX0fp7Tsm8MCYEZebkfiTkCgI=;
+	b=U57L5Byp4R5DzxJC5ut+zmZsWKvmB1d+iax9VaOdFuGNnr6aV2AORVNPnWXqKjtviXlv
+	 w4sbHS7c3N+DlkhejkQqZqt31LWSYBNy2/dEEw+YlFzll9PS6gz4X03hApCcQprYmudej
+	 RHLqc0jAuO6zW5vD0rWHcsBGQTE8ntIVNuh0kFsOqu9wvBufzNoV7h/YDVOo++sIkiPaK
+	 CN73lejLzd4Y0afCggeo1kTEeXLzyv4556aGWCC5JTq9zEuZ5qo3xxPy+s4T1/uqY91Yj
+	 EVrmsQLnAYlbNVNSJtxIaK89BbWzbrc2FIoUSPbHa6LpNqRlxKEBEYLl5OMa3z/2X/A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=A4XKniS7;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JmNmc5De;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15861606A329;
-	Tue,  3 Nov 2026 09:33:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40BC56074A09;
+	Tue,  3 Nov 2026 10:38:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=A4XKniS7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 434A01F000C1;
-	Tue,  3 Nov 2026 09:33:25 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JmNmc5De
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D4E1F0093A;
+	Tue,  3 Nov 2026 10:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793698406;
-	bh=ipybBpddf0p268OSOnOQL/8r5MWmqU5YBcO4856aeD0=;
+	s=k20260515; t=1793702319;
+	bh=18p/3OUExDCqEZMFFUDX0fp7Tsm8MCYEZebkfiTkCgI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=A4XKniS7FhANxVtKKHjvBqnEaTTUEEQuesw2Q+KrK94YfJc6vbRuMb3ONLLTgkPW7
-	 r8pCqLOcMYNj6KMuvx1K1oW9F8YaqQOLwfayI+TaZd3P+zYPnLr+0atfvDEbhbj2hf
-	 UrfUV9S5vwNtUERbbi4W12uG7QHy3XJIyiqQBuzUxMbSPpjTDL5YOtBvEVUmDQx0iU
-	 M27+nxFXHawOeavenVKe6/7ubsIoKyytbZlr6pwHPRIhbKv5xHNZQPPW06mfRz2cgB
-	 R+zie4LaPb/9Zmm+opu7wYAfLyEWza5jCyX89Sy2qcAX1tl8pMK7QJe1PxEfxxvTxd
-	 LQ4/DzMvJ9Kgw==
-Date: Tue, 3 Nov 2026 10:33:22 +0100
+	b=JmNmc5De8ae+E0694Kb7AHeDeMBLb0gsWDIl+8tSDlprK4UoYh/OAJ85aS0TzHMNd
+	 asKOsnCAV+Yz+9soju42obCN9pdGUsruTh2EbPt5hv11JNxkRYh+nT3yaGHbCFz+mS
+	 suRLVwVz6xmJqoyQ7bnpgTAwPVCcsmB9g+PeL6bo/8apag/iXFOXpXlCTrHBPvtfus
+	 qp1Hv2pzgAToFxouF0+CLwSwwW81B/zWzHhxzWwJ7ohTMKevFNve+uQnekPvrx9aPn
+	 Sz78+LBMZr103t0CIQ1EQw92THfWYspLKEJctGOIJSjAfzUZ3NQ9DehGNISZcDYFvc
+	 6UJ9CqUQOnGLA==
+Date: Tue, 3 Nov 2026 11:38:37 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Muzaffer Kadir <muzafferkadir@mainlining.org>
 Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -63,11 +63,11 @@ Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
 	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, 
 	freedreno@lists.freedesktop.org, linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v7 06/11] dt-bindings: clock: qcom,a53pll: Add MSM8952
+Subject: Re: [PATCH v7 05/11] dt-bindings: mailbox: qcom: Add MSM8952 APCS
  compatible
-Message-ID: <20261103-venomous-viridian-bug-a61ace@quoll>
+Message-ID: <20261103-rapid-turquoise-viper-70686b@quoll>
 References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
- <20261030-msm8952-initial-support-v7-6-ad748ace375d@mainlining.org>
+ <20261030-msm8952-initial-support-v7-5-ad748ace375d@mainlining.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -79,15 +79,15 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261030-msm8952-initial-support-v7-6-ad748ace375d@mainlining.org>
+In-Reply-To: <20261030-msm8952-initial-support-v7-5-ad748ace375d@mainlining.org>
 
-On Fri, Oct 30, 2026 at 12:02:37AM +0300, Muzaffer Kadir wrote:
-> Document the a53pll found on MSM8952.
+On Fri, Oct 30, 2026 at 12:02:36AM +0300, Muzaffer Kadir wrote:
+> Document the APCS mailbox compatible for the MSM8952.
 > 
 > Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 > ---
->  .../devicetree/bindings/clock/qcom,a53pll.yaml     | 25 +++++++++++++---------
->  1 file changed, 15 insertions(+), 10 deletions(-)
+>  Documentation/devicetree/bindings/mailbox/qcom,apcs-kpss-global.yaml | 5 +++++
+>  1 file changed, 5 insertions(+)
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
