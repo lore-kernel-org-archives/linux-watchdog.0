@@ -1,53 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793776364;
-	b=AUaZe4cLIl5wlP6WhtO1uiD8kK6nNgl5HMaKrkYN7sIA6Ixe59tQkteLpvjQXIrx5jSh
-	 sUXtq11ioozQYiAWrs+jPhylILjIu/ksghcY5/bZMN/iPJoD0ILiikf4vNvRr5AklAjDM
-	 u7+xCgIl8mWQLe4CRqEQ77+GL8kHiGVczKk+eBNtadTgBtKtj7O4nSSbXSRc6Im4ii3L4
-	 6vUWaMWHxyVZR8jNSPHDj9xxaH/QtJ0MplEZlrYx1XJDEcIPHg0mDsx0QF0YBYjgCJ8gX
-	 /2XEpzOKVy2ylCwOZ5X/iY/i472R5ApaIaEvxlrq4MPypjWvlW3DaeMvMLij6ZpQD7A==
+	t=1793776374;
+	b=e08MY76H2Y/drzvGXzOtmV+nBqAMH3v1L3nYumJTeuy1UuMReZz+/C7ofSIQNxkrMa1P
+	 wUrfEWbhd3AZiJ04VkK7iGCfKCwfql7uyK6XDqYUhMDKTl7wCszfUtJeGpYs/hiII9bnh
+	 xjrIWNn3POlLr+UvdPheZSpHY435hVzGlbfQmT396hjK/QXk5Ku4KMks3mmDgi1wAZffK
+	 CbUWE9MZH9cxmDsVoMRYYgA/3lLf7w9AA2i4LaqU5DiHUfzhWUBUhFq9qpfRlcqO0kOpO
+	 wtuKRUwXSkWWY2afkL9Ntc1yO4I6fC4CbBgNh91mD/Ve1UqnDwGLFz+GKnbX5ib3vWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793776364;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793776374;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=1ck4DQBMkQ3m+KelL8iTlvB13CQBPiFxNw+niqTgpdc=;
-	b=apHlcovOgagm6Ckg4VPiemHCQMeKiI1QRDC5bDaMIV24/I7iKZOgAOuOR9W+DvyxRe6q
-	 RpMVPJKp1w6gY+86MScewFK6aUdEA1vRS+lvyImO9pd8jc/JIlLD14xw+NR0kCCoUH4zZ
-	 aBbfSmq3295mtrk8AWhKWgpVoee5iuBV7YA0C8CwWYuzb0CxSWPYyyXmCU3qYwOdtB/fZ
-	 8ASatlkbRiQJ0/CknjY+UMNUYAX3Ib4+uLWBgjeCcAOViqFzLd0h6rB7+r/3GNy3EZ1ax
-	 YgpMKcVZakGjB0mt+mEjmk41nPquzW+GiKdAofawF+SMnLhugcWNv9aRd4s+0DGtOKg==
+	bh=X+v8P+XVH4KjqP0QjXnq1EmaYTJiMaYgsAmxt9gqq4A=;
+	b=zePXzfDERcgg46x6ELi81AtJOQFEwQ2g8Jq0lumky7EH/jJbryux//mIfxzd7JO++drp
+	 Vn1QI2B7pNfZc7PTHCX1ElONoWTjWpBt2pi0AJtcfy5pP/2kz0lSwFL+7zWM6QjIQeyGr
+	 CJ6kzUq/dy+S49RVrCOuDRwobH5ODSe3+lOJr/Q1BFE5ip0y2yzuQ+ZsqrxLwrFMUbDlw
+	 q2/v53TfJSYbQhQm87pssvQkhYoP3yomzdt0TuEWVphq415F6CcNvlewiHyqmu9CM9Pp6
+	 tW+9Rgb7/DOm0QNgL0rInSo4b2iLyjRmy/Sr5vMandd4WJtNsEfEfZt2F6e0U1GH9vg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="f3eE61/w";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FfNrxgWX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5214F606A326
-	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 07:12:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FCBA606A326
+	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 07:12:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f3eE61/w
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B8E1F000C1;
-	Wed,  4 Nov 2026 07:12:43 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FfNrxgWX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7264C1F000C1;
+	Wed,  4 Nov 2026 07:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793776364;
-	bh=1ck4DQBMkQ3m+KelL8iTlvB13CQBPiFxNw+niqTgpdc=;
+	s=k20260515; t=1793776374;
+	bh=X+v8P+XVH4KjqP0QjXnq1EmaYTJiMaYgsAmxt9gqq4A=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=f3eE61/wQyB9PYB1beU0+f0ZFoGAMuI/o6X27VbQUIvD0qrVC+Y61AD5I5KUeW2Vb
-	 lcPQ/KKfp3SWFnT8/d9UtdUKFAW2aqcKV3W1v8S8fyvfwiI8m/QDbAFEsfcml70ceV
-	 CsiHm70+Sf/a67is3iom0pVPUczQGTP0L4KFpJlpE3lQ4UrNCBmZ4MBjkdwzb5jkUP
-	 h4csv0r6oa+wqv4ohyl0uXT9+xw3eIm3O6muKbKXktrV7UASCaqYxBKnScU8732Bur
-	 exIi4qJyuplodOMC0Hjqv6sXjqJLs2pFCutAkBBLuZxxTRN+ZENW9tP0WZWmJS0eRN
-	 9HdI+/zViCJvQ==
-Date: Wed, 4 Nov 2026 08:12:41 +0100
+	b=FfNrxgWXPlC99QJQHSWupkf/y6+unggTdZ4u74p4g7Q6PSz3SzoERDfxDHPKhoqB9
+	 HHnRuDIovZoETLYDZuC1k8w5bC2eND+4e5h23t1CnjX4ZFhlKJCqWMos3YCgPWatDH
+	 OYrb4MPobHFSa3S/64C1FyTcfw6E3i0mMd0Y7ie0B0hkho+y+ckSAVs27aSCkRL8b8
+	 oZ9mlSGGZq0cp+y5NWH8W4ayjpiW9aiR16/pl/L4RXjQIh1mg88y7x/96hbo9ZRY4Y
+	 vq9f8q0b6jS539YCBmOFCp7n+0a0gpoubifxS2LqfzXmTAofpPSpRfP374dHkpl8BJ
+	 lxax2Sr0mBWag==
+Date: Wed, 4 Nov 2026 08:12:51 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Wentao Liang <vulab@iscas.ac.cn>
 Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: omap_wdt: stop starting the watchdog twice in
- early_enable
-Message-ID: <20261104-melodic-emotional-pony-ff5ddd@quoll>
-References: <20261104021535.1468760-1-vulab@iscas.ac.cn>
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, Ziv Xu <ziv.xu@starfivetech.com>, 
+	Xingyu Wu <xingyu.wu@starfivetech.com>
+Subject: Re: [PATCH] watchdog: starfive-wdt: drop the runtime PM reference
+ when start fails
+Message-ID: <20261104-aggressive-poised-lorikeet-a5cc5c@quoll>
+References: <20261104021527.1468703-1-vulab@iscas.ac.cn>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -59,34 +60,29 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261104021535.1468760-1-vulab@iscas.ac.cn>
+In-Reply-To: <20261104021527.1468703-1-vulab@iscas.ac.cn>
 
 
-On Wed, 04 Nov 2026 02:15:35 +0000, Wentao Liang wrote:
-> With the early_enable module parameter the watchdog is started before
-> watchdog_register_device() and the WDOG_HW_RUNNING bit is set, so the
-> watchdog core keeps pinging it.  The start that predates that code was
-> not removed, so omap_wdt_start() runs a second time right after the
-> registration.
+On Wed, 04 Nov 2026 02:15:27 +0000, Wentao Liang wrote:
+> starfive_wdt_pm_start() takes a runtime PM reference before programming
+> the watchdog.  When starfive_wdt_start() then fails, for example because
+> the interrupt status never clears, the error is returned with the
+> reference still held.
 > 
-> Every omap_wdt_start() takes a runtime PM reference with
-> pm_runtime_get_sync(), and only the reference of the probe itself is
-> dropped at the end of omap_wdt_probe().  The second start therefore
-> leaves one extra reference behind: the device never runtime suspends
-> after probe, even when no user has the watchdog open, because the
-> usage count can never fall back to zero.
+> The watchdog core only calls the stop callback for a watchdog that was
+> started successfully, so starfive_wdt_pm_stop() never runs for this
+> case and the usage counter stays elevated for the rest of the system
+> uptime.
 > 
-> Drop the duplicate start.  The watchdog is already running at that
-> point and the remaining references are the ones that keep it clocked
-> while it is armed.
+> Drop the reference before returning the error.
 > 
-> Fixes: cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling")
+> Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
 > Cc: stable@vger.kernel.org
 > Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
 > Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
 > ---
->  drivers/watchdog/omap_wdt.c | 3 ---
->  1 file changed, 3 deletions(-)
+>  drivers/watchdog/starfive-wdt.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
 
 Multiple things here:
