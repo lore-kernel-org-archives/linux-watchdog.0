@@ -1,53 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793776361;
-	b=Jpam9vTzYn5+Lt5yhA4ZJCsjQi5A7DRwXMffTj8nND5Rbr2rnrZ9hY4WDPiXssGzM5Dq
-	 T1KJPcS3Nd3un9P+Xxqytaj1BpYoYU9/LBR9pKReQ/bs3SQNdo/4fD4qx7o5inP0o0tG+
-	 Uo7pKzyJJBKjg6YRF3VjWMSt7eNw5fs7sx4oUrfXWvAIkq+IYZYVpiH5ehq+Blnlyu8Fc
-	 kYyuhXJkCzbNdgGuvb4WSwpiByyE7iUAGx1SjjLXslC7iCbXrEMi6V4ibuaGeo0z3RXwV
-	 AeRa1wwTjU1kW8PQtgKraPfrsFI6Q27xF5wFSXEmyRS5q7uXrwgTw6O+DzUB/UpfYtQ==
+	t=1793776364;
+	b=AUaZe4cLIl5wlP6WhtO1uiD8kK6nNgl5HMaKrkYN7sIA6Ixe59tQkteLpvjQXIrx5jSh
+	 sUXtq11ioozQYiAWrs+jPhylILjIu/ksghcY5/bZMN/iPJoD0ILiikf4vNvRr5AklAjDM
+	 u7+xCgIl8mWQLe4CRqEQ77+GL8kHiGVczKk+eBNtadTgBtKtj7O4nSSbXSRc6Im4ii3L4
+	 6vUWaMWHxyVZR8jNSPHDj9xxaH/QtJ0MplEZlrYx1XJDEcIPHg0mDsx0QF0YBYjgCJ8gX
+	 /2XEpzOKVy2ylCwOZ5X/iY/i472R5ApaIaEvxlrq4MPypjWvlW3DaeMvMLij6ZpQD7A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793776361;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793776364;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=rNvGQickLKty4kKFnH2z6Q3YUpQwh4zaapXTQbwz4DU=;
-	b=pxhd/Z/8VweRgC2nE6zSLQeWk1Ko1qqzfJMMdn49JEtAvqRWNxmI1G+/3XLyp7w0BIdX
-	 f2Op/xZ9WxPnh/ChBZ6ex19vt6p+mbYsEinTQAxK5rmqKi789BinwpF5hOJI7xPJNmOHq
-	 Lh2kTioEgPKrHJNt8R+8yadNaA5WiV7ExuRoxplzdns5m/xYh/Zk0sbw+Q0hlmlFvrIEr
-	 HWb6mqkLmKZZYiCQnFETRewM+1dqywBLjD9JEO5du0bOfMHkRAoh59K3eWuwxHxyFHrXO
-	 2M+CXOjNpCSGoYPeCDBRKvUQcpVEsFqPoTWJlW0mZcW9UiHPmEa/731pAQGsbQ8q2Vw==
+	bh=1ck4DQBMkQ3m+KelL8iTlvB13CQBPiFxNw+niqTgpdc=;
+	b=apHlcovOgagm6Ckg4VPiemHCQMeKiI1QRDC5bDaMIV24/I7iKZOgAOuOR9W+DvyxRe6q
+	 RpMVPJKp1w6gY+86MScewFK6aUdEA1vRS+lvyImO9pd8jc/JIlLD14xw+NR0kCCoUH4zZ
+	 aBbfSmq3295mtrk8AWhKWgpVoee5iuBV7YA0C8CwWYuzb0CxSWPYyyXmCU3qYwOdtB/fZ
+	 8ASatlkbRiQJ0/CknjY+UMNUYAX3Ib4+uLWBgjeCcAOViqFzLd0h6rB7+r/3GNy3EZ1ax
+	 YgpMKcVZakGjB0mt+mEjmk41nPquzW+GiKdAofawF+SMnLhugcWNv9aRd4s+0DGtOKg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8EhBO29;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="f3eE61/w";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11929606A329
-	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 07:12:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5214F606A326
+	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 07:12:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8EhBO29
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E26AF1F000C1;
-	Wed,  4 Nov 2026 07:12:39 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=f3eE61/w
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B8E1F000C1;
+	Wed,  4 Nov 2026 07:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793776360;
-	bh=rNvGQickLKty4kKFnH2z6Q3YUpQwh4zaapXTQbwz4DU=;
+	s=k20260515; t=1793776364;
+	bh=1ck4DQBMkQ3m+KelL8iTlvB13CQBPiFxNw+niqTgpdc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=P8EhBO29bPJlVccLQ2g3ZepY4ryo3wQOQApZOX+lMZvU3EnyBN+MFBCoISIpYmVGa
-	 y4N6L6IKyyLziBq5UTT8wpMjplQ5+jqjFp/Dak8m4Z6u06vkFHVhddqk1i/AJDxjaM
-	 eKP5NTV1tcCD1wf0ehOR66fpuvq7OuYRtr0owkrCYadG6bnor+yOtqObgLAjzijdYR
-	 H5eIkS5wsSQuO6FtB6ab4c2KRNcMhgSTWRLRUS8ATuulzZHqJUuWr6oq3YI9SKN8lb
-	 J/rgEP+NmR/dU6H0iQvUgjSX2H9jdVmzev+Osl/CZ5iOzO+bm+j14fRhKkAntugQNa
-	 RsPAliRDlYJrQ==
-Date: Wed, 4 Nov 2026 08:12:37 +0100
+	b=f3eE61/wQyB9PYB1beU0+f0ZFoGAMuI/o6X27VbQUIvD0qrVC+Y61AD5I5KUeW2Vb
+	 lcPQ/KKfp3SWFnT8/d9UtdUKFAW2aqcKV3W1v8S8fyvfwiI8m/QDbAFEsfcml70ceV
+	 CsiHm70+Sf/a67is3iom0pVPUczQGTP0L4KFpJlpE3lQ4UrNCBmZ4MBjkdwzb5jkUP
+	 h4csv0r6oa+wqv4ohyl0uXT9+xw3eIm3O6muKbKXktrV7UASCaqYxBKnScU8732Bur
+	 exIi4qJyuplodOMC0Hjqv6sXjqJLs2pFCutAkBBLuZxxTRN+ZENW9tP0WZWmJS0eRN
+	 9HdI+/zViCJvQ==
+Date: Wed, 4 Nov 2026 08:12:41 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: Re: [PATCH] watchdog: nv_tco: drop the PCI device reference on
- failure and teardown
-Message-ID: <20261104-gregarious-carmine-fennec-9ceefc@quoll>
-References: <20261104021545.1468838-1-vulab@iscas.ac.cn>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: omap_wdt: stop starting the watchdog twice in
+ early_enable
+Message-ID: <20261104-melodic-emotional-pony-ff5ddd@quoll>
+References: <20261104021535.1468760-1-vulab@iscas.ac.cn>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -59,27 +59,34 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261104021545.1468838-1-vulab@iscas.ac.cn>
+In-Reply-To: <20261104021535.1468760-1-vulab@iscas.ac.cn>
 
 
-On Wed, 04 Nov 2026 02:15:45 +0000, Wentao Liang wrote:
-> nv_tco_getdevice() walks the PCI bus with for_each_pci_dev() and keeps
-> the reference taken by pci_get_device() for the matching device in the
-> global tco_pci pointer.  The driver never calls pci_dev_put(), so the
-> reference is leaked when nv_tco_getdevice() bails out after the device
-> was found, when nv_tco_init() fails to register the misc device, and
-> when the driver is removed.
+On Wed, 04 Nov 2026 02:15:35 +0000, Wentao Liang wrote:
+> With the early_enable module parameter the watchdog is started before
+> watchdog_register_device() and the WDOG_HW_RUNNING bit is set, so the
+> watchdog core keeps pinging it.  The start that predates that code was
+> not removed, so omap_wdt_start() runs a second time right after the
+> registration.
 > 
-> Put the reference on those paths and clear tco_pci so that it is not
-> used after it was dropped.
+> Every omap_wdt_start() takes a runtime PM reference with
+> pm_runtime_get_sync(), and only the reference of the probe itself is
+> dropped at the end of omap_wdt_probe().  The second start therefore
+> leaves one extra reference behind: the device never runtime suspends
+> after probe, even when no user has the watchdog open, because the
+> usage count can never fall back to zero.
 > 
-> Fixes: 456c730153fe ("watchdog: Add TCO support for nVidia chipsets")
+> Drop the duplicate start.  The watchdog is already running at that
+> point and the remaining references are the ones that keep it clocked
+> while it is armed.
+> 
+> Fixes: cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling")
 > Cc: stable@vger.kernel.org
 > Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
 > Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
 > ---
->  drivers/watchdog/nv_tco.c | 19 +++++++++++++------
->  1 file changed, 13 insertions(+), 6 deletions(-)
+>  drivers/watchdog/omap_wdt.c | 3 ---
+>  1 file changed, 3 deletions(-)
 > 
 
 Multiple things here:
