@@ -1,78 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.67.36.65
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793808975;
-	b=UV42ls1vwhSihVFkzehykfWn5VoDax+YAxH92OcXwrTokaHWk6U9FFQF/4D/xGLf0yzz
-	 H/D57erXzS0RlF4jVKZQ1XZs5D1zw+o5ESkPJwug5M9clCGWUU0XvjS8AYOwIHlW3eeeN
-	 8hrLuOmaYxuJ5ZeMRDgKSehKN56oauWH9pN5RGqYEjrIH0MpZU3Kl/KouyGtXk320VX3G
-	 12vIDh/rPwkn9CPYdS2umslLtfdCGys1vx58L0Plrycr6Yd/JDuyipDpuy7PDrfDKxrTa
-	 sI1kxKiRpVwJ22zhgSxQU5XJy60yB2dOGSY4KjK+31WhGKGqw+KMurhxWdm3dcoyobw==
+	t=1793809521;
+	b=ICWulQOdJ4udVuX2bcjzd0vn2id+3KXyJM680Vi7skBMkaHGiKvNuo4LgwGFsPMf5T6Y
+	 v1W5gG3VF705/4CwsiZfQj92HrpEBqDYu8e1XWD7M+TX7qT/Sfuobv00ngC6KBg/vMAwm
+	 Z+iO4l+v66hBk2YHj18I0CMyfChH6YqrS4t9/w0hzWhld1wLnL+SyonMhXHFKBczaMRNb
+	 oFjCYJggFG5vVRmzkRuVT06qx+DdP2dW1CyWu3lHp1IjSghut5yY1Vv4uSjCOgfU0f/GC
+	 4Zx+/DmalbHxQT++Jb6SSpf7ZmLgF3meODTC/3Ed0HNgyCPklO4tRMccGODF5rrpj3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793808975;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:From:To:Cc:Subject:
-	 Date:Message-ID:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=wIuWNWPmiP+GNfu0cVbxFPeeVlExF/grvtfoQgXSHo4=;
-	b=vKBu63fazBGer0fvcDaKOlWQgwBanZWrnLWkC9ZzQEyTzDJQrvyZFJhVwZ3iiOmYjMrp
-	 dnBC7JEy58x+x0mJ51W3HbuiA68KgniAZeXJbKYERltTCL1TU7IiKcZJK/MqpUMc4+HnL
-	 Joa4GXjLH7Uq9lIz0DeX0tcn4iXh1e6xW5M9oeEe1hrDm6Pp5kCvtF8YW5TkG9xPf5Tvo
-	 WxExbTFPScnr11jgDfWuzKyvc3vh/MzsdYXzsUbPgKVFsLkYS6NodOnQpPWKmyVMaCw1J
-	 djGHONZTScxvjyEUSlHTiouDXlgF6nOGc3xVp37J5O4FeWVqdpa+Lw8HHg29h5VfcvA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793809521;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=jIHjFlO9+orZ5F5AEesuV3qicU6AOrVZslL2KTqrtuw=;
+	b=mAI4KgeRzQRHYKhJPuR89aslz/tx0cZ+Bbl/1Lpjt40yaFlWzsIe6kp9FcUWmCM6rvmY
+	 dI2mgT0le/6rPZDCsuyVvVZkTTc1AWQZbqFI5XqGXwVvB3c7Namftl5YQUJ9ooAuV3a5T
+	 UpcNzs1zhqKk+tGCBDWHgFDFDHTmMOZ+vqUC1BtTMNtznknSzQl/dlVFkgyHUJq6Rvokj
+	 YMRRCbSu1N8YFvn8jP9dtpAIMm2Ua1qa66k07XzbqVt9RR5C5i4VeZ1e+HY3PvaXh71MK
+	 mwDQCAoRPV2fPBINi8Vh2iOZnSCdewRF5jHHE51P7vnTco+4b7oj1f/VBsy7XqqhODA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=posteo.net;
-	spf=pass smtp.mailfrom=posteo.net;
-	dkim=pass header.d=posteo.net header.i=@posteo.net header.a=rsa-sha256 header.s=1984.8680eb header.b=R+eJCw6M;
-	arc=none smtp.remote-ip=185.67.36.65
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LfvvjaVn;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CFA1606EE80
-	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 16:16:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2CFA1606EE80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E854606A32D;
+	Wed,  4 Nov 2026 16:25:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=posteo.net header.i=@posteo.net header.a=rsa-sha256 header.s=1984.8680eb header.b=R+eJCw6M
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id 54B21240028
-	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 17:16:08 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.net;
-	s=1984.8680eb; t=1793808968;
-	bh=wIuWNWPmiP+GNfu0cVbxFPeeVlExF/grvtfoQgXSHo4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:
-	 Content-Transfer-Encoding:From;
-	b=R+eJCw6M8/Nw/75QDJVrXpSmBh7JLoqXQmQwg5FlV4XvdGikMIieCGB9+uEyNxLfw
-	 NoTIAILP69+BjIB2oLlYJN/mUq29mZF1ylXqTnHmSdvC81InjxbaAK9bDXs1rZHfmM
-	 K+DdKYbSOY/Up59my2KmKiZAA9mFmLCz5CgkRePs0RvTmHEd4Zgjtfhz9zNCYa1TJg
-	 3CC+w22lpccNfmxzxean/pHLj3iouL0mFnGD62nYoBL6TI67ya2vL+39KG7XXxqGuP
-	 W30GXah40hqOHCPK4mhkO926we1fsbISUzMJuZsrJTrU3nWylmqzcH2wx81NEOUc/l
-	 ysxupYYZmuSDQ==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4jKVtD6Xh8z6v0j;
-	Wed,  4 Nov 2026 17:16:04 +0100 (CET)
-From: Mateusz Nowicki <mateusz.nowicki@posteo.net>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
-Cc: Mateusz Nowicki <mateusz.nowicki@posteo.net>,
-	Julius Werner <jwerner@chromium.org>,
-	Evan Benn <evanbenn@chromium.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Antonio Borneo <antonio.borneo@foss.st.com>,
-	Marek Vasut <marex@nabladev.com>,
-	devicetree@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 2/3] watchdog: arm_smc_wdt: try every id of arm,smc-id
-Date: Wed, 04 Nov 2026 16:16:06 +0000
-Message-ID: <20261104161553.30115-3-mateusz.nowicki@posteo.net>
-In-Reply-To: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LfvvjaVn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 669051F000C1;
+	Wed,  4 Nov 2026 16:25:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793809520;
+	bh=jIHjFlO9+orZ5F5AEesuV3qicU6AOrVZslL2KTqrtuw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=LfvvjaVnQSI2T5fsqdQL2bA4KCCvS35wYhGnRhLIJ9idGrsekYN9+1uS9khWEYr8x
+	 CmC30tHRi82H3nAqSfat1EUROQdR7oJ+BuGuWDo/kFAmNmAncH/YcGtILCzhzzTBK2
+	 5q+pvZwmBgmXgFJz2lVTQCWCYghwXSHxTKjdeQs5GjeAfUXUivDufIjSr6cqjG1gnd
+	 hXZ9rYvIffpG6LJUPj2EDoNk6Ngz5PhTpJJKQb+1acUklrcVpdyUbKtPNeRvuxkIRo
+	 1Vl9Sf8XgxO3tL0imWDqNX8RDgjb4Dcj6HsGdCeGUvzlOhypIcNHfoJu9OYYXm6HKS
+	 R96SzYLjk13xg==
+Message-ID: <sashiko-outbox-197603@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH 1/3] dt-bindings: watchdog: arm-smc-wdt: allow a
+ list of SMC ids
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mateusz Nowicki" <mateusz.nowicki@posteo.net>, linux-watchdog@vger.kernel.org
+Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20261104161553.30115-2-mateusz.nowicki@posteo.net>
 References: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
+ <20261104161553.30115-2-mateusz.nowicki@posteo.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 04 Nov 2026 16:25:20 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -81,63 +60,83 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The SMC function id of the watchdog service is not discoverable, and
-firmware for the same SoC does not always use the same one: on the
-STM32MP2 SoCs it is 0xbc000000 (the OP-TEE default for the platform) or
-0xb200005a. With a single id in the SoC dtsi, every board whose firmware
-uses the other id loses its watchdog.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] dt-bindings: watchdog: arm-smc-wdt: unsafe SMC ID probing list i=
+n arm,smc-id
+--
 
-Read arm,smc-id as a list and use the first id for which SMCWD_INIT
-succeeds. Go to the next id on any error: OP-TEE answers an unknown
-function id with 0xffffffff in a0, which smcwd_call() reports as -EIO,
-not -ENODEV. A missing property still means 0x82003D06.
+commit dea383b087f6f2623ae4ede98f366e18fd9b9ed8
+Author: Mateusz Nowicki <mateusz.nowicki@posteo.net>
 
-Signed-off-by: Mateusz Nowicki <mateusz.nowicki@posteo.net>
----
- drivers/watchdog/arm_smc_wdt.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+dt-bindings: watchdog: arm-smc-wdt: allow a list of SMC ids
 
-diff --git a/drivers/watchdog/arm_smc_wdt.c b/drivers/watchdog/arm_smc_wdt.c
-index c73ed1dcdfcb..993c8f92c871 100644
---- a/drivers/watchdog/arm_smc_wdt.c
-+++ b/drivers/watchdog/arm_smc_wdt.c
-@@ -113,8 +113,9 @@ static const struct watchdog_ops smcwd_timeleft_ops = {
- 
- static int smcwd_probe(struct platform_device *pdev)
- {
-+	struct device_node *np = pdev->dev.of_node;
- 	struct watchdog_device *wdd;
--	int err;
-+	int err, i, n;
- 	struct arm_smccc_res res;
- 	u32 smc_func_id;
- 
-@@ -123,12 +124,17 @@ static int smcwd_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	platform_set_drvdata(pdev, wdd);
- 
--	if (of_property_read_u32(pdev->dev.of_node, "arm,smc-id",
--				 &smc_func_id))
--		smc_func_id = 0x82003D06;
--	watchdog_set_drvdata(wdd, (void *)(uintptr_t)smc_func_id);
-+	/* The id is not discoverable: take the first one of the list the firmware accepts */
-+	n = of_property_count_u32_elems(np, "arm,smc-id");
-+	for (i = 0; i < max(n, 1); i++) {
-+		if (of_property_read_u32_index(np, "arm,smc-id", i, &smc_func_id))
-+			smc_func_id = 0x82003D06;
-+		watchdog_set_drvdata(wdd, (void *)(uintptr_t)smc_func_id);
- 
--	err = smcwd_call(wdd, SMCWD_INIT, 0, &res);
-+		err = smcwd_call(wdd, SMCWD_INIT, 0, &res);
-+		if (!err)
-+			break;
-+	}
- 	if (err < 0)
- 		return err;
- 
--- 
-2.56.0
+This commit changes the arm,smc-id property in the arm-smc-wdt binding from=
+ a
+single uint32 to a uint32-array of up to 4 items so the driver can probe a
+list of candidate SMC function IDs in order across different firmware
+versions.
 
+> diff --git a/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml =
+b/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
+> index 8e9d0b7e82444..9844b23ef51ce 100644
+> --- a/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
+> +++ b/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
+> @@ -18,9 +18,14 @@ properties:
+>        - arm,smc-wdt
+> =20
+>    arm,smc-id:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+> +    $ref: /schemas/types.yaml#/definitions/uint32-array
+> +    minItems: 1
+> +    maxItems: 4
+>      description: |
+> -      The ATF smc function id used by the firmware.
+> +      The ATF smc function id used by the firmware, or a list of ids for
+> +      firmware versions that use different ones. The ids are tried in or=
+der
+> +      until the firmware accepts the init call, so only ids that are kno=
+wn
+> +      to be this watchdog service on the platform belong in the list.
+>        Defaults to 0x82003D06 if unset.
+
+[Severity: Medium]
+Is it safe to define arm,smc-id as a list of candidate SMC function IDs to =
+be
+sequentially probed in EL3/S-EL1 secure firmware?
+
+In drivers/watchdog/arm_smc_wdt.c, smcwd_probe() invokes smcwd_call(wdd,
+SMCWD_INIT, 0, &res), which issues arm_smccc_smc() with a raw function ID a=
+nd
+arguments a1=3D0, a2=3D0 without any UUID or version handshake:
+
+drivers/watchdog/arm_smc_wdt.c:smcwd_probe() {
+	if (of_property_read_u32(pdev->dev.of_node, "arm,smc-id",
+				 &smc_func_id))
+		smc_func_id =3D 0x82003D06;
+	watchdog_set_drvdata(wdd, (void *)(uintptr_t)smc_func_id);
+
+	err =3D smcwd_call(wdd, SMCWD_INIT, 0, &res);
+}
+
+Because SiP and Trusted OS SMCCC function IDs are vendor- and
+firmware-specific, an ID used for the watchdog in one firmware release is n=
+ot
+guaranteed to be unimplemented across all other firmware implementations for
+that SoC. Could probing a list of candidate IDs invoke an unrelated
+privileged SMC handler on firmware versions that assign one of the earlier
+IDs to another service, causing unintended secure-world side effects or
+binding the watchdog driver to the wrong service if it returns 0?
+
+Also, existing Devicetree consumers (such as older kernels calling
+of_property_read_u32() on arm,smc-id) only read the first cell and will fail
+if the active firmware uses a subsequent ID in the array. Since a running
+firmware image implements a single watchdog SMC ID, should differences
+between mutually exclusive firmware builds be handled by the bootloader
+updating the Devicetree, a DT overlay, or board-specific DTS files rather
+than encoding a trial-and-error probing list in the SoC dtsi?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104161553.3011=
+5-1-mateusz.nowicki@posteo.net?part=3D1
