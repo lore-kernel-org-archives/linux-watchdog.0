@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793809900;
-	b=oO9uZ7RJaFo/YqwW4916arc5Yhc7k5qq8TQqU6AqnbGLndGSkV5vSwcVo+K2WVXqsL/G
-	 0GxFwV6bfUddn3GqeaG53tKUruaAPTVhnnE49Di7cv649209fl0geVbvt0+PGdMMnlRhW
-	 AerS5BY+JqO/cwrv5ObrFiphxIcSJ8CDmBNE5VPzsbpAAjQ1MIFf9LoqYBAqiE4PzbOvF
-	 TuHXT5BLC4gATALBRfnWIkTaQHG5FAahZHM7FCfYPZMUQWs/2Jd5DtZ9axQtW0zlpXX9n
-	 5AYlCCj4HWJh+6xtzvrmMPlVdk4mkIlbXv2i2cj3Wyv69Fs/FTrHd9Ygh5Sa+nimM+A==
+	t=1793810375;
+	b=C+6A2IX7nLI8EBuX6ZaQATWHomHPrp401KWccNBVMeaoBmsdiO5wWRAdD0HDWQBYjGl2
+	 eWWJlRZy/wleT69FgBe2BJn5railOTbzkjYnPV158L1KtiW22OW4wPYfIo0OSV/KyXgwj
+	 3xYUbLySuDzmrmtqs4a012wb/ggkOkLdt2ve3gkMDJwdpqpUKDCDCuPS91uLDQOjRDzIE
+	 0KMOBcyJttlrpfstG/iZ6iS82ddCFqe30eU4HMiYtJtTyJ7Os4JOBIs+0N8TNM0iSVwnm
+	 jXe6h8OJJRH64sAWaehvkf+cickJ5KlbrvnoJn3itqLWsSOHSaCF0olf2jVy+fcqawA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793809900;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793810375;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
 	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
@@ -15,57 +15,58 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
 	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
 	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=ouYbrrN31+gCpqU5kD1OZETbNius31j+ZcrSozd/T6U=;
-	b=MQxEX4VuwYLpLxiGvZ8evizTrU0w1sCM6USFu74bCniNZfSAv9pGhRawzbkhbV0dWkm9
-	 HksRtKjKqSZ0WcAPlNDP4x/UK7XufRpZsoixKs1Rb27f+PEj/2wAX8Mpdn0iqz2dz8ORq
-	 nfAnCbhqN01XUv32EKlY2ZszjwTr9hLvRbXGuieJy2D9C6r1KSe812ox++uzN3v5KkU9a
-	 CTm4PtHC+BUC34SX8wB8W3fBEpN/qaU8gtPOY94sGtuOw0DZUVoTFo5Cr97kil31WJ+zi
-	 YRBvXgcqoGPiGz1TWewTmhNw3J7YeOHG6rtEo4ODAkvaV0phJVmZwuUx/TGONzltg4w==
+	bh=j/qonkLTfSJS6fOcfIBVACKrRZK2oHEhnPOu7N9/zz8=;
+	b=Sp+IUpnQRgmkk3cBDE6pbqrKodYWwZPXqaJylD95sE0orH53tIZIW94ISuqlahAyOO8h
+	 7w9gyFYXLH3I16CjHkdKdy1xo8ymaeJlU95Q3zeUbaXypfGGyO7JqqVwce4HXC0SVofn3
+	 2bDCRXGoVCmPL9LGgNQhzYH78bryRjAalelMW0FOvk44SwY6ShLdOFBjexPeJgT1+ZU3F
+	 guIoHiB1S4rmBjErbsKyi4l8VYrwXcMlF+bAR4AD0mzNFHoCPRNhwh3mQr7/XmoArtRRC
+	 OptRMgePZ18+8WBcTKzbw31nHVK5IBtYcDC2zWk4QPoZS4yppQyzcHqw7HiP5gk5wDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=MpC38XgR;
-	arc=none smtp.remote-ip=35.89.44.39
-Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=rP2S6qUD;
+	arc=none smtp.remote-ip=44.202.169.37
+Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7F8606A31B
-	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 16:31:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4C7F8606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCE9E606A31B
+	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 16:39:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BCE9E606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=MpC38XgR
-Received: from eig-obgw-6007b.ext.cloudfilter.net ([10.0.30.166])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=rP2S6qUD
+Received: from eig-obgw-6005b.ext.cloudfilter.net ([10.0.30.162])
 	by cmsmtp with ESMTPS
-	id OcHcxsBkKyb4YOdtex9mXF; Wed, 04 Nov 2026 16:31:34 +0000
+	id OdKRxCZJcJFmFOe1NxSBRM; Wed, 04 Nov 2026 16:39:33 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id OdtdxtthpBdeUOdtdxA1fe; Wed, 04 Nov 2026 16:31:33 +0000
-X-Authority-Analysis: v=2.4 cv=AaexH2XG c=1 sm=1 tr=0 ts=6aeb5de6
+	id Oe1LxxnTS0w3mOe1LxunUL; Wed, 04 Nov 2026 16:39:31 +0000
+X-Authority-Analysis: v=2.4 cv=ZtntK87G c=1 sm=1 tr=0 ts=6aeb5fc4
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=olwB5_CpkTnY18sSo74A:9 a=QEXdDO2ut3YA:10 a=KPbNTLLc3YvdawN95zVk:22
+ a=p-LfKV-GAAAA:8 a=14k-HqQmNQMTK8QvfVQA:9 a=QEXdDO2ut3YA:10
+ a=97BuGM4RKn6GwmfqMd6i:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
 	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
 	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=ouYbrrN31+gCpqU5kD1OZETbNius31j+ZcrSozd/T6U=; b=MpC38XgRtuww
-	rPwpIMWLh/Xj8BpanntNsNTBBrqnB3vs6Ow6ESrnou/Hx/zbF7j9tlCOuAnbiiwMesiwTCIX/iCTQ
-	kezzPsi8loPlMEW/9ecBSdwmonCEfb62iHyLm7F8FG2Kq7ba6GWcCN/cqBrtKBKME1orrJo4w/NTK
-	sD73xUiRL5Mj0nBNUnWBfLi5Jvfamin3sczq/r8pfZzQRl8JDtBPQJ2gJhRafco0Pkk/jFkuT2nk6
-	72CnxIPD2YGdzQlq8PVA2Si1IV8S58sU0Wh4yiMsQW7qkvU4jcZQDqC0byQMRqZoBX/WLPhYaTvqh
-	fk2MoVtSN+DFJJQ2lmFiQg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:38030)
+	List-Archive; bh=j/qonkLTfSJS6fOcfIBVACKrRZK2oHEhnPOu7N9/zz8=; b=rP2S6qUD2i+9
+	HPp78wilmv51lPsJeYeSL2+Q992YgG8wmyBV8UHhCQaaCj+XNlWTLP49bOIFZlJxpMJQqskrNV1cI
+	PnTqxVJwwABcrId1lVrr/DIfCTfHBeaYZBbzneINJzlpbM++M9QyYMRYTTe77kBfZlZUCGiW6h3T8
+	pp7jO8yQ2iIZ4KouhqodhcjpbtQqWeWdXPDNUaOspyXHA0WeCD4sVWY5dvra1xuVF3+2KohwcuLWA
+	1qnlbIlhrbog65pGimvDtWupyLt3sdpY8Q/WySQSASpiHIzybLVSuQHa+8QjB5ZHN0k5V9BHb14eA
+	EW8CJ9wtFqUJa++7UoaqDg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:44006)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xOdtd-00000002UOg-16u1;
-	Wed, 04 Nov 2026 22:01:33 +0530
-Message-ID: <33e354db-b4f0-4f96-afcd-4912fb296ad1@roeck-us.net>
-Date: Wed, 4 Nov 2026 08:31:32 -0800
+	id 1xOe1K-00000002Xpu-1SC1;
+	Wed, 04 Nov 2026 22:09:30 +0530
+Message-ID: <c742c878-d4b2-48d8-972e-a09aa4d215c7@roeck-us.net>
+Date: Wed, 4 Nov 2026 08:39:28 -0800
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -76,12 +77,20 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: starfive-wdt: drop the runtime PM reference
- when start fails
-To: Wentao Liang <vulab@iscas.ac.cn>, Xingyu Wu <xingyu.wu@starfivetech.com>,
- Ziv Xu <ziv.xu@starfivetech.com>, Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org
-References: <20261104021527.1468703-1-vulab@iscas.ac.cn>
+Subject: Re: [RFC PATCH 0/3] watchdog: arm_smc_wdt: allow a list of SMC
+ function ids
+To: Mateusz Nowicki <mateusz.nowicki@posteo.net>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org
+Cc: Julius Werner <jwerner@chromium.org>, Evan Benn <evanbenn@chromium.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Antonio Borneo <antonio.borneo@foss.st.com>, Marek Vasut
+ <marex@nabladev.com>, devicetree@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -127,7 +136,7 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261104021527.1468703-1-vulab@iscas.ac.cn>
+In-Reply-To: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -138,52 +147,92 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xOdtd-00000002UOg-16u1
+X-Exim-ID: 1xOe1K-00000002Xpu-1SC1
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:38030
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:44006
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 5
+X-Email-Count: 24
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfB4A6oc1gZps8dIDXikkYwiw103sDtQUGIue2xogm7UkDY8rFvMM+48MRUNWx5TWyDlZeiMqS7z2MoOBBhDTII+3rC6E5kwMWhkmdxAehdWynZKutyYC
- 0V8aeQrBiLkpiwunmdr7oJaQOqwpKCOSsF74xgougchJ+EsZ+RuDSyh3wljrwTXeoMVRr5Kzse1HYifWpSc/NIp8i91i1Bq8t1dAMfk8xM+7KblZDF+3BpA7
+X-CMAE-Envelope: MS4xfK/HsW31knB6dved7fNBxCFjgJHoUr/4W4T+iT1AXj465CQlpLwUeGuaSxOS4cMNkFpKnG4xd7YJeHuhc3Rr4kEmPEyN+v21YLzX05IjJgfR9y3EVyw1
+ dkDrE/U2C/hcqa39V0Lhls/rzqfwsmm6X9q8wVwzYx6yKX8C26ZyLpe9KM8peBJdr9bJAHmLwHGq3YC8MYIqdpAq8lOyOAdX3rNdOgftMgo8eqtYzXtWZvn2
 
-On 11/3/26 18:15, Wentao Liang wrote:
-> starfive_wdt_pm_start() takes a runtime PM reference before programming
-> the watchdog.  When starfive_wdt_start() then fails, for example because
-> the interrupt status never clears, the error is returned with the
-> reference still held.
+On 11/4/26 08:16, Mateusz Nowicki wrote:
+> Hi all,
 > 
-> The watchdog core only calls the stop callback for a watchdog that was
-> started successfully, so starfive_wdt_pm_stop() never runs for this
-> case and the usage counter stays elevated for the rest of the system
-> uptime.
+> this follows up on Marek's report about the stm32mp2 watchdog [1].
 > 
-> Drop the reference before returning the error.
+> A quick recap: the arm,smc-wdt driver talks to the firmware through one
+> SMC function id that it reads from the device tree, and there is no way
+> to ask the firmware which id it uses. On the STM32MP2 SoCs that id
+> changed over time. ST's OP-TEE from ecosystem v5 expects 0xb200005a,
+> their 4.0.0 fork accepts both, and the 4.8.0 fork as well as upstream
+> OP-TEE only accept 0xbc000000.
 > 
-> Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
-> Cc: stable@vger.kernel.org
-> Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+> My earlier patch, commit ae4d08bbe3f4 ("arm64: dts: st: fix arm,smc-id
+> of the SMC watchdog on stm32mp2"), switched the dtsi to 0xbc000000. That
+> made the watchdog work with current OP-TEE, but it broke boards that run
+> the older firmware. So today 6.18.y uses one id and 7.4 the other. When
+> the kernel and the firmware disagree, nobody pets the watchdog that the
+> bootloader started, and the board resets after 32 seconds. Marek hit
+> this even with a recovery kernel, which is about the worst place for it.
+> 
 
-I have been getting a number of patches for this driver, some of them
-from the same source (vulab@iscas.ac.cn), some of them from others.
-Some of the patches fix (or claim to fix) the same problem. I did
-apply some of the patches.
+So the DT on the board is updated to use the new ID but the firmware itself
+isn't ? That seems a bit odd; I would have assumed that the DT on a board
+is kept in sync with its firmware. Is that not the case here ?
 
-At this point, I do not know what state the driver is actually in,
-so I am going to ask AI (Gemini 4 Carbon, specifically) to analyze
-the driver, validate all the bugs reported against it by Sashiko, and
-to generate fixes. I will submit those fixes to the watchdog mailing
-list shortly.
+> The idea from that thread: let arm,smc-id be a list. The driver tries
+> the ids one by one and keeps the first one the firmware accepts. Older
+> kernels only read the first cell, so they behave exactly as they do
+> now. For stm32mp2 the list is <0xbc000000 0xb200005a>. Calling an id
+> that belongs to some other firmware service would be bad, so the
+> binding says the list may only hold ids known to be this watchdog.
+> 
 
-Either case, consider this driver to be under limited embargo:
-I am not going to apply any further patches to it unless I get a
-Reviewed-by: or Acked-by: tag from one of its maintainers.
+Would it possibly make sense to check keep a list of known IDs in the
+driver ? It already checks 0x82003D06, so it might as well check a sequence.
 
 Thanks,
 Guenter
+
+> Why RFC: arm,smc-id already exists in firmware/arm,scmi.yaml as a plain
+> uint32, and dt_binding_check complains when another binding turns it
+> into an array:
+> 
+>    arm-smc-wdt.yaml: arm,smc-id: multiple incompatible types: uint32-array
+>    arm,scmi.yaml: arm,smc-id: multiple incompatible types: uint32
+> 
+> DT folks, is there a way to keep the list in arm,smc-id that you would
+> be fine with? If not, I can move the extra ids into a new property,
+> something like:
+> 
+>    arm,smc-id = <0xbc000000>;
+>    arm,smc-alt-ids = <0xb200005a>;
+> 
+> The driver side would stay the same, it would just read the fallback
+> ids from the other property.
+> 
+> One more question: should patches 2 and 3 go to stable as well? Then
+> 6.18.y would also work with both firmware generations. The 6.18.y
+> version of patch 3 would turn its 0xb200005a into the same list.
+> 
+> [1] https://lore.kernel.org/all/1b14e1e4-962f-4391-91fd-b09143641643@nabladev.com/
+> 
+> Mateusz Nowicki (3):
+>    dt-bindings: watchdog: arm-smc-wdt: allow a list of SMC ids
+>    watchdog: arm_smc_wdt: try every id of arm,smc-id
+>    arm64: dts: st: list both watchdog SMC ids on stm32mp23 and stm32mp25
+> 
+>   .../bindings/watchdog/arm-smc-wdt.yaml         |  9 +++++++--
+>   arch/arm64/boot/dts/st/stm32mp231.dtsi         |  2 +-
+>   arch/arm64/boot/dts/st/stm32mp251.dtsi         |  2 +-
+>   drivers/watchdog/arm_smc_wdt.c                 | 18 ++++++++++++------
+>   4 files changed, 21 insertions(+), 10 deletions(-)
+> 
+> 
+> base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
 
