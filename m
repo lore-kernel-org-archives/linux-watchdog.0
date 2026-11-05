@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1793876106;
-	b=WmjcqveZ0gyhj3w/XoS3QvXKJHpGdTVD437kSrg6IoL5UlnaMSdcK8cOSrx8kWRvd3CJ
-	 3RVg4yrjOJ4c1l/XTsN4nuGbR1KZk7GYfVbykvsGFncOY+wvgpeXZ0jfmZv6r2gmXuspb
-	 HjA8SBjwTcyYhMzNzT3SdT2BYluCDQ5FXgtVWN342PyAgTw0ZFi5UK1PO79ch9h6zkRDO
-	 VKdLcyWMaCdkjghJwhIDH2NJFdKuNTogNpBiBeruCQ6U+vERkMn8VAD+2AodghWO6qhbx
-	 aHMYVdS4WctULEBknBoQ1D2PjeCg8D3+XYPD6hBNAeSICPOFHMedVmOmrjFHBMSDB6A==
+	b=kyOs+JIOmwkGCNP6usthZTurVkFSTTObKhoXCj0x8dS0ImgbH3pV8G7l569sxHinhOnN
+	 BuYBzoHL1HhS4gNqCjaLGDtMcG0N1/dUiKEE/jKixBsnqg1Wl2E2pRtrWmxPO4kiT66VO
+	 GN5j+/aUcRSOPmI87lIbevu01W2wViHgYKsBNo+hrfWWdBXgb5sxQ41b9Dti6WFne/7Kv
+	 rwa3xMoky5RWy15kZ4yiSHxpTXB4rnmi7pfs3ELW7IYcFbdQMNBJtcl9EG4I83YlgT/b7
+	 t0xs07PAQdeoAHFweztXzBjuinhob5lcHmavnyILlDCbEBFBE5HO7rGPUAN6U5Ro9hA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793876106;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=R7gLIWsMupYRCkClA57yuL3SZT3mZmUhwmn+PS25Xlg=;
-	b=Ohnq5QRP5/UAAnOy9I0pEmukAbgWhPPLP8UNc+krLe47Ab0jocO868N08Ekbl4ZKhS9A
-	 zwQ7DGgtRJ40Ckoi2Pz7Vi/oUeZyUFPakXFEv1TK5Fiys/1P+7EoDMfimu7+4+CNBydWX
-	 RaATQ/p3YNWEEJGuitHo+bGOltRwJlEe9eG8lx8ZCUjrifWSfDW3TBlP8eqketsklESPV
-	 BJWMuseR6Z7mYiNWBPcTRu6VEby/MAF64WIqBOIGxdCYd3PwaZOJPRH5C/MLMHA2EUxFm
-	 rfWRz12WGGASy0021MFYQgsO1Qzmg8jRzXkFgqB6DEjbeGWxafzphPjsWtqYG1vv+UQ==
+	bh=mf3DmzKcqwpeAnx0872mpsmdtAH1W+pG/zhvLz+lRJo=;
+	b=Wns86v+2oVP6uiVjfIIo5x+fnCRWmJRVud/w4Dzrt5y7IE/hVjjYZsdjWeyZCx1xBwxp
+	 5C5xbrwxZX9ZPgXqwxXqxONCJe/YsN8+8xYFo150TIQ+TLBhrTVuqR9YMI/mFSIrN+LCc
+	 M0tdt0FZYoa6qUuJVsTS496R2uwTNyD3yVk3aE6MtGcZSta3l3yN3SpV8KabynfqTQxPY
+	 2fpJXrcKkwYcHHf1YyNrZ/dc3+v0c0EGeuVLGBfubITr2skMh+a1lrO0KYrYsJNmxExTs
+	 EpZKIpUEyWCjlNO4i1OuJ+CES6t0vbJRUcVkk12sLmakYVG7ulEJMmtzQtPmkMXPShQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Sv/SRLpo";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="SUD6K/hi";
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE981606D80A;
-	Thu,  5 Nov 2026 10:55:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 605D7606A335;
+	Thu,  5 Nov 2026 10:55:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Sv/SRLpo
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SUD6K/hi
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793876105;
-	b=EOh3wAvCERrs4H6v1IuC+Vxz1cWjT9rou/xl2ARbZTGZ8SEPJR/KEfWHKYiDfgFRYtzo
-	 yeGNc5mDjb++0M6/zrUb+n9b5JeVUCi0chS7bF7H0CXxk7Orhjj0GEiilz+NzmCyOYSoV
-	 h1XXrivGnbFzv5SNwJpmCzUK1JSYy7Rg7zwNovO9tOZIDXoYxLBNPtf9xUotrV5Hmorky
-	 XwVHPOwKRwGV7+zTSm5QqlGZVK6ZHTbRdMOMnuqao+aS5+Qkh0O088Y+kftroV7d/CAtH
-	 vUSQCrYgoxj9bqJSZ7O5WbCapgvJvrxdICFXQAj0OiGbhnBIB3O/yJWiOGW5PGZqtNA==
+	t=1793876106;
+	b=YAdJiYRy5lVASCh4aTUXzzGhodD2MSNxo+tQbNdqojcBrVm8NbPi6JiSGWzRYd12kkqn
+	 V3rCXx5Bp70PtZN6NnRNiFjQIanPv96IZYXYwZX91dalaU64e/Q225cZVWZtogtt2s4Zh
+	 BgDYCJQOOINtsFw/YqPFl1/lhnUJVEd5h1tPfQ3yexmRXM0W5c7xM3dkyOFkKs9veb4yp
+	 WCRhk+0LWG3gUyhDl6sPhhmePx3/+ucpnifVdXoAt6q1WvSc5XSq1XNCuAakVwaABg+Dc
+	 klFtMjCceix24FhyxI6WATlNE+LviwlSfnJ5D7OBLCWU/AE19hHCZUbNB3caUt14hVQ==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793876105;
+	c=relaxed/relaxed; t=1793876106;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=R7gLIWsMupYRCkClA57yuL3SZT3mZmUhwmn+PS25Xlg=;
-	b=UZnSs5HeJd7HiHEF0XZva2OoZNPHmpinAefXtAQ8RsXI60s5FfZLmBeAh/r9Zy87tb/N
-	 5HOWD9WEyNFIFbc18zRqdGs/xsgV+VomfKHgteFyQTBQrReS9nTsBc/j2h6KVwzaonIJc
-	 4JMe62zaaKtDmp12Fc4T4FXEpRzU0/zkifP/9zZtyudDSqfd13mck2nu/SxXhpkiJI9Cd
-	 N8lErXEKb7h7cTI/+s21Va+qXS5F9z11hrre4GSTPn4WDtwfdM5VRQo6WSsJhcmapoD29
-	 TEpFGOwnsmZCPI0imq7qND7AN7aZj5o3HR15kL6T3jE7xJjMSbyONyI+rsEUi8J6Qbw==
+	bh=mf3DmzKcqwpeAnx0872mpsmdtAH1W+pG/zhvLz+lRJo=;
+	b=UaUfsNK+JZ1kd/1hIeIk8qcZIgviR/PQvRegbGXFM/U7e6yQlH3qlXUdmMJXVqH+mpAi
+	 nzUYklXnzP4YEDPDqgrG/vR/y8DWas7NilajFShwtiiQ4138n6NJO9zt+CzSk9HZzp30J
+	 vD4mSgjDKDokU5eW7cUTXNibUhGh9HEseuQQZGEtZ/mF+tN8XZ/5bfm8LQpsAfFrnBpXB
+	 jJsqxu+mXsYD1V283SzhSzwAhvRUu/NuL0uMSyjkM+n0OlcGP92C/JEKfUjqoaWHEbRvj
+	 Io7SNvnauz6z9D6gKlOZXkZEOnMtw8oOBf5bY5S/zMDnTsIuIPQoHacmwL8wGIl+OBg==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id B50231F00A1D;
-	Thu,  5 Nov 2026 10:55:04 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 6C8911F00A22;
+	Thu,  5 Nov 2026 10:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793876105;
-	bh=R7gLIWsMupYRCkClA57yuL3SZT3mZmUhwmn+PS25Xlg=;
+	s=k20260515; t=1793876106;
+	bh=mf3DmzKcqwpeAnx0872mpsmdtAH1W+pG/zhvLz+lRJo=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=Sv/SRLpo8Wq3sUkgCyP3AD5FhnpKUwQ4wCyaf1VHZ6M7JHJN8Ku1eHmTKNDBbid1L
-	 NsKVqgViGd+VR26gJs8nP2Ye4LO9DWzjoqFvhNSiHlXgmnmx6xd4674k1hkf5qCwWz
-	 TK2XczPFLHcLUbg6pPUMSzEQnbrW9MhrPmCO73t2nvih3JlqFhiOy/T5mgE3v7iWmz
-	 /f3r8Z82lqAahBeXQdUoLn9Qpmy9nBfHnEB8JFTQN5xZ8mKdGoFwIxqEWu9jGEE54K
-	 FflwEGcvQ8cDgYnjQByTMbQ/GNpwASvyG2UVOufD6oOuHPb5VaGPg2VsfyxVEqX0rb
-	 j+jCsif+u4tFA==
+	b=SUD6K/hirZTl+t0jdIx3RstJgeWxzfp8CHplQxGRAVjqC2QVeuRO+KaHlIiehAp93
+	 yliaFgTgAC2IE+ph9xeMQmwt2oOVAtRsbf/7a+KiGLRxG7He3XDlR0skhR8i78R9jY
+	 k5r70WW4kFAaerrTMldo7aZUshmcW2otdgbIj+JNn7bdZhCvOjB+ZAaOu7CILWDySD
+	 lF/S5q6KQYMmxKH8FTJa8UNOBHsBi9avHfR2a62ucVZAhb0wxFxjfR8vPW0r1U4Tpk
+	 WwMmBVyFaOt88KTQbGIyhGSQfCPU0I9BjrLUF3ZrNm26id99wf4pVPcaOM9u2j4gdh
+	 +TkeEPUTQs/Kw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 4A79A471EC;
+	by lkml.kernel.org (Postfix) with ESMTP id 8C26A471FC;
 	Thu,  5 Nov 2026 10:55:03 +0000 (UTC)
 From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Thu, 05 Nov 2026 13:54:10 +0300
-Subject: [PATCH v8 06/11] dt-bindings: clock: qcom,a53pll: Add MSM8952
- compatible
+Date: Thu, 05 Nov 2026 13:54:14 +0300
+Subject: [PATCH v8 10/11] dt-bindings: input: touchscreen: goodix: Add
+ binding for GT970
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -84,7 +84,7 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261105-msm8952-initial-support-v8-6-311ae8e8f14b@mainlining.org>
+Message-Id: <20261105-msm8952-initial-support-v8-10-311ae8e8f14b@mainlining.org>
 References: <20261105-msm8952-initial-support-v8-0-311ae8e8f14b@mainlining.org>
 In-Reply-To: <20261105-msm8952-initial-support-v8-0-311ae8e8f14b@mainlining.org>
 To: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -122,11 +122,11 @@ Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
  Muzaffer Kadir <muzafferkadir@mainlining.org>, 
  Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793876100; l=1455;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793876100; l=1656;
  i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=XCIEEjoD19j/AIKNwqTlsBvKPtPEgIUzUJWdLdc8miQ=;
- b=FuyTp0ZryxCxUbbN5sUnAwICtuCjnzrSqGz1rYWnJrBRAY0QIV3MR6pCxjCuhss75PaF5PkMP
- dfVIdPtvZD0DRyUrvt24f70eV179MSe+yXgyl6n9Lx4TjwxGi+O/JR9
+ bh=8T28pJ+j3T2BfrA/4V/vCpSnX+IH26SQiXSCeXTVAPA=;
+ b=g7KDlMPaWyh299ODCALGQrB2v5+x2XtJVpCgL8+3cwaIgFNZl2pjckMc9/QfI/jUd/dT0KCmO
+ X5ExalfRhKPBsQnEhfZZSxQy1Ri5XMv9oxYCfAUnse10OxM62KlGmon
 X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
  pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
 X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
@@ -137,50 +137,61 @@ Content-Transfer-Encoding: 7bit
 
 From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Document the a53pll found on MSM8952.
+GT970 works with GT911 driver, document it to be
+used with GT911 compatible.
 
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 ---
- .../devicetree/bindings/clock/qcom,a53pll.yaml     | 25 +++++++++++++---------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ .../bindings/input/touchscreen/goodix.yaml         | 35 ++++++++++++----------
+ 1 file changed, 20 insertions(+), 15 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml b/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
-index 1eec77e75a0a..4abfaa24bc71 100644
---- a/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
-+++ b/Documentation/devicetree/bindings/clock/qcom,a53pll.yaml
-@@ -15,16 +15,21 @@ description:
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+index a26a54d63a1c..4be2c137abd7 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+@@ -14,21 +14,26 @@ allOf:
  
  properties:
    compatible:
 -    enum:
--      - qcom,ipq5018-a53pll
--      - qcom,ipq5210-a53pll
--      - qcom,ipq5332-a53pll
--      - qcom,ipq6018-a53pll
--      - qcom,ipq8074-a53pll
--      - qcom,ipq9574-a73pll
--      - qcom,msm8226-a7pll
--      - qcom,msm8916-a53pll
--      - qcom,msm8939-a53pll
+-      - goodix,gt1151
+-      - goodix,gt1158
+-      - goodix,gt5663
+-      - goodix,gt5688
+-      - goodix,gt911
+-      - goodix,gt9110
+-      - goodix,gt912
+-      - goodix,gt9147
+-      - goodix,gt917s
+-      - goodix,gt927
+-      - goodix,gt9271
+-      - goodix,gt928
+-      - goodix,gt9286
+-      - goodix,gt967
 +    oneOf:
 +      - enum:
-+          - qcom,ipq5018-a53pll
-+          - qcom,ipq5210-a53pll
-+          - qcom,ipq5332-a53pll
-+          - qcom,ipq6018-a53pll
-+          - qcom,ipq8074-a53pll
-+          - qcom,ipq9574-a73pll
-+          - qcom,msm8226-a7pll
-+          - qcom,msm8916-a53pll
-+          - qcom,msm8939-a53pll
++          - goodix,gt1151
++          - goodix,gt1158
++          - goodix,gt5663
++          - goodix,gt5688
++          - goodix,gt911
++          - goodix,gt9110
++          - goodix,gt912
++          - goodix,gt9147
++          - goodix,gt917s
++          - goodix,gt927
++          - goodix,gt9271
++          - goodix,gt928
++          - goodix,gt9286
++          - goodix,gt967
 +      - items:
 +          - enum:
-+              - qcom,msm8952-a53pll
-+          - const: qcom,msm8939-a53pll
++              - goodix,gt970
++          - const: goodix,gt911
  
    reg:
-     maxItems: 1
+     enum: [ 0x5d, 0x14 ]
 
 -- 
 2.56.0
