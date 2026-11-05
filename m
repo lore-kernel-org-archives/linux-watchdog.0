@@ -1,71 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793830867;
-	b=fvXXMjgxQj9uEjuI+D+jXqfIOsi2AW8iM4a5eEypkudhDS4LIhltPCf3R5HQtojsSoVN
-	 AgxsPlG0ypK6+dbpy3SIq/YlErF8ce0OGQnKjtNiS7XkskOd1TBzyRWpnqFI6GFawvHAY
-	 QgYvOFpEIn6Tz/xMMJHWD5Dtfwfj9/82erVg/eYd6GvCL4hyQmdXPro5CZ0YikRpTG30C
-	 ShmZP7NMzcy0GccauZ6Illpngg53rZlQ9bevbsVeQIvmM4XzXdN/0yvsNChPB+8Xk9SkW
-	 L41L8vUTpPNiHKxZVS718klGcJWI1YbJLJ0gGRqYbUbtui5OWzLMMPJuaHzWAeRHn2w==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793830867;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
-	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=78k269yKdOV/ST/uY88OrjOsdXVjabWHCavJe9c0TjY=;
-	b=Js25ix7OXm1tZd7KFPmZn4J5ryrE5/Hb/X0UJSj8eTEz6Vtya/R++rIYOJ75ZYxr/3dK
-	 bwOiVm3gq5gHgYxHNyElcsSGAcy4c2zP1BVQMqkqpVdlvK0PU1uQqMAIe/YJRegoWMycb
-	 ybHayPg1usqNZL/amn72UUxFtBGRSpjTig11Pz7PjEcy3wy/nJE32cyWGTxM1PRhEq0P9
-	 W7/BoofKt2aJ4YK2pz5Yd/H3XeBGp2oQgjkhdPQnLIGI5K1uWY0ZIDNqFHhTp1U55So9G
-	 gNKXmNGNIp3B1HlPendb53QJsa2iRXLVfUodHrtOp9pZ8yrx/nxlLxXI9W+OwIOpYnw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b="sgBlW5/n";
-	arc=none smtp.remote-ip=44.202.169.37
-Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.47
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793844807;
+	b=drUXfzlYioDdnIDgF8JFQ7n7N5Kgm+1fv67yzlGv0Vh4NaNqHT0pWydysHwAjcOiC1S7
+	 jIYTIODZx9RpjlaFH6Q7PX56xdJNDnifFvaxz9pWoG4VAzZTuTW+Z3T/kVsdRcMSxIwAc
+	 2wo0Koy08wqvuK9YoVefW6t7ddjoMI3bX7l0jnv208jwODEdhJJfZ5m4NkvnuQqEBtmU4
+	 yS1DWVaOf+rivp3UYAIo6RK9g57D2CNEQBeREl4cusuLJiuU2wR5465SPyBCGnjqV5Bi8
+	 E2lTL2bAzE04Te/Odx7DoAQpV4iveHyc0aLO6Pnhv6RXmOQFt5l1fO7qYkA/uTl7YrQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793844807;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=hpziF86+RxjzNw0Zs0xyBduF0/c5YvcNE86OKRmU6Dc=;
+	b=X3AmkG1NWxpO3tzj9wa1KmNeAyYMdUNZMgVg352cdvNk7Z1RVV2KMjUdv5fd04LirRXy
+	 RMIHe/Vo8eUivhoBO5CiGc7a8XHPNbN8V0SfGjl9rxl88isy0rs87n5HSjDD9A2OeoyNa
+	 sbAEJuBGTEFh+ioYPKdo4qNY9VUfYfU5HnVmn5fBCZx5fEskUNhoBj7RxLxyzF7w0mFzX
+	 7RPQCQrOBh1gOeq/Paox/P1/f+WoxARu2DYzQnWuk1qot5Fh82vFLh4ZCCJmqOGQy4uId
+	 iDyNBNQix0/VFNsGcK4wy3It5oKF8+YgQWlVJjO1rGrWUS5C6xtBtaASmQUpxPTZnbg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=fail header.from=chromium.org;
+	spf=pass smtp.mailfrom=google.com;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.47
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEFC1606E806
-	for <linux-watchdog@vger.kernel.org>; Wed,  4 Nov 2026 22:21:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AEFC1606E806
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=sgBlW5/n
-Received: from eig-obgw-5004b.ext.cloudfilter.net ([10.0.29.208])
-	by cmsmtp with ESMTPS
-	id OgNzxDWNgJFmFOjLtxVLkj; Wed, 04 Nov 2026 22:21:05 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id OjLtxjUBRuJrPOjLtxKy45; Wed, 04 Nov 2026 22:21:05 +0000
-X-Authority-Analysis: v=2.4 cv=WLZ/XmsR c=1 sm=1 tr=0 ts=6aebafd1
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=7kedt0ebssWPXWSPxHcA:9 a=QEXdDO2ut3YA:10 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=78k269yKdOV/ST/uY88OrjOsdXVjabWHCavJe9c0TjY=; b=sgBlW5/nKe2j
-	WDdiju0Of3igI0J1tDZCrpQFdaM9Hyq3+PNp9Zi8+w1XLD+3y4Cubm2PXhSJIhsBNVHzEDmSFQi3F
-	k6ccv7MhZdKj5NmKOqDP24CAGnN2NGhhSted2+0f6Z/JocCcSL7/qgbE3q418BmQ/G0Fl7xTqClVl
-	8mcFzCjUaEs3Lnq/WCwUgbQatREnTmspqKUo4tb6KesNZ0XbCDvMcD4Fu7zLSqXldhi+iBzuP3btQ
-	9koWLnwG35BCwJq/gIYfOcVUHxvffg4xzWLxL+oak2fCZYaSIocZNMrFCGt37PHk301BFSSkGxzOK
-	Z5tAjhaS3yZZosByJA1oHg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:33306)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xOjLt-0000000128t-0i90;
-	Thu, 05 Nov 2026 03:51:05 +0530
-Message-ID: <4008c8e3-8cb5-4200-96c3-f35c46f85457@roeck-us.net>
-Date: Wed, 4 Nov 2026 14:21:04 -0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F628606A330
+	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 02:13:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5F628606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6b579ed8da6so3060a12.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Nov 2026 18:13:27 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793844806; cv=none;
+        d=google.com; s=arc-20260327;
+        b=rOFNCUiw8xJsYatpZKPpvo77AEdb4jYqQ96lFUeu7pv+TPkky67xnMc2Md74qCi2c6
+         KzyScUhFg+izzWzsSGPtJQo2OJHsFXq7Km4QDX6gGWYrnZtSRUgD4vKmHVgpbDV1916s
+         Oi1DIuCZlyRedtBB+DtUA9aoi8I/MWYGkcKCuQ2zBx0SGso0jyluk5h7nIT5TtJoJgP/
+         4Y4er7U0mn4mKPLPR1g3ABz/s4sFSKwji1036tTZGwIL/zMU386H35Y/vgmo9qKq7sKx
+         3I8I82lO21RbmZHdva0C1mdIw4Bg7ub//c7AMgQEfRr5lyugKJqvbna+QCytHz0ts5Kl
+         6++w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=hpziF86+RxjzNw0Zs0xyBduF0/c5YvcNE86OKRmU6Dc=;
+        fh=C9i6K+4QAjV9Pn6DNFPNMcdFzZ5hDAjkcRgczHPapA0=;
+        b=PeR6W3rUXaNTJv7oya0gKToQXQqCNAEkx3twdE+8YJSvLePPWKLHmycXXoubNugf9e
+         QbXcPpHBGZHReq8rh7u4rOZ9IZ43TjZQK6EYIMePWUxYbtoAav4Ispg6cNRzNn2MjoED
+         szgZRBDNnHDWDatCpG4ClxqbmaNIdUTcyRSQeWemKAdGFd2Oyk5jEO1gxyWH4kbXbg6/
+         W03+XAjCeqeknE2bcTGkFDtzHg50lD4VWLJumu0pm0dKBLpqnPTbCvbRbOolMSFpTgX0
+         xddNrDtpXuWXLPKOR1RPR05dx2Ld0Kb8YRBVcjqprI/penx3CWbCLcF1ClTktxtbnXGy
+         gWKA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1793844806; x=1794449606; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=hpziF86+RxjzNw0Zs0xyBduF0/c5YvcNE86OKRmU6Dc=;
+        b=e54vUMq3VJQg+XBl/xCM483M32/b4tOTj2yEbVLqfjK3dNUY/Mc6rXpZ76/jR2LPQk
+         +Wy9VOwrhxjo4L2MnkX2IlFBmLRwbJr2p0RGTnW2JAb5Kj8gHxrNJrzjreEVNyHqXvh8
+         8mYGJ1MunF3zziLGlUy8UGiA/Ej/jRtKSK6hM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793844806; x=1794449606;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=hpziF86+RxjzNw0Zs0xyBduF0/c5YvcNE86OKRmU6Dc=;
+        b=BCRq3d/3NZ+HXba4l7ALM0/8ScGkciyvZVjDt0Ok18GutzFGLgXT89psRnuMbBbLe3
+         aYyHiT4p+KiCXR2FenQmIB5JuGdNBAhSVO9VWtZsu5M30mLwq14IQU0MVaousMiu0Cvf
+         1LGxgmD+kkxH8p18IQQYdHmvc+4P1qMQZTC8McrFtl15U/Yix2J/8bvi9I1jnWrDBh8U
+         P9bCU91Nx43zyClBd1scr/kU7SSMe37kwuxVHuJxhhKrOKDQ05FyssV+LSj2VZKPG6Ym
+         geBXUa41dvh4Yi1gcimJPlntSKcVEL2Yag+vIUiuXILD8vkDxjRGeoTpxACWOtA4JxbR
+         NINw==
+X-Forwarded-Encrypted: i=1; AKwUvByrQO2P6agRmz7/d5giFiQrQhKXE+7Hs9cEaiBNYSUcW3I/8/7BhHQy+3TksVvw4wkvMc9NFtMVfHTRkDMr1g==@vger.kernel.org
+X-Gm-Message-State: APuU4Z94ca2FGKuT50QuzCsbxl2VD2kIiVmNu6DZzjCVFx0dwQ9Sv5VQ
+	LRUdd4HUdOZAjIGFBjseQWwAAO9KNrO2yVk7/lmnAXMSdiB/uKfzHYQZvFzn7squS9/CcycfASn
+	iG427fzyOMTfC0WIow6Ngdm9f1LrWL7ss6XeGHcf3
+X-Gm-Gg: AYBFou2e5WE7vwaRJGPMGnl9FBMdMipNdtgikncm1X1Gw7EcQL1w60yrchiAJTfSjJw
+	D+Kid2Wh9yxtqjqFHcpTVBSemIJqoLo6TEXnA+tpryHNbtBOIiCCTui9Qr85nL+t+dXtXOV0WBI
+	VVTJAMkj44R4slI8Qdbd0OU6of2HsS+WnnqFlUnl/r0S7iRLSsBQ62TgKQwkBne6bMSesBFeq6P
+	RmgR8IYJp4xun6c7d5GEv4q3TIHcln6PxFCOjGdS8WFdSWcrJn9JLMg2tEYrEiRe5rZxBdlFv9p
+	TWLMn5oF0k4EDkIv9Fkfy8toyeX380QZ1vtLBVJqOeb2DRx5RRvWlosHIAqBm8Dgd5MKoXl0OUx
+	96xsUPgUwKTIq3gFxHmMRuCUt609o4qXPbtFCj/XhBfVwz+AogFMVZXNY9cuhtxk2KwjBTpvW5P
+	5Iidyi0kiFZuOmjTPBaiKgQA==
+X-Received: by 2002:a05:6402:7cf:b0:6b5:65ef:440e with SMTP id
+ 4fb4d7f45d1cf-6b57cdd26d9mr21493a12.12.1793844805321; Wed, 04 Nov 2026
+ 18:13:25 -0800 (PST)
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -75,133 +99,45 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: omap_wdt: stop starting the watchdog twice in
- early_enable
-To: Krzysztof Kozlowski <krzk@kernel.org>, Wentao Liang <vulab@iscas.ac.cn>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, linux-watchdog@vger.kernel.org
-References: <20261104021535.1468760-1-vulab@iscas.ac.cn>
- <20261104-melodic-emotional-pony-ff5ddd@quoll>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261104-melodic-emotional-pony-ff5ddd@quoll>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xOjLt-0000000128t-0i90
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:33306
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 12
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfH6dpHeva80ePB6sbqDRMslkiIWbgclbaOs8c125AAG/ZkeNuh/CgPVoZRStMt2HJcwrUvO59SmMiy6SKrFqNueyUfyEIVw2aId/47wPXYEZNo7857Yx
- HpUAQQxFy+x9Cv00aaqbSJQWA54nBHkMu9PN8OTtrHw/ikgmXkZ1ABEMjy8yrQSFQP1PP+eCpq3Qb9DDUE/vc49rFqFUSqW2Jvuo0bYemauEgC3VaiDD4YAD
+References: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
+In-Reply-To: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
+From: Julius Werner <jwerner@chromium.org>
+Date: Wed, 4 Nov 2026 18:13:12 -0800
+X-Gm-Features: AclHuK-125zaIgRXhhjwYItELasBysm9j_wuLFip_xcu42o_jtzCl0wz_NYTSuw
+Message-ID: <CAODwPW992ncQNo1yxrOrAKKZ62TB_U1eYWstZuTKDKqFCFGRSA@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/3] watchdog: arm_smc_wdt: allow a list of SMC
+ function ids
+To: Mateusz Nowicki <mateusz.nowicki@posteo.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	linux-watchdog@vger.kernel.org, Julius Werner <jwerner@chromium.org>, 
+	Evan Benn <evanbenn@chromium.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Antonio Borneo <antonio.borneo@foss.st.com>, Marek Vasut <marex@nabladev.com>, 
+	devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/3/26 23:12, Krzysztof Kozlowski wrote:
-> 
-> On Wed, 04 Nov 2026 02:15:35 +0000, Wentao Liang wrote:
->> With the early_enable module parameter the watchdog is started before
->> watchdog_register_device() and the WDOG_HW_RUNNING bit is set, so the
->> watchdog core keeps pinging it.  The start that predates that code was
->> not removed, so omap_wdt_start() runs a second time right after the
->> registration.
->>
->> Every omap_wdt_start() takes a runtime PM reference with
->> pm_runtime_get_sync(), and only the reference of the probe itself is
->> dropped at the end of omap_wdt_probe().  The second start therefore
->> leaves one extra reference behind: the device never runtime suspends
->> after probe, even when no user has the watchdog open, because the
->> usage count can never fall back to zero.
->>
->> Drop the duplicate start.  The watchdog is already running at that
->> point and the remaining references are the ones that keep it clocked
->> while it is armed.
->>
->> Fixes: cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling")
->> Cc: stable@vger.kernel.org
->> Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
->> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
->> ---
->>   drivers/watchdog/omap_wdt.c | 3 ---
->>   1 file changed, 3 deletions(-)
->>
-> 
-> Multiple things here:
-> 1. Your team ignored completely previous feedback. Multiple times.
-> 
-> 2. You use multiple identities with this email address, thus I doubt that we
->     speak with an actual person.
-> 
+> DT folks, is there a way to keep the list in arm,smc-id that you would
+> be fine with?
 
-This is indeed a red flag. Thanks for noticing.
+Perhaps this is a bit of a hack, but you're in an unintended situation
+that wasn't supposed to happen to begin with so I feel it might be
+appropriate if it avoids adding a whole new mechanism to the driver:
+What happens if you simply define two watchdog nodes in your DTS, one
+for each SMC ID? Both of them would independently try to probe, one of
+them would die from getting an SMC_UNK, and the other would continue
+working to pet your watchdog?
 
-> 3. Your bot does not even bother running checkpatch, right?
-> 
-
-To be fair, [almost] everyone doesn't. On top of that, the checkpatch
-warning/error is a bit misleading, given that Assisted-by: used to be
-a valid trailer. People think that checkpatch doesn't recognize it,
-and most don't know that it is no longer supported/accepted.
-
-> 4. Nothing of this was reproduced nor tested.
-> 
-
-Besides that, the fix is incomplete/wrong (as was commit cd004d8299f1,
-which indeed needs to get fixed, but differently).
-
-Guenter
-
+This driver started as encoding the SMC ID in the DTS and that kinda
+seems to be the standard for drivers interacting with non-standard
+SMCs, so I would prefer to stick to that rather than hardcoding IDs in
+the C source (if we do that for each board it may end up being a long
+list eventually =E2=80=94 I think one of the reasons the device tree was
+originally adopted was to avoid things like that). I would be fine
+with the array solution but I don't know about the validation checker
+and whether people care about reusing the same prop name with
+different types. (FWIW, in the device tree a 32-bit integer is
+basically a 1-element array anyway, so we might just say it's always
+an array and for SCMI only one element is allowed.)
