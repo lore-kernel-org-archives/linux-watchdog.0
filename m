@@ -1,52 +1,52 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.67.36.66
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793853655;
-	b=L4Pum+kYW49MrHJUydPVqlsw0HFiy0R8/hF4vJD8HAv1i7ezePvqa+7rhUhiruz1l+6x
-	 L/m0INIbvjqrvHaPt/lKVQSpXqA994lxy4ced0+0ghrxFbmnd1VCHo6HUxjBnIec7Mws1
-	 hBrfA9g53DWtJ0cfEmOhNIUWwHg9IlddnbwD/QiL0gUojcWQfcaBVL7OM8clWE8bT77FN
-	 nAB137GZOOL7k51d9dy99tvhamBSAqg25vICRNon/m3WzeSyUWba5nflolIuknC7RaIKw
-	 2qSjQXARWo2o94X2/jPrNdXHLckspiq/y4B33KgHMi4wnvgaK4mO7ejHlXFZO7maHsQ==
+	t=1793873062;
+	b=J0kMA711rZo+DKQYWvFq0kEgWJdMs5/bSjlA9vp5HAWBWvOrvO5pZG/bW6cgBrO8Tysy
+	 RVTNls44ShJ9OzyCIDYn0O1Bs0htYg6aDDxYyg0e48ctAoC1HOZFUhVWMRo8DMHoPyUjh
+	 LSieW1AfcWTpYb9v+V7pmGSsiIazZhJ5IcJbKg9X1iXknUh65nVUKUI56w+sAOygT9fnn
+	 ixqhoDFvMODcu5Nn/abTk9sGrj8UogxPysHE9r/7LnODrh/qScp6tt/9fBFg/sOAUeams
+	 iydAWVwJBR0SsWo1C4xWzONWUG45SBa9RK6gF1zyMsfm9xxHNKtxzhlLx1pISkkCepA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793853655;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=CBeoOPO8dQa32q5FSGLVAtCrcM+vnK3M9abEc4Baae0=;
-	b=0QljsOdqTNDNm2PY0PLUx7jPJGoH+qkzlmcokE1TYkWKzN2GDVSHBe8H3+QBC2dwBx3K
-	 X/ET1Dy55/b2tXh31FRj4dz89d2x3vjJGYIf9ViTEj35BmDG4uDGn0EZkKVNLSVPHMzL/
-	 PGFQT6jvkrSZkGmQGCcHB9rNXPUnFOQLgaEsJsStKgmW3Wa3YoM2QNF3xgzm04VzdIIs9
-	 CnkTyB5NoygWy4kJvHMe4e9uP3nxW4MaPC1eeq55122J6YzDS6r8coHgUrJntQmPcuKsh
-	 sk8Ti6rc7YHBjUKFofHMOdm4PoJ5uyqaCg3sZV3Msx5fuDIadLO3eFomuZ4c6AoqIjg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793873062;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:MIME-Version:Date:From:
+	 To:Cc:Subject:In-Reply-To:References:Message-ID:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=zg6+H10dxRDg4A+l8T0eI4KPj0H19Zt2rNXESQze/4g=;
+	b=qJZwfw9jldnrmuILn/PtNQ53UrANejzse1cN35qG2PbveB+64KoB5MTNZqOVxYJRguBX
+	 0LuO683VEuFoZuKmJJl7sK6kuI4wxthOLV994eDttoKZWHVZ/b47893k79Q4cuUDSQZJO
+	 2jEyHLJYAYn8wrHvXlfojwDUW/fYBBl7vk+Clqyh13m3RUAEG/JOE2RlMJjuLu+xNryrd
+	 4/dpU7cQVpViyYbUDXWDUzeK9MxjNCno4m/I3Ngev9VT7Dn6gxZBnvdlhOBoNO2Zz+jVf
+	 gpgblgvKu7eT/vbpac0NAJkB25267p0FQDGBuEWP/k5O18TrHTkTinkJfQa8OFIK3RQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nabladev.com;
-	spf=pass smtp.mailfrom=nabladev.com;
-	dkim=pass header.d=nabladev.com header.i=@nabladev.com header.a=rsa-sha256 header.s=dkim header.b=A1fBFSva;
-	arc=none smtp.remote-ip=178.251.229.89
-Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
+	dmarc=pass header.from=posteo.net;
+	spf=pass smtp.mailfrom=posteo.net;
+	arc=none smtp.remote-ip=185.67.36.66
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49F92606A326;
-	Thu,  5 Nov 2026 04:40:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49F92606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=nabladev.com header.i=@nabladev.com header.a=rsa-sha256 header.s=dkim header.b=A1fBFSva
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 2AD9C10CB4D;
-	Thu, 05 Nov 2026 05:40:43 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
-	s=dkim; t=1793853644;
-	h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=CBeoOPO8dQa32q5FSGLVAtCrcM+vnK3M9abEc4Baae0=;
-	b=A1fBFSvaKLE0DyT+bxS1Ujpzu4d+5B4Pt4QckCyU1hiNxg0Jlp7tALCny2Hy9XMx1Atdr0
-	AMZat10bqhdZlicSBgsTSXKcMGZTSVecu1xe7J2uPjIQ9oVFzuxPHJWRycEM7TyjHPJrhQ
-	+Bsf2Xqv6bA5mEumyAriNrD6ptMOrg7DCpqY5nggDXyJH6lwZZHj8J0DlFHSctrhkhSgtR
-	AKGznxomoYij6awZBUeXzl//bo/HJIYvZTtb6cTU0OmDJg1Alpv4h/h4r81DPCs+fzIZoh
-	rhoVpOJxdYZ08MB3iGEI4Th/AplO0vttGwdTydwuS2Fg/1LOb/0UVLh8Oqlmcg==
-Message-ID: <14f72896-3c52-45ad-9832-6f33cb4d8c00@nabladev.com>
-Date: Wed, 4 Nov 2026 17:47:09 +0100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8C5606A32C
+	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 10:04:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0B8C5606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.net
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout02.posteo.de (Postfix) with ESMTPS id 27A06240101
+	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 11:04:08 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.net;
+	s=1984.8680eb; t=1793873048;
+	bh=zg6+H10dxRDg4A+l8T0eI4KPj0H19Zt2rNXESQze/4g=;
+	h=MIME-Version:Date:From:To:Cc:Subject:Message-ID:Content-Type:
+	 Content-Transfer-Encoding:From;
+	b=Jjb2O8GYpTYYWRwR1kQMvIcE8GUqbbz8XCykAxTyHnJoenzA5Ynd+muQPUdFLP2J6
+	 njVQKNOZjKmmpCw2grhHbCndfdXxZZYZ3A7uYSiJwpTMtJCyRm/V57ZVRFA4FtgUzd
+	 GeV2vX38jOkhMyXvZQ+4LiY38NSOUgB74M3GH4WjTcG5DpJErvY/E56IxJXCCyjV/k
+	 Qg5vNTV/oqi0ZpMchpYHqnWf9XWMBTNTM4Y87oHqztVH8eR3rPkRopSohwMc1AVUpe
+	 89K4Ogn8NuNFxG8r+c06Dtsu1eDp+zNXGU/CRnTi4YrbZS97RNfFZHNxMpUtRX7R/H
+	 vriSCnd0dXbvg==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4jKyZY4ftxz9rxR;
+	Thu,  5 Nov 2026 11:04:05 +0100 (CET)
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -56,50 +56,61 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/3] dt-bindings: watchdog: arm-smc-wdt: allow a list
- of SMC ids
-To: Mateusz Nowicki <mateusz.nowicki@posteo.net>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-Cc: Julius Werner <jwerner@chromium.org>, Evan Benn <evanbenn@chromium.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Antonio Borneo <antonio.borneo@foss.st.com>, devicetree@vger.kernel.org,
+Date: Thu, 05 Nov 2026 10:04:07 +0000
+From: mateusz.nowicki@posteo.net
+To: Julius Werner <jwerner@chromium.org>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, Evan Benn
+ <evanbenn@chromium.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
+ <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Maxime Coquelin
+ <mcoquelin.stm32@gmail.com>, Alexandre Torgue
+ <alexandre.torgue@foss.st.com>, Antonio Borneo <antonio.borneo@foss.st.com>,
+ Marek Vasut <marex@nabladev.com>, devicetree@vger.kernel.org,
  linux-stm32@st-md-mailman.stormreply.com,
  linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 0/3] watchdog: =?UTF-8?Q?arm=5Fsmc=5Fwdt=3A=20allo?=
+ =?UTF-8?Q?w=20a=20list=20of=20SMC=20function=20ids?=
+In-Reply-To: <CAODwPW992ncQNo1yxrOrAKKZ62TB_U1eYWstZuTKDKqFCFGRSA@mail.gmail.com>
 References: <20261104161553.30115-1-mateusz.nowicki@posteo.net>
- <20261104161553.30115-2-mateusz.nowicki@posteo.net>
-Content-Language: en-US
-From: Marek Vasut <marex@nabladev.com>
-In-Reply-To: <20261104161553.30115-2-mateusz.nowicki@posteo.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ <CAODwPW992ncQNo1yxrOrAKKZ62TB_U1eYWstZuTKDKqFCFGRSA@mail.gmail.com>
+Message-ID: <2e1ea7a743552f7a9f5aef91e0d8d1c6@posteo.net>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-On 11/4/26 5:16 PM, Mateusz Nowicki wrote:
-> The SMC function id of the watchdog service is not discoverable and
-> differs between firmware versions for the same SoC. Let arm,smc-id hold
-> a list of ids that the driver tries in order, so a SoC dtsi can name
-> every id used by firmware for that SoC. A single id stays valid.
-> 
-> Signed-off-by: Mateusz Nowicki <mateusz.nowicki@posteo.net>
-> ---
->   .../devicetree/bindings/watchdog/arm-smc-wdt.yaml        | 9 +++++++--
->   1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml b/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
-> index 8e9d0b7e8244..9844b23ef51c 100644
-> --- a/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/arm-smc-wdt.yaml
-> @@ -18,9 +18,14 @@ properties:
->         - arm,smc-wdt
->   
->     arm,smc-id:
-> -    $ref: /schemas/types.yaml#/definitions/uint32
-> +    $ref: /schemas/types.yaml#/definitions/uint32-array
-> +    minItems: 1
-> +    maxItems: 4
-maxItems: 2 ?
+On 11/5/26 Julius Werner wrote:
+> What happens if you simply define two watchdog nodes in your DTS, one
+> for each SMC ID? Both of them would independently try to probe, one of
+> them would die from getting an SMC_UNK, and the other would continue
+> working to pet your watchdog?
+
+I thought about that, but there is firmware where both of them probe.
+ST's 4.0.0 OP-TEE fork accepts both IDs, so you end up with watchdog0
+and watchdog1 on the same IWDG. The bootloader has already started it,
+so both register with WDOG_HW_RUNNING. Userspace opens one of them and
+the watchdog core keeps pinging the other one forever (open_timeout is
+0 by default). If userspace hangs, the board never resets.
+
+> I would be fine
+> with the array solution but I don't know about the validation checker
+> and whether people care about reusing the same prop name with
+> different types. (FWIW, in the device tree a 32-bit integer is
+> basically a 1-element array anyway, so we might just say it's always
+> an array and for SCMI only one element is allowed.)
+
+I tried that. With arm,smc-id as a uint32-array with maxItems: 1 in
+arm,scmi.yaml the "multiple incompatible types" error is gone.
+dt_binding_check is clean, and so is dtbs_check on stm32mp257f-dk,
+stm32mp235f-dk and a few boards that use SCMI over SMC (imx8ulp-evk,
+rk3528-armsom-sige1, amlogic-c3, blaize-blzp1600). The SCMI driver
+reads the property with of_property_read_u32(), so nothing changes
+there.
+
+Guenter, you suggested keeping the IDs in the driver and I have a v2
+like that ready (st,stm32mp25-smc-wdt with the IDs as match data).
+Julius would rather keep them in DT. I'm fine with either, just tell me
+which one you'd take. If it's the array, v2 is the RFC plus the
+arm,scmi.yaml change, and maxItems: 2 as Marek asked.
+
+Thanks,
+Mateusz
