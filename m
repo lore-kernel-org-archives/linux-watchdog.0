@@ -1,82 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793905555;
-	b=LD9gait8ew3mjkkuqfko1dJpr0oAttVwQD+mY61U21AcMiENkSSTlfYqJ7SK0L7uvkGi
-	 YXGPCfqbcs3UxRrvFZYr78O9cG4wwTVt0bKBDB39PMR03OhGKm/jojQSUU+//IwxQaQPQ
-	 BSeNvrWYFx9dulmJnWHILr+0hIrekjgtxUnGVrSF0jsXG1HZpUXff/nKj96GGrKocrv4Z
-	 HWkM5F8CSUMzObLc9VsFKf8LZMYRoJUigXjjtyBLnIp7YPi1GsrdYzLIU8NoleSZJQYby
-	 4yeL/k2x8v02UHAyUaRpOTPte/srkV6B458HrSzu4eZye+iLI7bHZQPRv6svIn2tlWw==
+	t=1793912862;
+	b=HAb9Et5Icuxh2IHbyRZuoy66TzexlN+f/xGI0u9iZjd35TwgoJm1aGxs5EX7aFPL06a6
+	 l4tyG1k6CRbJh55cBLDVia6qHK+GyP15a3igjypHo5i8cO6ApqHDw2EfIiuxNolgTHisw
+	 NdasL/clW2/ceIHqjRp4s68yGz9u3kYKuJkZvlQb95V+/mOGZ5AEy2ieHI8cfwrWQghRZ
+	 2dHt4nECT8Xib7YxSYUiQHgQ62WltwQvFNR50rVcgtm+gt8hqvtn1bxDCDPXyJXbDHbSu
+	 adyMyr6P4hyqqzAAU/MP1LZuOLzzVfotN8YJVZyIRtcjU+weOgAJn30eh/fJE1eTq/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793905555;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
-	 References:MIME-Version:Content-Transfer-Encoding:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:
-	 X-Source-IP:X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=eE37djwi41DDz7zHMbxUXy4kyux/ww41BG8fP9fR+nQ=;
-	b=ot30DdygjcGQHMLGMw0jQnUCRegPFoBvKbpN4aNC3Q59PYHpcPU9XaPxL8gXxDLerSQO
-	 zsunQxqQUuARQeqM9IsfFq1T3Qb108oCKgIRGZYrpsSIAgZXT9uqoke3FCDnsV3HsWVgb
-	 NjGLhk7JbTrbWGNv2WpRy+I5vEpx9pmeRRw64yyxptxzCC1m+5LTivJKiNHTz3ypwvY+R
-	 0wjQofGRIdGZlm7rwlxjMVYHzp+c6ux5Jn6GzJZKss90NahoVwSTzuKOwY+3pYarE5bHD
-	 nfNDv3EHbC8NUvYW8unbfRtE/5O+48xU1zvRvogIUYXRANu8o8EapnPEc54iZvk0xPw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793912862;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=RhSdthgY4lzWyxqScK60PBXNBhT02yTKoURJd/H/bvo=;
+	b=czh/TeYCmHlz392fPmfEnZdA5Ac4ms5qVlzbmuVb+DQftJOrBCl6W9VXlYGbWAAT3yr9
+	 4QzPVGa/1AaDZoLvQECXuOspLigtjK5WJ7I7cOD9qGQtpgQUO+xcy8YrmL4/db6IyeAz3
+	 9xppEfmabHyYK+NFsXnG1bHDbv1PGspi49liJ/4TVomDaIZ7CgnBV05XKJWXO2t4RUZiL
+	 y9PVu0jmnjA4k6ZweC1pOoEu2n5yGyEbK1Kw2JEG/6jEgD1YwFRB2b7LtQw5OP9H+boxQ
+	 7LT31N5RW0ZvUF5iw1Q2Qx4fXAZdFgmbmLdTL0XBDgo3vNF7XSHyGulcY7dVKEhWEDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=0LEl3YSL;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lBLiPogx;
+	arc=none smtp.remote-ip=209.85.208.52
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44D65606A329
-	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 19:05:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 44D65606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 402D3606EE81
+	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 21:07:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 402D3606EE81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=0LEl3YSL
-Received: from eig-obgw-5003b.ext.cloudfilter.net ([10.0.29.155])
-	by cmsmtp with ESMTPS
-	id OIFdx0q6SAR1iP2mSx5riL; Thu, 05 Nov 2026 19:05:49 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id P2mRxqHY1btpUP2mSxAbhD; Thu, 05 Nov 2026 19:05:48 +0000
-X-Authority-Analysis: v=2.4 cv=dIqmmPZb c=1 sm=1 tr=0 ts=6aecd38c
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=Bq6zwJu1AAAA:8 a=_jlGtV7tAAAA:8
- a=LzuaQbZwHQHXnMqKkqIA:9 a=KQ6X2bKhxX7Fj2iT9C4S:22 a=nlm17XC03S6CtCLSeiRr:22
- a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
-	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=eE37djwi41DDz7zHMbxUXy4kyux/ww41BG8fP9fR+nQ=; b=0LEl3YSLKUxj
-	3/HYkTAJnsxbUTNAO5rmsCw98dz/VNa76tmudbqe23dZW1OWjT8erJuDZlw0JDZrNZF78rk7pBiIJ
-	fTLwyzlF/UTiP0H1zoL6dZFuRfcqW5Xhy6lCSGZq7j4Dq4Gg7JdBE12zWtdp4FMwu8L+/OmnrpRGA
-	btiLqnatWvHApyag+nYMeQgM0pon1QkJ2pqG+uPzi6Y/MoAc0ZofKv0vfpsBUV+pr90JEGYmLQjLI
-	oCs8Wp8S3TdnMoqcbqIALyCwuTr5lTcmUUpXKWJ2MYtQeILBwEwJCB49LjdM2iGVPI16+3AnXA+kT
-	mynK+lzN9LsTezsUkSUl7g==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:40742 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xP2mR-00000003PaA-2Jb3;
-	Fri, 06 Nov 2026 00:35:47 +0530
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lBLiPogx
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-6b547d6c07bso107548a12.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Nov 2026 13:07:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793912861; x=1794517661; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=RhSdthgY4lzWyxqScK60PBXNBhT02yTKoURJd/H/bvo=;
+        b=lBLiPogx1HagL7iJ7wlCKBNbjtZOWQYJSYWopyI3EcLhp5+tDMsSb1VypBbCqJI7Es
+         FtGrSTadlBFXArfHaKP96K9I/OHUrjU6CjAUlpXwKmB1BPA0jy4H/1vNhQBJix866N82
+         z5TYyoTe2YCK0LYgFhqBDXXiwxi12kgntXz8rU3DKCvBn3khzFj1+OgPUD9lWMOlYVXI
+         o4XddsNk7LnJvCxTMiDSz41RW5AKxHIhjBjgW4sAGEhe2kPXWqIiWRONxdQk0eb/4NkU
+         iKVLVs3onVQgBhXFg2Mt2UikWLw3YzkyuBCvtJI/gPkWjEMTiJy+qDZMiLthBfI/pQAd
+         f8lA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793912861; x=1794517661;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=RhSdthgY4lzWyxqScK60PBXNBhT02yTKoURJd/H/bvo=;
+        b=CuFjqxdeVAqInPkdlC07a/m7RaIDzZdezuuG9Z45AGCw9wUYpv0//2dpQyx1Mb+fli
+         t9jtSgxl3v5eAL+uSAcEZq7baw/PYTtFH7qTOeV/RKGVkLBEKOJxhPoJcQyBe7n07+Lo
+         2+9D9MOk3E7oipXFsuU9eWmYUD/Mb+x/XYPbW2o82f68f7embAgUlVjszdSNraiEq/7c
+         xgC7ZWsJKoJPniSuc+44OsWgNfWnNLsNiYsJyE9lY7eDjdmrFxhcfaw08mRsluRekpdK
+         e650MBcUob6gjg5PkoDGlkaL6iayR3O6FN3aAJEhmuYcj7EFMH9ubSKD8HFaASLY0nYl
+         20gA==
+X-Forwarded-Encrypted: i=1; AKwUvBwDEERvI4sn4Y1DtTZq+QAekIJFQDaYK9TIOwUI4EdoZVHNJfMiX8kcwwiIG1xtbKdcvb5A5Rsr+LFiEJsLtA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/7XZ4j5bvQsa5ptXHGWuenttulzLM1nVaLegu/5t65+HXOizZ8
+	96WGzAh5wq33UuoRDTZavqfp2L60DtgizB86mV1c9hAY7B29LWlCpJNe
+X-Gm-Gg: AYBFou1J1ZPst6rWHVToYCMbeCXjui/zIcM2qkn09is+afn8FXHCNk0Tjd2Ht9HxV4M
+	FGOuSH3nO4QYlBAT/rSt5ScxL4tlxbXR5DlfDKViyXnGstprLibLsQHMWS1i5V6QeIPuMAdea56
+	SSHOzdk2V3HNFliUtpJz8hTAtIReGwX+Z3t3YWJuD0xB+pZStKDCLalKuaAN4GshoJ+83mTPga9
+	PAo/mBc9LjP1JdDsjJsP+WDO5k7OgJburm0B0VJIf9iDnLKCTrJ4NLD2BMwmSzzEJxMght+RtMF
+	qUTreZVOr38m91N/TGy/mLaeUttRnsw7vVeTDmVqqpAFv2N1aB5V78yIKiZY5BPyVi76uyvdKmM
+	ogLD1SbTGPC2DB6HFJ7fASm/ivV1Es4O/BYScSnJmX35U+hvRRkYl5EhhG9ell+Dcm1+D5Z/Pga
+	hxZjQO7ddIWRhO418wCQY3Ip8bXe5dhL0TL6Gq66WXuKBNqXfxheoAvOuWbPsZ7ZF6AtJWN03yx
+	B7vU1ERW7QL/6ZG3zB3bP+l8/8UnIM5E1jHKuKJkHERdEjdywE8fwiZQwT7y8yIuX2hFVS1ahA3
+	xnGiNc4I+3pVhyeogn7SetZRIpt5IaTWl1H0L+SOQaR6DpYI+w==
+X-Received: by 2002:a05:6402:1d55:b0:6b3:d0a0:3a2d with SMTP id 4fb4d7f45d1cf-6b5975296a1mr338144a12.1.1793912860655;
+        Thu, 05 Nov 2026 13:07:40 -0800 (PST)
+Received: from letov ([62.41.24.155])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b55ac6d032sm1966949a12.25.2026.11.05.13.07.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Nov 2026 13:07:40 -0800 (PST)
+From: Alexander Letuchiy <asalde.le1@gmail.com>
+To: devicetree@vger.kernel.org,
+	linux-mediatek@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	Alexander Letuchiy <asalde.le1@gmail.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Xingyu Wu <xingyu.wu@starfivetech.com>,
-	Ziv Xu <ziv.xu@starfivetech.com>
-Subject: [PATCH v2 7/8] watchdog: starfive-wdt: Stop ping worker on system suspend
-Date: Thu,  5 Nov 2026 11:05:28 -0800
-Message-ID: <20261105190530.2371854-8-linux@roeck-us.net>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20261105190530.2371854-1-linux@roeck-us.net>
-References: <20261105190530.2371854-1-linux@roeck-us.net>
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 3/5] dt-bindings: watchdog: mediatek,mtk-wdt: Add compatible for MT6895
+Date: Fri,  6 Nov 2026 00:06:01 +0300
+Message-ID: <20261105210622.523747-4-asalde.le1@gmail.com>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261105210622.523747-1-asalde.le1@gmail.com>
+References: <20261105210622.523747-1-asalde.le1@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -87,68 +108,27 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xP2mR-00000003PaA-2Jb3
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:40742
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 32
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfFwJJEG5O9mSg8UIsvoqDlpIHAbn33e0vTqoCod50GC3dZ5Egb0yaiyL2tnPeM9UVnGPNdLdK3AoVvPKOFzEMy+iAGGUVqzCwNt7V7g7CtXJq3kgzX3c
- G5QX2rF1mQFx5od8ONEhGgs7aBBsznC4Rc/uh2abHUanpXjvnMyybrL5fzQo8i38YlJ2oByBeZJS+O+qaDckQxdZ7eUO+2YHvbc5CD4Z2vikGe9sj5cDIuwl
 
-When early_enable=1 is set and CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is
-enabled, watchdog_register_device() starts the watchdog core hrtimer so the
-non-freezable watchdogd kthread worker periodically pings the hardware
-before userspace opens /dev/watchdog.
+Add a compatible string for the watchdog of the MediaTek MT6895
+(Dimensity 8100) SoC, which uses mediatek,mt6589-wdt as its fallback.
 
-Because starfive_wdt_probe() does not call watchdog_stop_ping_on_suspend(),
-WDOG_NO_PING_ON_SUSPEND is not set and the watchdog core does not cancel
-its hrtimer and ping work across system suspend. After
-starfive_wdt_suspend() stops the counter and calls
-pm_runtime_force_suspend() to gate core_clk and apb_clk, WDOG_HW_RUNNING
-remains set; if the timer fires before starfive_wdt_resume() re-enables
-the clocks, watchdog_ping_work() invokes starfive_wdt_keepalive() with
-gated clocks and causes an unclocked MMIO bus fault.
-
-Call watchdog_stop_ping_on_suspend() in starfive_wdt_probe() so the
-watchdog core cancels its ping timer and work in PM_SUSPEND_PREPARE before
-clocks are gated and resumes pinging in PM_POST_SUSPEND after clocks are
-restored.
-
-Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
-Cc: Xingyu Wu <xingyu.wu@starfivetech.com>
-Cc: Ziv Xu <ziv.xu@starfivetech.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
 ---
-v2: New patch
-
- drivers/watchdog/starfive-wdt.c | 1 +
+ Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index 60a97ffa940a..ae2d84ccc76f 100644
---- a/drivers/watchdog/starfive-wdt.c
-+++ b/drivers/watchdog/starfive-wdt.c
-@@ -494,6 +494,7 @@ static int starfive_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_nowayout(&wdt->wdd, nowayout);
- 	watchdog_stop_on_reboot(&wdt->wdd);
- 	watchdog_stop_on_unregister(&wdt->wdd);
-+	watchdog_stop_ping_on_suspend(&wdt->wdd);
- 
- 	if (early_enable) {
- 		ret = starfive_wdt_start(wdt);
+diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+index f9b725592c27..cac7d9ae98dd 100644
+--- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+@@ -38,6 +38,7 @@ properties:
+               - mediatek,mt6572-wdt
+               - mediatek,mt6582-wdt
+               - mediatek,mt6797-wdt
++              - mediatek,mt6895-wdt
+               - mediatek,mt7622-wdt
+               - mediatek,mt7623-wdt
+               - mediatek,mt7629-wdt
 -- 
-2.45.2
+2.56.0
 
