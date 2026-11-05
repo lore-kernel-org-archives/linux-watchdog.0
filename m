@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793905548;
-	b=LMaz4iRsKrkUxhoOQlPgRdesRyM+IAFQs5S8hzs03NyiYgcMLdwUOrpvKZXNx0rEs9uE
-	 wRnCAUHp7ZKeS2FRL9W3nSIqhFSqhg1vobaX/uixl81Q01ZyLM+MogA+G0p51KlLWQjcj
-	 VwGbwnJHRLmykeigNt9lnkr29VaMgcvS9z2dL0iVQV4jxLHNzrhuoYj2DgsQTFBI9AZk0
-	 ddecNkypWV41hzNj6yhdBXVwnjM/06rddduVgLgMtqQPf9JmUEUHZU+eXGEWJjzAsI4/P
-	 MhgCrJ8UuIjYqGzj10GB33RrN8jvut5e/NTBYJ8nEcHaWKhNUqfgJEqy17JBet8gZYA==
+	t=1793905549;
+	b=gX/AIH8awgFIJtCWg7YEaGzp8JoDM8/wO2iw7UkGrE/eAN2uAgiRgi6Wpo7Pi6XckCm4
+	 yaKVOHuaPg1LkGMX+hJP4zoNQI93XGwQtGJwk37LNO7nTIhOFe03yCP+4xlrR0G3ODax8
+	 Vzm4L8FFWAkq7UZUCaPiv7mULuxcmk7KpCCsaEEQ84I/n/TY0RWPxIKx6EC/zNNOOuJoC
+	 O2vQHVyJCP9hVMUhziey+q1IkoO5wwLx5PHivZot5dOdDAlYWLKB4nlRl20L/tJ/NB98Y
+	 tUlZ5Jg2UADd42Xh1w7OF408wep4oKVDYvGurJ4kScB34eVcC35Z7OALbdls4TwEEkg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793905548;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793905549;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
 	 References:MIME-Version:Content-Transfer-Encoding:X-AntiAbuse:
@@ -15,55 +15,55 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-IP:X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=sJEFDKRaSiur8ynaKiZkJGi/Rd0axqKf8B7Z4C6Tq3o=;
-	b=TbTpw3drjjtLyRSV1sQVQcFVSKduLuYaQ9vuQ7Bn9hU/s0TRjwJspeJOJBUj4KMs76SG
-	 Fuk+PUXpKuSN5d/It6fRgcjUPupSJxcfJnOzuWU4V18IXdWqEgIO51YOaw5jpvKctsPW5
-	 nyVa6YrXVqnW+uiO3Iw6MElhBCZdwOQfs6uURZTCnOLL94Gfs23N7CZX26AUFKdyyuuVA
-	 p00Gv+O+FIOXmnlEJiyyOx0CkHC0fksHwL68dRyqYtPq+Z+uLYZUcaVvxTRTAt858t7Jz
-	 rIziASa/GUY6oh37QLXR+PX8LFlgN9J1EHhTEsqS/pZ3u4RZdkqbMb9hMALGuoV2H1w==
+	bh=3LiUcmR/XG4SmX1xHUJ4qPXQ8O9XVUvjGOiZ38C2/Rw=;
+	b=3MzC39p35ktF0JNBiKlFft4EZf+GC4ReLOo3a84L0mPopiG/dIOfzqr2zM8UgRrEnUIV
+	 xpPg+bVhE/c+tBhV3F647AQYAQk9urLxkmFzBOc+ecVKW8YH/R5shATY6E+Tt0qs82P4Z
+	 PRweu3geogawUBkfcD+y/Hi18LAwSnPi4GS1Fs4WiTmTSc+s4jWFEaqU1t6BxRFsikOHb
+	 MuyjskO22QxBz0FZEqz5ea3OgFjPEqzm+5tlG4/oYbLmUjKrdp6K6UoGVsMXiUjobEZ19
+	 QKwLglTRhUkIutyfoH4MT4dyyurGUeypPdQGg6Wqr8CXrnnrJ8guintxKlr9DaULsHA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=V48kf2qx;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4LOtfe6F;
 	arc=none smtp.remote-ip=44.202.169.39
 Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38AB4606A326
-	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 19:05:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 38AB4606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A77AA606A329
+	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 19:05:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A77AA606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=V48kf2qx
-Received: from eig-obgw-6007b.ext.cloudfilter.net ([10.0.30.166])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4LOtfe6F
+Received: from eig-obgw-6004b.ext.cloudfilter.net ([10.0.30.210])
 	by cmsmtp with ESMTPS
-	id Oywfxp0yGOOJnP2mQxd2q3; Thu, 05 Nov 2026 19:05:47 +0000
+	id OsOBxnPtROOJnP2mRxd2qp; Thu, 05 Nov 2026 19:05:48 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id P2mQxhLmfBdeUP2mQxoL4O; Thu, 05 Nov 2026 19:05:46 +0000
-X-Authority-Analysis: v=2.4 cv=AaexH2XG c=1 sm=1 tr=0 ts=6aecd38a
+	id P2mRxKgZeKD1BP2mRxC5LA; Thu, 05 Nov 2026 19:05:47 +0000
+X-Authority-Analysis: v=2.4 cv=N6MpF39B c=1 sm=1 tr=0 ts=6aecd38b
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=Bq6zwJu1AAAA:8 a=VwQbUJbxAAAA:8
- a=_jlGtV7tAAAA:8 a=DaO7CXVDyyh4gy_mf_4A:9 a=KQ6X2bKhxX7Fj2iT9C4S:22
- a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
+ a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=Bq6zwJu1AAAA:8 a=_jlGtV7tAAAA:8
+ a=0_lNOxZCVW3vH2WxJGoA:9 a=KQ6X2bKhxX7Fj2iT9C4S:22 a=nlm17XC03S6CtCLSeiRr:22
+ a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
 	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
 	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=sJEFDKRaSiur8ynaKiZkJGi/Rd0axqKf8B7Z4C6Tq3o=; b=V48kf2qxO8w1
-	tC+SK19h0OT2j3bFIL8YVHhm7mf6wCOH8EqsQhuJyVLZagyRRvsITAgr3GUFQpBbU42vJjl52CnY3
-	10jRuM/fAPbrj/NAJwxeIVprNDjCwXX74z5VbZ3YmEeQo9e/aLUZMxG9lz1kdSZ5tTVc17qUoBq1X
-	mmNICYUSWFVkQrAR+x9QUaaJDwmf5Co4vE81TUqOYOwFd6ss0G1DXtx5gC/j6paMcg7LrH7XwAbi9
-	ZNcB5syyAdM79oSnRTnmmRFmUtMwkQTRej8fN6c1YfIJ1DwqBFd9ywVkUcboQf+Tsrlr+BTPvVJzS
-	1FHAd4DGdEUPZHzyp/ja2A==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:40714 helo=server.roeck-us.net)
+	List-Archive; bh=3LiUcmR/XG4SmX1xHUJ4qPXQ8O9XVUvjGOiZ38C2/Rw=; b=4LOtfe6F/8e/
+	N49o0Ai7a2n8l53GSOxv3dM4QVBpYbXFvWn/NrRefyEpBXMW20i68iBq5bu1S2fE6yb2eQ/WUNVv4
+	rG/5W2GohgLwimN1JZtbl/NnSgiMCb7OxLtWfC6LNWgn9+EbeP23VpgiEyN/488zmEltg31m+B7B0
+	+xjZ2v1YL5caaSmURyQ26wVyUj1pUfPDNq7sjjv/JZaWpKIRM2X/PsA91hlYtvIAVRPJ53HM5SdlW
+	vAo35/HTAJ6f9FhY8iN5v6bqh0RTR4VsMyot2xcpd2fEsx2mFLDigINzILgYzf/SG9EzkN9bC4IKz
+	Qmm61iKcTjI98naBzCiYuA==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:40728 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xP2mP-00000003PTo-3w6A;
+	id 1xP2mQ-00000003PVz-3SA1;
 	Fri, 06 Nov 2026 00:35:46 +0530
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
@@ -71,9 +71,9 @@ Cc: Tzung-Bi Shih <tzungbi@kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Xingyu Wu <xingyu.wu@starfivetech.com>,
 	Ziv Xu <ziv.xu@starfivetech.com>
-Subject: [PATCH v2 5/8] watchdog: starfive-wdt: Drop runtime PM reference before registering watchdog
-Date: Thu,  5 Nov 2026 11:05:26 -0800
-Message-ID: <20261105190530.2371854-6-linux@roeck-us.net>
+Subject: [PATCH v2 6/8] watchdog: starfive-wdt: Avoid unclocked MMIO read in starfive_wdt_get_timeleft()
+Date: Thu,  5 Nov 2026 11:05:27 -0800
+Message-ID: <20261105190530.2371854-7-linux@roeck-us.net>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20261105190530.2371854-1-linux@roeck-us.net>
 References: <20261105190530.2371854-1-linux@roeck-us.net>
@@ -95,91 +95,57 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xP2mP-00000003PTo-3w6A
+X-Exim-ID: 1xP2mQ-00000003PVz-3SA1
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:40714
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:40728
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 24
+X-Email-Count: 28
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfDOkcY2a6c5W8p2p/iGjBBEHgAXfbb3Ajm+frC+Ui1GMkPPNQmiNbjTKC9VBcV2nsnlPrMGeVJh4xFq2Xq4GDjOIEApXRXcBocznT4kjx8brepr1r8HQ
- 9zaf+TOFX8NnT8E50e/meOfoFxY6yddvR9nvryk/ccSosEScJJMAYwyLx/76LDZgyAudJrt4kBTc/Tk98mjXofsCbmUM7yoeS7rUysOvI/zlAFXn3AWaov3s
+X-CMAE-Envelope: MS4xfOfBhg14JxDIkPcZuYYrOcL+9lrfqdsSP9KN0NFL8HpaNrRGClx3I96ceB1P12jpxDK+tYZwyZBsHHXUa9I6XWqWJEfD/DgIjLfmPk2Zl9HG6oYkiRoB
+ k/Iso7EdQbp9syv4mzLqkbG1hW33/npyHFNMdR4vX7rPHoMoQnqQXtqzU9JFOzfmJQpPw7sObUVAAO/Miq7JHKZ8mntYEpAlNhNLBKlJuh2y0+MZP2EF23nZ
 
-In starfive_wdt_probe(), watchdog_register_device() is called before the
-probe-time runtime PM reference is released via pm_runtime_put_sync(), and
-any non-zero return value from pm_runtime_put_sync() is treated as a fatal
-probe error.
+When the watchdog is inactive, runtime PM suspends the device and gates
+off apb_clk and core_clk via starfive_wdt_runtime_suspend(). However,
+reading the sysfs timeleft attribute via timeleft_show() or issuing
+ioctl(WDIOC_GETTIMELEFT) calls starfive_wdt_get_timeleft() unconditionally.
 
-If userspace (such as udev or a watchdog daemon) opens /dev/watchdog
-immediately after watchdog_register_device() exposes the character device,
-starfive_wdt_pm_start() increments the runtime PM usage count. The
-subsequent pm_runtime_put_sync() in probe then decrements the usage count
-to 1 and returns -EAGAIN (it may also return 1, -EBUSY, or -EPERM in
-non-error idle conditions), causing starfive_wdt_probe() to unregister the
-working watchdog device and fail probe.
+Because starfive_wdt_get_timeleft() reads the counter and interrupt status
+registers without checking whether the hardware watchdog is running,
+querying timeleft while inactive performs unclocked MMIO reads and triggers
+a bus fault.
 
-When early_enable is not set, no hardware registers are accessed after
-starfive_wdt_stop(). Release the probe-time runtime PM reference right
-after starfive_wdt_stop() and before watchdog_register_device(), without
-treating pm_runtime_put_sync() idle return codes as probe errors.
+Return 0 immediately in starfive_wdt_get_timeleft() when
+watchdog_hw_running() is false. When watchdog_hw_running() is true, the
+driver holds an active runtime PM reference keeping the clocks enabled.
 
-Fixes: 8bc22a2f1bf0 ("watchdog: starfive: Check pm_runtime_enabled() before decrementing usage counter")
+Fixes: db728ea9c7be ("drivers: watchdog: Add StarFive Watchdog driver")
 Cc: Xingyu Wu <xingyu.wu@starfivetech.com>
 Cc: Ziv Xu <ziv.xu@starfivetech.com>
-Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v2: Add Reviewed-by: tag
+v2: New patch
 
- drivers/watchdog/starfive-wdt.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ drivers/watchdog/starfive-wdt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/watchdog/starfive-wdt.c b/drivers/watchdog/starfive-wdt.c
-index 859232fa55a3..4142e1502038 100644
+index 4142e1502038..60a97ffa940a 100644
 --- a/drivers/watchdog/starfive-wdt.c
 +++ b/drivers/watchdog/starfive-wdt.c
-@@ -499,28 +499,25 @@ static int starfive_wdt_probe(struct platform_device *pdev)
- 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
- 	} else {
- 		starfive_wdt_stop(wdt);
-+		if (pm_runtime_enabled(&pdev->dev))
-+			pm_runtime_put_sync(&pdev->dev);
- 	}
+@@ -312,6 +312,9 @@ static unsigned int starfive_wdt_get_timeleft(struct watchdog_device *wdd)
+ 	struct starfive_wdt *wdt = watchdog_get_drvdata(wdd);
+ 	u32 count;
  
- 	ret = watchdog_register_device(&wdt->wdd);
--	if (ret)
--		goto err_exit;
--
--	if (!early_enable) {
--		if (pm_runtime_enabled(&pdev->dev)) {
--			ret = pm_runtime_put_sync(&pdev->dev);
--			if (ret)
--				goto err_unregister_wdt;
-+	if (ret) {
-+		if (watchdog_hw_running(&wdt->wdd)) {
-+			starfive_wdt_stop(wdt);
-+			if (pm_runtime_enabled(&pdev->dev))
-+				pm_runtime_put_sync(&pdev->dev);
- 		}
-+		if (!pm_runtime_enabled(&pdev->dev))
-+			starfive_wdt_disable_clock(wdt);
-+		goto err_disable_pm;
- 	}
- 
- 	return 0;
- 
--err_unregister_wdt:
--	watchdog_unregister_device(&wdt->wdd);
--	goto err_disable_pm;
- err_exit:
--	if (watchdog_hw_running(&wdt->wdd))
--		starfive_wdt_stop(wdt);
- 	if (pm_runtime_enabled(&pdev->dev))
- 		pm_runtime_put_sync(&pdev->dev);
- 	else
++	if (!watchdog_hw_running(wdd))
++		return 0;
++
+ 	/*
+ 	 * If the watchdog takes twice timeout and set half count value,
+ 	 * timeleft value should add the count value before first timeout.
 -- 
 2.45.2
 
