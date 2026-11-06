@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793959147;
-	b=ZTaoy20ti0NQsmVGUZHBvERnwFjIaQE7unp61TrBDogotQhCWoB0fAx4XcHw6JrAgz+u
-	 h/v0xs+oYj+8RSBpYyyAbTVEPwvKEokMtdCGGr2PcWASBDRtWy0tpmAdv2n4COKH6h6RX
-	 h+fvdtqsokIb41+4MnWAJT0qHhnAsr0o+wGyyA7xC0snh+bzqEj3cW3YGmw+KL1vDg8HX
-	 sfvq75wml5LOZKSU83rXQcyEL5dCG+chHVLSNbcddTynMRMkuyoSAQ/MUheVahdlKSvlu
-	 h8zttNvwbqWJ1MSrmBbZxQaeLauTo1uQboEnzcrVGgNSNofdDr2lJ6lolo9LrZtDXuQ==
+	t=1793959448;
+	b=eCEZmIUMg9x1sib9KulG2Gl1PpXFDLPoj0EyPvXI1UVGK4Wllv54qbteZe6RXwhAcrqK
+	 fP35r1IGW9W9G42A3Avi4+E4ixzPGExv5v5QSUy5yyfi5iecsThhwmYNG3Z9NgQB3yR1s
+	 lVVmJTQU7YxfGG+LDRcPfYu80jd2jBzSQZ7IIFaYCco7rzQ8aS6CmsyOIeufzw8hkPyfG
+	 yYZWR5tfNCsfZigNFMKvXsgR/YUkmz8KZbcgxNJC5nNl+lc27zB+QKhdjhd6yVK7Zaevj
+	 yZlaH7wQ9Rgac+TxnWb147vayI8LZ3sU4ycQqrA+c39hGnURzrzFVs/vmVK/6H7tmzw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793959147;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793959448;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=URtsFZrOncTBadDaPbRBozwKL5R8OwhE2UgxEKs7KTQ=;
-	b=5tuPFqRX/V8j8hvrut8rrSFWHJB3cHRI0Z0FABJL8LYMHSUdOwAns5Cos5qvrxWvxIvM
-	 EVVi6eu3UtOuo1hThT2uKb/eFZ0ZNjAbiFoEsDdt0Deaq3AVEJhNf+C7bsDUtfj6tWiT+
-	 oFUnchbRY+PrC1Ef/F6Qn7dCuswN1Up2/L7/q2PBFHo+z0hiNdwF//raSXxCTPX8cYxVg
-	 sqin6epPQ8yGk28EFQqw3M1OGbnhMx9N9iRSbfFzZmymrV17GAEPMrEMxisijmkmeNH5Q
-	 DdAlnRluW+ca817sKDOm/SOv0efI4pU/Cf4fX80JoFU9GrKMQYgm9MOXVMhzgpyk1Ig==
+	bh=dgrHCuDJnbtPR7u+3NWd60PWg1h/9OvoC3YLPNhdMoI=;
+	b=5NqiuZYc9rrGWEdBFHpevetvsKnTqBJNd/ldhPzQpThquj7s2dgB1nTC8u1Uzd2HyM2d
+	 4M+lOGsT3nUOUoEii2n6TwvTk1KUDVX0Nkd7Stj8zRiRAGRk4IW6vBgoouPLrl//oAlJb
+	 kBl3tuCg62mww1t6cuowXWD6eFY14bJxQ/gxiEPAj+hwxjdp7sP+PyPYwjJZKdItWSQKv
+	 vdEWaZbqAAeQG2fHYNMT7fYKkltHviUGTW+GNY+qCO+ZjCPebcCGLgPDalVpT0NwEHiUQ
+	 XnFG6p+oRjD8he5DqJyToZn966SEm+F+Q+sFH4wcOkIrdN7NO7NLJIyD4JWGKqMXIJQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dQl+nO6E;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkxdlxQb;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00374606A32D;
-	Fri,  6 Nov 2026 09:59:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9E54606A326;
+	Fri,  6 Nov 2026 10:04:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dQl+nO6E
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12A931F008A1;
-	Fri,  6 Nov 2026 09:59:06 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkxdlxQb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00A51F008A3;
+	Fri,  6 Nov 2026 10:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793959146;
-	bh=URtsFZrOncTBadDaPbRBozwKL5R8OwhE2UgxEKs7KTQ=;
+	s=k20260515; t=1793959447;
+	bh=dgrHCuDJnbtPR7u+3NWd60PWg1h/9OvoC3YLPNhdMoI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dQl+nO6E40aTdSZOvAHhiESg8uo2SvxKnudxK4416vR2YqkIy5Mja/W4FoKsq34V4
-	 90Fqi0kSok5RZNlUf36DklI+GkQ+Hbc94GmTolIW7Ub4EE7oYG+ICfDm/Oi21Rvg/b
-	 YhQqNyRUVEB6lR2MuPwuvC5GMiEFsLn9N8qfqAkXG/vNjKahI7pLjIP8vv5ZwXiLjj
-	 7HFAetA6VPboTwe9JR+80zEBUAkJa0xnSnPbvZGsmr+Y8dkg0yv+D2rV9cc/SjnsKR
-	 qjAmFOf0paqiw+WML7PpVWfCY+s9Y4B0bsJ0f/aeDJgNB+Q3VJVLqHDhYggKmIOGjJ
-	 YXjmUeqkFSXoA==
-Message-ID: <sashiko-outbox-201165@kernel.org>
+	b=kkxdlxQbTEqcGLzcidDZF0+I7GkyRxa/iObrhwLPl+BTpsjPOyMapF4t5BghYMtuL
+	 qHL2tbL0UvrtovSKpLbLY+PfVWgC8MM5nM+jpx6X4A0XlRWVnEyq3Nmdy2rXBMvHc7
+	 0FMPFp1W6djUzyBkwPyPb5Q58WQqRK+2YgbBRpjs5y8pDyW5iE7WAJDI24VuDVS47j
+	 gseHJvRWOdfPbvu0tjOTuRRmHYsBd3+SNfFgJrzwWO9e1jDkB19UpgzUrkhCgoajm8
+	 jQu3SXEKYJgZAXPJTU/EoWbcqBMBMW3mqQaRyt9xH4wKhFDmoFv0QrM9uJbPta5Uxg
+	 fDqk2gU5mlA+w==
+Message-ID: <sashiko-outbox-201169@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 21/25] mmc: sdhci-of-dwcmshc: add MT2824 tuning and
- HS400 support
+Subject: Re: [PATCH 20/25] mmc: sdhci-of-dwcmshc: add MT2824 support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QmVub8OudCBNb25pbg==?= <benoit.monin@bootlin.com>
 Cc: devicetree@vger.kernel.org, linux-phy@lists.infradead.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, vkoul@kernel.org, neil.armstrong@linaro.org, olteanv@gmail.com
-In-Reply-To: <20261106-mt2824-v1-21-86087eaf5af4@bootlin.com>
+In-Reply-To: <20261106-mt2824-v1-20-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
- <20261106-mt2824-v1-21-86087eaf5af4@bootlin.com>
+ <20261106-mt2824-v1-20-86087eaf5af4@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 09:59:05 +0000
+Date: Fri, 06 Nov 2026 10:04:06 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -61,163 +60,81 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issues to consider:
-- [High] mmc: sdhci-of-dwcmshc: improper HS400 PHY DLL handling in
-  mt2824_set_clock()
-- [Medium] mmc: sdhci-of-dwcmshc: incomplete error rollback in
-  mt2824_execute_tuning()
-- [Low] mmc: sdhci-of-dwcmshc: duplicate PHY DLL register macros for
-  MT2824
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] mmc: sdhci-of-dwcmshc: missed reset in
+  mt2824_set_uhs_signaling()
 --
 
-commit 6e69732340199284e68817329ed4f3bf3f474149
+commit f6f9a7802c2857e3d3e847c6a2b7339cbc357a08
 Author: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
 
-mmc: sdhci-of-dwcmshc: add MT2824 tuning and HS400 support
+mmc: sdhci-of-dwcmshc: add MT2824 support
 
-This commit adds software tuning over the 128-tap sampling delay line, a
-filter for stray data interrupts during tuning, and manual PHY DLL locking
-for HS400 mode on the Metanoia MT2824 controller.
+This commit adds support for the Synopsys DWC MSHC controller and PHY on
+the Metanoia MT2824 SoC, including card type probing, voltage switching,
+and workarounds for HOST_CONTROL2 writes and clock stabilization.
 
 > diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci=
 -of-dwcmshc.c
-> index cb248fc572e21..324ae93295af0 100644
+> index 09702022e7087..cb248fc572e21 100644
 > --- a/drivers/mmc/host/sdhci-of-dwcmshc.c
 > +++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
 [ ... ]
-> @@ -98,6 +103,10 @@
->  #define MT2824_PHY_TXSLEW_P_STROBE		0x3
->  #define MT2824_PHY_SMPLDL_CNFG			0x0c
->  #define MT2824_PHY_ATDL_CNFG			0x0c
-> +#define MT2824_PHY_DLL_CNFG1			0x20
-> +#define MT2824_PHY_DLLDL_CNFG			0x60
-> +#define MT2824_PHY_DLL_LOCKED			BIT(0)
-> +#define MT2824_PHY_DLL_LOCK_ERR			BIT(1)
-
-[Severity: Low]
-This isn't a bug, but these macros duplicate the Synopsys DWC MSHC PHY DLL
-definitions already present in this file (PHY_DLL_CNFG1_SLVDLY_MASK /
-PHY_DLL_CNFG1_SLVDLY, PHY_DLLDL_CNFG_SLV_INPSEL_MASK /
-PHY_DLLDL_CNFG_SLV_INPSEL, DLL_LOCK_STS, and DLL_ERROR_STS), while
-mt2824_set_dll() already uses the shared PHY_DLL_*_R register offsets.
-
+> @@ -2108,6 +2122,470 @@ static const struct sdhci_ops sdhci_dwcmshc_k230_=
+ops =3D {
 [ ... ]
-
-> @@ -2271,6 +2281,38 @@ static int mt2824_phy_init(struct sdhci_host *host=
-, bool v1v8)
->  	return 0;
->  }
-> =20
-> +/* HS400 needs the PHY DLL locked on the card clock; lock it by hand */
-> +static void mt2824_set_dll(struct sdhci_host *host)
+> +/*
+> + * A timing change must write the new bus speed mode to HOST_CONTROL2.
+> + * Reset the CMD and DATA lines after the write, while the card clock is
+> + * off, so that the next command gets a good response.
+> + */
+> +static void mt2824_set_uhs_signaling(struct sdhci_host *host,
+> +				     unsigned int timing)
 > +{
-> +	u16 clk;
-> +	u8 status;
-> +	int ret;
+> +	struct sdhci_pltfm_host *pltfm_host =3D sdhci_priv(host);
+> +	struct dwcmshc_priv *dwc_priv =3D sdhci_pltfm_priv(pltfm_host);
+> +	u32 reg =3D dwc_priv->vendor_specific_area1 + DWCMSHC_HOST_CTRL3;
+> +	u16 ctrl2 =3D sdhci_readw(host, SDHCI_HOST_CONTROL2);
+> +	u8 ctrl;
 > +
-> +	clk =3D sdhci_readw(host, SDHCI_CLOCK_CONTROL);
-> +	clk &=3D ~SDHCI_CLOCK_CARD_EN;
-> +	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+> +	ctrl =3D sdhci_readb(host, reg);
+> +	ctrl &=3D ~MT2824_HOST_CTRL3_NEGEDGE_DATAOUT;
+> +	if (timing =3D=3D MMC_TIMING_MMC_DDR52 ||
+> +	    timing =3D=3D MMC_TIMING_UHS_DDR50)
+> +		ctrl |=3D MT2824_HOST_CTRL3_NEGEDGE_DATAOUT;
+> +	sdhci_writeb(host, ctrl, reg);
 > +
-> +	sdhci_writeb(host, MT2824_PHY_DLL_CNFG1, PHY_DLL_CNFG1_R);
-> +	sdhci_writeb(host, MT2824_PHY_DLLDL_CNFG, PHY_DLLDL_CNFG_R);
-> +
-> +	sdhci_enable_clk(host, clk);
-> +	usleep_range(10, 20);
-> +
-> +	sdhci_writeb(host, PHY_DLL_CTRL_ENABLE, PHY_DLL_CTRL_R);
-> +	ret =3D read_poll_timeout(sdhci_readb, status,
-> +				status & MT2824_PHY_DLL_LOCKED, 10, 150000,
-> +				false, host, PHY_DLL_STATUS_R);
-> +	if (ret) {
-> +		dev_err(mmc_dev(host->mmc), "PHY DLL did not lock: 0x%02x\n",
-> +			status);
-> +		return;
-> +	}
-> +
-> +	if (status & MT2824_PHY_DLL_LOCK_ERR)
-> +		dev_err(mmc_dev(host->mmc), "PHY DLL locked with error: 0x%02x\n",
-> +			status);
-> +}
-[ ... ]
-> @@ -2332,6 +2374,11 @@ static void mt2824_set_clock(struct sdhci_host *ho=
-st, unsigned int clock)
->  	if (clock)
->  		mt2824_enable_clk(host, sdhci_calc_clk(host, clock,
->  						       &mmc->actual_clock));
-> +
-> +	if (clock && host->timing =3D=3D MMC_TIMING_MMC_HS400) {
-> +		mt2824_set_dll(host);
+> +	dwcmshc_set_uhs_signaling(host, timing);
+> +	if (sdhci_readw(host, SDHCI_HOST_CONTROL2) !=3D ctrl2)
 > +		dwcmshc_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
-> +	}
->  }
-
-[Severity: High]
-Does mt2824_set_clock() try to lock the HS400 PHY DLL at 52 MHz and then
-fail to re-lock it when the clock is raised to 200 MHz?
-
-During HS400 selection in mmc_select_hs400() (and mmc_select_hs400es()),
-the MMC core calls mmc_set_timing(host, MMC_TIMING_MMC_HS400) while
-host->clock is still 52 MHz, before calling mmc_set_bus_speed(card) to
-switch to 200 MHz.  Because mt2824_set_clock() only checks for a non-zero
-clock in MMC_TIMING_MMC_HS400, the first call enables PHY_DLL_CTRL_R at
-52 MHz.  Neither mt2824_set_clock() nor mt2824_set_dll() ever writes
-PHY_DLL_CTRL_DISABLE to PHY_DLL_CTRL_R, so when mmc_set_bus_speed() later
-calls mt2824_set_clock() at 200 MHz, the clock is stopped and changed
-while the DLL stays enabled, and writing PHY_DLL_CTRL_ENABLE again never
-creates a 0-to-1 enable transition to lock onto the 200 MHz clock.
-Leaving HS400 (such as via mmc_hs400_to_hs200()) also leaves the DLL
-enabled at lower speeds.
-
-Should PHY_DLL_CTRL_R be disabled before changing the clock, and only
-configured and enabled when host->timing is MMC_TIMING_MMC_HS400 and the
-clock is above 52 MHz?
-
-[ ... ]
-
-> @@ -2460,6 +2507,156 @@ static void mt2824_hw_reset(struct sdhci_host *ho=
-st)
-[ ... ]
-> +	/*
-> +	 * AT_CTRL_R must not be written while SAMPLE_CLK_SEL is set: enable
-> +	 * software tuning first, then select the tuned sampling clock.
-> +	 */
-> +	at_ctrl =3D sdhci_readl(host, at_ctrl_reg);
-> +	sdhci_writel(host, at_ctrl | AT_CTRL_SW_TUNE_EN, at_ctrl_reg);
-> +	ctrl2 =3D sdhci_readw(host, SDHCI_HOST_CONTROL2);
-> +	sdhci_writew(host, ctrl2 | SDHCI_CTRL_TUNED_CLK, SDHCI_HOST_CONTROL2);
-> +	/*
-> +	 * That HOST_CONTROL2 write breaks the response of the next command:
-> +	 * send one tuning command for nothing before the scan.
-> +	 */
-> +	mmc_send_tuning(host->mmc, opcode, NULL);
-> +	host->ops->reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
-[ ... ]
-> +fail:
-> +	/* clear SAMPLE_CLK_SEL before AT_CTRL_R is written again */
-> +	sdhci_reset_tuning(host);
-> +	sdhci_writel(host, at_ctrl, at_ctrl_reg);
-> +	host->ops->reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
-> +	sdhci_end_tuning(host);
-> +	WRITE_ONCE(dwc_priv->flags, dwc_priv->flags & ~FLAG_SW_TUNING);
-> +	return ret;
 > +}
 
 [Severity: Medium]
-If a re-tuning pass fails after an earlier tuning pass succeeded, does the
-fail path leave AT_CTRL_SW_TUNE_EN enabled with the delay line stuck at the
-last scanned phase?
+Can a driver strength change write to the low byte of SDHCI_HOST_CONTROL2
+without triggering the CMD and DATA line reset here?
 
-A successful mt2824_execute_tuning() call leaves AT_CTRL_SW_TUNE_EN set in
-at_ctrl_reg, so on a subsequent tuning run at_ctrl is read with
-AT_CTRL_SW_TUNE_EN already set.  If that scan fails, writing at_ctrl back
-verbatim does not clear AT_CTRL_SW_TUNE_EN, leaving software tuning active
-with DWCMSHC_AT_STAT set to phase 127.  In addition, sdhci_reset_tuning()
-modifies the low byte of SDHCI_HOST_CONTROL2 while the card clock is
-enabled without a dummy command or stopping the card clock around the
-reset, which on this controller breaks the response of the next command.
+In sdhci_set_ios(), the updated driver type bits (SDHCI_CTRL_DRV_TYPE_MASK,
+in the low byte of SDHCI_HOST_CONTROL2) are written before
+set_uhs_signaling() is called:
+
+drivers/mmc/host/sdhci.c:sdhci_set_ios() {
+    ...
+			sdhci_writew(host, ctrl_2, SDHCI_HOST_CONTROL2);
+			host->drv_type =3D ios->drv_type;
+		}
+
+		host->ops->set_uhs_signaling(host, ios->timing);
+    ...
+}
+
+Because mt2824_set_uhs_signaling() samples ctrl2 after that write has
+already happened, changing ios->drv_type via mmc_set_driver_type() while
+ios->timing is unchanged leaves SDHCI_HOST_CONTROL2 equal to ctrl2 across
+dwcmshc_set_uhs_signaling(). The reset is then skipped and the next
+command (such as CMD6 during HS200 or UHS-I initialization) gets a broken
+response.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-mt2824-v1-=
-0-86087eaf5af4@bootlin.com?part=3D21
+0-86087eaf5af4@bootlin.com?part=3D20
