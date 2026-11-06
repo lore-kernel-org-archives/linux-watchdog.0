@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793958258;
-	b=OUhTFS3VhgM0V9H8DSleppGaJBzkkN2hb8CYfF+MH1uRnIDGhG4W9CbfR0eolyCv4oSc
-	 j5PUs3ido+h82O3hbgxyObcSQfKUTdtjXV4GGnkHObOl7a/U65JNVbLhcfOgmjm4GPoJG
-	 9S+geHqNsusHCr5OOltS/aXrIlHzFRbDfGf2Ta07W4SKrdRBBaFQk+ptSNRxtfJvmRB9E
-	 etmlFUyzJxqjrA9OQi5DhZr6gOAyV3dP3bG3dNHblqTbyQKJFnc/Yv50jnNua7gqEjLjT
-	 sSgqcRMAMFXmE24FfAX17r3wassg5lxKrFd4MXGTZkJIMY0jk9ujwBz3ews0zIyvtUw==
+	t=1793958648;
+	b=IAxCgYFDjqO8wtv6TcDdhEeyJVPLcjLTz/dMhOmuZm5ZAOPT5CpdXzvi5HkgCZkHFuqP
+	 D1vj5PY7UR3mIaEMywzYXTOUSyABqmFMuyNRY71lMEchBzNSUKdMBEYi+3NfQB/ZlvR5V
+	 YyqrPgg1iYsljleMoSbRS2i7F71GItNvsAPFQSmt0ZPRK9hr/h45sjXt0XAv8YXCjK+3/
+	 wtNh7ionAtUonF8wGVSrWb8zMZdzPcvRzI11oQbEiabK9o58kccRzVXKgM8odpxycMibT
+	 xjbjNsGyEF8RdytS6JgJ3A8L1Ywir/bYs2fthMuq4mYd6wGO2HY4n7vNrc4YQnt/S/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793958258;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793958648;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=k/B0v4ZKFTMYn7uuqyANnYN0nteQ0y0bMIFLQuE39Ck=;
-	b=ss9JlVeZfKau5j2DHKOBMPOPw+Nn3cYNUlLG/UHGwldN6IrMFIqe88xvd+xuFkbweu0r
-	 jdDCAFGOBX13syE/xNp29BEwPEFheWlhoVsFRatsctPqYSOxMn2WOwJMAxKbYceaWXNgE
-	 N8Cd7+NLHZOcAE0Mk+2VzV33VFh4YIXE7wcK5uwIqeHvG1a1xBzhNoVAKIUml/nDxdoew
-	 mRMz8oobG4qWEJbCFihp7303K9tiHPW9URMc1KBhh0msxgmutAyfnCBMw6MbRxEV4dm3e
-	 TqDGBcsitNgYYShw6cLwu9Dk1Fp0heSMp+OZNGyeXh31K3md44iUnnTBwlmS0wSIeew==
+	bh=+PeAqe5CPXxdSOZLrj9lW/HMctWWJka2EQwhjd7PBpk=;
+	b=QF+uaDwAp/zaXbxuTygDu+Sdk0mkTvrcRaBX8ujDKXHjxsqLsAC5P3sHTojXVS+nxsRy
+	 7SfmYP/miWpCBoC3+zi3k4e4US/hxt7osSeuTCV/u8GoVndmQ5nDJ+NBA+vd7T7EFLHxF
+	 d7PZbVOTjEfvUPq9z450gx+Rkf0nO4W5IpXoOBqgPmNewcI/GpXVt0Kg9Mb0HI0oKdHT8
+	 vsHoEQrMPaWqKANA4ECmTvo3C0mKDi8Y1Vyd9UfgqlOoOOIG9S2Vl/EnUrxOBisEPDkqt
+	 Tx/aquEwnQ0BpTtaIAPB67Wynbxxe4HAaY6lHAeJwrICB8zyB5t4LKPaRfxZTU27KKA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="KwC/LQpb";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ki2Y6VM1;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8EB9606A326;
-	Fri,  6 Nov 2026 09:44:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2E226083608;
+	Fri,  6 Nov 2026 09:50:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KwC/LQpb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A641F0089F;
-	Fri,  6 Nov 2026 09:44:16 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ki2Y6VM1
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78831F0089F;
+	Fri,  6 Nov 2026 09:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793958257;
-	bh=k/B0v4ZKFTMYn7uuqyANnYN0nteQ0y0bMIFLQuE39Ck=;
+	s=k20260515; t=1793958647;
+	bh=+PeAqe5CPXxdSOZLrj9lW/HMctWWJka2EQwhjd7PBpk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KwC/LQpb8grt7sA2bfP5+IvDHwxcSlZgHMNYngV5PKxoqnzPfYbq6uMFbZR1tHiIu
-	 XDJXR13och6Ape8ytrjFOpP5288cS6pL3AFMBAcKhfAlCFWUsgrvAhziht5898WEF4
-	 2r5uWDSrofDee9ZHk1FmA3mSgwoj2Esln+umFWktOSj2HRhy8PZ9wLQJBsMGUn/nfN
-	 hbNClzjJeAlycL788xKw5PT8fpYvi4Ed/oR/aYwGwVl8LZ3Ozmv9CzinxD6sXa+Xat
-	 jtxOzvAJqoRgPmLJ47g8YJGxU9AK3b1LzaWhkXhHvSqXrXShnQpy2M6zhATJKNZu+b
-	 UMMmYlX5Z1NyA==
-Message-ID: <sashiko-outbox-201147@kernel.org>
+	b=ki2Y6VM1yJg+RmSJZlGbytEO7ho2Ewa2faoib1xLWl/f4rDtUZ5yg9+dxnsnMYUXx
+	 r/FE9kk7ay4zXyc6Fe05bsAtSnag8b1NzupzBJJ5t/pPmq4bd+D1SK5LZpfSmZx1uY
+	 Md76NMuFif5M5bdZ4fU0kTIULQpj5hbJsEOhpEgJcW7AVh7xEUvL7MaBPSaJzxGvLu
+	 MTgjsyjPYI4OHeiBqmgMUQn8i27NUw3Ww08NtSziesS/jhfIjxvQ5Fn7djTb4BuoVG
+	 G3koUXls1RxaSEZDlPGO5oGJWQWH8UEjCmZ+fcGcz9+uPnc7C8wqpnnPwEiaI1tQwz
+	 ZDGZlrk16KRLg==
+Message-ID: <sashiko-outbox-201154@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 04/25] dt-bindings: power: reset: add Metanoia MT2824
- reboot
+Subject: Re: [PATCH 24/25] riscv: add Metanoia MT2824 SoC and MT5824 EVB
+ support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QmVub8OudCBNb25pbg==?= <benoit.monin@bootlin.com>
 Cc: devicetree@vger.kernel.org, linux-phy@lists.infradead.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, vkoul@kernel.org, neil.armstrong@linaro.org, olteanv@gmail.com
-In-Reply-To: <20261106-mt2824-v1-4-86087eaf5af4@bootlin.com>
+In-Reply-To: <20261106-mt2824-v1-24-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
- <20261106-mt2824-v1-4-86087eaf5af4@bootlin.com>
+ <20261106-mt2824-v1-24-86087eaf5af4@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 09:44:15 +0000
+Date: Fri, 06 Nov 2026 09:50:46 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -61,90 +61,62 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Low] dt-bindings: power: reset: strict style errors in
-  metanoia,reboot.yaml
-- [Low] dt-bindings: power: reset: metanoia,reboot splits single
-  register into node
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] riscv: dts: metanoia: invalid uart0/uart1 aliases in
+  mt5824-evb.dts
 --
 
-commit 07f8018b51cb794baf4c572ad7951597d891f410
+commit 9f82e60e9d27daf0d2b50c91457b33d4fb60e507
 Author: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
 
-dt-bindings: power: reset: add Metanoia MT2824 reboot
+riscv: add Metanoia MT2824 SoC and MT5824 EVB support
 
-This commit adds a Devicetree binding schema for the Metanoia MT2824 warm
-reboot controller register used by machine-mode firmware.
+This commit adds device tree files for the Metanoia MT2824 SoC and the
+MT5824 evaluation board.
 
-> diff --git a/Documentation/devicetree/bindings/power/reset/metanoia,reboo=
-t.yaml b/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml
+> diff --git a/arch/riscv/boot/dts/metanoia/mt5824-evb.dts b/arch/riscv/boo=
+t/dts/metanoia/mt5824-evb.dts
 > new file mode 100644
-> index 0000000000000..2670fe7ab93f9
+> index 0000000000000..d0e8eb0a49a43
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml
-> @@ -0,0 +1,34 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/power/reset/metanoia,reboot.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +++ b/arch/riscv/boot/dts/metanoia/mt5824-evb.dts
+> @@ -0,0 +1,81 @@
+> +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+> +/*
+> + * Copyright (C) 2026 Metanoia Communications Inc.. All rights reserved.
+> + */
 > +
-> +title: Metanoia MT2824 Reboot Controller
+> +/dts-v1/;
 > +
-> +maintainers:
-> +  - Jun Chang <jun.chang@metanoia-comm.com>
+> +#include "mt2824.dtsi"
 > +
-> +description:
-> +  The Metanoia MT2824 reboot controller provides a system warm reboot th=
-rough
-> +  a memory-mapped register. It is used by the firmware in machine mode.
+> +/ {
+> +	model =3D "Metanoia MT5824 EVB";
+> +	compatible =3D "metanoia,mt5824-evb", "metanoia,mt2824";
 > +
-> +properties:
-> +  compatible:
-> +    const: metanoia,mt2824-reboot
+> +	aliases {
+> +		uart0 =3D &serial0;
+> +		uart1 =3D &serial1;
+> +		spi0 =3D &spi0;
+> +		spi1 =3D &spi1;
+> +		spi2 =3D &spi2;
+> +	};
 > +
-> +  reg:
-> +    maxItems: 1
+> +	chosen {
+> +		stdout-path =3D "uart0:115200n8";
+> +	};
 
-[Severity: Low]
-Should this warm-reboot register and the adjacent reset controller
-register be described as a single hardware block instead of separate
-Devicetree nodes?
+[Severity: Medium]
+Should the UART aliases in /aliases and stdout-path be named serial0 and
+serial1 instead of uart0 and uart1?
 
-This binding models an 8-byte register range at 0x10000004 for
-machine-mode firmware, while
-Documentation/devicetree/bindings/reset/metanoia,reset.yaml models the
-immediately adjacent 4-byte register at 0x1000000c for the OS reset
-driver:
-
-Documentation/devicetree/bindings/reset/metanoia,reset.yaml:
-    rst: rst-controller@1000000c {
-        compatible =3D "metanoia,mt2824-reset";
-        reg =3D <0x1000000c 0x4>;
-        #reset-cells =3D <1>;
-    };
-
-Carving individual registers of the same IP block into separate nodes
-encodes software driver boundaries into the Devicetree ABI.
-
-[ ... ]
-
-> +examples:
-> +  - |
-> +    reboot: reboot@10000004 {
-> +      compatible =3D "metanoia,mt2824-reboot";
-> +      reg =3D <0x10000004 0x8>;
-> +    };
-
-[Severity: Low]
-Does this example pass scripts/dtc/dt-check-style --mode=3Dstrict?
-
-The example defines an unreferenced label (reboot:) and indents the node
-properties by 2 spaces instead of 4, which triggers unused-labels and
-indent-unit-strict warnings.  Also, should the schema filename and $id be
-metanoia,mt2824-reboot.yaml to match the sole compatible string?
+The devicetree serial binding (serial.yaml) requires UART aliases to use
+the serialN naming convention, so uart0 and uart1 fail dtbs_check
+validation.  In addition, __uart_read_properties() looks up the "serial"
+alias stem via of_alias_get_id(dev_of_node(dev), "serial") when assigning
+port->line, causing the uart0 and uart1 alias indices to be ignored.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-mt2824-v1-=
-0-86087eaf5af4@bootlin.com?part=3D4
+0-86087eaf5af4@bootlin.com?part=3D24
