@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793989840;
-	b=RgTXTaH8HQS6//GTP52KhK87L0P+VQYo+qUmrI7MvDHvGDeuLh7M9yy4Q9soDPFAZQ8l
-	 rDOIvk3HcO8q4P99ykz2B8FSzz/YDdWCOogqkRd78NwQEddxeUQVgpLYk9fUB+GT+N0yW
-	 UgSDv/UwHhTybqnS2TqsXg1mfKvFCMhfmZQdAIB5/Mqbpl7KPqzbNEOrf9eU13UyvUHzE
-	 wtHzn70kR8YE7BEHxNmdQ87Zs8AWUcInMANl/tbdt0YNO7ffkYF/aAuQg4O5lgdJodlD7
-	 n+KybqxVH/0JRHQqf+bPeeDDD5rqv6Kea9OCRl12p5WGMt7ZUlNEvkZvHDQ1PrGYCrQ==
+	t=1793990771;
+	b=woGVF7rY+VUyIPn1j9SpewmShDsIYC45fblmDipRT2mFoJCx+DBmQgM1rTwUilZ+L1Gr
+	 rU5tksvVyc0LS956LA/sy3ZbM+LlC44JlblUFCXsuzGnbtElybNzoLNatUP6CzUje+VNI
+	 Log9+XuN9VY5MvRFcnoBhiYzAy9J15Z0hj5/MQMompUnb/YYAHsDo1a3V37bFTRdpdl6w
+	 o+Lw6Ye3MEKUDvhtu/5KboVYeOiBX8AQcnUvu1E/9paz9wPc5OKDxWhgxblmvdiojCizY
+	 5ql3el2YdlR78ZhuvememeZtxcHyZcFQZXYXhMB5HzCn2VvE+5fMqRcA4su/3T83iCw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793989840;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793990771;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=jN+SIR2+8EH7AFSQyftGGlUBzcqrVp7rY3xpDZWw1iA=;
-	b=f3kj5zG7bsLB1AzQuWc32z+vMJRKdwxjRk5oc0G+NuqHHqDILL/7wf8cgZK/e8YA6t2h
-	 jO/2CPmRQp76zZJrdL0nBmvtusbOV03nDuAm4w6SmXag2o9pm1LOhINA26S9l26zA1ct3
-	 Y3uPdlzuUwGaGUDGiaFMtUHi3CB87q16uAVnN+qEzJrl2izZcnC5ptqCH3eYdzOXLQ4ov
-	 ksFqftLu7fwBOqJGeoQx2pvRthkS9XEHdipE+5FiUq0NKMBi+3kpxqVSayr7HhMcRBqbf
-	 woaFmvul02EhXuOqSFTxNbYTyA7vL+4vqHQLafSSof+6dUgNQOVGUN8HRor9JAbQKhw==
+	bh=6TYaT587yULVEsFdUlV21e0IlEIkrM/S8nTlyyj5duE=;
+	b=INVmNIV1jmM7AtGG51HlofAW7mmgs22h9X4OieZJVOT5ngbKoXpLLijOYtdcu/z2ZuzD
+	 0q4fhLQB8drxX73XrInQ/tx+VgA683rjLefewNbuSu7K6qS+YMyNKnCQcwbctUUxIQjni
+	 j+BBrs76SvU/12R4q2MPOkwKCDWacRq5i1xNOWUIHh+4LUyqWXeZOIVx0iBipyDgeAgAE
+	 TxHa3nxz7sr3xNjkZr/RCnD84feWOjPxuPANeQuHTI8NOhAauWiPCKe+6E/Md5uh6RLn+
+	 k9s52Rd4zdr+l/cDJ/ATzEhSTn1OXIX6lES9XjV9YcJzg5Ja7/YXz7Jgzesktv4YhAQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AnBXyQOK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ag0eQnT6;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43E02606A326;
-	Fri,  6 Nov 2026 18:30:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D457606A329;
+	Fri,  6 Nov 2026 18:46:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AnBXyQOK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF601F0089F;
-	Fri,  6 Nov 2026 18:30:32 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ag0eQnT6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74ED11F0089F;
+	Fri,  6 Nov 2026 18:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793989839;
-	bh=jN+SIR2+8EH7AFSQyftGGlUBzcqrVp7rY3xpDZWw1iA=;
+	s=k20260515; t=1793990770;
+	bh=6TYaT587yULVEsFdUlV21e0IlEIkrM/S8nTlyyj5duE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AnBXyQOKrP/zbbQW9KfIjdIXhrT+R6/JiAFOXixdvx+32awVrrUjr/01Gg1pIarfS
-	 4xyhnd+UO9+7fuYB4kZH2/tnHfriCCnsIZxNhjdL/kzvVOY4UBXwIHwAem8wQV+8Ry
-	 BOgb7K7zl8c7PCt3ZW7zWOBmGRScqNKOwVOXQ2+gAlnnfxms8fvs03s1/YcXOrIZNw
-	 tijMqy1C32QHM4FJo6Q8s8v3I4awlRSlNbOiPqnauOD2C4fQ/eeX11AWMsOeSxlUG2
-	 u4g3Z8h4HXQPkwBIK6hisbbrawdMMnz9wGVYApWqzwx9DEh0jLBq0wXurtP71VBj8C
-	 bzxdFsFEttZrQ==
-Date: Fri, 6 Nov 2026 18:30:30 +0000
+	b=ag0eQnT68Qn48+lD/gKwyNvXHdwktPEYZRXu+mkFQY9vzL7wiMhYgWeuG+JY3KsEF
+	 gI3XCn0aWsviJENdO79ADtBJ4wfZIqOpW7bHvPyXu5Yx7OAaI64goY95XQoscGuga3
+	 RiRZJJ+z/HCAmj4OreqwgRKM+/JYt0+pMQU8Vi4xBe9mSgJSOH8KtXW9Mw/WQ3o4OY
+	 mrux7OQRSU/obswR+R8vfPypl/xQz/SLtQ2oRx1EySjeD+3V+DGTpGrrAHC+sqD+48
+	 zU0B/50JD3C7b1U4wU/hmZFCOReDSKirjZePi9z/7MbizoMhTqfACiM30W+Y2YprUi
+	 C/pdfJQ6qj/LQ==
+Date: Fri, 6 Nov 2026 18:46:01 +0000
 From: Conor Dooley <conor@kernel.org>
 To: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>
 Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -72,11 +72,10 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Paul Walmsley <paul.walmsley@sifive.com>, linux-mmc@vger.kernel.org,
 	linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 24/25] riscv: add Metanoia MT2824 SoC and MT5824 EVB
- support
-Message-ID: <20261106-starter-chowtime-7799df8249fa@spud>
+Subject: Re: [PATCH 00/25] riscv: add support for the Metanoia MT2824 SoC and
+ MT5824 EVB
+Message-ID: <20261106-annotate-roundup-3cdf03205a91@spud>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
- <20261106-mt2824-v1-24-86087eaf5af4@bootlin.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -87,527 +86,129 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="gVj6kT/nEeV7IrJz"
+	protocol="application/pgp-signature"; boundary="O+KStvozO2m15yOI"
 Content-Disposition: inline
-In-Reply-To: <20261106-mt2824-v1-24-86087eaf5af4@bootlin.com>
+In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 
---gVj6kT/nEeV7IrJz
+--O+KStvozO2m15yOI
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 06, 2026 at 10:30:21AM +0100, Beno=EEt Monin wrote:
-> Add the device tree for the Metanoia MT2824, a dual-core Andes
-> AX45MP-based SoC, and for the MT5824 evaluation board.
+On Fri, Nov 06, 2026 at 10:29:57AM +0100, Beno=EEt Monin wrote:
+> Hi all,
 >=20
-> The SoC device tree describes the CPUs and their L2 cache, the PLIC,
-> PLICSW and PLMT, the reset controller, the reboot controller, the
-> watchdog, two UARTs, the QSPI and eight SPI controllers, the DWC
-> MSHC MMC controller, and the USB2 controller.
+> This series adds initial upstream support for the Metanoia MT2824 SoC
+> and its MT5824 evaluation board.
 >=20
-> The MT5824 EVB enables the watchdog, the two UARTs, the MMC
-> controller, the QSPI port with its SPI-NOR flash, the first three SPI
-> controllers, and the USB controller.
+> The MT2824 is a dual-core RISC-V SoC built on Andes AX45MP cores. It
+> integrates two 8250-compatible UARTs, the Andes PLIC/PLICSW/PLMT interrupt
+> and timer blocks, the AX45MP L2 cache controller, a simple reset controll=
+er
+> and a system reboot controller, the ATCWDT200 watchdog, one QSPI and eight
+> ATCSPI200 SPI controllers, a Synopsys DWC MSHC 2.00a eMMC/SD controller,
+> and a Synopsys DWC2 USB2 host controller with a reset-only USB2 PHY.
 >=20
-> Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
+> The series is organised as:
+>=20
+> - patches 1-14 add the device tree bindings, the Metanoia vendor prefix,
+>   the RISC-V board schema and the SoC block compatibles
+> - patch 15 adds ARCH_METANOIA and selects the AX45MP errata
+> - patches 16-23 add the reset, SPI, watchdog, MMC, PHY and USB changes
+>   needed to build and probe on this SoC
+> - patch 24 adds the MT2824 SoC and MT5824 EVB device trees
+> - patch 25 adds the MAINTAINERS entry
+>=20
+> The ATCSPI200 driver gains optional interrupt support for PIO transfers:
+> when the controller IRQ is wired, the FIFOs and the end of transfer
+> are serviced from the handler, with a fallback to polling when no IRQ
+> is available.
+>=20
+> The DWC MSHC controller on the evaluation board is wired to either an
+> SD slot or an eMMC through a board jumper that the SoC cannot read. In
+> the absence of a fixed card type in the device tree, the driver probes
+> the eMMC first at 1.8 V and falls back to the SD slot at 3.3 V. The
+> controller also needs custom tuning and HS400 PHY DLL handling, which
+> is why it has its own sdhci_ops.
+>=20
+> The MT2824 SoC contains other controllers not yet exposed (I2C, GPIO,
+> pinctrl, Ethernet, DSP, ...). This first series allows accessing the
+> evaluation board via its serial console, and all its storage options
+> (SPI-NOR, eMMC, SD card). The watchdog and the USB port are also
+> available.
+>=20
+> The driver changes do not depend on the DTS at build time and are gated
+> on the new compatible strings. For merge ordering, the DTS depends on the
+> ARCH_METANOIA Kconfig entry (patch 15) and on the binding compatibles
+> being accepted. The patches can therefore go through their respective
+> subsystem trees, with the Kconfig, DTS and MAINTAINERS patches going
+> through the RISC-V tree once the driver and binding patches have landed.
+
+I kinda pointed it out elsewhere, but that's not actually the path for
+the Kconfig, dts and MAINTAINERS bits. They go via the soc tree, after
+being applied by a metanoia specific maintainer.
+
+>=20
+> The series is based on v7.4-rc1.
+>=20
 > Signed-off-by: Beno=EEt Monin <benoit.monin@bootlin.com>
 > ---
->  arch/riscv/boot/dts/Makefile                |   1 +
->  arch/riscv/boot/dts/metanoia/Makefile       |   2 +
->  arch/riscv/boot/dts/metanoia/mt2824.dtsi    | 330 ++++++++++++++++++++++=
-++++++
->  arch/riscv/boot/dts/metanoia/mt5824-evb.dts |  81 +++++++
->  4 files changed, 414 insertions(+)
->=20
-> diff --git a/arch/riscv/boot/dts/Makefile b/arch/riscv/boot/dts/Makefile
-> index 69d8751fb17c..8e1e987ea089 100644
-> --- a/arch/riscv/boot/dts/Makefile
-> +++ b/arch/riscv/boot/dts/Makefile
-> @@ -4,6 +4,7 @@ subdir-y +=3D andes
->  subdir-y +=3D anlogic
->  subdir-y +=3D canaan
->  subdir-y +=3D eswin
-> +subdir-y +=3D metanoia
->  subdir-y +=3D microchip
->  subdir-y +=3D renesas
->  subdir-y +=3D sifive
-> diff --git a/arch/riscv/boot/dts/metanoia/Makefile b/arch/riscv/boot/dts/=
-metanoia/Makefile
-> new file mode 100644
-> index 000000000000..7a685798d5a4
-> --- /dev/null
-> +++ b/arch/riscv/boot/dts/metanoia/Makefile
-> @@ -0,0 +1,2 @@
-> +# SPDX-License-Identifier: GPL-2.0
-> +dtb-$(CONFIG_ARCH_METANOIA) +=3D mt5824-evb.dtb
-> diff --git a/arch/riscv/boot/dts/metanoia/mt2824.dtsi b/arch/riscv/boot/d=
-ts/metanoia/mt2824.dtsi
-> new file mode 100644
-> index 000000000000..5f73c6d3760b
-> --- /dev/null
-> +++ b/arch/riscv/boot/dts/metanoia/mt2824.dtsi
-> @@ -0,0 +1,330 @@
-> +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-> +/*
-> + * Copyright (C) 2026 Metanoia Communications Inc.. All rights reserved.
-> + */
-> +
-> +#include <dt-bindings/interrupt-controller/irq.h>
-> +
-> +/ {
-> +	#address-cells =3D <0x02>;
-> +	#size-cells =3D <0x02>;
-> +	compatible =3D "metanoia,mt2824";
-> +
-> +	cpus: cpus {
-> +		#address-cells =3D <0x01>;
-> +		#size-cells =3D <0x00>;
+> Beno=EEt Monin (25):
+>       dt-bindings: vendor-prefixes: add Metanoia Communications
+>       dt-bindings: riscv: add Metanoia SoC-based boards
+>       dt-bindings: reset: add Metanoia MT2824
+>       dt-bindings: power: reset: add Metanoia MT2824 reboot
+>       dt-bindings: phy: add Metanoia USB2 PHY
+>       dt-bindings: cache: andestech,ax45mp-cache: add MT2824 compatible
+>       dt-bindings: interrupt-controller: sifive,plic-1.0.0: add Metanoia =
+MT2824
+>       dt-bindings: interrupt-controller: andestech,plicsw: add Metanoia M=
+T2824
+>       dt-bindings: timer: andestech,plmt0: add Metanoia MT2824
+>       dt-bindings: mmc: snps,dwcmshc-sdhci: add Metanoia MT2824
+>       dt-bindings: spi: andestech,ae350-spi: make DMA and interrupts opti=
+onal
+>       dt-bindings: spi: andestech,ae350-spi: add Metanoia MT2824
+>       dt-bindings: usb: dwc2: add Metanoia MT2824
+>       dt-bindings: watchdog: andestech,ae350-wdt: add Metanoia MT2824
 
-Non-hex here please.
+Other than the tag issues in most of these, riscv and dt wise this looks
+mostly fine. The reset/reboot stuff and probably missing clock support
+are the only real problems.
 
-> +		timebase-frequency =3D <20000000>;
-> +
-> +		cpu0: cpu@0 {
-> +			device_type =3D "cpu";
-> +			reg =3D <0x00>;
+Probably, I would split this series up into multiple smaller
+submissions. spi, mmc, phy, usb, watchdog at least should be their own
+mini series. clock/reset should probably be another, presumably also
+with the reboot thing. What's left (interrupts, timer, cache I think)
+can stay part of the dts series and probably go through the soc tree
+together. For interrupts and timer, the maintainers are usually not
+super responsive in terms of binding only series which is why they may
+go via soc.
 
-0x0 etc
-
-> +			compatible =3D "andestech,ax45mp", "riscv";
-> +			riscv,isa-base =3D "rv64i";
-> +			riscv,isa-extensions =3D "i", "m", "a", "f", "d", "c",
-> +					       "zicntr", "zicsr", "zifencei",
-> +					       "zihpm", "xandespmu";
-> +			mmu-type =3D "riscv,sv39";
-> +			clock-frequency =3D <900000000>;
-> +			i-cache-size =3D <0x8000>;
-> +			i-cache-sets =3D <0x100>;
-> +			i-cache-line-size =3D <0x40>;
-> +			i-cache-block-size =3D <0x40>;
-> +			d-cache-size =3D <0x8000>;
-> +			d-cache-sets =3D <0x80>;
-> +			d-cache-line-size =3D <0x40>;
-> +			d-cache-block-size =3D <0x40>;
-> +			next-level-cache =3D <&l2_cache>;
-> +
-> +			cpu0intc: interrupt-controller {
-> +				#interrupt-cells =3D <0x01>;
-> +				interrupt-controller;
-> +				compatible =3D "andestech,cpu-intc", "riscv,cpu-intc";
-> +			};
-> +		};
-> +
-> +		cpu1: cpu@1 {
-> +			device_type =3D "cpu";
-> +			reg =3D <0x01>;
-> +			compatible =3D "andestech,ax45mp", "riscv";
-> +			riscv,isa-base =3D "rv64i";
-> +			riscv,isa-extensions =3D "i", "m", "a", "f", "d", "c",
-> +					       "zicntr", "zicsr", "zifencei",
-> +					       "zihpm", "xandespmu";
-> +			mmu-type =3D "riscv,sv39";
-> +			clock-frequency =3D <900000000>;
-> +			i-cache-size =3D <0x8000>;
-> +			i-cache-sets =3D <0x100>;
-> +			i-cache-line-size =3D <0x40>;
-> +			i-cache-block-size =3D <0x40>;
-> +			d-cache-size =3D <0x8000>;
-> +			d-cache-sets =3D <0x80>;
-> +			d-cache-line-size =3D <0x40>;
-> +			d-cache-block-size =3D <0x40>;
-> +			next-level-cache =3D <&l2_cache>;
-> +
-> +			cpu1intc: interrupt-controller {
-> +				#interrupt-cells =3D <0x01>;
-> +				interrupt-controller;
-> +				compatible =3D "andestech,cpu-intc", "riscv,cpu-intc";
-> +			};
-> +		};
-> +	};
-> +
-> +	clocks {
-> +		ext_clk: ext-clk {
-> +			compatible =3D "fixed-clock";
-> +			#clock-cells =3D <0>;
-> +			clock-frequency =3D <20000000>;
-> +			clock-output-names =3D "ext-clk";
-> +		};
-
-Is the frequency here actually set by the soc, or actually by the board?
-If it says "ext", I assume it's not part of the soc.
-
-> +
-> +		pclk_div4: platform-clock-div4 {
-> +			compatible =3D "fixed-clock";
-> +			#clock-cells =3D <0>;
-> +			clock-frequency =3D <225000000>;
-> +			clock-output-names =3D "platform-clock-div4";
-> +		};
-> +
-> +		pll_soc_out3: pll-soc-out3 {
-> +			compatible =3D "fixed-clock";
-> +			#clock-cells =3D <0>;
-> +			clock-frequency =3D <180000000>;
-> +			clock-output-names =3D "pll-soc-out3";
-> +		};
-> +
-> +		usb_otg_ahb_clk: clock-usb-otg-ahb {
-> +			compatible =3D "fixed-clock";
-> +			#clock-cells =3D <0>;
-> +			clock-frequency =3D <60000000>;
-> +			clock-output-names =3D "otg";
-> +		};
-
-I'd much rather this not be merged until things like this are replaced
-by an actual clock controller, lest it appear in u-boot etc and then
-have the support break because it got swapped out for a clock
-controller.
-
-> +	};
-> +
-> +	soc: soc {
-> +		#address-cells =3D <0x02>;
-> +		#size-cells =3D <0x02>;
-> +		compatible =3D "simple-bus";
-> +		interrupt-parent =3D <&plic>;
-> +		ranges;
-> +
-> +		usb0: usb@4000000 {
-> +			compatible =3D "metanoia,mt2824-usb", "snps,dwc2";
-> +			reg =3D <0x0 0x04000000 0x0 0x100000>;
-> +			interrupts =3D <7 IRQ_TYPE_LEVEL_HIGH>;
-> +			clocks =3D <&usb_otg_ahb_clk>;
-> +			clock-names =3D "otg";
-> +			dr_mode =3D "host";
-> +			resets =3D <&rst 19>, <&rst 20>;
-> +			reset-names =3D "dwc2", "dwc2-ecc";
-> +			phys =3D <&usb2phy>;
-> +			phy-names =3D "usb2-phy";
-> +			hnp-disable;
-> +			srp-disable;
-> +			disable-over-current;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		mmcsd: mmc@4100000 {
-> +			compatible =3D "metanoia,mt2824-dwcmshc";
-> +			clocks =3D <&pll_soc_out3>;
-> +			clock-names =3D "core";
-> +			reg =3D <0x0 0x04100000 0x0 0x00100000>;
-
-ordering should be compatible -> reg
-
-> +			interrupts =3D <5 IRQ_TYPE_LEVEL_HIGH>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		l2_cache: cache-controller@a000000 {
-> +			compatible =3D "metanoia,mt2824-ax45mp-cache",
-> +				     "andestech,ax45mp-cache", "cache";
-> +			reg =3D <0x0 0x0a000000 0x0 0x40000>;
-> +			interrupts =3D <1 IRQ_TYPE_LEVEL_HIGH>;
-> +			cache-line-size =3D <64>;
-> +			cache-level =3D <2>;
-> +			cache-sets =3D <1024>;
-> +			cache-size =3D <0x40000>;
-> +			cache-unified;
-> +		};
-> +
-> +		plic: interrupt-controller@c000000 {
-> +			compatible =3D "metanoia,mt2824-plic", "andestech,nceplic100";
-> +			reg =3D <0x0 0x0c000000 0x0 0x400000>;
-> +			interrupts-extended =3D <&cpu0intc 0x0b>, <&cpu0intc 0x09>,
-> +					      <&cpu1intc 0x0b>, <&cpu1intc 0x09>;
-> +			interrupt-controller;
-> +			#address-cells =3D <0x00>;
-> +			#interrupt-cells =3D <0x02>;
-> +			riscv,ndev =3D <0x47>;
-> +		};
-> +
-> +		plmt: timer@c400000 {
-> +			compatible =3D "metanoia,mt2824-plmt", "andestech,plmt0";
-> +			reg =3D <0x0 0x0c400000 0x0 0x00400000>;
-> +			interrupts-extended =3D <&cpu0intc 0x07>,
-> +					      <&cpu1intc 0x07>;
-> +		};
-> +
-> +		plicsw: interrupt-controller@c800000 {
-> +			compatible =3D "metanoia,mt2824-plicsw", "andestech,plicsw";
-> +			reg =3D <0x0 0x0c800000 0x0 0x400000>;
-> +			interrupts-extended =3D <&cpu0intc 0x03>,
-> +					      <&cpu1intc 0x03>;
-> +		};
-> +
-
-> +		reboot: reboot@10000004 {
-> +			compatible =3D "metanoia,mt2824-reboot";
-> +			reg =3D <0x0 0x10000004 0x0 0x08>;
-> +		};
-> +
-> +		rst: reset-controller@1000000c {
-> +			#reset-cells =3D <1>;
-> +			compatible =3D "metanoia,mt2824-reset";
-> +			reg =3D <0x0 0x1000000c 0x0 0x04>;
-> +		};
-
-As pointed out, these are probably part of a syscon that I would imagine
-also includes some clocks or other features.
-
-By and large I think this is fine though..
-
-Thanks,
+Cheers,
 Conor.
 
-> +
-> +		watchdog: watchdog@10090000 {
-> +			compatible =3D "metanoia,mt2824-wdt", "andestech,ae350-wdt";
-> +			reg =3D <0x0 0x10090000 0x0 0x10000>;
-> +			clocks =3D <&ext_clk>;
-> +			andestech,clock-source =3D <0>;
-> +			timeout-sec =3D <10>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		serial0: serial@100e0000 {
-> +			compatible =3D "ns16550a";
-> +			reg =3D <0x0 0x100e0000 0x0 0x1000>;
-> +			interrupts =3D <17 IRQ_TYPE_LEVEL_HIGH>;
-> +			clocks =3D <&pclk_div4>;
-> +			current-speed =3D <115200>;
-> +			reg-shift =3D <0x02>;
-> +			reg-offset =3D <0x20>;
-> +			reg-io-width =3D <0x04>;
-> +			no-loopback-test;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		serial1: serial@100f0000 {
-> +			compatible =3D "ns16550a";
-> +			reg =3D <0x0 0x100f0000 0x0 0x1000>;
-> +			interrupts =3D <18 IRQ_TYPE_LEVEL_HIGH>;
-> +			clocks =3D <&pclk_div4>;
-> +			current-speed =3D <115200>;
-> +			reg-shift =3D <0x02>;
-> +			reg-offset =3D <0x20>;
-> +			reg-io-width =3D <0x04>;
-> +			no-loopback-test;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		qspi: spi@10120000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10120000 0x0 0x10000>;
-> +			interrupts =3D <13 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi0: spi@10130000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10130000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi1: spi@10140000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10140000 0x0 0x10000>;
-> +			interrupts =3D <19 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi2: spi@10150000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10150000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi3: spi@10160000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10160000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi4: spi@10170000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10170000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi5: spi@10180000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10180000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi6: spi@10190000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x10190000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		spi7: spi@101a0000 {
-> +			compatible =3D "metanoia,mt2824-spi", "andestech,ae350-spi";
-> +			reg =3D <0x0 0x101a0000 0x0 0x10000>;
-> +			#address-cells =3D <0x01>;
-> +			#size-cells =3D <0x00>;
-> +			num-cs =3D <0x01>;
-> +			clocks =3D <&pll_soc_out3>;
-> +			status =3D "disabled";
-> +		};
-> +	};
-> +
-> +	usb2phy: usb2-phy {
-> +		compatible =3D "metanoia,mt2824-usb2-phy";
-> +		#phy-cells =3D <0>;
-> +		resets =3D <&rst 18>;
-> +		reset-names =3D "usb2-phy";
-> +	};
-> +
-> +	reserved-memory {
-> +		#address-cells =3D <0x2>;
-> +		#size-cells =3D <0x2>;
-> +		ranges;
-> +
-> +		/* for the DSPs, configured as non-cacheable in openSBI */
-> +		rsc_table: rsc-table@81000000 {
-> +			reg =3D <0x0 0x81000000 0x0 0x10000>;
-> +			no-map;
-> +		};
-> +	};
-> +};
-> diff --git a/arch/riscv/boot/dts/metanoia/mt5824-evb.dts b/arch/riscv/boo=
-t/dts/metanoia/mt5824-evb.dts
-> new file mode 100644
-> index 000000000000..d0e8eb0a49a4
-> --- /dev/null
-> +++ b/arch/riscv/boot/dts/metanoia/mt5824-evb.dts
-> @@ -0,0 +1,81 @@
-> +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-> +/*
-> + * Copyright (C) 2026 Metanoia Communications Inc.. All rights reserved.
-> + */
-> +
-> +/dts-v1/;
-> +
-> +#include "mt2824.dtsi"
-> +
-> +/ {
-> +	model =3D "Metanoia MT5824 EVB";
-> +	compatible =3D "metanoia,mt5824-evb", "metanoia,mt2824";
-> +
-> +	aliases {
-> +		uart0 =3D &serial0;
-> +		uart1 =3D &serial1;
-> +		spi0 =3D &spi0;
-> +		spi1 =3D &spi1;
-> +		spi2 =3D &spi2;
-> +	};
-> +
-> +	chosen {
-> +		stdout-path =3D "uart0:115200n8";
-> +	};
-> +
-> +	memory@80000000 {
-> +		device_type =3D "memory";
-> +		reg =3D <0x0 0x80000000 0x0 0x80000000>,
-> +		      <0x1 0x00000000 0x0 0x80000000>;
-> +	};
-> +};
-> +
-> +&usb0 {
-> +	status =3D "okay";
-> +};
-> +
-> +&mmcsd {
-> +	bus-width =3D <8>;
-> +	mmc-ddr-1_8v;
-> +	mmc-hs200-1_8v;
-> +	mmc-hs400-1_8v;
-> +	no-sdio;
-> +	disable-wp;
-> +	cap-mmc-hw-reset;
-> +	status =3D "okay";
-> +};
-> +
-> +&watchdog {
-> +	status =3D "okay";
-> +};
-> +
-> +&serial0 {
-> +	status =3D "okay";
-> +};
-> +
-> +&serial1 {
-> +	status =3D "okay";
-> +};
-> +
-> +&qspi {
-> +	status =3D "okay";
-> +	flash@0 {
-> +		compatible =3D "jedec,spi-nor";
-> +		spi-rx-bus-width =3D <0x4>;
-> +		spi-tx-bus-width =3D <0x4>;
-> +		spi-max-frequency =3D <100000000>;
-> +		reg =3D <0x0>;
-> +	};
-> +};
-> +
-> +&spi0 {
-> +	status =3D "okay";
-> +};
-> +
-> +&spi1 {
-> +	status =3D "okay";
-> +};
-> +
-> +&spi2 {
-> +	status =3D "okay";
-> +};
->=20
-> --=20
-> 2.56.0
->=20
+>       riscv: add ARCH_METANOIA Kconfig entry
+>       reset: simple: add Metanoia MT2824 support
+>       spi: atcspi200: add optional interrupt support
+>       spi: atcspi200: allow building for Metanoia SoCs
+>       watchdog: atcwdt200: allow building for Metanoia SoCs
+>       mmc: sdhci-of-dwcmshc: add MT2824 support
+>       mmc: sdhci-of-dwcmshc: add MT2824 tuning and HS400 support
+>       phy: metanoia: add USB2 PHY driver
+>       usb: dwc2: add support for Metanoia MT2824
+>       riscv: add Metanoia MT2824 SoC and MT5824 EVB support
+>       MAINTAINERS: add RISC-V Metanoia SoC support
 
---gVj6kT/nEeV7IrJz
+--O+KStvozO2m15yOI
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCau4cxgAKCRB4tDGHoIJi
-0owRAP95exaOo/pmlWS1vJaLTUgL7WEsc8vCXRQ+o6aUNvXW3wEA5DDwcNTzyqSd
-KtDAtgukopwz3ahW3I8SJ/bIZDQyMww=
-=r1sH
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCau4gaQAKCRB4tDGHoIJi
+0nenAQDXOOACr5dTLojlsekDLPEmerVvDKLX9MTt2AL32IK7ugD+NliqmV6l2V/K
+f/dhIRRWsafkCoQptXJ5wafLha8CkAM=
+=fT+J
 -----END PGP SIGNATURE-----
 
---gVj6kT/nEeV7IrJz--
+--O+KStvozO2m15yOI--
