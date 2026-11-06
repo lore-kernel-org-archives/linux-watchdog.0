@@ -1,81 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793990771;
-	b=woGVF7rY+VUyIPn1j9SpewmShDsIYC45fblmDipRT2mFoJCx+DBmQgM1rTwUilZ+L1Gr
-	 rU5tksvVyc0LS956LA/sy3ZbM+LlC44JlblUFCXsuzGnbtElybNzoLNatUP6CzUje+VNI
-	 Log9+XuN9VY5MvRFcnoBhiYzAy9J15Z0hj5/MQMompUnb/YYAHsDo1a3V37bFTRdpdl6w
-	 o+Lw6Ye3MEKUDvhtu/5KboVYeOiBX8AQcnUvu1E/9paz9wPc5OKDxWhgxblmvdiojCizY
-	 5ql3el2YdlR78ZhuvememeZtxcHyZcFQZXYXhMB5HzCn2VvE+5fMqRcA4su/3T83iCw==
+	t=1794003533;
+	b=ZkD8D9XI3vJzaxq9qnCNOn1RVD1uvMulXj6Shx/GTNCZEpL+jy82wF4X/M5NdzyAda5A
+	 npBLEF7ThKTu06YLT7J+f+sAqriOTvFs5q4BRvkM+IftJqz1OUmdrdWR0ju83CGAnjcsc
+	 2ICePqxbYNyz3uCe6SOCXUdjArFJzDRhqIDMUACbmThZO0Y9aC7Sqw2fJksY47vCWlc6L
+	 v/+AtTefqaEJIIypt423Sw36f4U+B4aoIDCVR9H1iC4PTLZP8q3Edc01591A1AdTyxTSz
+	 WfBreBhD9VgCwB2Wb5vvoTkmDUHProQu1zZ2PaVcqeWF/Fg0cwSd1eZaZzi+FulsMsw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793990771;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=6TYaT587yULVEsFdUlV21e0IlEIkrM/S8nTlyyj5duE=;
-	b=INVmNIV1jmM7AtGG51HlofAW7mmgs22h9X4OieZJVOT5ngbKoXpLLijOYtdcu/z2ZuzD
-	 0q4fhLQB8drxX73XrInQ/tx+VgA683rjLefewNbuSu7K6qS+YMyNKnCQcwbctUUxIQjni
-	 j+BBrs76SvU/12R4q2MPOkwKCDWacRq5i1xNOWUIHh+4LUyqWXeZOIVx0iBipyDgeAgAE
-	 TxHa3nxz7sr3xNjkZr/RCnD84feWOjPxuPANeQuHTI8NOhAauWiPCKe+6E/Md5uh6RLn+
-	 k9s52Rd4zdr+l/cDJ/ATzEhSTn1OXIX6lES9XjV9YcJzg5Ja7/YXz7Jgzesktv4YhAQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794003533;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=tURUu78Mfm5tXaSKC+0omXpop8yxpZNIgR2c4OXKv84=;
+	b=PJnkHZ5JxbcyjX8/FNdIMfMdLs8TV2iutPiQOm7jnzxPbc3y5TXA1T5CjhE+3Fy9lIY+
+	 xLZqH4I6BEtuMsmYbFyIDukngZed/w+HqJewwGViA+0tMuXAOi80Ld9wBxUR+FvxyXclj
+	 MPxFMcO02zHlg6e364A5d67aS0U6qhZrPZEVEIm5BJrAk8O1RyrjURD2OJIoKKLNkEEXh
+	 KeegpGG43nHW4/F/y0yn+6HE1agR2dhNwUltTwOowJSqCUGCv0CV1wVuN1qZlT5DRX8lg
+	 esE5HXXQ6wLCH52axpW/Ck/9EJ1YSwsgouJh3+WRwO4MIVyqJ7KTdlTvKKpJdOP+2Cw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ag0eQnT6;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=aIVgxCDT;
+	arc=none smtp.remote-ip=44.202.169.35
+Received: from omta036.useast.a.cloudfilter.net (omta036.useast.a.cloudfilter.net [44.202.169.35])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D457606A329;
-	Fri,  6 Nov 2026 18:46:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66D34606A32C
+	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 22:18:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 66D34606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ag0eQnT6
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74ED11F0089F;
-	Fri,  6 Nov 2026 18:46:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793990770;
-	bh=6TYaT587yULVEsFdUlV21e0IlEIkrM/S8nTlyyj5duE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ag0eQnT68Qn48+lD/gKwyNvXHdwktPEYZRXu+mkFQY9vzL7wiMhYgWeuG+JY3KsEF
-	 gI3XCn0aWsviJENdO79ADtBJ4wfZIqOpW7bHvPyXu5Yx7OAaI64goY95XQoscGuga3
-	 RiRZJJ+z/HCAmj4OreqwgRKM+/JYt0+pMQU8Vi4xBe9mSgJSOH8KtXW9Mw/WQ3o4OY
-	 mrux7OQRSU/obswR+R8vfPypl/xQz/SLtQ2oRx1EySjeD+3V+DGTpGrrAHC+sqD+48
-	 zU0B/50JD3C7b1U4wU/hmZFCOReDSKirjZePi9z/7MbizoMhTqfACiM30W+Y2YprUi
-	 C/pdfJQ6qj/LQ==
-Date: Fri, 6 Nov 2026 18:46:01 +0000
-From: Conor Dooley <conor@kernel.org>
-To: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jun Chang <jun.chang@metanoia-comm.com>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Sebastian Reichel <sre@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Ben Zong-You Xie <ben717@andestech.com>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Ulf Hansson <ulfh@kernel.org>, Jisheng Zhang <jszhang@kernel.org>,
-	CL Wang <cl634@andestech.com>, Mark Brown <broonie@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Minas Harutyunyan <hminas@synopsys.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Randolph Sheng-Kai =?utf-8?B?TGluKOael+iBluWHsSk=?= <randolph@andestech.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-phy@lists.infradead.org,
-	Paul Walmsley <paul.walmsley@sifive.com>, linux-mmc@vger.kernel.org,
-	linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 00/25] riscv: add support for the Metanoia MT2824 SoC and
- MT5824 EVB
-Message-ID: <20261106-annotate-roundup-3cdf03205a91@spud>
-References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=aIVgxCDT
+Received: from eig-obgw-6001b.ext.cloudfilter.net ([10.0.30.143])
+	by cmsmtp with ESMTPS
+	id PNauxftHB4vCDPSGkxt6cG; Fri, 06 Nov 2026 22:18:46 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id PSGixNtXcdRrRPSGjxX3b8; Fri, 06 Nov 2026 22:18:45 +0000
+X-Authority-Analysis: v=2.4 cv=LOhmQIW9 c=1 sm=1 tr=0 ts=6aee5245
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
+ a=8b9GpE9nAAAA:8 a=GMUnNgnwFuJ-T506CLsA:9 a=QEXdDO2ut3YA:10
+ a=T3LWEMljR5ZiDmsYVIUa:22 a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=tURUu78Mfm5tXaSKC+0omXpop8yxpZNIgR2c4OXKv84=; b=aIVgxCDTOgBT
+	ZuRVJechWxxhECFc8mlmWQ5lJuxx4iodvszw03hVJvSZ4iTh626FT8rT6lvCBq66eO1Gbcginx5W/
+	HpPRxQy3y+xQVKJNZKQgcEnmpHXUhSdVMZNw8ZD8hJ7qFS64jkdg4gX4szdYARF9+mIKbcGIW42QD
+	dWkYfYA1mvL001BxzckioODzLxdCffshUsTMWQAkQFEjV5xrVP2Si2AlLGxgJL5dsVbskevd/7/vA
+	4GZr3rmYDXKs8rlIdPm+IjLchIt1MCm1bd1YfKPCQnAy1/cDO/VJ5mDGXbK48cqqrKgBZdvGWXPjP
+	xRRc2jv3wByqweiNXHYKrw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:50820)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xPSGi-00000003WZp-311T;
+	Sat, 07 Nov 2026 03:48:44 +0530
+Message-ID: <bf99b912-7a98-4d97-852b-45cb3c3c58be@roeck-us.net>
+Date: Fri, 6 Nov 2026 14:18:43 -0800
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -85,130 +76,130 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="O+KStvozO2m15yOI"
-Content-Disposition: inline
-In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 04/13] ARM: stm32: enable arm smc watchdog on
+ stm32mp1xx
+To: sashiko-reviews@lists.linux.dev,
+ Antonio Borneo <antonio.borneo@foss.st.com>, devicetree@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+References: <20261106163429.618392-1-antonio.borneo@foss.st.com>
+ <20261106163429.618392-5-antonio.borneo@foss.st.com>
+ <sashiko-outbox-201910@kernel.org>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <sashiko-outbox-201910@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xPSGi-00000003WZp-311T
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:50820
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 3
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfEq5SE7mmTbGpdF2XgnYF2YgQ9+7lhFTvVcQ3ovnIu43cg3au+7JdApbWYUlk4ESJcz4iMLa1eMVxj9cL4LYxJ9h0rfn6ftsN8fuEO8HYX5SUUkVQvup
+ LuuW/wdbxeuaN+XU7LBebqFxk1zkNnF3077XzIafOYYlsMJX8Ozq2C4OwHH995rlF7iun7K3Pqq/c53ZCh+zOoR+JGLkU/3tNTYdPJDufHCtm8KVAkIS/UqV
 
---O+KStvozO2m15yOI
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 11/6/26 09:19, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue to consider:
+> - [Low] ARM: stm32: selecting WATCHDOG and ARM_SMC_WATCHDOG forces
+>    built-in config
+> --
+> 
+> commit 4450302b23f46b760d6b23f33c853eaddb3d821b
+> Author: Antonio Borneo <antonio.borneo@foss.st.com>
+> 
+> ARM: stm32: enable arm smc watchdog on stm32mp1xx
+> 
+> This commit selects WATCHDOG and ARM_SMC_WATCHDOG from ARCH_STM32 when
+> ARCH_MULTI_V7 is enabled.
+> 
+>> diff --git a/arch/arm/mach-stm32/Kconfig b/arch/arm/mach-stm32/Kconfig
+>> index 4ac3384e397aa..de09b2afa0f2e 100644
+>> --- a/arch/arm/mach-stm32/Kconfig
+>> +++ b/arch/arm/mach-stm32/Kconfig
+>> @@ -13,6 +13,8 @@ menuconfig ARCH_STM32
+>>   	select RESET_CONTROLLER
+>>   	select STM32_EXTI if ARM_SINGLE_ARMV7M
+>>   	select STM32_FIREWALL
+>> +	select WATCHDOG if ARCH_MULTI_V7
+>> +	select ARM_SMC_WATCHDOG if ARCH_MULTI_V7
+>>   	help
+>>   	  Support for STMicroelectronics STM32MP1 processors using Cortex-A7
+>>   	  cores. Note that support for the earlier Cortex-M based variants
+> 
+> [Severity: Low]
+> Does selecting WATCHDOG and the tristate ARM_SMC_WATCHDOG from the boolean
+> ARCH_STM32 force both symbols to y whenever ARCH_MULTI_V7 is enabled?  That
+> prevents building arm_smc_wdt as a loadable module or disabling the driver
+> and watchdog subsystem on multi-platform ARMv7 kernels with ARCH_STM32
+> enabled.
+> 
+> Could ARM_SMC_WATCHDOG instead use a default in drivers/watchdog/Kconfig
+> (the way STM32_WATCHDOG uses default ARCH_STM32) or be enabled in the
+> relevant defconfig?
+> 
 
-On Fri, Nov 06, 2026 at 10:29:57AM +0100, Beno=EEt Monin wrote:
-> Hi all,
->=20
-> This series adds initial upstream support for the Metanoia MT2824 SoC
-> and its MT5824 evaluation board.
->=20
-> The MT2824 is a dual-core RISC-V SoC built on Andes AX45MP cores. It
-> integrates two 8250-compatible UARTs, the Andes PLIC/PLICSW/PLMT interrupt
-> and timer blocks, the AX45MP L2 cache controller, a simple reset controll=
-er
-> and a system reboot controller, the ATCWDT200 watchdog, one QSPI and eight
-> ATCSPI200 SPI controllers, a Synopsys DWC MSHC 2.00a eMMC/SD controller,
-> and a Synopsys DWC2 USB2 host controller with a reset-only USB2 PHY.
->=20
-> The series is organised as:
->=20
-> - patches 1-14 add the device tree bindings, the Metanoia vendor prefix,
->   the RISC-V board schema and the SoC block compatibles
-> - patch 15 adds ARCH_METANOIA and selects the AX45MP errata
-> - patches 16-23 add the reset, SPI, watchdog, MMC, PHY and USB changes
->   needed to build and probe on this SoC
-> - patch 24 adds the MT2824 SoC and MT5824 EVB device trees
-> - patch 25 adds the MAINTAINERS entry
->=20
-> The ATCSPI200 driver gains optional interrupt support for PIO transfers:
-> when the controller IRQ is wired, the FIFOs and the end of transfer
-> are serviced from the handler, with a fallback to polling when no IRQ
-> is available.
->=20
-> The DWC MSHC controller on the evaluation board is wired to either an
-> SD slot or an eMMC through a board jumper that the SoC cannot read. In
-> the absence of a fixed card type in the device tree, the driver probes
-> the eMMC first at 1.8 V and falls back to the SD slot at 3.3 V. The
-> controller also needs custom tuning and HS400 PHY DLL handling, which
-> is why it has its own sdhci_ops.
->=20
-> The MT2824 SoC contains other controllers not yet exposed (I2C, GPIO,
-> pinctrl, Ethernet, DSP, ...). This first series allows accessing the
-> evaluation board via its serial console, and all its storage options
-> (SPI-NOR, eMMC, SD card). The watchdog and the USB port are also
-> available.
->=20
-> The driver changes do not depend on the DTS at build time and are gated
-> on the new compatible strings. For merge ordering, the DTS depends on the
-> ARCH_METANOIA Kconfig entry (patch 15) and on the binding compatibles
-> being accepted. The patches can therefore go through their respective
-> subsystem trees, with the Kconfig, DTS and MAINTAINERS patches going
-> through the RISC-V tree once the driver and binding patches have landed.
+ARCH_ASPEED and ARCH_S3C64XX also use select, but those architectures depend
+on the watchdog driver's board reset capabilities. The smc watchdog does not
+support board resets, and select should not be used here. As far as I can
+see this patch is simply unnecessary: Both WATCHDOG and ARM_SMC_WATCHDOG
+can be enabled in the configuration file if needed/desired.
 
-I kinda pointed it out elsewhere, but that's not actually the path for
-the Kconfig, dts and MAINTAINERS bits. They go via the soc tree, after
-being applied by a metanoia specific maintainer.
+Guenter
 
->=20
-> The series is based on v7.4-rc1.
->=20
-> Signed-off-by: Beno=EEt Monin <benoit.monin@bootlin.com>
-> ---
-> Beno=EEt Monin (25):
->       dt-bindings: vendor-prefixes: add Metanoia Communications
->       dt-bindings: riscv: add Metanoia SoC-based boards
->       dt-bindings: reset: add Metanoia MT2824
->       dt-bindings: power: reset: add Metanoia MT2824 reboot
->       dt-bindings: phy: add Metanoia USB2 PHY
->       dt-bindings: cache: andestech,ax45mp-cache: add MT2824 compatible
->       dt-bindings: interrupt-controller: sifive,plic-1.0.0: add Metanoia =
-MT2824
->       dt-bindings: interrupt-controller: andestech,plicsw: add Metanoia M=
-T2824
->       dt-bindings: timer: andestech,plmt0: add Metanoia MT2824
->       dt-bindings: mmc: snps,dwcmshc-sdhci: add Metanoia MT2824
->       dt-bindings: spi: andestech,ae350-spi: make DMA and interrupts opti=
-onal
->       dt-bindings: spi: andestech,ae350-spi: add Metanoia MT2824
->       dt-bindings: usb: dwc2: add Metanoia MT2824
->       dt-bindings: watchdog: andestech,ae350-wdt: add Metanoia MT2824
-
-Other than the tag issues in most of these, riscv and dt wise this looks
-mostly fine. The reset/reboot stuff and probably missing clock support
-are the only real problems.
-
-Probably, I would split this series up into multiple smaller
-submissions. spi, mmc, phy, usb, watchdog at least should be their own
-mini series. clock/reset should probably be another, presumably also
-with the reboot thing. What's left (interrupts, timer, cache I think)
-can stay part of the dts series and probably go through the soc tree
-together. For interrupts and timer, the maintainers are usually not
-super responsive in terms of binding only series which is why they may
-go via soc.
-
-Cheers,
-Conor.
-
->       riscv: add ARCH_METANOIA Kconfig entry
->       reset: simple: add Metanoia MT2824 support
->       spi: atcspi200: add optional interrupt support
->       spi: atcspi200: allow building for Metanoia SoCs
->       watchdog: atcwdt200: allow building for Metanoia SoCs
->       mmc: sdhci-of-dwcmshc: add MT2824 support
->       mmc: sdhci-of-dwcmshc: add MT2824 tuning and HS400 support
->       phy: metanoia: add USB2 PHY driver
->       usb: dwc2: add support for Metanoia MT2824
->       riscv: add Metanoia MT2824 SoC and MT5824 EVB support
->       MAINTAINERS: add RISC-V Metanoia SoC support
-
---O+KStvozO2m15yOI
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCau4gaQAKCRB4tDGHoIJi
-0nenAQDXOOACr5dTLojlsekDLPEmerVvDKLX9MTt2AL32IK7ugD+NliqmV6l2V/K
-f/dhIRRWsafkCoQptXJ5wafLha8CkAM=
-=fT+J
------END PGP SIGNATURE-----
-
---O+KStvozO2m15yOI--
