@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793984736;
-	b=36xyZ4HO96e3XdAucxe+gcq5LeAgsWb4zB7Jx7ecKr4/En9w9ZFxP01RaIqYkvW/n9JU
-	 1tnaFYqstnLW4qkNVTlgKGIo5q38VHV0yIhtNmTLxGu4bbzKq42s85MEx/v541dzEtHiv
-	 ry6yCRsvHIn52ed6woGxCqrfvdTuq0tjkyFCqx8mACapPArJPN0O1uOjEGDuKwUcMo5p4
-	 GuqGVZzBQeCRpOKArlPtcUe9t6c4EfsA3N/+EY7B6TJroYFl5DZ9Wk4r0PTvTnl/kkzOg
-	 BjagG/Hglx9kAa+YOl70Fak2evaOxN/EpwTIgm9fhaY9DSYaCfTAkMyJJEno6DCmR+A==
+	t=1793985089;
+	b=AStBkP7CSGMoZITHWmRAZXZjsp+OLMpm+qPvNDL4bS7XNqQgjeoxQMRnfo6XY2foat38
+	 99kNui+vcC3bW7PDWB1PluWzHtDtuK2JRn2n3cgTlhEaD5NRWmQ5EZk5otXvYt75kPVDo
+	 IcO3cf87c0uxpa+/jVizMXpQn/blzpa/WZdpyvT2fV9jgnGudRz50wqC58KS0xcbRyggI
+	 CL/gsHMd/PNyAmpqofhjqNExN4iEXq4YzmnFR8LXPjIDYnt0YHuMK6C63bIK88bfQfASx
+	 8JeiQt0UAQzTub7mD8TvWB01bQI6koomkT7XLNKz+27AqiokDA8BMgjWLWB1fcecQjA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793984736;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793985089;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=9ixBFuEHmkHOoQ6uutrazXK9Kghyu2179JvKWtPj4fQ=;
-	b=DVH4QqUrl7bTsmSu7DgqXHo8xz3R4IBkKCpcUP1IEcpEIxSWD257S1yy2VkYptGGFuqW
-	 cZSX0g9ouHNZhmXHNQ1dDct/Kloc+OKwqm7CNA4tRMWQprpZL46NFJDYM6kdl8QraOBB6
-	 zOTxbiQRh8i5WH33Wv0fCfPxk0rd2lwQCArgExIlcXC3gUqP1ok1oADGQoiHyGe87jltt
-	 EEpDLbB1iyzokPkAev94TeJ6w7XU3N3Q54edbvzX7qFMh6va9agbphYHLqmCehv4NK3eS
-	 /OdPncTI822/Rr8QCGO39cKT00KkGzt3JmCIlxUjXv0jPgHHX4pWq/0XOz/7UwEhXBA==
+	bh=GL67RXdQa36K78wuxyhKhUCWCZT+FTnpPKTTkNMtBsY=;
+	b=umOvAtsNc9lDUxj3LQ6/U5/muZDTuGHEkYQAusjyGm+E0DDXWHpoTUNquZsTtgfD/gjL
+	 AP2gxi5JjjKg8cVBH8YkdIsd6ymZUU/X2BEIsCRGpT3dxhBlKG7ARaASxjU7h5D1YJWM/
+	 BGCbmSNN/FGzxuCD7IeBmYw4UJbLqtzDgtDnjWj+NlOHJpan3LZ9r0KG0QdsxZoimAYdK
+	 f1R2jYsnOIl+0boQbJLTaMivmc2YzD5lIM96BwRc1a3942XadsV9rTrTgXoEfjMEEZRui
+	 bVDhXaX01Q8dDZrFhhjsrUHsd83PI2D8lQeeAs+JpNIWYx99/uUBxddp+jnaPZh9WLA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Iskjez2R;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LlcD7lM8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4D67606A329;
-	Fri,  6 Nov 2026 17:05:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76303606A326;
+	Fri,  6 Nov 2026 17:11:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Iskjez2R
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 275F81F008A7;
-	Fri,  6 Nov 2026 17:05:35 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LlcD7lM8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0811E1F0089F;
+	Fri,  6 Nov 2026 17:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793984735;
-	bh=9ixBFuEHmkHOoQ6uutrazXK9Kghyu2179JvKWtPj4fQ=;
+	s=k20260515; t=1793985089;
+	bh=GL67RXdQa36K78wuxyhKhUCWCZT+FTnpPKTTkNMtBsY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Iskjez2RIUfuGPmcNAlg+1LcCsRwacGrZQn961/SVoYB1qf3yTpUT6qAkxKSLHLoo
-	 t8XkonZo0ROtXFmm5xNxYIbVg1ZL+TxS0+06qHxJrpaexNUjp4aMaM6sv5PQBSQZ5p
-	 G/b8UkmKSPwFz9GY9FkNToh9+48ZnjovrnY5WX/A7oX1sKJD3Q3hbgwLG4aSvraBNO
-	 Iek1uxH3S3wrbiflMDUY7L79gYPKhP0Dxwa5Unfb/yxQPRZm5WdRKe0o/cCWmfq7KE
-	 BJdB2setxxHITmLzxyib6QUGirJ+2IGP9vySUT5SB2BuHb4iHx/dpIxOhJnGVmtFgN
-	 ZFNGYXRm9l67Q==
-Message-ID: <sashiko-outbox-201895@kernel.org>
+	b=LlcD7lM8L0/3og4uqb/+Tm+XaRxte9vj/PeY7kN9QDFB4kFVCRyv9wibnMt7l/+dj
+	 F0758ub4k7wQdG+eETa0dDmrcIHS/9C/rViHoBjlOv1Xipx6QiaX9vd58wGqZVW7Ih
+	 pi1U0zsYOJyeinMpyBuGl5fqpSrWBvYVUKET+Os2PCCDYi9V+pnsx7pYImevGeUTqX
+	 stfWzcoTjnerwvPUlYvwu16aAQsMXLSpcGDgv6jcIe++yKczRidsgFtkFwE66fscYT
+	 eozr1orG+Xc7KyXKRbGLZcqVkOwmZ3qZ0SyJtuHiaerhT+mMpgRuxcQSHniY9B9SnV
+	 ovy6/7ZoiOQuw==
+Message-ID: <sashiko-outbox-201901@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 02/13] watchdog: stm32_iwdg: detect whether the
- watchdog is running
+Subject: Re: [PATCH v3 03/13] watchdog: stm32_iwdg: add pretimeout support
+ for iwdg v4.0
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Antonio Borneo" <antonio.borneo@foss.st.com>, devicetree@vger.kernel.org
 Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20261106163429.618392-3-antonio.borneo@foss.st.com>
+In-Reply-To: <20261106163429.618392-4-antonio.borneo@foss.st.com>
 References: <20261106163429.618392-1-antonio.borneo@foss.st.com>
- <20261106163429.618392-3-antonio.borneo@foss.st.com>
+ <20261106163429.618392-4-antonio.borneo@foss.st.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 17:05:34 +0000
+Date: Fri, 06 Nov 2026 17:11:28 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -61,59 +61,71 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [High] watchdog: stm32_iwdg: unconfigured timeout in
-  stm32_iwdg_probe()
-- [Medium] watchdog: stm32_iwdg: WDOG_HW_RUNNING gated on Kconfig in
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] watchdog: stm32_iwdg: IRQ enabled before state init in
   stm32_iwdg_probe()
 --
 
-commit 7c2acc17f93336becc29a7a139de848c3db25624
-Author: Cl=C3=A9ment Le Goffic <clement.legoffic@foss.st.com>
+commit f781715ad1087a5b9a86d2dd54ce3b998243a348
+Author: Antonio Borneo <antonio.borneo@foss.st.com>
 
-watchdog: stm32_iwdg: detect whether the watchdog is running
+watchdog: stm32_iwdg: add pretimeout support for iwdg v4.0
 
-This commit adds stm32_iwdg_is_running() to detect whether the watchdog
-was already started by an earlier boot stage and sets WDOG_HW_RUNNING in
-stm32_iwdg_probe() only when it is running.
+This commit updates stm32_iwdg_isr() to clear pretimeout interrupts via
+IWDG_ICR on IWDG hardware version 4.0 and later, and adds a reg_set()
+helper.
 
-[Severity: High]
-In drivers/watchdog/stm32_iwdg.c at line 394 in stm32_iwdg_probe(), does
-removing the call to stm32_iwdg_start(wdd) leave the hardware prescaler
-(IWDG_PR), reload value (IWDG_RLR), and early-wakeup interrupt
-(IWDG_EWCR) registers out of sync with wdd->timeout and wdd->pretimeout?
-
-When stm32_iwdg_is_running(wdt) returns true, stm32_iwdg_probe() now sets
-WDOG_HW_RUNNING without programming wdd->timeout into the hardware or
-reading the bootloader's configured timeout back into wdd->timeout.
-Because stm32_iwdg_ops provides stm32_iwdg_ping() (line 162), which only
-writes KR_KEY_RELOAD to IWDG_KR, the watchdog core's keepalive worker
-schedules pings at half of wdd->timeout while reloading the bootloader's
-counter value. If the bootloader configured a hardware timeout shorter
-than wdd->timeout / 2, the watchdog expires and resets the system before
-the next keepalive ping. Even after userspace opens /dev/watchdog,
-watchdog_start() in drivers/watchdog/watchdog_dev.c (line 261) sees both
-WDOG_HW_RUNNING and wdd->ops->ping set and calls __watchdog_ping(wdd)
-instead of wdd->ops->start(wdd), leaving IWDG_PR, IWDG_RLR, and IWDG_EWCR
-unconfigured.
+> diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
+> index ce3e1f96ef50a..6121c23889655 100644
+> --- a/drivers/watchdog/stm32_iwdg.c
+> +++ b/drivers/watchdog/stm32_iwdg.c
+[ ... ]
+> @@ -194,11 +207,11 @@ static irqreturn_t stm32_iwdg_isr(int irq, void *wd=
+og_arg)
+>  {
+>  	struct watchdog_device *wdd =3D wdog_arg;
+>  	struct stm32_iwdg *wdt =3D watchdog_get_drvdata(wdd);
+> -	u32 reg;
+> =20
+> -	reg =3D reg_read(wdt->regs, IWDG_EWCR);
+> -	reg |=3D EWCR_EWIC;
+> -	reg_write(wdt->regs, IWDG_EWCR, reg);
+> +	if (wdt->hw_version >=3D ICR_MIN_VER)
+> +		reg_write(wdt->regs, IWDG_ICR, ICR_EWIC);
+> +	else
+> +		reg_set(wdt->regs, IWDG_EWCR, EWCR_EWIC);
+> =20
+>  	watchdog_notify_pretimeout(wdd);
 
 [Severity: Medium]
-In drivers/watchdog/stm32_iwdg.c at line 394 in stm32_iwdg_probe(),
-should setting WDOG_HW_RUNNING be unconditional when
-stm32_iwdg_is_running(wdt) is true, rather than gated on
-IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)?
+Can stm32_iwdg_isr() run before wdt->hw_version and wdd's driver data are
+initialized in stm32_iwdg_probe()?
 
-In drivers/watchdog/watchdog_dev.c at line 1099 in
-watchdog_cdev_register(), the watchdog core checks watchdog_hw_running()
-to pin the module and device references and to evaluate the runtime
-watchdog.handle_boot_enabled parameter. Gating the check on
-IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED) in the driver prevents
-the core from knowing the hardware is active when
-CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED=3Dn, breaking the
-watchdog.handle_boot_enabled=3D1 kernel command-line override and skipping
-the module/device reference pinning.
+drivers/watchdog/stm32_iwdg.c:stm32_iwdg_probe() {
+    ...
+	ret =3D stm32_iwdg_irq_init(pdev, wdt);
+	if (ret)
+		return ret;
+
+	wdt->hw_version =3D reg_read(wdt->regs, IWDG_VERR) & VERR_MASK;
+
+	watchdog_set_drvdata(wdd, wdt);
+    ...
+}
+
+stm32_iwdg_irq_init() calls devm_request_irq() before wdt->hw_version is
+read from IWDG_VERR and before watchdog_set_drvdata() sets wdd's driver
+data.  If the watchdog was already started by the bootloader and a
+pretimeout interrupt is pending when the IRQ is requested, stm32_iwdg_isr()
+gets NULL from watchdog_get_drvdata(wdd) and dereferences a NULL pointer,
+and even with driver data set, wdt->hw_version would still be 0 so v4.0+
+hardware would write to IWDG_EWCR instead of IWDG_ICR and fail to clear
+the interrupt.
+
+Initializing wdt->hw_version and calling watchdog_set_drvdata(wdd, wdt)
+before stm32_iwdg_irq_init() would avoid this window.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106163429.6183=
-92-1-antonio.borneo@foss.st.com?part=3D2
+92-1-antonio.borneo@foss.st.com?part=3D3
