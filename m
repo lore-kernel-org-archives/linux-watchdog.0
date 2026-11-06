@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793978021;
-	b=lT6QlUEiihr94sROKpzw8MgEn53UdyjAUgR6kaO02YpgH1sA9mUvWiaqxijIg1I96a9m
-	 U/5g/Q1RomBDqnWSXwCx9fBoi1aL+AX203xl549yH5aV9YA4crSR2lM+G0n8XAC/qHPXL
-	 wKO85Rg3Xs5aouUrcCd3k2thMYm3AtBECpQzplfjelv4wnQxkv1bh6Rwosk17RzIn5UVC
-	 2myG/McQUdI8IY/EBVAiLzLkwgvFeSRmjCNfvEXeqzUeWDFCAMR0L+GyWpXeLlHv340mG
-	 9/NCKLGWy/FLcMZsUDRvOaNzqiH31Jer0J+0o+8T/Pdy59lGDvPQyF1dMpBVictrTBQ==
+	t=1793978440;
+	b=OjMAw36lXxz+FMhIl47j5+A/czk4NdxlC+clcJT0glR3TFPn5Lklf5rhvvPHoKCjrwpL
+	 3xkfpo6p71HigcvKb3ETj+gjC7UuzRIZHTpDWVuNU3fi3eRTqaaIVmCAebCpBCRBH1aT8
+	 KAvlFOAACcU0Ux+HJ4qtqZe4Zl3HCIsrRKazOk1TG0MO7c3h5A5Tc2b+7TuUvvF1qzuiM
+	 DdxLd+x7z6J9UySvS7qxjLpCuBPC0NWkFblQC1RnSf3grm1qCN6PY8cuEHdPD+IKA/+lk
+	 Q9FgBkiJD9XHf56xMlj+hcQ+gDR4bd2xAUM5dgokrw7TdtwFdnCEdG/wzRt9uHv1ueQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793978021;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793978440;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
 	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
@@ -15,57 +15,57 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
 	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
 	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=Ug1oH65mHtM4sBvSgSyWiP9pC3vWlFca2Iy9VURj7Cs=;
-	b=n+SkxcmZcDP0t0be0IOGDaMS5iQ+/pyZZWzoMJASr0dUJSh1B5o6PLALkfgtziaZa8gf
-	 7LpFHTuVeng6KDpKcGci+sMIXhuLF1N6MUAoM83lXMl9qw7SqX56jSGj9oUP1wEdKEGKn
-	 BhQVqV6DUKNbz75gN2ZtPUmrD46qQaxGBBaO/tPn9k1uw2Jwd9iZT/XaRum0MGx1SSzJM
-	 eMuDeY3UVuvLXIZXqWCf9ewyU9AfwXU0VkXoUTjINZ5TJ+Y3YdGffaMwxqzVvxzfgC+2U
-	 gJiGYKg+iIoTXGKzFJAwQEkHGVnH3QyP/X2NiBwibbIAoP8ABNlrqlnC3YnlnWthd5w==
+	bh=++vyU1+Md5kIusDLyvD/w9s4csiRkDpjajz2lP+/fz8=;
+	b=DRYqgj5lekPeVq4RjqEoBVWD62qfknKvuyikSJt3mw8OwGImFcxtVLMY9TGSp4i0D4TA
+	 vI2sE+jKqX9ZuwT+VoHg2Bd3m4iZy8ed14TNtMtp26IPWnig9+9Q0MleRu1c2Cg0dq0WC
+	 T3iI4P0fEe2AceLpoHrpMQcBVzr0qBff1DbhRn+dFq+m9UI+3Jb6KFJD04qFxjMUQZopP
+	 abjbUV+n+VJAHfnB4KIsF/kxTwDNwzdgTwjRzh/vWHMz4UU7xxRk7nW5PLR0lNDrcBsTN
+	 8fpnqgThGNjhI4ga1KP8ISePGOfX+0GDeFkZwlfRowMiMhd6LBc0CUzS1iltCI6p3Wg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=CVsXojlM;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=aW7wLH07;
+	arc=none smtp.remote-ip=35.89.44.37
+Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B065606A32C
-	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 15:13:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B065606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41B39606A334
+	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 15:20:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 41B39606A334
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=CVsXojlM
-Received: from eig-obgw-5007b.ext.cloudfilter.net ([10.0.29.167])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=aW7wLH07
+Received: from eig-obgw-5004b.ext.cloudfilter.net ([10.0.29.208])
 	by cmsmtp with ESMTPS
-	id P3DmxAvSSAR1iPLdNxCz5p; Fri, 06 Nov 2026 15:13:41 +0000
+	id PIc0xgwMwVK9UPLk2xYiUG; Fri, 06 Nov 2026 15:20:34 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id PLdMx5xyRxqjjPLdMxcRcq; Fri, 06 Nov 2026 15:13:40 +0000
-X-Authority-Analysis: v=2.4 cv=bZxrUPPB c=1 sm=1 tr=0 ts=6aedeea4
+	id PLk1xxjMxuJrPPLk1xIdgQ; Fri, 06 Nov 2026 15:20:34 +0000
+X-Authority-Analysis: v=2.4 cv=WLZ/XmsR c=1 sm=1 tr=0 ts=6aedf042
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10
- a=3MjHcVyFnrRuDmB3ZfYA:9 a=QEXdDO2ut3YA:10 a=KPbNTLLc3YvdawN95zVk:22
+ a=VhhfJ6JjuyRaun_vA7wA:9 a=QEXdDO2ut3YA:10 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
 	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
 	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=Ug1oH65mHtM4sBvSgSyWiP9pC3vWlFca2Iy9VURj7Cs=; b=CVsXojlMQOO7
-	a5SgCEDmtMBdCsc84fJ01WzpZTfbExZ9trHK/0J3SzPd196sFyYflzMhLzCcFToJIO+TKTLLOZzCm
-	XOS2619Z5snQScRiHJ1K3TNmC/ueoWFcwtGDmNbmo8fsAuBYeBmA4a6wjoJFZKkjUEtO2+n2RiaaN
-	jLX+gWy6NF/GXqLK/G9O++pJTF1oLHdggDaQokVhjZlzImt2Tq+qt3OnOpSLPdDcqp0CddoexjLcP
-	4Auc1+47VprdhIB4IPU2EQr3N1xsjCPTpsixJr3Zl2NdaAwqiswTcPsgreVhnGCMLKpIsm1WThDL4
-	HUdzOVyUTC9u1XSfWVLW7Q==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:51444)
+	List-Archive; bh=++vyU1+Md5kIusDLyvD/w9s4csiRkDpjajz2lP+/fz8=; b=aW7wLH073ZRF
+	tI41L8ifbocopIxyNA/kZ9uDJYEIKFZ8urdDV9oAjNoopMc18sunuEUnKCc0TItOlPky4ECd9b3jF
+	tD52QLyRixFDE5IbZjfBs8jw3RVY1B24NohfpS2vxI2J8Z5Pe9Hiu0p5lEqM0seEI1UatOgnQdYbX
+	hCRuQRmtHsykCtAN3YpyWFpX67XguCz5DGCoJUBmPEfvtpgZkUKyS13ZWDp1dMax61MFpH1bWnhIl
+	1FB33KkDe5F+OdDGtx//GAFxJsuSUn31lDiouozE4+2H4t1sHjjpPaJr8tYlU65KMIjhr/B4URA62
+	hq0czlz+5SYJDF/AZY/JKA==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57440)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xPLdL-00000004Jhn-3VHy;
-	Fri, 06 Nov 2026 20:43:39 +0530
-Message-ID: <c92a6d5f-30b5-4c9a-8ee1-b3ca00125137@roeck-us.net>
-Date: Fri, 6 Nov 2026 07:13:38 -0800
+	id 1xPLk1-00000004O4D-1pld;
+	Fri, 06 Nov 2026 20:50:33 +0530
+Message-ID: <43513761-1e49-4fa0-af2f-fcbffddb4ded@roeck-us.net>
+Date: Fri, 6 Nov 2026 07:20:32 -0800
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -76,14 +76,13 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/5] watchdog: starfive-wdt: Drop runtime PM reference
- before registering watchdog
+Subject: Re: [PATCH v2 8/8] watchdog: starfive-wdt: Avoid unclocked MMIO
+ access in starfive_wdt_set_timeout()
 To: Tzung-Bi Shih <tzungbi@kernel.org>
 Cc: linux-watchdog@vger.kernel.org, Xingyu Wu <xingyu.wu@starfivetech.com>,
  Ziv Xu <ziv.xu@starfivetech.com>
-References: <20261104164445.3209560-1-linux@roeck-us.net>
- <20261104164445.3209560-6-linux@roeck-us.net> <auydfozcvsC4yjR-@google.com>
- <au3iqjLv6tatuwyr@google.com>
+References: <20261105190530.2371854-1-linux@roeck-us.net>
+ <20261105190530.2371854-9-linux@roeck-us.net> <au3ibSdPUIKvUWNa@google.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -129,7 +128,7 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <au3iqjLv6tatuwyr@google.com>
+In-Reply-To: <au3ibSdPUIKvUWNa@google.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -140,98 +139,116 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xPLdL-00000004Jhn-3VHy
+X-Exim-ID: 1xPLk1-00000004O4D-1pld
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:51444
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:57440
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 3
+X-Email-Count: 8
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfFfM5a2XvtHsu3WKuiNXN4SJzZQlYnqd6O5fD6HCPN7skaS37He/lt4NF7QZbejmeE2uohWg2gQ+eXbs6mA1xq3XUJT9YVjU5PrKTcSpFVn24/7pns7q
- IOS4JpNkGY5uBxQYBvn9eS8H3UF+Ox3ST3sg6I3fM4sj73YxWuRiK/NrD30dajS2j1EBSH4uZPEAyqWvD/3P1RBcw4jBYrlLW9uh6+Jt/88f9yZQwb0qlPO2
+X-CMAE-Envelope: MS4xfOdFxt4bj+oGV2Hnw9LtP4JkvF0WJfbA2gH9NBcpO8/Q/RsRiVKp0k0A5fi2wD2e0G/BWlSykHW8TVoANePtVvtWSCkYrh8qBpDIy1kgE/70/uYkVdhl
+ 9v88JilfPWx7JDPhYUfE2RxCq7B97p6z5teLZzQsH86oN+IbIVoXnUUvNs5O8+8+CevER74dKSMFoR77t4tXzYkfKX+ZASUxXUCjLF9qbhw7LuqqKjoAp2Ik
 
-On 11/6/26 06:22, Tzung-Bi Shih wrote:
-> On Thu, Nov 05, 2026 at 03:15:10PM +0000, Tzung-Bi Shih wrote:
->> On Wed, Nov 04, 2026 at 08:44:45AM -0800, Guenter Roeck wrote:
->>> @@ -499,28 +499,25 @@ static int starfive_wdt_probe(struct platform_device *pdev)
->>>   		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
->>>   	} else {
->>>   		starfive_wdt_stop(wdt);
->>> +		if (pm_runtime_enabled(&pdev->dev))
->>> +			pm_runtime_put_sync(&pdev->dev);
->>>   	}
->>>   
->>>   	ret = watchdog_register_device(&wdt->wdd);
->>> -	if (ret)
->>> -		goto err_exit;
->>> -
->>> -	if (!early_enable) {
->>> -		if (pm_runtime_enabled(&pdev->dev)) {
->>> -			ret = pm_runtime_put_sync(&pdev->dev);
->>> -			if (ret)
->>> -				goto err_unregister_wdt;
->>> +	if (ret) {
->>> +		if (watchdog_hw_running(&wdt->wdd)) {
->>> +			starfive_wdt_stop(wdt);
->>> +			if (pm_runtime_enabled(&pdev->dev))
->>> +				pm_runtime_put_sync(&pdev->dev);
->>>   		}
->>> +		if (!pm_runtime_enabled(&pdev->dev))
->>> +			starfive_wdt_disable_clock(wdt);
->>> +		goto err_disable_pm;
->>>   	}
->>>   
->>>   	return 0;
->>>   
->>> -err_unregister_wdt:
->>> -	watchdog_unregister_device(&wdt->wdd);
->>> -	goto err_disable_pm;
->>>   err_exit:
->>> -	if (watchdog_hw_running(&wdt->wdd))
->>> -		starfive_wdt_stop(wdt);
->>>   	if (pm_runtime_enabled(&pdev->dev))
->>>   		pm_runtime_put_sync(&pdev->dev);
->>>   	else
->>
->> Would this improve readability?
->>
->> 	ret = watchdog_register_device(&wdt->wdd);
->> 	if (ret) {
->> 		if (early_enable) {
->> 			starfive_wdt_stop(wdt);
->> 			goto err_exit;
->> 		} else {
->> 			if (!pm_runtime_enabled(&pdev->dev))
->> 				starfive_wdt_disable_clock(wdt);
->> 		}
->> 		goto err_disable_pm;
->> 	}
+On 11/6/26 06:21, Tzung-Bi Shih wrote:
+> On Thu, Nov 05, 2026 at 11:05:29AM -0800, Guenter Roeck wrote:
+>> Only program the hardware registers in starfive_wdt_set_timeout() when
+>> watchdog_hw_running() is set. In addition, reload the initial counter value
+>> via starfive_wdt_set_reload_count() in starfive_wdt_start() (preserving
 > 
-> Ah... I should have written:
-> 
-> 		if (early_enable) {
-> 			...
-> 			goto err_exit;
-> 		} else {
-> 			...
-> 			goto err_disable_pm;
-> 		}
-> 
-> or
-> 
-> 		if (early_enable) {
-> 			...
-> 			goto err_exit;
-> 		}
-> 
-> 		...
-> 		goto err_disable_pm;
+> Is the additional change relevant to this patch (i.e., avoid unclocked
+> MMIO access)?
 
-I actually prefer the current version.
+I think so, since reload_count is no longer set in starfive_wdt_set_timeout()
+if the watchdog is not running.
+
+> 
+>> wdt->reload on resume) so JH7100 loads the configured timeout into the
+>> counter when started from probe or after WDIOS_DISABLECARD.
+> 
+> Is it really JH7100 specific (not for JH7110)?
+> 
+
+Yes, the other chip doesn't have a reload count register.
+See "if (wdt->variant->reload)" in starfive_wdt_set_reload_count().
 
 Thanks,
 Guenter
+
+>> @@ -344,7 +344,7 @@ static int starfive_wdt_keepalive(struct watchdog_device *wdd)
+>>   	return ret;
+>>   }
+>>   
+>> -static int starfive_wdt_start(struct starfive_wdt *wdt)
+>> +static int starfive_wdt_start(struct starfive_wdt *wdt, u32 count)
+>>   {
+>>   	int ret;
+>>   
+>> @@ -357,7 +357,9 @@ static int starfive_wdt_start(struct starfive_wdt *wdt)
+>>   	if (ret)
+>>   		goto exit;
+>>   
+>> -	starfive_wdt_set_count(wdt, wdt->count);
+>> +	starfive_wdt_set_reload_count(wdt, count);
+>> +	if (count != wdt->count)
+>> +		starfive_wdt_set_count(wdt, wdt->count);
+>>   	starfive_wdt_enable(wdt);
+>>   
+>>   exit:
+>> @@ -381,7 +383,7 @@ static int starfive_wdt_pm_start(struct watchdog_device *wdd)
+>>   	if (ret < 0)
+>>   		return ret;
+>>   
+>> -	ret = starfive_wdt_start(wdt);
+>> +	ret = starfive_wdt_start(wdt, wdt->count);
+>>   	if (ret)
+>>   		pm_runtime_put_sync(wdd->parent);
+>>   
+>> @@ -412,11 +414,13 @@ static int starfive_wdt_set_timeout(struct watchdog_device *wdd,
+>>   	wdt->count = count;
+>>   	wdd->timeout = timeout;
+>>   
+>> -	starfive_wdt_unlock(wdt);
+>> -	starfive_wdt_disable(wdt);
+>> -	starfive_wdt_set_reload_count(wdt, wdt->count);
+>> -	starfive_wdt_enable(wdt);
+>> -	starfive_wdt_lock(wdt);
+>> +	if (watchdog_hw_running(wdd)) {
+>> +		starfive_wdt_unlock(wdt);
+>> +		starfive_wdt_disable(wdt);
+>> +		starfive_wdt_set_reload_count(wdt, wdt->count);
+>> +		starfive_wdt_enable(wdt);
+>> +		starfive_wdt_lock(wdt);
+>> +	}
+>>   
+>>   	return 0;
+>>   }
+>> @@ -497,7 +501,7 @@ static int starfive_wdt_probe(struct platform_device *pdev)
+>>   	watchdog_stop_ping_on_suspend(&wdt->wdd);
+>>   
+>>   	if (early_enable) {
+>> -		ret = starfive_wdt_start(wdt);
+>> +		ret = starfive_wdt_start(wdt, wdt->count);
+>>   		if (ret)
+>>   			goto err_exit;
+>>   		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+>> @@ -575,14 +579,8 @@ static int starfive_wdt_resume(struct device *dev)
+>>   	if (ret)
+>>   		return ret;
+>>   
+>> -	if (watchdog_hw_running(&wdt->wdd)) {
+>> -		starfive_wdt_unlock(wdt);
+>> -		/* Restore watchdog state. */
+>> -		starfive_wdt_set_reload_count(wdt, wdt->reload);
+>> -		starfive_wdt_lock(wdt);
+>> -
+>> -		return starfive_wdt_start(wdt);
+>> -	}
+>> +	if (watchdog_hw_running(&wdt->wdd))
+>> +		return starfive_wdt_start(wdt, wdt->reload);
+>>   
+>>   	return 0;
+>>   }
 
