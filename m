@@ -1,60 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957451;
-	b=j84S0wd/u7/rnJibZyvlQofUJJO/qhWLMvReuxX6UZVZYhjzyVufbYTmPx+5zxEthj5v
-	 CH/YfOKv1JOfliiO/HaYmg2B7fNsEGEZSPFklqtTD+h6x0LZNGDdePVsUqJGBNwOE4BM8
-	 LgZx4mxHm1t9qXWYXUHb49ksIS1HWfHfls4CC5BoHjmm9/PkN4vg7r4Al+gTpV4ae3Ik6
-	 TLU/KYtEZ910BTXybiD0vYwHAA8p3I6b8tUN08GtZrTd9rxNzVEsy6HTd8b3MAqS2P9Gz
-	 JsRjSICf4xmYqdj/Fsqfos8Cg6v2QmcSdtMth0tUqKcAL8hsHEFzXG5yvDTVvMzs6Aw==
+	t=1793957461;
+	b=eHmeQhc82kn049dY69aPNSGlkmD3nBAr6MbVVXj+9HANgn14pjlsp3QX+2f2K5FJJReU
+	 p55dOwss9krKr1eOHcvVkCL2KGI32ynAj/LnvYVToHKgDN5lgtIAfTr3cAQbRQs3hf+G4
+	 J1H0FXemsC/Q4yBb37Cj+bV6sUeLpAb20kSYl5kSeXHPtOXkiv+zxOJuH/Xz7PXRbOkiA
+	 8dwkn+6+K7HDTFv6mNvkKlkfYIwDD7IZeZL4cx4p8G/wWtCZaK7szAkoBNJbOG0BfL2ql
+	 30wMl33maPiiw3GOpSt6ftz5tADsKrGxysYGuEssjKr8MdvOKOx+KJSWdTAuA0Wkt8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957451;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957461;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=SHm0AteFxuKOwxOjlVILodPtETBXP7hD3plfwEFTqSQ=;
-	b=REXQS5puOCvrc29uU1RzaPJPeI56GyO1mFZQjTKMQAcJQM1Htxpm4ZIyUZFbd3pnJxWl
-	 UDj3p+l3gAcztUy3UXQojKiPz0kCiYXbk7AJ/K/FzSAMjU/VIut5amyFycYU75nasmTty
-	 4g/EWb16lYOiAhYRXbdQm4CxPjcwfVPabRchq/gvpLkTuL+iQa08qJEkYkEXBd0FFOPMF
-	 jGlPTf1G87R7726s+RGg93WmJDfWndFfUUw1IAeJgRZsKYFy4D+by4kBcRTlunLJWHkOn
-	 l7obrnn4Wfg8IH7IJBkPr7RA3O97QkXestyOJh83mP9Dd+Xzm2P1YEGJ5wraPgtpHow==
+	bh=b2DYExTYymKs+rj5qLFkdxVQ1f+JYX1uyypx3DzhTVs=;
+	b=JDTsCMdLt4xSYFLhaA5kg9qZBPyUXXp6apXFFsLNxBRtM7XpzPWa9mhBH+8n8KLuK/dG
+	 bAh7X2MS5f8Yp19azCjEVvBobZP59ig+9BAAHrJ6NR8BhNNbGy7ACXBWVebXMauqOYbbw
+	 rvOijGpXVbVYQTMALSNtGUGGmju7HhAKPXBHkOvKFlx7RUNmh3O114GBBc/pQd9DheZZ1
+	 KqYIYvQpOT5sco0y1blUhRjgKdTSVrphazxuMPedmlGq2+i/u1oDge7zr77bMKg7ZkIUI
+	 Oea54O1nUAo7YPI0KUWxCht1xM7hJ8ai6t6jWi6dcOjeiFOEc9396prtInia4JKm1eg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=S2GzPxSj;
-	arc=none smtp.remote-ip=185.246.85.4
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=n1j5ALbN;
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE727606A32E;
-	Fri,  6 Nov 2026 09:30:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE727606A32E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9C83606A332;
+	Fri,  6 Nov 2026 09:30:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E9C83606A332
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=S2GzPxSj
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=n1j5ALbN
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 5F6114E413F4;
-	Fri,  6 Nov 2026 09:30:48 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id C0D591A12C8;
+	Fri,  6 Nov 2026 09:30:54 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 1CC8B5FFBC;
-	Fri,  6 Nov 2026 09:30:48 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D258E1032927D;
-	Fri,  6 Nov 2026 10:30:38 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 91E855FFBC;
+	Fri,  6 Nov 2026 09:30:54 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 23E3910329258;
+	Fri,  6 Nov 2026 10:30:44 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793957444; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1793957451; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=SHm0AteFxuKOwxOjlVILodPtETBXP7hD3plfwEFTqSQ=;
-	b=S2GzPxSjpvUeXv9HhBo+yI8ELQmXQ1gLJRsLtHsc1gB4qMc2Cg/yer5MpNZINHYd6b9zmX
-	nq7LBhAvb2FeUUyUMweM3e69TEuOPH+PSjpqKP8iIBmmnTWtgmZWBLTQKaegy8Dvv3N+rl
-	I09tiujlzMrDJcp/I3frt3C8KJ7QmCnR1ULbnEnsF+SgF3g8BFvNWwSifnCe01AGTUaUky
-	hMAbU4DWJDyh6+CW5OHyxCAFIocJqTi6rSrx9SnrlMScKXNji3+G8d3dnG6Ha78Gt4fZs6
-	iDReX4aecjwx6eI576V4QcUYA9YgMNZ2qUDDnd4ILBtpiIRIgPODLAdE08gwUw==
+	bh=b2DYExTYymKs+rj5qLFkdxVQ1f+JYX1uyypx3DzhTVs=;
+	b=n1j5ALbNPpw1RFX1M9nj4YVJj634p46gxBZU1MJ5wj45z4wlJWSXL/5Bc1zCOnc0L5bw2z
+	D0n3M0ZGB6qDz/+iCxGTxG6NGIs/dpCvxBqqcVUmbWuFc8bM3LyGuqzlI76pSD5tbqUCk4
+	8VjMQ7iKwRN08hZzZSuJmrRjf4OC3T6T2lagge2RnBHe73UXtG/DjSkkhvUV640NakyRcG
+	9ARLCroyVYbK+CUNT/rb0Wk/+p97mgtlTNeInPxU/MFjFQmPbn2UTGwlhybXThUSrqNA4x
+	noKS40HU8IUuLu6u409P/3/WcS5R8PLj5fzvHq0iO54cg1IFv4ZBUVPNJfRxDQ==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Fri, 06 Nov 2026 10:29:58 +0100
-Subject: [PATCH 01/25] dt-bindings: vendor-prefixes: add Metanoia
- Communications
+Date: Fri, 06 Nov 2026 10:29:59 +0100
+Subject: [PATCH 02/25] dt-bindings: riscv: add Metanoia SoC-based boards
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -66,7 +65,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261106-mt2824-v1-1-86087eaf5af4@bootlin.com>
+Message-Id: <20261106-mt2824-v1-2-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -99,31 +98,46 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-Add the vendor prefix for Metanoia Communications Inc., a fabless
-semiconductor company specializing in wireline and 5G radio access
-networking chips.
-
-Link: https://metanoia-comm.com/about-us/company-overview/
+Document the compatible strings of the Metanoia MT2824 SoC and the
+MT5824 evaluation board.
 
 Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ .../devicetree/bindings/riscv/metanoia.yaml        | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index 5471a06f93f1..085749fb8a72 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -1087,6 +1087,8 @@ patternProperties:
-     description: Cisco Meraki, LLC
-   "^merrii,.*":
-     description: Merrii Technology Co., Ltd.
-+  "^metanoia,.*":
-+    description: Metanoia Communications Inc.
-   "^methode,.*":
-     description: Methode Electronics, Inc.
-   "^micrel,.*":
+diff --git a/Documentation/devicetree/bindings/riscv/metanoia.yaml b/Documentation/devicetree/bindings/riscv/metanoia.yaml
+new file mode 100644
+index 000000000000..a651917630fc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/riscv/metanoia.yaml
+@@ -0,0 +1,25 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/riscv/metanoia.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Metanoia SoC-based boards
++
++maintainers:
++  - Jun Chang <jun.chang@metanoia-comm.com>
++
++description:
++  Metanoia SoC-based boards
++
++properties:
++  $nodename:
++    const: '/'
++  compatible:
++    oneOf:
++      - items:
++          - enum:
++              - metanoia,mt5824-evb
++          - const: metanoia,mt2824
++
++additionalProperties: true
 
 -- 
 2.56.0
