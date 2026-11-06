@@ -1,60 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957482;
-	b=eyUlPwt2zftmyqpY3nfZWL77zyVfaTWWDbyyGZQT0roa/Zs/P4kkIWxhz+J9/Oo0purb
-	 wr55NYPWA9FmDxls/tcl9IM+d7gtyYwEW0k/2c3oFFNiGmbZlsX8IQS/BDwnlb4vEZ3Uh
-	 lrG4VqpQA5cioVFtoq9xEWTAqOX/96SRgbnDK84iPJMNkOCuTKLsqY+bn41NB07XQBZ5B
-	 slO3t9ZcBpOclMcjJjtZZ61xSGDsPlGRs9PtAf4+v71u0ZdmhTlubZFz2DDHXXqV4sTZD
-	 NaEPgxRRKcNT55X/UpPu7iHMV/zkUCgXuVJb73MU5+nW/OJ9WV0FbUP9TjPG+zwq5aQ==
+	t=1793957489;
+	b=xIycREUuMleATQuBLzTXu9mPWtGsXRw1owVE7GYcym2YPYDDwB5yX26QYQUxIV7eUzSi
+	 incnTizUuxdiRLNoh3lo5eJHA8nIuIKRqniCskLqHsAjOSGwj0DiVpYRRUmbjJgCvIZbk
+	 eV4PWdJ6f7HwdDhfRxd0o+GsoA1NyQdV1Pwyc151a2Mr01ubOT9xkWKIw1bZkUkAzNXv8
+	 dLLIY8nnQbtMQT0/gtkW5+Pd1W5hxEcmoObXSa0K5eNxMng5No72shfr2/5JsuIylFLeM
+	 HrV88A5FG8Ey2czNot+iitfUPz9qzt30MzwaOUZDY3sGfA3aV8fSMHsWUnzErpwkN4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957482;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957489;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=QLYkWtEN7WalqBEHRAOhsQQEXGo0FNnoMfBxTpC6uGY=;
-	b=BatfdbiyUP6DB3vQULkzHta0slV8JY+KCo6OQ8iOMEwhKgvXm4e1Xxl6n65qky5Ev7Vp
-	 l8rF+qDi3R8C7llp8bXjliWOppG2vgIgkAJDHsTN4wNh+6SmqikxkvkhwrfOfHUUg4GTO
-	 Oc7pYRDzND6HI/sLV1awZTvMr563gnXHSo2RoxhiutXib4rLlPEQ4TMgMx7PNl21DQpH/
-	 Sf3ZOJzHqHp0Fl2npzPXWVNP1pF+ATpbN/xRufZjVRy/hJXO9v5HHqu4Na5tU4ViaEUYV
-	 7gKFhX8zyAEk4lfNj1mUtgdMIoMn73LJVcbMgWF6qvotTGwoldmpqbG7S7Of8cVmgKg==
+	bh=3Nu3XMIEg/cqml8i7yqfb1ECUIOMCmZ+Oaq/WIoYvAA=;
+	b=ReTFykEcpGJbMwGJOo6Cu86bsW3gorWxDXWyWkx8j6MJ+W7K1H03tUhq1z7mty2CJQSd
+	 c4EQ1rGj1yBcD2/+8Hn3p+xDcozYopeutqTWYYgU8vtgNg1IgKb8mZq/FOpRks8HMFdn7
+	 Zn7DaUOPwXOycyLf3aCC4Pkz0+aC/efBPSEP1TnY7uHkHhBU5YZavNgrqTST0DEdS95Wb
+	 PptANHL9m2HdZHUm9coTIdS+05lhoNz78PdN9XTFTGQ1hnjv6pieYjc4ZuCDj+gzn2qHG
+	 R9+3Z7wGKfVE43LmH374waEgacTabEQheyd/6Id2nGMCN6pe94ntJNkhCKS3atXHi1g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=fhPaivNp;
-	arc=none smtp.remote-ip=185.246.85.4
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="Ck/X1cu3";
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99B6D606D810;
-	Fri,  6 Nov 2026 09:31:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99B6D606D810
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2AC6606EE83;
+	Fri,  6 Nov 2026 09:31:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B2AC6606EE83
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=fhPaivNp
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=Ck/X1cu3
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 6CC944E413F4;
-	Fri,  6 Nov 2026 09:31:20 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id CE952C69168;
+	Fri,  6 Nov 2026 09:31:26 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 39F6A5FFBC;
-	Fri,  6 Nov 2026 09:31:20 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 30FA710329258;
-	Fri,  6 Nov 2026 10:31:11 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 39EAF5FFBC;
+	Fri,  6 Nov 2026 09:31:27 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 686F91032927D;
+	Fri,  6 Nov 2026 10:31:17 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793957476; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1793957483; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=QLYkWtEN7WalqBEHRAOhsQQEXGo0FNnoMfBxTpC6uGY=;
-	b=fhPaivNp/k0cCUWJfGKo8HFcZ2WHJAFR+CTRjfbiGfLQeZ4kwRAKx33IOsgm/CqXJFtJ5w
-	sJr27DBLIQ/hLOd3HYo0MDZAPDgEz3b+bweWVoxCHjR7ChTrUZOX1Aaj+tzaZ2IrUAMCvI
-	HPrqljvEQsNy3eku/1UFusY7pPLusv2wXDKsUveU3Q2+Mf2E8N66LRRw+9vwyfIx1kcqCS
-	OWLMe7hEH8DGDchj/na0s7ySL0JF8dgLW2yCik+0XplHYtJSogsREUrEN8iIzmC9/I/NIA
-	DElf9Yhie34muUDWk6bdzy6S94MxnTn2p8i1x9SjCfk8iKOEeKrBI45lexXPEg==
+	bh=3Nu3XMIEg/cqml8i7yqfb1ECUIOMCmZ+Oaq/WIoYvAA=;
+	b=Ck/X1cu3CujjL339giAfni+c0D/WjBlDkh9RFU+2NwqCv6VpS8Ac1RQkroUyatj+1acT5u
+	2RP0rlnu75p67mCrwylxlvTg5TfoSv08okFYHueFJ0A7X4tCU61dZiK81C+QPDNSaHH+1M
+	GsmdxFtSfSEabf8uq/p9M1Kly0PiGxCzW2PBfGFBxT30MaSeM+CqZjFqeGgfp/52eE9an6
+	Rs589G4aZug0RjAmrUehh3ebYuegh6wVyjvdfV8C5m4VcaepH+pH2272YtdxwtvkgVzPzl
+	blozOSwzNRGlNvJN5JF1EdxgcGkrDQyRsTlSadh/D+gqmgsMcMPq1VvDMwakjw==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Fri, 06 Nov 2026 10:30:03 +0100
-Subject: [PATCH 06/25] dt-bindings: cache: andestech,ax45mp-cache: add
- MT2824 compatible
+Date: Fri, 06 Nov 2026 10:30:04 +0100
+Subject: [PATCH 07/25] dt-bindings: interrupt-controller:
+ sifive,plic-1.0.0: add Metanoia MT2824
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -66,7 +66,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261106-mt2824-v1-6-86087eaf5af4@bootlin.com>
+Message-Id: <20261106-mt2824-v1-7-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -99,28 +99,28 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-The MT2824 reuses the AX45MP L2 cache controller with its own cache
-configuration. Add a SoC-specific compatible in case there are additional
-differences between the two implementations.
+The Metanoia MT2824 integrates the Andes NCEPLIC100 platform-level
+interrupt controller. Add its compatible string, with andestech,nceplic100
+as a fallback.
 
 Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- Documentation/devicetree/bindings/cache/andestech,ax45mp-cache.yaml | 1 +
+ .../devicetree/bindings/interrupt-controller/sifive,plic-1.0.0.yaml      | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/cache/andestech,ax45mp-cache.yaml b/Documentation/devicetree/bindings/cache/andestech,ax45mp-cache.yaml
-index b135ffa4ab6b..c94044a049b2 100644
---- a/Documentation/devicetree/bindings/cache/andestech,ax45mp-cache.yaml
-+++ b/Documentation/devicetree/bindings/cache/andestech,ax45mp-cache.yaml
-@@ -30,6 +30,7 @@ properties:
-     items:
-       - enum:
-           - andestech,qilai-ax45mp-cache
-+          - metanoia,mt2824-ax45mp-cache
-           - renesas,r9a07g043f-ax45mp-cache
-       - const: andestech,ax45mp-cache
-       - const: cache
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/sifive,plic-1.0.0.yaml b/Documentation/devicetree/bindings/interrupt-controller/sifive,plic-1.0.0.yaml
+index cde4bb691897..b76e2fc4cc88 100644
+--- a/Documentation/devicetree/bindings/interrupt-controller/sifive,plic-1.0.0.yaml
++++ b/Documentation/devicetree/bindings/interrupt-controller/sifive,plic-1.0.0.yaml
+@@ -54,6 +54,7 @@ properties:
+       - items:
+           - enum:
+               - andestech,qilai-plic
++              - metanoia,mt2824-plic
+               - renesas,r9a07g043-plic
+           - const: andestech,nceplic100
+       - items:
 
 -- 
 2.56.0
