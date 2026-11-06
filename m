@@ -1,60 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957510;
-	b=TMORBsL3jUIB57roGVu8hxAL09gtlmYvB+UJIaLbuL1X2qpOlgc1PjmCn26qXGDjx1RJ
-	 SW3V8K1SBnaiXCccm3wJf9ziGp7XDOGmJRb2cPdjzmI6X7i3vtr3FYj8gv5PLvcL1CGU6
-	 U37jvbMEKkfrCPQqoh2lYj3gLDlKvmMD8+1Jk+Jc81p4L7V6XK9zkDV5pGUEHUNGmf9Zu
-	 yqipVw+m5XEc/kHEXgNegTODlZzubUI/RsbTqIbd4CVgfnqeJ46vWw0EU1CY06AdEWzYG
-	 0BE9rOShNVG1xdqpUux6b+5qkCjwHZjMpX3T0XxQMCm3q0u57davLZ/yGgfTWijyByg==
+	t=1793957518;
+	b=vugO0SOXner/7/Nq1aF3joDcnHaob2MIlr/nXH3JTjo9hbF5l+mGGxUq3v1n+mld7e69
+	 QALz1uqly+TE4m+LMkqPsPJpdR63MZXgk1hY8VUwX+LkVd9LE5tQC4Qjwd4XS2cwTS50v
+	 BajVP/vzJU8fMKobcmq32c2RHf+vsgxNu+dvxTKgqV90ZbpPezzUEecpOQQWpeGrs/SLZ
+	 sFptSacUWc7PEhiSaBSkkKeFqbHqECIf/SE47ed/QtBvmKwGk/wFVarvIvja0rRKNZ189
+	 JQiKw8RIjQbSbKQAVFWsmnmWl+yNNYR1NEhkYPP4zSOfAXY5fvUFjnq+Yyir2u/re0Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957510;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957518;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=/f+A9Mb+Dr9AA8h+IGk0mm9hM1KIlwRpJwCcjc3IH3E=;
-	b=Z2q5/YzGviVZA/biToxcyPYDcO8aC0dLUAMlYRSwn5F8PPGv5xh8V13uYp0jCvgvRuTI
-	 fAwY37TeYMO5s1gZdicd/uKMcT8frV9dfGItgz8hth4O910EXwANf9xZhcM/bb72RWXVu
-	 vzgFkIYtwpHaK/8sTxi6P9+4iv00vCtuPTYIL2miYqYqKCuXFH6v19L2sN6Wt/qqxfH9l
-	 Cv8itEs1ejV2tSYtxH0PA8LcfHlzcIwLiprfubq8can0FuTkIJOj0oS+eko5zmINMEerk
-	 NdZKAQiaD6cjOpbaP0LOMBw0l1dMair4bYMtOVmNQt6jmdCdE2ezfpAKDHur+GUUK0g==
+	bh=CNZP50BWBrq5SlkS/TLDhwZqggqQ5ahbrtHLdVk2cSQ=;
+	b=yq93dcauatTBHVtwfePjX8k8zMu8m15BK6o6AaNnlL+RNqyF0y5w6HDtfu2ElKPpNxZT
+	 7U2v+IUy7ahySv0wHZaulbSguwOIxQB01Iug1V6Yn19KWe8M0bbZK1Uk5XBwC2CyQ98HW
+	 J4ExfvHKwTz01+bghoR1vSSkS8RLDYKROg2ucgYxDl5xQvZfOsSe0X7lWEa06yEFiUDu+
+	 UtW2TxvTdoNg8jgXVGbso8naITBg2RIAsSa/8p1O8qdJFaG6z4uAtR+KSx3NOX/01+oNP
+	 bVlIsqZAnhf/2GvpRZ6/jGn3zh6o+paAdCeuDVz0/8hq0eaF3riaU8aP+CxFEPVP1Ww==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=X6vvRrWD;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=R2gRVOsi;
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C4DD606D81E
-	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 09:31:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C4DD606D81E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F9FC6082BF2;
+	Fri,  6 Nov 2026 09:31:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9F9FC6082BF2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=X6vvRrWD
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=R2gRVOsi
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id D8754C69166;
-	Fri,  6 Nov 2026 09:31:47 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 556AB1A0C32;
+	Fri,  6 Nov 2026 09:31:56 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 5A1B75FFBC;
-	Fri,  6 Nov 2026 09:31:48 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BF23910329258;
-	Fri,  6 Nov 2026 10:31:38 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 266995FFBC;
+	Fri,  6 Nov 2026 09:31:56 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9597B103292D0;
+	Fri,  6 Nov 2026 10:31:45 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793957505; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1793957511; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=/f+A9Mb+Dr9AA8h+IGk0mm9hM1KIlwRpJwCcjc3IH3E=;
-	b=X6vvRrWDCBaEUkbIvoytSa35YPFuDIC8UF+uAHCLPrAdeiYysSLWa9DpcOc1UbsOI3f6xE
-	nAIdK7YzElV0hpqezo21aqyGgqH9RIy3DuWBwILOnYdjnpoke1PZ1wfSukm657h2Y7irik
-	A3EGcqQgODDTbQGvejpsfVNeIFuV9wkUEvZiCKa+Lf5r8LCfuDPM/nmdtyRsmTID9HAg8l
-	JJipIhMiUR1xrSgQvdIrn36NfvOk9/5OG9WXS1+WUwDyoT0prQegBOe3htG9kenjvf80RD
-	5gxrGzgN6wQM6Z0hm9Fab/I7GRxv7ybOWpN0JO0K2LCa/nabBakNbECFRAfong==
+	bh=CNZP50BWBrq5SlkS/TLDhwZqggqQ5ahbrtHLdVk2cSQ=;
+	b=R2gRVOsiMPmv9CMSij+H31YRu4WRa7A6biLsMzbtMe2ekfOeuaQbidN1f1Pf8cOuGPOB31
+	IBwbP9S6vIEqkXmSxU6/Jjx8J7VZcJJUqRZC+2XxgG6RqC+lM/JSS4YmCmOS6BEl/vKk2N
+	Gk6T/f5/VwP1YbrUvc5ZdBJ8Q/70J9Qro56xY1tGbA+TaoSRKiJN3Hquuy6FJUszJQEDpe
+	lKG5xHA0ua0e5t+6BVnFkZ8T1AJOhaH7rInquLbulFrjCc7hiBBMZ293DhP8Dhd/8yIWV3
+	LBT65BpuviBCTuUnp5NTuVRQi0TlMJnIOiJsB3zT/C5eCrSH7zN3sA68V2DpFg==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Fri, 06 Nov 2026 10:30:07 +0100
-Subject: [PATCH 10/25] dt-bindings: mmc: snps,dwcmshc-sdhci: add Metanoia
- MT2824
+Date: Fri, 06 Nov 2026 10:30:08 +0100
+Subject: [PATCH 11/25] dt-bindings: spi: andestech,ae350-spi: make DMA and
+ interrupts optional
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -66,7 +66,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261106-mt2824-v1-10-86087eaf5af4@bootlin.com>
+Message-Id: <20261106-mt2824-v1-11-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -99,27 +99,50 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-The Metanoia MT2824 integrates the Synopsys DesignWare Mobile Storage
-Host Controller for eMMC/SD. Add its compatible string.
+The ATCSPI200 controller can be used in PIO mode, without DMA, and PIO
+transfers can optionally use the controller's interrupt. Make dmas,
+dma-names and interrupts optional, and require dma-names if dmas is
+specified.
 
 Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- Documentation/devicetree/bindings/mmc/snps,dwcmshc-sdhci.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mmc/snps,dwcmshc-sdhci.yaml b/Documentation/devicetree/bindings/mmc/snps,dwcmshc-sdhci.yaml
-index cd823a3ef213..0ebd0f9c1d62 100644
---- a/Documentation/devicetree/bindings/mmc/snps,dwcmshc-sdhci.yaml
-+++ b/Documentation/devicetree/bindings/mmc/snps,dwcmshc-sdhci.yaml
-@@ -26,6 +26,7 @@ properties:
-           - canaan,k230-emmc
-           - canaan,k230-sdio
-           - hpe,gsc-dwcmshc
-+          - metanoia,mt2824-dwcmshc
-           - rockchip,rk3568-dwcmshc
-           - rockchip,rk3588-dwcmshc
-           - snps,dwcmshc-sdhci
+diff --git a/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml b/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
+index 381042e07fd0..91e04f5d354a 100644
+--- a/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
++++ b/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
+@@ -24,6 +24,9 @@ properties:
+   clocks:
+     maxItems: 1
+ 
++  interrupts:
++    maxItems: 1
++
+   dmas:
+     items:
+       - description: Transmit FIFO DMA channel
+@@ -34,6 +37,9 @@ properties:
+       - const: tx
+       - const: rx
+ 
++dependencies:
++  dmas: [ dma-names ]
++
+ patternProperties:
+   "@[0-9a-f]+$":
+     type: object
+@@ -55,8 +61,6 @@ required:
+   - compatible
+   - reg
+   - clocks
+-  - dmas
+-  - dma-names
+ 
+ unevaluatedProperties: false
+ 
 
 -- 
 2.56.0
