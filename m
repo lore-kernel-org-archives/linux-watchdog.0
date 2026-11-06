@@ -1,57 +1,84 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793988824;
-	b=DtrGanO9CqosXXoixSY8Kwgc1u1fx6Q3IPmPoOnSPiqBDcBo6tg21DHqvneXeaBt/sH8
-	 HkwYmONYYeqVEXhbBHPS/+elRQB5+zdbzkDX4L1wKzF7OMEgAL/tJwIofObAnHyZwj2DI
-	 AsL+hiJwCK4PpMT53BdO5e8V/OnQf7Vfus1IP8mKLPJxIUUqDXJpkzOq8fSYv8R9BJ9GS
-	 4ej59ZHFUKVj6dBf3CioZ0+y7P4BfKTDlOVnGh3EtyNDXKTxsK2A0CDF9DUgUo/xWXzXI
-	 4DiM0XWo3s/KiIhqKhl6vg+A0K0hyLivuDXdOzm85OasBmxdyZYOirutWc7oOL1c2SQ==
+	t=1793989197;
+	b=n6y8l1AJhWdW+hlZmVGakcdGebilWA+o3qYYSHbwbnMQbRXjDFv16O71JM73fN8JCAHa
+	 qgjsfWP0WMQDOIb2TpCjk/R/uE+FDHaOMELiU6PnefMp5Pdvqo17Gdi4r2TZwAaKB3Aiw
+	 tCN/KC2u66QVns8FqJ8AHgrwmxUrUDWa7RGawSf5mPbtF0Y/2ucNhsNLPBT38+6t5bziZ
+	 en637b+G9S/DD55ID26AxLVOmZwrA2Sbrni7nOIOKO5il++hd3F7aEIaFPmDzxgRepNdG
+	 UXhvcb2VdjrorOUEG8d3Kt5yAlSumSFgwekqw3E/SBCzM+5k39NYtC05rxKz+yXVoQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793988824;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=KMQDum6ro6+38J8GrwMjdFRm/rqOA0moDhFDYguzWLU=;
-	b=zKqBcv4MxrLcIiMWxiPzXyueg1P/hH0sMgjTkdGjE/Hcn83e02b72gY1PlwpjM7MMikP
-	 b1fRQIoE0F/nQxvGlnS1Rj/MyLW60UVA/eSRPjf0e+3Ng5l9UiSPtV7Y8svaK5tAEplrP
-	 73AMFJXNy+FO/IoQ9ni3C1STld+ehoZB60tHxDLuc1V5kzXfPTYDjWB2E2MkUXRu+8Zrc
-	 4UJJFtQS6dd18DiAMJZYRXR4dkyDKQHvhsxtxaPEUlri5rMQzm0DQ2WbUMC7w5MTFelPo
-	 6FGQRTL9pziOoaUVW03qHLzttkUlMQz86/X4T+06Lwt9FU0ONK2GhSuPQHTvRvKjQqQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793989197;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=c/20RGI5WiHKKkpDTceQl002Lfa1bhsWYphTb3UDQkg=;
+	b=mPZBs2TM14nLJc3wsov37lkZouzwbOeit0toNP8Q5HCgGxfEfKRBLCSKKt/oChnBC60K
+	 STvGA0LZgdQgLi7xL9g0fgngKi/mQANLWsP2795FxAlXZLFXt/HXp8NMVpEGqYN/Xy4MD
+	 kVG5kViWzeuzRgStwSUxiHQ3jAvQ+BG1Pbs1KVW66hX9qUVQ8+jkr93r9xf9daPJZXlaZ
+	 6g1H/kadTaFO+X5bgQ5Zx45fWGnXzlfubvEB39+bi9kDvsAqT7HfhlPGmB+hZeROSaPgw
+	 ldugFruwAUPwuq0968nYFDB5aQNIiXLa36oND3aa+lvGUzDd7FS9rnszpmquItS2emg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WTB8Cbwt;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KrBSVpvJ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 075EC606A326;
-	Fri,  6 Nov 2026 18:13:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D8E606A333;
+	Fri,  6 Nov 2026 18:19:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WTB8Cbwt
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C5CA1F0089F;
-	Fri,  6 Nov 2026 18:13:43 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KrBSVpvJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AC2E1F008A4;
+	Fri,  6 Nov 2026 18:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793988823;
-	bh=KMQDum6ro6+38J8GrwMjdFRm/rqOA0moDhFDYguzWLU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WTB8CbwtC4uPmCt6p2VeAkonRR/+2WCGOCmXPSVjGk5MopoLe4purDz0Pa+ZWc3PU
-	 Z1a0z7d0FQ9Xlsxd18h9hR+qIngDahAeNAGphHfOqij4wXRenO5/Cv418BB5esX/Cx
-	 sqHEAvqMAyFWq95EBo/CCDv/9E88neFw54GCKXyAifHILHygqC5vNTFJqDuYr0D6NT
-	 qmNL2zmW87pCzg0Yb1sEB1I+j3knkCCdyFLtJbukp1gr4MtqIlifb3O4jrR+4DeJ9q
-	 5neAYdxKECSPgAgoXQ5E46vB78gCH6sW6ENazYShMNGKpSn4s8pyHN1RLQbCeZ8y+G
-	 3Zzc45Q0lNJDQ==
-Message-ID: <sashiko-outbox-201998@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 11/13] arm64: dts: st: add iwdg1 and iwdg2 support to
- stm32mp231
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Antonio Borneo" <antonio.borneo@foss.st.com>, devicetree@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20261106163429.618392-12-antonio.borneo@foss.st.com>
-References: <20261106163429.618392-1-antonio.borneo@foss.st.com>
- <20261106163429.618392-12-antonio.borneo@foss.st.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 18:13:42 +0000
+	s=k20260515; t=1793989197;
+	bh=c/20RGI5WiHKKkpDTceQl002Lfa1bhsWYphTb3UDQkg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KrBSVpvJM7vkY1slHDjt9v9csvTLVw6DZE9OLBCH6kHBWwi/iB0GMO52uMbFZPMu2
+	 aoxCVUIO3CfvqbM4ApUWQqMUyq7T507tTjGYhdLv9cHq0mKkBdnJcKicl10MAbOTO6
+	 l2bPh4z/TPbXDyBRgQauffurjJJKfxnf8R5aSi4pzmXXl5IiGbbZX+1B8VF3IZ5rwr
+	 0g7Tt8zM/nxj3oEc1nE9jrxUZVpbFdLHlwshhP4A3v/UkkQpvvX+reUCCcU7KAJ91b
+	 dy37lW9arn8Wu6MQyOfyX701vpirgwBIQ4tvzJCyh+t3BrRDSXQUnDmZ8+xFdidOMf
+	 sRqoiBHWy1upA==
+Date: Fri, 6 Nov 2026 18:19:47 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Jun Chang <jun.chang@metanoia-comm.com>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Sebastian Reichel <sre@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Ben Zong-You Xie <ben717@andestech.com>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Ulf Hansson <ulfh@kernel.org>, Jisheng Zhang <jszhang@kernel.org>,
+	CL Wang <cl634@andestech.com>, Mark Brown <broonie@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Minas Harutyunyan <hminas@synopsys.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Randolph Sheng-Kai =?utf-8?B?TGluKOael+iBluWHsSk=?= <randolph@andestech.com>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-phy@lists.infradead.org,
+	Paul Walmsley <paul.walmsley@sifive.com>, linux-mmc@vger.kernel.org,
+	linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 25/25] MAINTAINERS: add RISC-V Metanoia SoC support
+Message-ID: <20261106-comic-cupid-a8a3c127307f@spud>
+References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
+ <20261106-mt2824-v1-25-86087eaf5af4@bootlin.com>
+ <4f1e52d9-0788-4601-8f67-898256a776b4@kernel.org>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -60,56 +87,60 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EI85CRMW6gBoUvVg"
+Content-Disposition: inline
+In-Reply-To: <4f1e52d9-0788-4601-8f67-898256a776b4@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] arm64: dts: st: undocumented access-controllers in st,stm32-iwdg
-  binding
---
+--EI85CRMW6gBoUvVg
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-commit 93c31545a492246bcc374e2c2022c94ad8a0467c
-Author: Antonio Borneo <antonio.borneo@foss.st.com>
+On Fri, Nov 06, 2026 at 12:22:15PM +0100, Krzysztof Kozlowski wrote:
+> On 06/11/2026 10:30, Beno=EEt Monin wrote:
+> > Add a maintainer entry for the Metanoia MT2824 SoC, covering the
+> > SoC-specific DT bindings, the SoC and the evaluation board device trees,
+> > and the phy driver.
+> >=20
+> > Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
+> > Signed-off-by: Beno=EEt Monin <benoit.monin@bootlin.com>
+> > ---
+> >  MAINTAINERS | 11 +++++++++++
+> >  1 file changed, 11 insertions(+)
+> >=20
+> > diff --git a/MAINTAINERS b/MAINTAINERS
+> > index 93abbb315065..310544f96204 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -24072,6 +24072,17 @@ T:	git git://git.kernel.org/pub/scm/linux/kern=
+el/git/iommu/linux.git
+> >  F:	Documentation/devicetree/bindings/iommu/riscv,iommu.yaml
+> >  F:	drivers/iommu/riscv/
+> > =20
+> > +RISC-V METANOIA SoC SUPPORT
+> > +M:	Jun Chang <jun.chang@metanoia-comm.com>
+>=20
+> So Jun will handle the patches? Can we get an Ack for this?
 
-arm64: dts: st: add iwdg1 and iwdg2 support to stm32mp231
+There's no tree listed, so probably Jun is not handling any patches...
 
-This commit adds the iwdg1 and iwdg2 watchdog device tree nodes to
-stm32mp231.dtsi.
+I /could/ apply patches for this platform alongside the other one that I
+manage, but I don't really want to and someone that actually cares for
+this platform should be the one applying patches for it.
 
-> diff --git a/arch/arm64/boot/dts/st/stm32mp231.dtsi b/arch/arm64/boot/dts=
-/st/stm32mp231.dtsi
-> index fefbf6f4f1537..db19429896eb3 100644
-> --- a/arch/arm64/boot/dts/st/stm32mp231.dtsi
-> +++ b/arch/arm64/boot/dts/st/stm32mp231.dtsi
-> @@ -724,6 +724,26 @@ rng: rng@42020000 {
->  				status =3D "disabled";
->  			};
-> =20
-> +			iwdg1: watchdog@44010000 {
-> +				compatible =3D "st,stm32mp1-iwdg";
-> +				reg =3D <0x44010000 0x400>;
-> +				interrupts =3D <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
-> +				clocks =3D <&rcc CK_BUS_IWDG1>, <&scmi_clk CK_SCMI_LSI>;
-> +				clock-names =3D "pclk", "lsi";
-> +				access-controllers =3D <&rifsc 98>;
-> +				status =3D "disabled";
-> +			};
-> +
-> +			iwdg2: watchdog@44020000 {
-> +				compatible =3D "st,stm32mp1-iwdg";
-> +				reg =3D <0x44020000 0x400>;
-> +				interrupts =3D <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
-> +				clocks =3D <&rcc CK_BUS_IWDG2>, <&scmi_clk CK_SCMI_LSI>;
-> +				clock-names =3D "pclk", "lsi";
-> +				access-controllers =3D <&rifsc 99>;
-> +				status =3D "disabled";
-> +			};
+Beno=EDt/Jun, please see Documentation/process/maintainer-soc.rst !
 
-[Severity: Low]
-Does adding access-controllers to iwdg1 and iwdg2 cause dtbs_check to fail
-against Documentation/devicetree/bindings/watchdog/st,stm32-iwdg.yaml?
-That schema sets unevaluatedProperties: false and only references
-watchdog.yaml, neither of which documents access-controllers.
+--EI85CRMW6gBoUvVg
+Content-Type: application/pgp-signature; name=signature.asc
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106163429.6183=
-92-1-antonio.borneo@foss.st.com?part=3D11
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCau4aQwAKCRB4tDGHoIJi
+0rbxAQDp+CX8P4FSxsxtp+sH+XOoVxSjimJET4S5CSWzGNHXFQD/b5cKyz3+v/zA
+eq6hyBYC7BQX3uGp2UiAkQX4EfPpDwQ=
+=dNYG
+-----END PGP SIGNATURE-----
+
+--EI85CRMW6gBoUvVg--
