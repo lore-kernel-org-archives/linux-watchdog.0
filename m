@@ -1,59 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957447;
-	b=aWCjEDqEeL6jF7GCz6P3M8DNc3P4Bz8z0VLDjnw5+OtvWMoSXSD33AzqVGfQp3BP8Ppp
-	 hwDNkUNj+YqbaABkbpktMWqg5OLh/f3W3+anYkFLaXXok8ne90XEf8hRGI1Km7LCYDwxO
-	 IT5OdfWkv6XGQpP9T5A0aFGG/Vop+YB/vYsCfyelhD7fyifiBd0SBXtwnjpb76MptvtKY
-	 /ar5EHBGhPWWkCjzYqUXPHsRAokTr/LFxq731PLbsf2iPy0nmN/HOAAE0qsYq18Oenr7I
-	 eXup5AL+9oWGtgjOpC0m/c4NqkM8FKa6XpHmtxmWE3l0ED2O3OccjHISSe4k6Zjyyog==
+	t=1793957451;
+	b=j84S0wd/u7/rnJibZyvlQofUJJO/qhWLMvReuxX6UZVZYhjzyVufbYTmPx+5zxEthj5v
+	 CH/YfOKv1JOfliiO/HaYmg2B7fNsEGEZSPFklqtTD+h6x0LZNGDdePVsUqJGBNwOE4BM8
+	 LgZx4mxHm1t9qXWYXUHb49ksIS1HWfHfls4CC5BoHjmm9/PkN4vg7r4Al+gTpV4ae3Ik6
+	 TLU/KYtEZ910BTXybiD0vYwHAA8p3I6b8tUN08GtZrTd9rxNzVEsy6HTd8b3MAqS2P9Gz
+	 JsRjSICf4xmYqdj/Fsqfos8Cg6v2QmcSdtMth0tUqKcAL8hsHEFzXG5yvDTVvMzs6Aw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957447;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Subject:
-	 Date:Message-Id:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:X-Last-TLS-Session-Version;
-	bh=sS9SQlly2RwS/6KrN94iJowJBr0dXwkGaUXpEOiPodI=;
-	b=plsmtiNI4OLfHDV/YdyEWm2mixm3idX+onG0WKsTSdkeAs7SWWmNLzOaw2AM17oewuWh
-	 Dl+/A1LVSnGhBr025zUypPJ/N4h67EnJSoVn9gXqZ8ZsgoeZxHsrsW4weHYsxf3V9p7NE
-	 Q04HKnjfmOvxUkLJBOxh8sLH/vLpSr20t8J5qFzTo98o6FGxhVrGEVg2gns18Es+vxNCm
-	 SFDD5DWe6M612kUuP+gQC/M24GDBxfinkOoMlk8LMB2vL71NcFrVY3upqIuw7PKGzLmQO
-	 r9dUk3BdhtNEEJzVHBeK/NkZGbrG740oeHeCdIFGO5UjuBIRPM+dToslLHc1AHMW37A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957451;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
+	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Last-TLS-Session-Version;
+	bh=SHm0AteFxuKOwxOjlVILodPtETBXP7hD3plfwEFTqSQ=;
+	b=REXQS5puOCvrc29uU1RzaPJPeI56GyO1mFZQjTKMQAcJQM1Htxpm4ZIyUZFbd3pnJxWl
+	 UDj3p+l3gAcztUy3UXQojKiPz0kCiYXbk7AJ/K/FzSAMjU/VIut5amyFycYU75nasmTty
+	 4g/EWb16lYOiAhYRXbdQm4CxPjcwfVPabRchq/gvpLkTuL+iQa08qJEkYkEXBd0FFOPMF
+	 jGlPTf1G87R7726s+RGg93WmJDfWndFfUUw1IAeJgRZsKYFy4D+by4kBcRTlunLJWHkOn
+	 l7obrnn4Wfg8IH7IJBkPr7RA3O97QkXestyOJh83mP9Dd+Xzm2P1YEGJ5wraPgtpHow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=FYjIfABk;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=S2GzPxSj;
 	arc=none smtp.remote-ip=185.246.85.4
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02F1E606A328;
-	Fri,  6 Nov 2026 09:30:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 02F1E606A328
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE727606A32E;
+	Fri,  6 Nov 2026 09:30:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE727606A32E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=FYjIfABk
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=S2GzPxSj
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 18B4B4E413E9;
-	Fri,  6 Nov 2026 09:30:42 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 5F6114E413F4;
+	Fri,  6 Nov 2026 09:30:48 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id BB4D25FFBC;
-	Fri,  6 Nov 2026 09:30:41 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 12D0910329258;
-	Fri,  6 Nov 2026 10:30:19 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 1CC8B5FFBC;
+	Fri,  6 Nov 2026 09:30:48 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D258E1032927D;
+	Fri,  6 Nov 2026 10:30:38 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793957438; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=sS9SQlly2RwS/6KrN94iJowJBr0dXwkGaUXpEOiPodI=;
-	b=FYjIfABkowisjeRn+CSvLUTjWLuxx+3kviyjc/anqGF9q9GxCZTgw0wpsJ8FJ8ti6FhDe0
-	L/4Js4Usj3Twoh8hMFsbgA2n+iE1ZjjULyXLoUYhOm6r4EYOFHaFPwRWhTMoUIMXkoASI6
-	WAtAjtqt4nozRJVg5mQLbG1Rfu4vRJj87hVCTTSHic8EROes+yJaPkLLHiQcJB5zjSIJF9
-	s8LPfcfr0EIoXu5LjAaihMo4jqU/8/3yM01epv48Yq8rIYgIH648tUnK7J77TfsUi+L4Y1
-	VxGozQieYhe0nmIyWgS+OpgjlDIKTSbs3oztQTFJsFrXy6HYjVT/GK4JwNdv8g==
+	t=1793957444; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=SHm0AteFxuKOwxOjlVILodPtETBXP7hD3plfwEFTqSQ=;
+	b=S2GzPxSjpvUeXv9HhBo+yI8ELQmXQ1gLJRsLtHsc1gB4qMc2Cg/yer5MpNZINHYd6b9zmX
+	nq7LBhAvb2FeUUyUMweM3e69TEuOPH+PSjpqKP8iIBmmnTWtgmZWBLTQKaegy8Dvv3N+rl
+	I09tiujlzMrDJcp/I3frt3C8KJ7QmCnR1ULbnEnsF+SgF3g8BFvNWwSifnCe01AGTUaUky
+	hMAbU4DWJDyh6+CW5OHyxCAFIocJqTi6rSrx9SnrlMScKXNji3+G8d3dnG6Ha78Gt4fZs6
+	iDReX4aecjwx6eI576V4QcUYA9YgMNZ2qUDDnd4ILBtpiIRIgPODLAdE08gwUw==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Subject: [PATCH 00/25] riscv: add support for the Metanoia MT2824 SoC and
- MT5824 EVB
-Date: Fri, 06 Nov 2026 10:29:57 +0100
-Message-Id: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
+Date: Fri, 06 Nov 2026 10:29:58 +0100
+Subject: [PATCH 01/25] dt-bindings: vendor-prefixes: add Metanoia
+ Communications
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -65,10 +66,9 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIABae7WoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzNDA0Mz3dwSIwsjE11jo0Rz80QjE0NzSwsloOKCotS0zAqwQdGxEH5xaVJ
- WanIJSLdSbS0ArD81RGoAAAA=
-X-Change-ID: 20261016-mt2824-32a77a241798
+Message-Id: <20261106-mt2824-v1-1-86087eaf5af4@bootlin.com>
+References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
+In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, Jun Chang <jun.chang@metanoia-comm.com>, 
  Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
@@ -99,124 +99,32 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-Hi all,
+Add the vendor prefix for Metanoia Communications Inc., a fabless
+semiconductor company specializing in wireline and 5G radio access
+networking chips.
 
-This series adds initial upstream support for the Metanoia MT2824 SoC
-and its MT5824 evaluation board.
+Link: https://metanoia-comm.com/about-us/company-overview/
 
-The MT2824 is a dual-core RISC-V SoC built on Andes AX45MP cores. It
-integrates two 8250-compatible UARTs, the Andes PLIC/PLICSW/PLMT interrupt
-and timer blocks, the AX45MP L2 cache controller, a simple reset controller
-and a system reboot controller, the ATCWDT200 watchdog, one QSPI and eight
-ATCSPI200 SPI controllers, a Synopsys DWC MSHC 2.00a eMMC/SD controller,
-and a Synopsys DWC2 USB2 host controller with a reset-only USB2 PHY.
-
-The series is organised as:
-
-- patches 1-14 add the device tree bindings, the Metanoia vendor prefix,
-  the RISC-V board schema and the SoC block compatibles
-- patch 15 adds ARCH_METANOIA and selects the AX45MP errata
-- patches 16-23 add the reset, SPI, watchdog, MMC, PHY and USB changes
-  needed to build and probe on this SoC
-- patch 24 adds the MT2824 SoC and MT5824 EVB device trees
-- patch 25 adds the MAINTAINERS entry
-
-The ATCSPI200 driver gains optional interrupt support for PIO transfers:
-when the controller IRQ is wired, the FIFOs and the end of transfer
-are serviced from the handler, with a fallback to polling when no IRQ
-is available.
-
-The DWC MSHC controller on the evaluation board is wired to either an
-SD slot or an eMMC through a board jumper that the SoC cannot read. In
-the absence of a fixed card type in the device tree, the driver probes
-the eMMC first at 1.8 V and falls back to the SD slot at 3.3 V. The
-controller also needs custom tuning and HS400 PHY DLL handling, which
-is why it has its own sdhci_ops.
-
-The MT2824 SoC contains other controllers not yet exposed (I2C, GPIO,
-pinctrl, Ethernet, DSP, ...). This first series allows accessing the
-evaluation board via its serial console, and all its storage options
-(SPI-NOR, eMMC, SD card). The watchdog and the USB port are also
-available.
-
-The driver changes do not depend on the DTS at build time and are gated
-on the new compatible strings. For merge ordering, the DTS depends on the
-ARCH_METANOIA Kconfig entry (patch 15) and on the binding compatibles
-being accepted. The patches can therefore go through their respective
-subsystem trees, with the Kconfig, DTS and MAINTAINERS patches going
-through the RISC-V tree once the driver and binding patches have landed.
-
-The series is based on v7.4-rc1.
-
+Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
-Benoît Monin (25):
-      dt-bindings: vendor-prefixes: add Metanoia Communications
-      dt-bindings: riscv: add Metanoia SoC-based boards
-      dt-bindings: reset: add Metanoia MT2824
-      dt-bindings: power: reset: add Metanoia MT2824 reboot
-      dt-bindings: phy: add Metanoia USB2 PHY
-      dt-bindings: cache: andestech,ax45mp-cache: add MT2824 compatible
-      dt-bindings: interrupt-controller: sifive,plic-1.0.0: add Metanoia MT2824
-      dt-bindings: interrupt-controller: andestech,plicsw: add Metanoia MT2824
-      dt-bindings: timer: andestech,plmt0: add Metanoia MT2824
-      dt-bindings: mmc: snps,dwcmshc-sdhci: add Metanoia MT2824
-      dt-bindings: spi: andestech,ae350-spi: make DMA and interrupts optional
-      dt-bindings: spi: andestech,ae350-spi: add Metanoia MT2824
-      dt-bindings: usb: dwc2: add Metanoia MT2824
-      dt-bindings: watchdog: andestech,ae350-wdt: add Metanoia MT2824
-      riscv: add ARCH_METANOIA Kconfig entry
-      reset: simple: add Metanoia MT2824 support
-      spi: atcspi200: add optional interrupt support
-      spi: atcspi200: allow building for Metanoia SoCs
-      watchdog: atcwdt200: allow building for Metanoia SoCs
-      mmc: sdhci-of-dwcmshc: add MT2824 support
-      mmc: sdhci-of-dwcmshc: add MT2824 tuning and HS400 support
-      phy: metanoia: add USB2 PHY driver
-      usb: dwc2: add support for Metanoia MT2824
-      riscv: add Metanoia MT2824 SoC and MT5824 EVB support
-      MAINTAINERS: add RISC-V Metanoia SoC support
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
- .../bindings/cache/andestech,ax45mp-cache.yaml     |   1 +
- .../interrupt-controller/andestech,plicsw.yaml     |   1 +
- .../interrupt-controller/sifive,plic-1.0.0.yaml    |   1 +
- .../bindings/mmc/snps,dwcmshc-sdhci.yaml           |   1 +
- .../devicetree/bindings/phy/metanoia,usb2-phy.yaml |  43 ++
- .../bindings/power/reset/metanoia,reboot.yaml      |  34 +
- .../devicetree/bindings/reset/metanoia,reset.yaml  |  40 ++
- .../devicetree/bindings/riscv/metanoia.yaml        |  25 +
- .../bindings/spi/andestech,ae350-spi.yaml          |   9 +-
- .../devicetree/bindings/timer/andestech,plmt0.yaml |   1 +
- Documentation/devicetree/bindings/usb/dwc2.yaml    |   1 +
- .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
- .../bindings/watchdog/andestech,ae350-wdt.yaml     |   1 +
- MAINTAINERS                                        |  11 +
- arch/riscv/Kconfig.socs                            |   8 +
- arch/riscv/boot/dts/Makefile                       |   1 +
- arch/riscv/boot/dts/metanoia/Makefile              |   2 +
- arch/riscv/boot/dts/metanoia/mt2824.dtsi           | 330 ++++++++++
- arch/riscv/boot/dts/metanoia/mt5824-evb.dts        |  81 +++
- drivers/mmc/host/Kconfig                           |   1 +
- drivers/mmc/host/sdhci-of-dwcmshc.c                | 704 +++++++++++++++++++++
- drivers/phy/Kconfig                                |   1 +
- drivers/phy/Makefile                               |   1 +
- drivers/phy/metanoia/Kconfig                       |  16 +
- drivers/phy/metanoia/Makefile                      |   3 +
- drivers/phy/metanoia/phy-usb2.c                    |  88 +++
- drivers/reset/Kconfig                              |   2 +-
- drivers/reset/reset-simple.c                       |   1 +
- drivers/spi/Kconfig                                |   2 +-
- drivers/spi/spi-atcspi200.c                        | 255 +++++++-
- drivers/usb/dwc2/params.c                          |  13 +
- drivers/watchdog/Kconfig                           |   2 +-
- 32 files changed, 1667 insertions(+), 15 deletions(-)
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-change-id: 20261016-mt2824-32a77a241798
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 5471a06f93f1..085749fb8a72 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1087,6 +1087,8 @@ patternProperties:
+     description: Cisco Meraki, LLC
+   "^merrii,.*":
+     description: Merrii Technology Co., Ltd.
++  "^metanoia,.*":
++    description: Metanoia Communications Inc.
+   "^methode,.*":
+     description: Methode Electronics, Inc.
+   "^micrel,.*":
 
-Best regards,
---  
-Benoît Monin, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+-- 
+2.56.0
 
