@@ -1,79 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793947281;
-	b=OJ5FXLF9Zy/cFEmpntGl4OhgngHOhFU51X2E+ltlE9qXkl5e6RG8j1lu5qb8qts0DVa7
-	 C72ty3dnRzh8G29+PduqGwBMIISHL0S+oYAuhhYrtd5OFOiUvuVc8AfPpp6pXkd+Iovej
-	 0s6zi2gMm4m0G40/nJkM7RVIxgQwOlz0MnzGbROw8HDHY8/HWyrVypx8qsE/HRwahDVkZ
-	 GhEaGcbVpt7pFH7Lyv1yCvyIKGz5iRTS+ZNH4Xgt8AcLef/m2Vik+/rFZMAMNhReW/t8l
-	 xFaVbvSHl3t2mayA61obqiZJrOEpvGAOBqfMHsiGXBsh8E1ykNfp01YpLtmH7m/6dtw==
+	t=1793957447;
+	b=aWCjEDqEeL6jF7GCz6P3M8DNc3P4Bz8z0VLDjnw5+OtvWMoSXSD33AzqVGfQp3BP8Ppp
+	 hwDNkUNj+YqbaABkbpktMWqg5OLh/f3W3+anYkFLaXXok8ne90XEf8hRGI1Km7LCYDwxO
+	 IT5OdfWkv6XGQpP9T5A0aFGG/Vop+YB/vYsCfyelhD7fyifiBd0SBXtwnjpb76MptvtKY
+	 /ar5EHBGhPWWkCjzYqUXPHsRAokTr/LFxq731PLbsf2iPy0nmN/HOAAE0qsYq18Oenr7I
+	 eXup5AL+9oWGtgjOpC0m/c4NqkM8FKa6XpHmtxmWE3l0ED2O3OccjHISSe4k6Zjyyog==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793947281;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=uyjLdfQmDiz2aFZH8ieqMJFl01UJOBLEY1l3fqQRALs=;
-	b=oefBx6TzeziovzAQsJGYbEQsXA/knqNbBnJXE9t/AesC/RYLqHr3vzZFQ9iy3hrQASrF
-	 Ypra2VcwH+MnOcLCb4BTlffOr+PotgBxmhRN6Xc1GLEy5bgkerhevMpREBK64qKOXyUKo
-	 DT6uwY9Ld7f5aE/wLLbFBTvvDhfWOHtCNJOuXdL1CY/6YrsllXr269UKmHBZ0ur32s1IY
-	 0/3En4drFx5NyS/E/OgOh5m1vwkunkLYGSH+L8H7MjrGWLnAT3j0z2+7NC2n6k50nJOY6
-	 l/SoqKwA3EQMr7yKBlMQmburmbJtQkWAqlp3r7X7j8jfvqh25gzcZLPxkIBvSKs0kPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957447;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Subject:
+	 Date:Message-Id:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:X-Last-TLS-Session-Version;
+	bh=sS9SQlly2RwS/6KrN94iJowJBr0dXwkGaUXpEOiPodI=;
+	b=plsmtiNI4OLfHDV/YdyEWm2mixm3idX+onG0WKsTSdkeAs7SWWmNLzOaw2AM17oewuWh
+	 Dl+/A1LVSnGhBr025zUypPJ/N4h67EnJSoVn9gXqZ8ZsgoeZxHsrsW4weHYsxf3V9p7NE
+	 Q04HKnjfmOvxUkLJBOxh8sLH/vLpSr20t8J5qFzTo98o6FGxhVrGEVg2gns18Es+vxNCm
+	 SFDD5DWe6M612kUuP+gQC/M24GDBxfinkOoMlk8LMB2vL71NcFrVY3upqIuw7PKGzLmQO
+	 r9dUk3BdhtNEEJzVHBeK/NkZGbrG740oeHeCdIFGO5UjuBIRPM+dToslLHc1AHMW37A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4stt9mGJ;
-	arc=none smtp.remote-ip=35.89.44.37
-Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=FYjIfABk;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB09606A336
-	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 06:41:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BBB09606A336
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02F1E606A328;
+	Fri,  6 Nov 2026 09:30:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 02F1E606A328
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4stt9mGJ
-Received: from eig-obgw-5006b.ext.cloudfilter.net ([10.0.29.217])
-	by cmsmtp with ESMTPS
-	id Ozsixd7KiVK9UPDdYxVNft; Fri, 06 Nov 2026 06:41:20 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id PDdXxL0cMpr6MPDdXxxQQO; Fri, 06 Nov 2026 06:41:19 +0000
-X-Authority-Analysis: v=2.4 cv=Ec3IQOmC c=1 sm=1 tr=0 ts=6aed768f
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=c92rfblmAAAA:8 a=_jlGtV7tAAAA:8
- a=olBggFX0IELqj4Q0_iIA:9 a=GvGzcOZaWPEFPQC_NcjD:22 a=nlm17XC03S6CtCLSeiRr:22
- a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=uyjLdfQmDiz2aFZH8ieqMJFl01UJOBLEY1l3fqQRALs=; b=4stt9mGJeJQ8Qahm7XOtcudVH/
-	2E7PhV5gOqeuNDlpX67SrV1MvXeXa1F3mWh82Wk1L8HZaVvEjv1vVEbZn3qU9k1x42zjW6wZtE45A
-	Mf3myyLICS7YAigeSYkgLpsVOJGkp0/rOF0bpPPvaTtJe2xWHuratXzIaiWXASB83mwg+NkECaRWt
-	edSNpfO23rOv9U7FtmeN1+tPvMqqnfOZJ/5QYhS5Y/3Q7dXgp1EC35OXGmgUu+0nQOUksvQmf+3ob
-	VHhO6c7nSiz2ZmRwJpDFk4XarSQIHvXhjOuegqgpsKOdOHeLCEerkjTxYaoSpV/t582Y8NeDxvxdU
-	jbsxiyQw==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37432 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xPDdX-00000004Lih-0wwa;
-	Fri, 06 Nov 2026 12:11:19 +0530
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sashiko <sashiko@sashiko.dev>
-Subject: [PATCH] watchdog: mediatek: Register reset controller before watchdog device
-Date: Thu,  5 Nov 2026 22:41:17 -0800
-Message-ID: <20261106064117.2423995-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=FYjIfABk
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 18B4B4E413E9;
+	Fri,  6 Nov 2026 09:30:42 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id BB4D25FFBC;
+	Fri,  6 Nov 2026 09:30:41 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 12D0910329258;
+	Fri,  6 Nov 2026 10:30:19 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1793957438; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=sS9SQlly2RwS/6KrN94iJowJBr0dXwkGaUXpEOiPodI=;
+	b=FYjIfABkowisjeRn+CSvLUTjWLuxx+3kviyjc/anqGF9q9GxCZTgw0wpsJ8FJ8ti6FhDe0
+	L/4Js4Usj3Twoh8hMFsbgA2n+iE1ZjjULyXLoUYhOm6r4EYOFHaFPwRWhTMoUIMXkoASI6
+	WAtAjtqt4nozRJVg5mQLbG1Rfu4vRJj87hVCTTSHic8EROes+yJaPkLLHiQcJB5zjSIJF9
+	s8LPfcfr0EIoXu5LjAaihMo4jqU/8/3yM01epv48Yq8rIYgIH648tUnK7J77TfsUi+L4Y1
+	VxGozQieYhe0nmIyWgS+OpgjlDIKTSbs3oztQTFJsFrXy6HYjVT/GK4JwNdv8g==
+From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
+Subject: [PATCH 00/25] riscv: add support for the Metanoia MT2824 SoC and
+ MT5824 EVB
+Date: Fri, 06 Nov 2026 10:29:57 +0100
+Message-Id: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -83,98 +63,160 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xPDdX-00000004Lih-0wwa
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37432
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 4
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfMw1Gau5CP/Vzf40d96Qd8QZhDouwPPXHcwuzBcCg7JfHN5mvbFKeTaovZQ+td/20uszs5OJDkQzsxge5FkcjST8/b69MBij1GEr99zZHAefBHj1c+Ia
- 4EKYE/0XLsoj+hQIHSRA4MtXhjT9yr4AOCOeZDZyQTJHQ0xcs1uitodunNReYWrBY2kP5chI3zrsz6wte8l2PaAr82U9MFOTMEh/yZ3KE1q+uxw2mI19gSUU
+X-B4-Tracking: v=1; b=H4sIABae7WoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzNDA0Mz3dwSIwsjE11jo0Rz80QjE0NzSwsloOKCotS0zAqwQdGxEH5xaVJ
+ WanIJSLdSbS0ArD81RGoAAAA=
+X-Change-ID: 20261016-mt2824-32a77a241798
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Jun Chang <jun.chang@metanoia-comm.com>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+ Philipp Zabel <p.zabel@pengutronix.de>, Sebastian Reichel <sre@kernel.org>, 
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
+ Manivannan Sadhasivam <mani@kernel.org>, Conor Dooley <conor@kernel.org>, 
+ Jonathan Cameron <jic23@kernel.org>, 
+ Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, 
+ Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
+ Samuel Holland <samuel.holland@sifive.com>, 
+ Ben Zong-You Xie <ben717@andestech.com>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Ulf Hansson <ulfh@kernel.org>, 
+ Jisheng Zhang <jszhang@kernel.org>, CL Wang <cl634@andestech.com>, 
+ Mark Brown <broonie@kernel.org>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Adrian Hunter <adrian.hunter@intel.com>, 
+ Minas Harutyunyan <hminas@synopsys.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ =?utf-8?q?Randolph_Sheng-Kai_Lin=28=E6=9E=97=E8=81=96=E5=87=B1=29?= <randolph@andestech.com>, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, linux-pm@vger.kernel.org, 
+ linux-phy@lists.infradead.org, Paul Walmsley <paul.walmsley@sifive.com>, 
+ linux-mmc@vger.kernel.org, linux-spi@vger.kernel.org, 
+ linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+ =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
+X-Mailer: b4 0.16.0
+X-Last-TLS-Session-Version: TLSv1.3
 
-In mtk_wdt_probe(), devm_watchdog_register_device() is called before
-registering the TOPRGU reset controller via
-toprgu_register_reset_controller().
+Hi all,
 
-Because devm_watchdog_register_device() immediately exposes
-/dev/watchdog to userspace, mtk_wdt_probe() transiently publishes the
-watchdog character device, registers reboot and restart handlers, and
-logs that the watchdog is enabled before probe can still fail in
-toprgu_register_reset_controller(). Furthermore, if userspace opens
-/dev/watchdog during this window and starts the hardware counter, and
-toprgu_register_reset_controller() then fails, devres unregisters
-/dev/watchdog and cancels the core keepalive worker without stopping
-the hardware watchdog (as WDOG_STOP_ON_UNREGISTER is not set), leaving
-the timer armed and causing an unexpected system reset.
+This series adds initial upstream support for the Metanoia MT2824 SoC
+and its MT5824 evaluation board.
 
-Initialize the TOPRGU reset controller data and call
-toprgu_register_reset_controller() before mtk_wdt_init() and
-devm_watchdog_register_device() so the watchdog is only initialized and
-exposed after reset controller registration succeeds.
+The MT2824 is a dual-core RISC-V SoC built on Andes AX45MP cores. It
+integrates two 8250-compatible UARTs, the Andes PLIC/PLICSW/PLMT interrupt
+and timer blocks, the AX45MP L2 cache controller, a simple reset controller
+and a system reboot controller, the ATCWDT200 watchdog, one QSPI and eight
+ATCSPI200 SPI controllers, a Synopsys DWC MSHC 2.00a eMMC/SD controller,
+and a Synopsys DWC2 USB2 host controller with a reset-only USB2 PHY.
 
-Fixes: c254e103082b ("watchdog: mtk_wdt: mt8183: Add reset controller")
-Reported-by: Sashiko <sashiko@sashiko.dev>
-Link: https://sashiko.dev/#/bug/linux-edb0d208-f5a5-496a-a6b3-caaa85d72719
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+The series is organised as:
+
+- patches 1-14 add the device tree bindings, the Metanoia vendor prefix,
+  the RISC-V board schema and the SoC block compatibles
+- patch 15 adds ARCH_METANOIA and selects the AX45MP errata
+- patches 16-23 add the reset, SPI, watchdog, MMC, PHY and USB changes
+  needed to build and probe on this SoC
+- patch 24 adds the MT2824 SoC and MT5824 EVB device trees
+- patch 25 adds the MAINTAINERS entry
+
+The ATCSPI200 driver gains optional interrupt support for PIO transfers:
+when the controller IRQ is wired, the FIFOs and the end of transfer
+are serviced from the handler, with a fallback to polling when no IRQ
+is available.
+
+The DWC MSHC controller on the evaluation board is wired to either an
+SD slot or an eMMC through a board jumper that the SoC cannot read. In
+the absence of a fixed card type in the device tree, the driver probes
+the eMMC first at 1.8 V and falls back to the SD slot at 3.3 V. The
+controller also needs custom tuning and HS400 PHY DLL handling, which
+is why it has its own sdhci_ops.
+
+The MT2824 SoC contains other controllers not yet exposed (I2C, GPIO,
+pinctrl, Ethernet, DSP, ...). This first series allows accessing the
+evaluation board via its serial console, and all its storage options
+(SPI-NOR, eMMC, SD card). The watchdog and the USB port are also
+available.
+
+The driver changes do not depend on the DTS at build time and are gated
+on the new compatible strings. For merge ordering, the DTS depends on the
+ARCH_METANOIA Kconfig entry (patch 15) and on the binding compatibles
+being accepted. The patches can therefore go through their respective
+subsystem trees, with the Kconfig, DTS and MAINTAINERS patches going
+through the RISC-V tree once the driver and binding patches have landed.
+
+The series is based on v7.4-rc1.
+
+Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- drivers/watchdog/mtk_wdt.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+Benoît Monin (25):
+      dt-bindings: vendor-prefixes: add Metanoia Communications
+      dt-bindings: riscv: add Metanoia SoC-based boards
+      dt-bindings: reset: add Metanoia MT2824
+      dt-bindings: power: reset: add Metanoia MT2824 reboot
+      dt-bindings: phy: add Metanoia USB2 PHY
+      dt-bindings: cache: andestech,ax45mp-cache: add MT2824 compatible
+      dt-bindings: interrupt-controller: sifive,plic-1.0.0: add Metanoia MT2824
+      dt-bindings: interrupt-controller: andestech,plicsw: add Metanoia MT2824
+      dt-bindings: timer: andestech,plmt0: add Metanoia MT2824
+      dt-bindings: mmc: snps,dwcmshc-sdhci: add Metanoia MT2824
+      dt-bindings: spi: andestech,ae350-spi: make DMA and interrupts optional
+      dt-bindings: spi: andestech,ae350-spi: add Metanoia MT2824
+      dt-bindings: usb: dwc2: add Metanoia MT2824
+      dt-bindings: watchdog: andestech,ae350-wdt: add Metanoia MT2824
+      riscv: add ARCH_METANOIA Kconfig entry
+      reset: simple: add Metanoia MT2824 support
+      spi: atcspi200: add optional interrupt support
+      spi: atcspi200: allow building for Metanoia SoCs
+      watchdog: atcwdt200: allow building for Metanoia SoCs
+      mmc: sdhci-of-dwcmshc: add MT2824 support
+      mmc: sdhci-of-dwcmshc: add MT2824 tuning and HS400 support
+      phy: metanoia: add USB2 PHY driver
+      usb: dwc2: add support for Metanoia MT2824
+      riscv: add Metanoia MT2824 SoC and MT5824 EVB support
+      MAINTAINERS: add RISC-V Metanoia SoC support
 
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index ff72e0fb1154..2d530098a421 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -540,6 +540,18 @@ static int mtk_wdt_probe(struct platform_device *pdev)
- 	mtk_wdt->reset_by_toprgu =
- 		of_property_read_bool(dev->of_node, "mediatek,reset-by-toprgu");
- 
-+	wdt_data = of_device_get_match_data(dev);
-+	if (wdt_data) {
-+		mtk_wdt->toprgu_sw_rst_num = wdt_data->toprgu_sw_rst_num;
-+		mtk_wdt->toprgu_sw_rst_tb = wdt_data->toprgu_sw_rst_tb;
-+		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
-+
-+		err = toprgu_register_reset_controller(pdev,
-+						       wdt_data->toprgu_sw_rst_num);
-+		if (err)
-+			return err;
-+	}
-+
- 	mtk_wdt_init(&mtk_wdt->wdt_dev);
- 
- 	watchdog_stop_on_reboot(&mtk_wdt->wdt_dev);
-@@ -553,18 +565,6 @@ static int mtk_wdt_probe(struct platform_device *pdev)
- 	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
- 		 mtk_wdt->wdt_dev.timeout, nowayout);
- 
--	wdt_data = of_device_get_match_data(dev);
--	if (wdt_data) {
--		mtk_wdt->toprgu_sw_rst_num = wdt_data->toprgu_sw_rst_num;
--		mtk_wdt->toprgu_sw_rst_tb = wdt_data->toprgu_sw_rst_tb;
--		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
--
--		err = toprgu_register_reset_controller(pdev,
--						       wdt_data->toprgu_sw_rst_num);
--		if (err)
--			return err;
--	}
--
- 	return 0;
- }
- 
--- 
-2.45.2
+ .../bindings/cache/andestech,ax45mp-cache.yaml     |   1 +
+ .../interrupt-controller/andestech,plicsw.yaml     |   1 +
+ .../interrupt-controller/sifive,plic-1.0.0.yaml    |   1 +
+ .../bindings/mmc/snps,dwcmshc-sdhci.yaml           |   1 +
+ .../devicetree/bindings/phy/metanoia,usb2-phy.yaml |  43 ++
+ .../bindings/power/reset/metanoia,reboot.yaml      |  34 +
+ .../devicetree/bindings/reset/metanoia,reset.yaml  |  40 ++
+ .../devicetree/bindings/riscv/metanoia.yaml        |  25 +
+ .../bindings/spi/andestech,ae350-spi.yaml          |   9 +-
+ .../devicetree/bindings/timer/andestech,plmt0.yaml |   1 +
+ Documentation/devicetree/bindings/usb/dwc2.yaml    |   1 +
+ .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
+ .../bindings/watchdog/andestech,ae350-wdt.yaml     |   1 +
+ MAINTAINERS                                        |  11 +
+ arch/riscv/Kconfig.socs                            |   8 +
+ arch/riscv/boot/dts/Makefile                       |   1 +
+ arch/riscv/boot/dts/metanoia/Makefile              |   2 +
+ arch/riscv/boot/dts/metanoia/mt2824.dtsi           | 330 ++++++++++
+ arch/riscv/boot/dts/metanoia/mt5824-evb.dts        |  81 +++
+ drivers/mmc/host/Kconfig                           |   1 +
+ drivers/mmc/host/sdhci-of-dwcmshc.c                | 704 +++++++++++++++++++++
+ drivers/phy/Kconfig                                |   1 +
+ drivers/phy/Makefile                               |   1 +
+ drivers/phy/metanoia/Kconfig                       |  16 +
+ drivers/phy/metanoia/Makefile                      |   3 +
+ drivers/phy/metanoia/phy-usb2.c                    |  88 +++
+ drivers/reset/Kconfig                              |   2 +-
+ drivers/reset/reset-simple.c                       |   1 +
+ drivers/spi/Kconfig                                |   2 +-
+ drivers/spi/spi-atcspi200.c                        | 255 +++++++-
+ drivers/usb/dwc2/params.c                          |  13 +
+ drivers/watchdog/Kconfig                           |   2 +-
+ 32 files changed, 1667 insertions(+), 15 deletions(-)
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261016-mt2824-32a77a241798
+
+Best regards,
+--  
+Benoît Monin, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
 
