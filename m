@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793958133;
-	b=ywwoSP8bLRBMO6YrDGO+loihuXWenS0bqrjeM6GU2h9J7EFPeVD0eExVieaUOA06MaP9
-	 t2p/Ref7Px5GQ001+gTRmH+nrmE+YatWftJB0EHglsTrVC/NmeJfrb6qP/oKTj/vVl3hk
-	 dZMBhekllyQG4utAZV0viJ7q46C8wbWdlHnjVRWdLWlSXyZ+9QDoBwXHPH1m94awZOBgv
-	 vmDmYKBOLFzuDxyabv41guMzzhh5562rSdS3VXmFy2uzBJmshT//iboZwRO0g8r9e04E/
-	 IyZqQPwu+TqAxwdeM/gJKy32+v21+eXKqg0oeqBt8dQKF9r1ajXDM27QPA2TSKJwItg==
+	t=1793958258;
+	b=OUhTFS3VhgM0V9H8DSleppGaJBzkkN2hb8CYfF+MH1uRnIDGhG4W9CbfR0eolyCv4oSc
+	 j5PUs3ido+h82O3hbgxyObcSQfKUTdtjXV4GGnkHObOl7a/U65JNVbLhcfOgmjm4GPoJG
+	 9S+geHqNsusHCr5OOltS/aXrIlHzFRbDfGf2Ta07W4SKrdRBBaFQk+ptSNRxtfJvmRB9E
+	 etmlFUyzJxqjrA9OQi5DhZr6gOAyV3dP3bG3dNHblqTbyQKJFnc/Yv50jnNua7gqEjLjT
+	 sSgqcRMAMFXmE24FfAX17r3wassg5lxKrFd4MXGTZkJIMY0jk9ujwBz3ews0zIyvtUw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793958133;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793958258;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=HNto22eJkDbszb/3JWYefc2jHbqBtKmYFjQghf+dX9U=;
-	b=M5BdwNf/1m53AAUlmAeCQhrBot1NrqF/BdP4DtGyt/qagILf8sG/vwy49np/X38BFTPg
-	 pqchHuH66Jrl8yuQCNA6JZtLE2dgcNFJ2SDvvv0dZa0rKc9jKGSlqJdMJYqSbMT4M2JCd
-	 bw5Hls6UD3CtmKiZCkc8cRllQjqM2reKHhoqisdB8gReVSHYlbEKx+Y2kH6aspoJVTONB
-	 hti6sY0hldet+RXCrHWU5XjN5sncIbDfq7tcMBy+G5RY8W/+AMVn9YPs3zTnRqYo5ldgB
-	 4McFp/Et24bd3En0qqxlevKzxtGgzzyrckGeOcHEdnk/+SOzPnFjigyzX7cm2QTqXlg==
+	bh=k/B0v4ZKFTMYn7uuqyANnYN0nteQ0y0bMIFLQuE39Ck=;
+	b=ss9JlVeZfKau5j2DHKOBMPOPw+Nn3cYNUlLG/UHGwldN6IrMFIqe88xvd+xuFkbweu0r
+	 jdDCAFGOBX13syE/xNp29BEwPEFheWlhoVsFRatsctPqYSOxMn2WOwJMAxKbYceaWXNgE
+	 N8Cd7+NLHZOcAE0Mk+2VzV33VFh4YIXE7wcK5uwIqeHvG1a1xBzhNoVAKIUml/nDxdoew
+	 mRMz8oobG4qWEJbCFihp7303K9tiHPW9URMc1KBhh0msxgmutAyfnCBMw6MbRxEV4dm3e
+	 TqDGBcsitNgYYShw6cLwu9Dk1Fp0heSMp+OZNGyeXh31K3md44iUnnTBwlmS0wSIeew==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jPqQRQjO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="KwC/LQpb";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44B2B606A903;
-	Fri,  6 Nov 2026 09:42:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8EB9606A326;
+	Fri,  6 Nov 2026 09:44:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jPqQRQjO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 934291F0089F;
-	Fri,  6 Nov 2026 09:42:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KwC/LQpb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A641F0089F;
+	Fri,  6 Nov 2026 09:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793958133;
-	bh=HNto22eJkDbszb/3JWYefc2jHbqBtKmYFjQghf+dX9U=;
+	s=k20260515; t=1793958257;
+	bh=k/B0v4ZKFTMYn7uuqyANnYN0nteQ0y0bMIFLQuE39Ck=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jPqQRQjOpWSyz0qcmb2pHUUczqYnTF7NIsxuvm72qO11Fjg09l0pgBUfc9AOkBB/6
-	 8iblkrKX43/ll9cKwlkTZJrmNoXivAYUtyVk71RGOpKK3IDrevlBVspkgywgQeC0iY
-	 sV07cxZUJVuyuUqduXO4Hw9KZau2x8Do6wwJRgXwKVsERkO+4v3/4ej+c5TW91qIfh
-	 9crPEgktcCuuUn/bOgGHUbDTtb4+DAUSuOK0exLb1+VSRpi+khd/ZXBKnB4Xu7+Lb2
-	 C5KpwuRm+TKr+vJYMwNU4UEJExFoZMi+SfIN998udS+9A3QVK4R8lJ494AgXm6e8zY
-	 yMnwrTjMIJfog==
-Message-ID: <sashiko-outbox-201143@kernel.org>
+	b=KwC/LQpb8grt7sA2bfP5+IvDHwxcSlZgHMNYngV5PKxoqnzPfYbq6uMFbZR1tHiIu
+	 XDJXR13och6Ape8ytrjFOpP5288cS6pL3AFMBAcKhfAlCFWUsgrvAhziht5898WEF4
+	 2r5uWDSrofDee9ZHk1FmA3mSgwoj2Esln+umFWktOSj2HRhy8PZ9wLQJBsMGUn/nfN
+	 hbNClzjJeAlycL788xKw5PT8fpYvi4Ed/oR/aYwGwVl8LZ3Ozmv9CzinxD6sXa+Xat
+	 jtxOzvAJqoRgPmLJ47g8YJGxU9AK3b1LzaWhkXhHvSqXrXShnQpy2M6zhATJKNZu+b
+	 UMMmYlX5Z1NyA==
+Message-ID: <sashiko-outbox-201147@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 05/25] dt-bindings: phy: add Metanoia USB2 PHY
+Subject: Re: [PATCH 04/25] dt-bindings: power: reset: add Metanoia MT2824
+ reboot
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QmVub8OudCBNb25pbg==?= <benoit.monin@bootlin.com>
 Cc: devicetree@vger.kernel.org, linux-phy@lists.infradead.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, vkoul@kernel.org, neil.armstrong@linaro.org, olteanv@gmail.com
-In-Reply-To: <20261106-mt2824-v1-5-86087eaf5af4@bootlin.com>
+In-Reply-To: <20261106-mt2824-v1-4-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
- <20261106-mt2824-v1-5-86087eaf5af4@bootlin.com>
+ <20261106-mt2824-v1-4-86087eaf5af4@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 09:42:12 +0000
+Date: Fri, 06 Nov 2026 09:44:15 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -62,92 +63,88 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [Low] dt-bindings: phy: metanoia: invalid example node name and unused
-  label
-- [Low] dt-bindings: phy: metanoia: reset-only node, reset-names, and
-  filename
+- [Low] dt-bindings: power: reset: strict style errors in
+  metanoia,reboot.yaml
+- [Low] dt-bindings: power: reset: metanoia,reboot splits single
+  register into node
 --
 
-commit 1ecf2c434e4f801fa49e7ae94a833a554c762ead
+commit 07f8018b51cb794baf4c572ad7951597d891f410
 Author: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
 
-dt-bindings: phy: add Metanoia USB2 PHY
+dt-bindings: power: reset: add Metanoia MT2824 reboot
 
-This commit adds the devicetree binding schema for the USB2 PHY on the
-Metanoia MT2824 SoC.
+This commit adds a Devicetree binding schema for the Metanoia MT2824 warm
+reboot controller register used by machine-mode firmware.
 
-> diff --git a/Documentation/devicetree/bindings/phy/metanoia,usb2-phy.yaml=
- b/Documentation/devicetree/bindings/phy/metanoia,usb2-phy.yaml
+> diff --git a/Documentation/devicetree/bindings/power/reset/metanoia,reboo=
+t.yaml b/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml
 > new file mode 100644
-> index 0000000000000..0605e6d0f67da
+> index 0000000000000..2670fe7ab93f9
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/phy/metanoia,usb2-phy.yaml
-> @@ -0,0 +1,43 @@
-> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+> +++ b/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml
+> @@ -0,0 +1,34 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 > +%YAML 1.2
 > +---
-> +$id: http://devicetree.org/schemas/phy/metanoia,usb2-phy.yaml#
+> +$id: http://devicetree.org/schemas/power/reset/metanoia,reboot.yaml#
 > +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +title: Metanoia USB2 PHY
-> +
-> +description: |
-> +  The Metanoia MT2824 USB2 PHY is controlled solely through a reset line.
+> +title: Metanoia MT2824 Reboot Controller
 > +
 > +maintainers:
 > +  - Jun Chang <jun.chang@metanoia-comm.com>
 > +
+> +description:
+> +  The Metanoia MT2824 reboot controller provides a system warm reboot th=
+rough
+> +  a memory-mapped register. It is used by the firmware in machine mode.
+> +
 > +properties:
 > +  compatible:
-> +    const: metanoia,mt2824-usb2-phy
+> +    const: metanoia,mt2824-reboot
 > +
-> +  resets:
+> +  reg:
 > +    maxItems: 1
-> +
-> +  reset-names:
-> +    const: usb2-phy
 
 [Severity: Low]
-Should this binding describe the full PHY hardware block (such as its
-registers, clocks, or power supplies), or if the interface is only a single
-reset line, should that reset be referenced directly by the USB controller
-node rather than wrapped in a standalone virtual node?
+Should this warm-reboot register and the adjacent reset controller
+register be described as a single hardware block instead of separate
+Devicetree nodes?
 
-Also, per Documentation/devicetree/bindings/example-schema.yaml,
-reset-names should be omitted when there is only a single reset entry that
-repeats the block name, and the schema filename and $id should match the
-sole compatible string (metanoia,mt2824-usb2-phy.yaml).
+This binding models an 8-byte register range at 0x10000004 for
+machine-mode firmware, while
+Documentation/devicetree/bindings/reset/metanoia,reset.yaml models the
+immediately adjacent 4-byte register at 0x1000000c for the OS reset
+driver:
 
-> +
-> +  "#phy-cells":
-> +    const: 0
-> +
-> +required:
-> +  - compatible
-> +  - resets
-> +  - reset-names
-> +  - "#phy-cells"
-> +
-> +additionalProperties: false
-> +
+Documentation/devicetree/bindings/reset/metanoia,reset.yaml:
+    rst: rst-controller@1000000c {
+        compatible =3D "metanoia,mt2824-reset";
+        reg =3D <0x1000000c 0x4>;
+        #reset-cells =3D <1>;
+    };
+
+Carving individual registers of the same IP block into separate nodes
+encodes software driver boundaries into the Devicetree ABI.
+
+[ ... ]
+
 > +examples:
 > +  - |
-> +    usb2phy: usb2-phy-reset {
-> +        compatible =3D "metanoia,mt2824-usb2-phy";
-> +        #phy-cells =3D <0>;
-> +        resets =3D <&rst 18>;
-> +        reset-names =3D "usb2-phy";
+> +    reboot: reboot@10000004 {
+> +      compatible =3D "metanoia,mt2824-reboot";
+> +      reg =3D <0x10000004 0x8>;
 > +    };
 
 [Severity: Low]
-Does the example node name usb2-phy-reset fail dt_binding_check?
+Does this example pass scripts/dtc/dt-check-style --mode=3Dstrict?
 
-Because the node defines #phy-cells, phy-provider.yaml requires $nodename
-to match ^(|usb-|usb2-|usb3-|pci-|pcie-|sata-)phy(@[0-9a-f,]+)*$ (for
-example, phy or usb2-phy).  In addition, the unreferenced usb2phy: label
-triggers an unused-labels warning under scripts/dtc/dt-check-style
---mode=3Dstrict and should be dropped.
+The example defines an unreferenced label (reboot:) and indents the node
+properties by 2 spaces instead of 4, which triggers unused-labels and
+indent-unit-strict warnings.  Also, should the schema filename and $id be
+metanoia,mt2824-reboot.yaml to match the sole compatible string?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-mt2824-v1-=
-0-86087eaf5af4@bootlin.com?part=3D5
+0-86087eaf5af4@bootlin.com?part=3D4
