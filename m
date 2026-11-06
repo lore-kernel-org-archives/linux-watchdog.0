@@ -1,84 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793989197;
-	b=n6y8l1AJhWdW+hlZmVGakcdGebilWA+o3qYYSHbwbnMQbRXjDFv16O71JM73fN8JCAHa
-	 qgjsfWP0WMQDOIb2TpCjk/R/uE+FDHaOMELiU6PnefMp5Pdvqo17Gdi4r2TZwAaKB3Aiw
-	 tCN/KC2u66QVns8FqJ8AHgrwmxUrUDWa7RGawSf5mPbtF0Y/2ucNhsNLPBT38+6t5bziZ
-	 en637b+G9S/DD55ID26AxLVOmZwrA2Sbrni7nOIOKO5il++hd3F7aEIaFPmDzxgRepNdG
-	 UXhvcb2VdjrorOUEG8d3Kt5yAlSumSFgwekqw3E/SBCzM+5k39NYtC05rxKz+yXVoQQ==
+	t=1793989498;
+	b=baUD9PIRQ9Ig60+l9DNokc3gILAt51zo+d6wckTny8itnBcvrPicQAeuuzFrFU+2inx0
+	 pzarY/dFDY+qfQjP0TTto4NpE0SEIe9vBzDUhbSjhWuUPjy1OgKklWDMkzjltw5h7xgqI
+	 ty+kzVTM+4bdoaT7zwdPy7Hld8rLVPIHUebNa8SYTEBprCUPgKNUpkWG/8KTxP1xSSyxA
+	 8ldsQPk0i6b05I3mEI+EnNrtlueEAvkqoPfaNIeG7+4UurwNtPZvLHtei5QGNxp/fpBBn
+	 tScFJGPG8LvT+Iny8Rm3tZDPtJ3sYKZBuVOGwzjoWSszjhXgJQPDjOoqdny++1B6UzA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793989197;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=c/20RGI5WiHKKkpDTceQl002Lfa1bhsWYphTb3UDQkg=;
-	b=mPZBs2TM14nLJc3wsov37lkZouzwbOeit0toNP8Q5HCgGxfEfKRBLCSKKt/oChnBC60K
-	 STvGA0LZgdQgLi7xL9g0fgngKi/mQANLWsP2795FxAlXZLFXt/HXp8NMVpEGqYN/Xy4MD
-	 kVG5kViWzeuzRgStwSUxiHQ3jAvQ+BG1Pbs1KVW66hX9qUVQ8+jkr93r9xf9daPJZXlaZ
-	 6g1H/kadTaFO+X5bgQ5Zx45fWGnXzlfubvEB39+bi9kDvsAqT7HfhlPGmB+hZeROSaPgw
-	 ldugFruwAUPwuq0968nYFDB5aQNIiXLa36oND3aa+lvGUzDd7FS9rnszpmquItS2emg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793989498;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=/YUawSo1A9/TsR4bHyYTtKTT0r+C7FLDSJpMmO+HqIk=;
+	b=r2vX2+B810j54Ov8b8sAVZ8v/5PShSuFFoX7ywmWK2vYR7p8cWOv73YB84eJsLQrZGod
+	 1caL2h0tv3B50NHH7IfkdEbZS0ma2l/xLtrKsbGX4j8ITIyEGIZsAxD6MWb2+r//eZGIX
+	 XRW+ITh6YEuUvQoMw3vBjQdJHhv/ACCM8MsiMv/mvvesNH8GZps55Kki4PcIFYiPJ3DBH
+	 5y4cGycbxlcZU4jAdi2JRsxBmSGSrowlGBCjKWqonCC+A78nbUlpOu/yMzSywJ3zLys7G
+	 HDeSZ97Sf/Dy2H6WlExGm7Qs90SXqm6DML5QJW33BlNMFRJR/XWkV2D3fnLXfcs3Wfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KrBSVpvJ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hexLl1vU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D8E606A333;
-	Fri,  6 Nov 2026 18:19:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFA46606A330;
+	Fri,  6 Nov 2026 18:24:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KrBSVpvJ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AC2E1F008A4;
-	Fri,  6 Nov 2026 18:19:49 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hexLl1vU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B59C1F008A4;
+	Fri,  6 Nov 2026 18:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793989197;
-	bh=c/20RGI5WiHKKkpDTceQl002Lfa1bhsWYphTb3UDQkg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=KrBSVpvJM7vkY1slHDjt9v9csvTLVw6DZE9OLBCH6kHBWwi/iB0GMO52uMbFZPMu2
-	 aoxCVUIO3CfvqbM4ApUWQqMUyq7T507tTjGYhdLv9cHq0mKkBdnJcKicl10MAbOTO6
-	 l2bPh4z/TPbXDyBRgQauffurjJJKfxnf8R5aSi4pzmXXl5IiGbbZX+1B8VF3IZ5rwr
-	 0g7Tt8zM/nxj3oEc1nE9jrxUZVpbFdLHlwshhP4A3v/UkkQpvvX+reUCCcU7KAJ91b
-	 dy37lW9arn8Wu6MQyOfyX701vpirgwBIQ4tvzJCyh+t3BrRDSXQUnDmZ8+xFdidOMf
-	 sRqoiBHWy1upA==
-Date: Fri, 6 Nov 2026 18:19:47 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jun Chang <jun.chang@metanoia-comm.com>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Sebastian Reichel <sre@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Ben Zong-You Xie <ben717@andestech.com>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Ulf Hansson <ulfh@kernel.org>, Jisheng Zhang <jszhang@kernel.org>,
-	CL Wang <cl634@andestech.com>, Mark Brown <broonie@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Minas Harutyunyan <hminas@synopsys.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Randolph Sheng-Kai =?utf-8?B?TGluKOael+iBluWHsSk=?= <randolph@andestech.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-phy@lists.infradead.org,
-	Paul Walmsley <paul.walmsley@sifive.com>, linux-mmc@vger.kernel.org,
-	linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 25/25] MAINTAINERS: add RISC-V Metanoia SoC support
-Message-ID: <20261106-comic-cupid-a8a3c127307f@spud>
-References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
- <20261106-mt2824-v1-25-86087eaf5af4@bootlin.com>
- <4f1e52d9-0788-4601-8f67-898256a776b4@kernel.org>
+	s=k20260515; t=1793989497;
+	bh=/YUawSo1A9/TsR4bHyYTtKTT0r+C7FLDSJpMmO+HqIk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hexLl1vUD5l8wSXLH/f/cWAEzfWdtILKHGXBJfI2ls7w+hXT8BZkezwG6xa5eyWhJ
+	 pDFNiO6mpAA1KszWt3FUzCbCsOqZ0eqfXjndeNF90TmArq3NFWS/jCOlwYmwdJdmYk
+	 JOklpT+5cnpAklOp2wAX2I7XyCuPMQn39UdbvwbMselHjbfyLPCuEQvDGWJkHWQQGP
+	 rSHX0GUw6KK5za6J+76IwmX4VMpTHTxfqgxjU+Y0yZvHqReYQNTU10wYAdvKdZXhyz
+	 sirVfYV0rZRbI5JAtNVME0q3bpcojUYscbh0+puBz4C7QX2Qloq2S/q/h1IbWzi6EV
+	 wPVLENCU3ggLQ==
+Message-ID: <sashiko-outbox-202022@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 13/13] arm64: dts: st: enable iwdg2 on stm32mp2xx ST
+ boards
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Antonio Borneo" <antonio.borneo@foss.st.com>, devicetree@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20261106163429.618392-14-antonio.borneo@foss.st.com>
+References: <20261106163429.618392-1-antonio.borneo@foss.st.com>
+ <20261106163429.618392-14-antonio.borneo@foss.st.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 06 Nov 2026 18:24:56 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -87,60 +60,52 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="EI85CRMW6gBoUvVg"
-Content-Disposition: inline
-In-Reply-To: <4f1e52d9-0788-4601-8f67-898256a776b4@kernel.org>
 
---EI85CRMW6gBoUvVg
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] arm64: dts: st: unresolved rcc phandle and clock macros in
+  stm32mp215f-dk iwdg2
+--
 
-On Fri, Nov 06, 2026 at 12:22:15PM +0100, Krzysztof Kozlowski wrote:
-> On 06/11/2026 10:30, Beno=EEt Monin wrote:
-> > Add a maintainer entry for the Metanoia MT2824 SoC, covering the
-> > SoC-specific DT bindings, the SoC and the evaluation board device trees,
-> > and the phy driver.
-> >=20
-> > Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
-> > Signed-off-by: Beno=EEt Monin <benoit.monin@bootlin.com>
-> > ---
-> >  MAINTAINERS | 11 +++++++++++
-> >  1 file changed, 11 insertions(+)
-> >=20
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 93abbb315065..310544f96204 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -24072,6 +24072,17 @@ T:	git git://git.kernel.org/pub/scm/linux/kern=
-el/git/iommu/linux.git
-> >  F:	Documentation/devicetree/bindings/iommu/riscv,iommu.yaml
-> >  F:	drivers/iommu/riscv/
-> > =20
-> > +RISC-V METANOIA SoC SUPPORT
-> > +M:	Jun Chang <jun.chang@metanoia-comm.com>
->=20
-> So Jun will handle the patches? Can we get an Ack for this?
+commit 7a43e1911df9f04894384d16f6721b48e26c2793
+Author: Antonio Borneo <antonio.borneo@foss.st.com>
 
-There's no tree listed, so probably Jun is not handling any patches...
+arm64: dts: st: enable iwdg2 on stm32mp2xx ST boards
 
-I /could/ apply patches for this platform alongside the other one that I
-manage, but I don't really want to and someone that actually cares for
-this platform should be the one applying patches for it.
+This commit enables the iwdg2 watchdog node and assigns the watchdog0
+alias to arm_wdt on STM32MP2xx ST board device trees.
 
-Beno=EDt/Jun, please see Documentation/process/maintainer-soc.rst !
+> diff --git a/arch/arm64/boot/dts/st/stm32mp215f-dk.dts b/arch/arm64/boot/=
+dts/st/stm32mp215f-dk.dts
+> index a1285abc80ca5..c7ab340a7e4dc 100644
+> --- a/arch/arm64/boot/dts/st/stm32mp215f-dk.dts
+> +++ b/arch/arm64/boot/dts/st/stm32mp215f-dk.dts
 
---EI85CRMW6gBoUvVg
-Content-Type: application/pgp-signature; name=signature.asc
+[ ... ]
 
------BEGIN PGP SIGNATURE-----
+> @@ -48,6 +49,11 @@ &bsec {
+>  	bootph-all;
+>  };
+> =20
+> +&iwdg2 {
+> +	timeout-sec =3D <32>;
+> +	status =3D "okay";
+> +};
+> +
+>  &usart2 {
+>  	status =3D "okay";
+>  };
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCau4aQwAKCRB4tDGHoIJi
-0rbxAQDp+CX8P4FSxsxtp+sH+XOoVxSjimJET4S5CSWzGNHXFQD/b5cKyz3+v/zA
-eq6hyBYC7BQX3uGp2UiAkQX4EfPpDwQ=
-=dNYG
------END PGP SIGNATURE-----
+[Severity: High]
+Does building stm32mp215f-dk.dtb fail with syntax and unresolved phandle
+errors here?
 
---EI85CRMW6gBoUvVg--
+The iwdg1 and iwdg2 nodes added in commit "arm64: dts: st: add iwdg1 and
+iwdg2 support to stm32mp211" reference clocks =3D <&rcc CK_BUS_IWDG2>,
+<&scmi_clk CK_SCMI_LSI>, but arch/arm64/boot/dts/st/stm32mp211.dtsi
+neither includes dt-bindings/clock/st,stm32mp21-rcc.h nor defines an rcc
+label.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106163429.6183=
+92-1-antonio.borneo@foss.st.com?part=3D13
