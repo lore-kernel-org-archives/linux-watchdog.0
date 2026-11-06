@@ -1,59 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957476;
-	b=xWMg5tCcLNhDwlHDKY1WcZ3NnvAIpx/960hmBirET2nWi6pNFe1frSVJdvbaTnHQ8i1N
-	 h91j1i+N6u4Fl4uP5TouMi4npe8vf4epduGKI/py3sN0Uk7QBRDOiYNiJ4lr8H8nXMxD5
-	 nMwrQvTyCQFsM1eszpVEm7DjGop9rguCwoag1GOpcMjOzj9wTAY9ErmwwFN3FDkeWH3CK
-	 ZDphsDTUqQnkEUxGNB5VZP1DyQk3DDkHvcufTh1bwTAWLsfp3v6mneAb7HGfvgBfFw0hW
-	 X5yv84Ta+/r71++16umg+otZP8eQhIWu+G961icojba/JggrKrBG2HuxYIiRzAdWheQ==
+	t=1793957470;
+	b=aTfKFb+NjGbKWuHJn0oaJWI4c7YM4BYSIXRBLzPT1TiyvPc/h1EOVa2lpP5wK2aM2OIe
+	 U35Bj1K8S3grFr32jB8DJwjg0BoB0duKnAlmBJ5zHTOX6sKSugYmQAcBvQgJoLG/K0KOJ
+	 WvBBXagQBW0jMK3R+Q95505DlYMLLCUvP8KvQe/gm/rBU78afN8/dsoJeBZr0BVqoNNbI
+	 Z++Ts9hjGNyKYnBHK/O4ga/VmiA1sUUxf2D44IkbpR1EqFRaCecQDlyBQA3/+rYwzwqep
+	 n/Tk5yHhVtqEsvNbiaUzm6oZH3RQmoqLWyYuTx3PUWXlEB/xn6YBZ/yA64Uu4Jnq6GQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957476;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957470;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=Rmm2T837u6dJV1SdY4aEJnvjZ90dwHMyQK/XGmxJ8Z0=;
-	b=mEdlXYboM/OOHE6tI8TV/e6oyMjJkfzSjHPf0DMVN9djNtkGPUbj+MNK+GDqsHWZ5SD1
-	 T16Au+QDOmRHWszj70vqXmDRn1gQVfPNyPUUmuNLjtdxKRmNyVkRHU0QrvzoZ4DCCAXTL
-	 bF4DRss0SWun5mfKJ2Qa0jXJ87wSXUFdYyYQx64IF6/3Nbv/4Lf+Qen3n6L7NxylmiVdS
-	 OX53impJxDEjBpknk3CWUj9ZE0pNfRzGtlReXNZ6/TIq5ZFdseZJChJq3weCmApN4t9Ns
-	 AOqB1LJAvp5pvvI7y6LS1FQpse4z1ergHkgIalAY0FqmPRzdljiPbZ0yrPe02hvYIRA==
+	bh=FEY+pNQv3raFD6ItQ5TruQMpIhIehZiBlMa2MptY0Ko=;
+	b=zt2Aey9KmcR2dFQIMzotJBgQ6qIsfGjVXFmyqDmiM3vKigUVC9URZEoh8aGMXp4AHhPq
+	 sfHue4jwydha1zDbKsP7ljnBW5/T1Jos6EOGCacppKGRecYN+ze2fImqfWYoSasvrXQZC
+	 jIbh+ZtvACI+FdLRaqlJb0viHDpYdBXQo+MLRh/WANn4/1+6raIC4RLERUy9hcQN/8DXV
+	 PkaCJ6mah0rh5VoKYapdYC9oFWYAb0G2Zk/89Vl5JsN7L5S4nc7gJDTFpHWgKmEx8Pufe
+	 a5KfWjhYgqz52RvtHV/y6m1Gwg95kmigrxLFCWEmc9FW/k4nuIloHjwDrfitZpRpiqA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="CnxHq/U2";
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IL80sULf;
 	arc=none smtp.remote-ip=185.171.202.116
 Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B558606A329;
-	Fri,  6 Nov 2026 09:31:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B558606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 505AD606EE8C;
+	Fri,  6 Nov 2026 09:31:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 505AD606EE8C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=CnxHq/U2
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IL80sULf
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id AB0CFC69166;
-	Fri,  6 Nov 2026 09:31:13 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 2DBACC69166;
+	Fri,  6 Nov 2026 09:31:07 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 2E3A95FFBC;
-	Fri,  6 Nov 2026 09:31:14 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4FCCB103292DE;
-	Fri,  6 Nov 2026 10:31:04 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id A565E5FFBC;
+	Fri,  6 Nov 2026 09:31:07 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BEC47103292D3;
+	Fri,  6 Nov 2026 10:30:57 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793957470; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1793957463; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=Rmm2T837u6dJV1SdY4aEJnvjZ90dwHMyQK/XGmxJ8Z0=;
-	b=CnxHq/U2S7LWHHBVur1CL8xQ66beHxCokAadstTZzGIqQZip3L+k0p1km6vxeiEtmL//ax
-	CVYNIoiChcz11k2ixYMfnyX3GUUVl0X0a3zCcTQ5VpEdRwDluYpJM2OuBr8pYhDnBXy6XQ
-	QU1+B5b/JCq+TAOWdbtCreuN2iFkbjy/kt+Fa5KMmmm8pp6hBhWDPt9HkXO27O4RfeERzu
-	UGo6L1ESUHN3t6LtkpofKpNavxeMt1lXCvz99igo0vE+DNvrhLbqXXlX9M3hhwPrtMlhh6
-	J6bWyvlzNth9aayy/7nZEsMKVDBrMO8LxTpCbZCPcmD0whhASwOmgZ9AMWxEjA==
+	bh=FEY+pNQv3raFD6ItQ5TruQMpIhIehZiBlMa2MptY0Ko=;
+	b=IL80sULffVhHJjUPB6lq/meZSVUj5X67ZG4gALd59IoF1PC+QcnS+ZtkR41hdmJaMtm+E5
+	DgOFn5AYSlbgiiercLioIm6i38rNtfjIKd/icYFG85nDE7/Nf0/t0FD4hjG5jv+CEKh4m9
+	r1HoesTUtas6qvAbxoRtPS+7mivpPruzXbIMxstzFue5GFKHwYX1HiKcKLZVh4YOs3J3Xb
+	iYJDxrPYo1r2EOllL694SVGgrxYw2gQHpgIDloPEfR8G/UVTFpPl418WOI91Wb8HddFiH9
+	pqNCxMwN7mTFZjyS1p+hSAYTIOPu0ZtKl6DfoNTL52GoCbGBR+BEgXR/YoCD1Q==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Fri, 06 Nov 2026 10:30:02 +0100
-Subject: [PATCH 05/25] dt-bindings: phy: add Metanoia USB2 PHY
+Date: Fri, 06 Nov 2026 10:30:01 +0100
+Subject: [PATCH 04/25] dt-bindings: power: reset: add Metanoia MT2824
+ reboot
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -65,7 +66,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261106-mt2824-v1-5-86087eaf5af4@bootlin.com>
+Message-Id: <20261106-mt2824-v1-4-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -98,62 +99,55 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-Document the USB2 PHY found in Metanoia MT2824 SoC.
+Document the Metanoia MT2824 reboot register, which the firmware writes
+in machine mode to perform a warm system reboot. OpenSBI has a system
+reset driver for it.
 
 Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- .../devicetree/bindings/phy/metanoia,usb2-phy.yaml | 43 ++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ .../bindings/power/reset/metanoia,reboot.yaml      | 34 ++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/phy/metanoia,usb2-phy.yaml b/Documentation/devicetree/bindings/phy/metanoia,usb2-phy.yaml
+diff --git a/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml b/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml
 new file mode 100644
-index 000000000000..0605e6d0f67d
+index 000000000000..2670fe7ab93f
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/phy/metanoia,usb2-phy.yaml
-@@ -0,0 +1,43 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++++ b/Documentation/devicetree/bindings/power/reset/metanoia,reboot.yaml
+@@ -0,0 +1,34 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/phy/metanoia,usb2-phy.yaml#
++$id: http://devicetree.org/schemas/power/reset/metanoia,reboot.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Metanoia USB2 PHY
-+
-+description: |
-+  The Metanoia MT2824 USB2 PHY is controlled solely through a reset line.
++title: Metanoia MT2824 Reboot Controller
 +
 +maintainers:
 +  - Jun Chang <jun.chang@metanoia-comm.com>
 +
++description:
++  The Metanoia MT2824 reboot controller provides a system warm reboot through
++  a memory-mapped register. It is used by the firmware in machine mode.
++
 +properties:
 +  compatible:
-+    const: metanoia,mt2824-usb2-phy
++    const: metanoia,mt2824-reboot
 +
-+  resets:
++  reg:
 +    maxItems: 1
-+
-+  reset-names:
-+    const: usb2-phy
-+
-+  "#phy-cells":
-+    const: 0
 +
 +required:
 +  - compatible
-+  - resets
-+  - reset-names
-+  - "#phy-cells"
++  - reg
 +
 +additionalProperties: false
 +
 +examples:
 +  - |
-+    usb2phy: usb2-phy-reset {
-+        compatible = "metanoia,mt2824-usb2-phy";
-+        #phy-cells = <0>;
-+        resets = <&rst 18>;
-+        reset-names = "usb2-phy";
++    reboot: reboot@10000004 {
++      compatible = "metanoia,mt2824-reboot";
++      reg = <0x10000004 0x8>;
 +    };
 
 -- 
