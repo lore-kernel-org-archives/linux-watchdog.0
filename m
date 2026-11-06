@@ -1,50 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793923030;
-	b=aEuwl/MAtFLJfPNnKpnebjUr5ku5LgnZ8x41hCWUMJkAkqjhI6Tm0+zCvVub2ODSW/UA
-	 L0KHrTnj3U+hEln/hL0V4j9mz9Q2eLq429sbs6cVkTKxxkT+bKGYbHnmpuWdLjCvIKUe2
-	 Ylx1mF2oy1HmORqYT4uOw+iDnPEfB2DJEFC/XtrkImDC9QnZR033zpOqjwBWlmB3NPz2E
-	 4I1WncAqtiD+kyl8QYWdURAxdnVzRwugPSYsJNfQ5SIYWfY0L2iIToFKUIJYnc/tajuWm
-	 MwBYo3OeqZINw5qhHOHmv1c+BPunNh7IFuUPjkMvLKk5lN3QGpJmYdstA6Tycy3pTtQ==
+	t=1793947281;
+	b=OJ5FXLF9Zy/cFEmpntGl4OhgngHOhFU51X2E+ltlE9qXkl5e6RG8j1lu5qb8qts0DVa7
+	 C72ty3dnRzh8G29+PduqGwBMIISHL0S+oYAuhhYrtd5OFOiUvuVc8AfPpp6pXkd+Iovej
+	 0s6zi2gMm4m0G40/nJkM7RVIxgQwOlz0MnzGbROw8HDHY8/HWyrVypx8qsE/HRwahDVkZ
+	 GhEaGcbVpt7pFH7Lyv1yCvyIKGz5iRTS+ZNH4Xgt8AcLef/m2Vik+/rFZMAMNhReW/t8l
+	 xFaVbvSHl3t2mayA61obqiZJrOEpvGAOBqfMHsiGXBsh8E1ykNfp01YpLtmH7m/6dtw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793923030;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793947281;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
 	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
 	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
 	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=jUdl3P7orTkYUi8VWpIFaNT1DoqVI6m8mJ1qiolLWeU=;
-	b=ZrzwaKPH62GrvPtkmt6rmcun76pNifwzMyYgZLOhky3cYHKgyJm3lNtSXDbj4zyN6+mT
-	 YTI6EufivflnwNnalBemPiljBIkae+VXDZg3oAamHcLBfHXALq4adlbAtBSVYSb3S2x8X
-	 GzJJccPiXIE0yunR4VvMTERENCSWLfpVmMWHJ7+5kMP7qinFYMRuC4LxYaB7i4NhUjMXk
-	 zKguzW33zZX5/oxf+zPZsWu5gV+VNrER3BCcWKbjk1gwarpLhwAntW/OSehG5SNDTUoC3
-	 edJEIMvkCo+BSWNJs8/fyXjlTFrPHUuEDmEI7+jSwTsqnRbMBv56EJShoPVgJle1OKw==
+	bh=uyjLdfQmDiz2aFZH8ieqMJFl01UJOBLEY1l3fqQRALs=;
+	b=oefBx6TzeziovzAQsJGYbEQsXA/knqNbBnJXE9t/AesC/RYLqHr3vzZFQ9iy3hrQASrF
+	 Ypra2VcwH+MnOcLCb4BTlffOr+PotgBxmhRN6Xc1GLEy5bgkerhevMpREBK64qKOXyUKo
+	 DT6uwY9Ld7f5aE/wLLbFBTvvDhfWOHtCNJOuXdL1CY/6YrsllXr269UKmHBZ0ur32s1IY
+	 0/3En4drFx5NyS/E/OgOh5m1vwkunkLYGSH+L8H7MjrGWLnAT3j0z2+7NC2n6k50nJOY6
+	 l/SoqKwA3EQMr7yKBlMQmburmbJtQkWAqlp3r7X7j8jfvqh25gzcZLPxkIBvSKs0kPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IQPizzVT;
-	arc=none smtp.remote-ip=44.202.169.37
-Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4stt9mGJ;
+	arc=none smtp.remote-ip=35.89.44.37
+Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9724606A31B
-	for <linux-watchdog@vger.kernel.org>; Thu,  5 Nov 2026 23:57:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B9724606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB09606A336
+	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 06:41:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BBB09606A336
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IQPizzVT
-Received: from eig-obgw-6001b.ext.cloudfilter.net ([10.0.30.143])
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=4stt9mGJ
+Received: from eig-obgw-5006b.ext.cloudfilter.net ([10.0.29.217])
 	by cmsmtp with ESMTPS
-	id OwZJxGm4sJFmFP7KOxg1A6; Thu, 05 Nov 2026 23:57:09 +0000
+	id Ozsixd7KiVK9UPDdYxVNft; Fri, 06 Nov 2026 06:41:20 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id P7KOxkboGmASCP7KOxc6kc; Thu, 05 Nov 2026 23:57:08 +0000
-X-Authority-Analysis: v=2.4 cv=XJkwSRhE c=1 sm=1 tr=0 ts=6aed17d4
+	id PDdXxL0cMpr6MPDdXxxQQO; Fri, 06 Nov 2026 06:41:19 +0000
+X-Authority-Analysis: v=2.4 cv=Ec3IQOmC c=1 sm=1 tr=0 ts=6aed768f
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=c92rfblmAAAA:8 a=_jlGtV7tAAAA:8
- a=FdDBW6wVl6SQ9AgihE4A:9 a=GvGzcOZaWPEFPQC_NcjD:22 a=nlm17XC03S6CtCLSeiRr:22
+ a=olBggFX0IELqj4Q0_iIA:9 a=GvGzcOZaWPEFPQC_NcjD:22 a=nlm17XC03S6CtCLSeiRr:22
  a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
@@ -52,25 +52,27 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
 	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=jUdl3P7orTkYUi8VWpIFaNT1DoqVI6m8mJ1qiolLWeU=; b=IQPizzVTHxRZhMl8p+gWytT20t
-	OsMFsQs5shPO2mmGzSNFDEM+5krsqKN27qZfElnFNv1Lkx0ulLDkqHsdoonLaJFu6i2sEA81PW3DG
-	rz1EdMXGAPoRPtSjVdPvO81m0tKw6Hy7oh9f7L14Q6p5/PB+cvkqzWi4J86Q2cVPA/5EXBnb8aLnT
-	yrLPhO5LPW5vV7K+J3gsWJDkrrOhHGDmToQdKRjz5AlrZ9M1EBkREab+Ci3fhd7I1B+4PanKkHOn7
-	tpMa5pRpDTkzI/1yHoN2pXmhAI3PaseQSlU7ymAuFybMKhTrn0RUNEZxg9902eHMBaB5zXfILMDYe
-	wtAEvOTQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:33334 helo=server.roeck-us.net)
+	bh=uyjLdfQmDiz2aFZH8ieqMJFl01UJOBLEY1l3fqQRALs=; b=4stt9mGJeJQ8Qahm7XOtcudVH/
+	2E7PhV5gOqeuNDlpX67SrV1MvXeXa1F3mWh82Wk1L8HZaVvEjv1vVEbZn3qU9k1x42zjW6wZtE45A
+	Mf3myyLICS7YAigeSYkgLpsVOJGkp0/rOF0bpPPvaTtJe2xWHuratXzIaiWXASB83mwg+NkECaRWt
+	edSNpfO23rOv9U7FtmeN1+tPvMqqnfOZJ/5QYhS5Y/3Q7dXgp1EC35OXGmgUu+0nQOUksvQmf+3ob
+	VHhO6c7nSiz2ZmRwJpDFk4XarSQIHvXhjOuegqgpsKOdOHeLCEerkjTxYaoSpV/t582Y8NeDxvxdU
+	jbsxiyQw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37432 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xP7KN-00000001AmN-3W2t;
-	Fri, 06 Nov 2026 05:27:07 +0530
+	id 1xPDdX-00000004Lih-0wwa;
+	Fri, 06 Nov 2026 12:11:19 +0530
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
-Cc: Guenter Roeck <linux@roeck-us.net>,
+Cc: Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Guenter Roeck <linux@roeck-us.net>,
 	Sashiko <sashiko@sashiko.dev>
-Subject: [PATCH] watchdog: sp5100_tco: Use release_mem_region() for EFCH MMIO resource
-Date: Thu,  5 Nov 2026 15:57:05 -0800
-Message-ID: <20261105235705.2405271-1-linux@roeck-us.net>
+Subject: [PATCH] watchdog: mediatek: Register reset controller before watchdog device
+Date: Thu,  5 Nov 2026 22:41:17 -0800
+Message-ID: <20261106064117.2423995-1-linux@roeck-us.net>
 X-Mailer: git-send-email 2.45.2
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -90,77 +92,89 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xP7KN-00000001AmN-3W2t
+X-Exim-ID: 1xPDdX-00000004Lih-0wwa
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:33334
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37432
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 51
+X-Email-Count: 4
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfDuDaC8Jljp6JqS7zcrJzUEHQ2KbL8s2U95YhZX5Pr6RjYodXqKuwicbzjzrB401OVdlv8uHRGrrdt9ow64OZwaxq0nqrPUKeU2dD4W2C7bQzweeuVIq
- swKXxbBPFtHUsVRY3EBZA5nrOvKMx8boVkemTLFb/n3lkGR7SyGEnBRMEM+kNGHdZSbb1b3+CR8RH/7JCBPTsGkYwoP6ZG1aNJeI+uMSIUrFufsHPp2VFwd9
+X-CMAE-Envelope: MS4xfMw1Gau5CP/Vzf40d96Qd8QZhDouwPPXHcwuzBcCg7JfHN5mvbFKeTaovZQ+td/20uszs5OJDkQzsxge5FkcjST8/b69MBij1GEr99zZHAefBHj1c+Ia
+ 4EKYE/0XLsoj+hQIHSRA4MtXhjT9yr4AOCOeZDZyQTJHQ0xcs1uitodunNReYWrBY2kP5chI3zrsz6wte8l2PaAr82U9MFOTMEh/yZ3KE1q+uxw2mI19gSUU
 
-sp5100_tco_setupdevice_mmio() reserves the EFCH power management MMIO
-region using request_mem_region_muxed(), which sets IORESOURCE_MUXED and
-places concurrent requesters of the same region (such as i2c-piix4) to
-sleep in TASK_UNINTERRUPTIBLE on muxed_resource_wait.
+In mtk_wdt_probe(), devm_watchdog_register_device() is called before
+registering the TOPRGU reset controller via
+toprgu_register_reset_controller().
 
-However, on exit, sp5100_tco_setupdevice_mmio() releases the region by
-calling release_resource() and kfree() instead of release_mem_region().
-Unlike __release_region(), release_resource() only unlinks the resource
-from the tree without checking IORESOURCE_MUXED or waking up
-muxed_resource_wait, leaving any task that contended on the muxed region
-sleeping in TASK_UNINTERRUPTIBLE.
+Because devm_watchdog_register_device() immediately exposes
+/dev/watchdog to userspace, mtk_wdt_probe() transiently publishes the
+watchdog character device, registers reboot and restart handlers, and
+logs that the watchdog is enabled before probe can still fail in
+toprgu_register_reset_controller(). Furthermore, if userspace opens
+/dev/watchdog during this window and starts the hardware counter, and
+toprgu_register_reset_controller() then fails, devres unregisters
+/dev/watchdog and cancels the core keepalive worker without stopping
+the hardware watchdog (as WDOG_STOP_ON_UNREGISTER is not set), leaving
+the timer armed and causing an unexpected system reset.
 
-Replace release_resource() and kfree() with release_mem_region(), and
-drop the now-unused struct resource pointer variable.
+Initialize the TOPRGU reset controller data and call
+toprgu_register_reset_controller() before mtk_wdt_init() and
+devm_watchdog_register_device() so the watchdog is only initialized and
+exposed after reset controller registration succeeds.
 
-Fixes: 0578fff4aae5 ("Watchdog: sp5100_tco: Add initialization using EFCH MMIO")
+Fixes: c254e103082b ("watchdog: mtk_wdt: mt8183: Add reset controller")
 Reported-by: Sashiko <sashiko@sashiko.dev>
-Link: https://sashiko.dev/#/bug/linux-5038b175-de57-4915-a10c-03b16bad7c01
+Link: https://sashiko.dev/#/bug/linux-edb0d208-f5a5-496a-a6b3-caaa85d72719
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/sp5100_tco.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/watchdog/mtk_wdt.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 14d4bffface4..385313fd1e88 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -407,16 +407,13 @@ static int sp5100_tco_setupdevice_mmio(struct device *dev,
- 	struct sp5100_tco *tco = watchdog_get_drvdata(wdd);
- 	const char *dev_name = SB800_DEVNAME;
- 	u32 mmio_addr = 0, alt_mmio_addr = 0;
--	struct resource *res;
- 	void __iomem *addr;
- 	int ret;
- 	u32 val;
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index ff72e0fb1154..2d530098a421 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -540,6 +540,18 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 	mtk_wdt->reset_by_toprgu =
+ 		of_property_read_bool(dev->of_node, "mediatek,reset-by-toprgu");
  
--	res = request_mem_region_muxed(EFCH_PM_ACPI_MMIO_PM_ADDR,
--				       EFCH_PM_ACPI_MMIO_PM_SIZE,
--				       "sp5100_tco");
++	wdt_data = of_device_get_match_data(dev);
++	if (wdt_data) {
++		mtk_wdt->toprgu_sw_rst_num = wdt_data->toprgu_sw_rst_num;
++		mtk_wdt->toprgu_sw_rst_tb = wdt_data->toprgu_sw_rst_tb;
++		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
++
++		err = toprgu_register_reset_controller(pdev,
++						       wdt_data->toprgu_sw_rst_num);
++		if (err)
++			return err;
++	}
++
+ 	mtk_wdt_init(&mtk_wdt->wdt_dev);
+ 
+ 	watchdog_stop_on_reboot(&mtk_wdt->wdt_dev);
+@@ -553,18 +565,6 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
+ 		 mtk_wdt->wdt_dev.timeout, nowayout);
+ 
+-	wdt_data = of_device_get_match_data(dev);
+-	if (wdt_data) {
+-		mtk_wdt->toprgu_sw_rst_num = wdt_data->toprgu_sw_rst_num;
+-		mtk_wdt->toprgu_sw_rst_tb = wdt_data->toprgu_sw_rst_tb;
+-		mtk_wdt->has_swsysrst_en = wdt_data->has_swsysrst_en;
 -
--	if (!res) {
-+	if (!request_mem_region_muxed(EFCH_PM_ACPI_MMIO_PM_ADDR,
-+				      EFCH_PM_ACPI_MMIO_PM_SIZE,
-+				      "sp5100_tco")) {
- 		dev_err(dev,
- 			"Memory region 0x%08x already in use\n",
- 			EFCH_PM_ACPI_MMIO_PM_ADDR);
-@@ -467,8 +464,8 @@ static int sp5100_tco_setupdevice_mmio(struct device *dev,
- 	if (addr)
- 		iounmap(addr);
- 
--	release_resource(res);
--	kfree(res);
-+	release_mem_region(EFCH_PM_ACPI_MMIO_PM_ADDR,
-+			   EFCH_PM_ACPI_MMIO_PM_SIZE);
- 
- 	return ret;
+-		err = toprgu_register_reset_controller(pdev,
+-						       wdt_data->toprgu_sw_rst_num);
+-		if (err)
+-			return err;
+-	}
+-
+ 	return 0;
  }
+ 
 -- 
 2.45.2
 
