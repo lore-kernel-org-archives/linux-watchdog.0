@@ -1,60 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957525;
-	b=JTWYCEmkqG8WnRvhTS+y3esHeBdqR23US1O7gUxWGCOiGyqLrMmzpF76InDN7Zxr0gmW
-	 DmFbOTKVrz4bJvAic+tFP2eH8PNAiN0wb+lXFFuX9gPrfngEHcBBSjX9p20TsooVf+mdV
-	 6BQcXCw8CgjUCyeOCnBWPDygW4yFqGyRuyqdebK6a7igCv1q9h/Ipt369f0YHmoymD72h
-	 BbIh56JTvi28652fClLLMbyI3KwtJtZVu/J/9gHC38afsrdmhRNbQXEi741/fIB9HA0vp
-	 R+oVeJ/tOVwrIkZvrcCG2U0RT5qs9J8SlhaaMAg5HLAFNhH/sHj/fYR025rLbbnlofQ==
+	t=1793957532;
+	b=QlMX47SA26ckE28Ttx7fw4ZQItun2bqDBu1ID3OiiRyVNh2RFDvK/iF9Z1h5KlfQS6Qa
+	 kjU6573aJl24I/c3SLiIWlERBSbDSF1zpWRUONEtbAFz5n110QeLMlvUKcRYkcHdou7N3
+	 pSTkt/3tyfTiRXElur2gp4hEmEaUmyAnE0YzNgSHvMEPsM5rzrBAGPGV9NP+PjFjdOjif
+	 sVwXX/klJwnBltLYX0YFuBlreEdVfQi7Y4QctM9a+UWQiGAooS+C/u6ADn2YNcOC6cpGw
+	 XL5HUKS/hU+njB6sgnWgpZ8My6wgK591HF0Ez23mnYJ5zJDiYRP6w5mobpJoPq6mK/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957525;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793957532;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=6dIjK3KQyPYo7BGeihqe5v2Q2WzvnIFuvucFmY8UZiM=;
-	b=gPAWR4WC0tur97mcVEzEFSHwb+iYX51VI+FQvDab3VHYA9LB3UbSQ4pHatPbky90zbie
-	 6FeI9Ede/YuO6jBzvHsG32kEosYHPdUeL0BaTgA/sOe/YuJxZfbX5C2AywJzRW6KbnFXi
-	 pA6pKky2LcktxU5+uBwXRGa//9p/uYDbfKxY2/DYnTGEM+whch0ijitR9G/O6jH9MHo0Y
-	 HL1qVYdLPmDEHQyi2ZwLbaS9NZHGBWyy1/urREhjRSNe3DROrqz6sCbRcTnFreSyZqQcM
-	 K48XqjNS0vbLkmfrbb1g0oNpu2kHswlNTwLPu83YFLChLYd4hqYp2QXaqgWxGoSetlQ==
+	bh=r8to7uUebSCnf0zunQqvwVepFOpmM8Tnf1sXmdneWKU=;
+	b=uLi2d76dANeuJTSbv5QG801euESGCnHkij1SxhvLODiOz+hQFzVH2QYD98IQMqcgL083
+	 /GbLOwqU3qrUEH68NbHNLl4aCz+XdQsVmcC64K2IWwQjPVkxTpce6yQecXR1XP/Hpx+EW
+	 Tqw7WJX7DTbOsanXc89DG//rmDKj+26gHVbf+iUtITSNx8zVBBzJfuK5zfxOHPqZJ9qbd
+	 kaBHY8lBST+BRvj2uns4zy2x+A8ddA35ZgshjTHZ9uGM7j/PZDY1AivB4ygG8GyA1mEpC
+	 pODuL2YGpqHa3eVy4nyV50OA0V77wr1+sVRIvD9OCfZEr7AYR8g4KnDY6SnOrgNH6sw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=wzk0AKUh;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=OQyJWD9x;
 	arc=none smtp.remote-ip=185.246.85.4
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9337C606EE80
-	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 09:32:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9337C606EE80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3AE1608361B
+	for <linux-watchdog@vger.kernel.org>; Fri,  6 Nov 2026 09:32:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A3AE1608361B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=wzk0AKUh
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=OQyJWD9x
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 4D4E24E413E9;
-	Fri,  6 Nov 2026 09:32:03 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 77AC94E413F4;
+	Fri,  6 Nov 2026 09:32:10 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 207F95FFBC;
-	Fri,  6 Nov 2026 09:32:03 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id AC820103292DF;
-	Fri,  6 Nov 2026 10:31:52 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 42DF65FFBC;
+	Fri,  6 Nov 2026 09:32:10 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9238A10329258;
+	Fri,  6 Nov 2026 10:31:59 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793957519; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1793957526; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=6dIjK3KQyPYo7BGeihqe5v2Q2WzvnIFuvucFmY8UZiM=;
-	b=wzk0AKUhHtXWvefoMAkphBOjTffVQzMnfddS4ZbG16AEUdu4SGMZCgxM1nEu40Kovb0ZbB
-	iiLRa03CunEJO+Gevda0SIEUaPwlx8z9towgjqw1NDpmIbPJZPdFIs6dpV/D0R2jjvZUsY
-	6sf+galb57+IV19d56T/C04vO/3WBIGf93TBBVoy1qHZAn57/yK8985rTav7wfm3pB4ew4
-	Tyb9hTHbz8Pgu8snCkrUXvWIhuir5xo/wPaNKJg9be66FdvG0Wc1+G9ltqQZ/YHxpb74Gr
-	8KVzL7vI6mKbgG14ahBCIhzqaxnuCA440p6LVcxQKW3fJ4nbA10u11XVAvcYlg==
+	bh=r8to7uUebSCnf0zunQqvwVepFOpmM8Tnf1sXmdneWKU=;
+	b=OQyJWD9xuTkSU5khP8Rf0sWaL1PR/MwXKZba/rv5SX1Fgk6aWj+Dn3G0YZsUOdbGj0XvF4
+	3G7C0QycFmCVBYiqPj+hSWTrwhN2Y2qbo74SyO/mIeZQZuohSamG5BIqezzDsnvCOtv2nh
+	VpB9uJcJaOTkNmhHRQETLejawaipp/djMPDc+8HO09RJM5z9us6ZSn78ZVDfQ00c6K57cX
+	WFhr+4okRFPTsmA/eaj36cyrKNTeLbwOLfFz0V8f0h+/x3Qi1TFNckEw7Z6fvxrxmx2ao7
+	xgkLmDitwwhnCORZDtqEPnK7CiyGv8zvUMqQGN3BujwvujCznAQht8uom9kOZg==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Fri, 06 Nov 2026 10:30:09 +0100
-Subject: [PATCH 12/25] dt-bindings: spi: andestech,ae350-spi: add Metanoia
- MT2824
+Date: Fri, 06 Nov 2026 10:30:10 +0100
+Subject: [PATCH 13/25] dt-bindings: usb: dwc2: add Metanoia MT2824
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -66,7 +65,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261106-mt2824-v1-12-86087eaf5af4@bootlin.com>
+Message-Id: <20261106-mt2824-v1-13-86087eaf5af4@bootlin.com>
 References: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 In-Reply-To: <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -99,27 +98,28 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-The Metanoia MT2824 integrates the Andes ATCSPI200 SPI controller. Add
-its compatible string, with andestech,ae350-spi as a fallback.
+Document the metanoia,mt2824-usb compatible, which falls back to the
+generic snps,dwc2 binding, so that the DWC2 USB controller on the Metanoia
+MT2824 SoC can be described in device trees.
 
 Originally-by: Jun Chang <jun.chang@metanoia-comm.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml | 1 +
+ Documentation/devicetree/bindings/usb/dwc2.yaml | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml b/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
-index 91e04f5d354a..6e5dd8175aa9 100644
---- a/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
-+++ b/Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
-@@ -15,6 +15,7 @@ properties:
-       - items:
-           - enum:
-               - andestech,qilai-spi
-+              - metanoia,mt2824-spi
-           - const: andestech,ae350-spi
-       - const: andestech,ae350-spi
- 
+diff --git a/Documentation/devicetree/bindings/usb/dwc2.yaml b/Documentation/devicetree/bindings/usb/dwc2.yaml
+index 6c3a10991b8b..898c83e57843 100644
+--- a/Documentation/devicetree/bindings/usb/dwc2.yaml
++++ b/Documentation/devicetree/bindings/usb/dwc2.yaml
+@@ -55,6 +55,7 @@ properties:
+               - amlogic,meson-g12a-usb
+               - amlogic,meson-a1-usb
+               - intel,socfpga-agilex-hsotg
++              - metanoia,mt2824-usb
+           - const: snps,dwc2
+       - const: amcc,dwc-otg
+       - const: apm,apm82181-dwc-otg
 
 -- 
 2.56.0
