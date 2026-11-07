@@ -1,105 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.41
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794042792;
-	b=qrICl0BztvEN3+BgM5QEZVs1pRzooqlkOc84vkIVHaWdnljJ1UoKvrcGT9xzSnyrU3Xg
-	 pSoxRY6HA4yTHbl9wpI2PspdwTi3ZzutqEkQtTQcmiwxhHttWj8eXz0oZipEYKIdagA4x
-	 M/W0p0gDJUz9etnwq911QS/Yr3Rn4Mv9haFkMMKmt95akyjujQBwLNBiRl1LxW9MmuQkp
-	 n9JSbimLAKyHB9N6CyWxIpe8Djhg4eKSRnwoClvNolpFMxL6i1ptppZvcFhEjKvrLEyre
-	 8J7WCrsDtOrWUfSggoFJ8oDN8WATZS5vj5jDZyhZNRBYT+oJt1LpXgfNzbTh8Kwu0yA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794042792;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=XBdcxSgsOzWhMK/iioasbAbzzS822OCTsFGBZkPYLKU=;
-	b=p91p4IUpFddIc3M9inEeqdgB0IWnrhNBd3OvY0c/G+vEOSKSx4NYefT64Xlc32C6KOlK
-	 uDu4I78AvBqquvC5X/BSjCngT8uRwyhTiLEGqOXZD+y3OC50N14RWY9P2e9lFlH5fdC4K
-	 F8M2YLW3m5+96uqXP2Py0SXqG2vB1EiOgLa5TyvHZe7KzN8yzFppMT47r7MxXSYmreFIg
-	 sZ9coZypIBy7YGPlcO9jbp3Nrh3eGNypj830GRowjCd9WItFbU491Katt+h2odvYXV2zg
-	 oTz0zyWLjdMwnACIa4vlroyv6bdwt8nm7s/6A/HL5YQSA9Y/veUVeherIiSOz6yOuvg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PpC+99v8;
-	arc=none smtp.remote-ip=209.85.208.41
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794054124;
+	b=rUcEz+/d26g9/OwJGeMRfKXvscenOu32RVOlalCAOMUZ522r023dpxE4dztiX+FPkcsK
+	 GE2Doeg3Ku+G0LhTZhOoINknnkFE4iQCSVk6BhPeD/K8+DiNF+2DQi+qSYLOrCgVfXPMX
+	 iJwf8IFfyMKUkhUbifuYICgYk3GZqn6h1zYs7ngIOE+5ddZwJnuP3pEEKssXB4HBrPCk5
+	 nvmbmKtmziwhFHiEIYeHekzgFACjtWdIw7azdpVddEIERj1I44ZVrlUzTDStfuhILazxP
+	 yL+lSQEtpr/n7mCkccnu0Fv0QgiUtDnlzLddESxe+RS3KOyl+cFlvBLM3MgH4xNyjzA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794054124;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=EO7R+T49bwB8v+cw1KxuhoaSRsFWSxfXrC6vOceJYnY=;
+	b=AyXXvUV77NndGm95cOWdOWSL+aPIOrM3SlYr8VeVlvRF3+gdPqXIVC5sFlRAXIK3N1zO
+	 INRyyMm1TrLxTvqbbwLntm9IIomPizqzrl6pe3zdEil8J8Brccp1OI/e8sHX+kYJozBrb
+	 q7dRtSULKFNj/p2TLXYFi0XEJcJ/eUUXCakrv4IpIRQ86kfb1h10U+w2nriuHkvHAbKkC
+	 +dlOWqteZ1JR9oYWI2llKFUt4YIQxL+SUx9G1Ehz+WsnyXzutWfjZz6BauTTMryOhqAPC
+	 lMsqXPkJs9FjqBRh8mhnbN1pRruGhbNPNHo1irmRzsRP9wiOlca2xfpWlN73UYYIx8g==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RUDqoKYN;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA99606A32D;
+	Sat,  7 Nov 2026 12:22:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RUDqoKYN
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794054124;
+	b=IvoXO9lEW5xp7iWn3EQS8+QJnGIe4U4GrQGYvwE8UsFL43MVHETi7Bd20wZW99DP5LvJ
+	 D2UWb8RaYTH6VT/Y+QlXA/BDetC4+FNY5q83WYx7mgr5YAmnrwbjli4ZyL7czdiYRwcm8
+	 sK/vCe3Kc2qgvUwfsyYJkthaHGPqmKErbMMtOZmUVNuj5eCMeqLnsQhvYBCcAPIZ5+eUY
+	 3dk6hEHs8idScprsdjmtr66I4Oa/p1V3DXwsRj0SpvDOyjznR9VPcFvEhsmDukye0dP2E
+	 mdhuTwSz1YgxePF1Vw/ErYDxzfMm2I9awVgKFBsUUQPMqxB/RCXqSdSEikBeZr52wgQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794054124;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=EO7R+T49bwB8v+cw1KxuhoaSRsFWSxfXrC6vOceJYnY=;
+	b=knISGpdkAIfYkGMYO8fcOhVcQ+NQ/q33gvDBI7D4H05v1EF1RStBDl8/RDISuoDMdy9P
+	 uVhyuVyNBNhfDgf5Mtpk2coBB4u7AIPJlvu+VxTWrMoWvkTuPYB2MUZ5wr1NVgNu3mUNy
+	 aycc2KJJQSEbOM+nIEzBMwFmW+s0/XoxUugy4NEY1NPTWL3yEk5KKBo5E3I8wP+VP4xip
+	 qUsXYkEzMqyfJPZPZcvzt+pOH8aENbtg/jstmrxeMOTiBOD6rQ9W3jkS1JzmOG79rjm6E
+	 Kn5gixcSIIKGW5nHG7mJs9DFC8g0EU0ZF701mqJdTVn2RQByfx6sw8XgYK4IjR6agbg==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E834606A326
-	for <linux-watchdog@vger.kernel.org>; Sat,  7 Nov 2026 09:13:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8E834606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PpC+99v8
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6b566cf56c1so1503553a12.2
-        for <linux-watchdog@vger.kernel.org>; Sat, 07 Nov 2026 01:13:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794042791; x=1794647591; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=XBdcxSgsOzWhMK/iioasbAbzzS822OCTsFGBZkPYLKU=;
-        b=PpC+99v87SaXQw5ylR+lrr5/ZH1RuePq2a1OgNLIaS38ZMR3RYdF4hx18UtoJrK7Bz
-         cDz8HorQo7nEY0LPSKTZJ0+VMfpgTFB/fmQTB2MnwtwzApPlWBQJZT9bel1Pjxup3zPG
-         csiFs1kIsgXuQWrnGe1KAI6bR2n+MkMHxvtZILO3Al90D21moEeKF0Bnyu42F0dO+BZ7
-         9yDp/t4S/08ii3TJkTRqrxZzM5ZnmckjZKZkiBk1R0G6GorJGM0xCSRXZRD+GJSkVB1B
-         GHrcHStlZaKqCFZ5DEUdZrm2zaumoa+ZDclAgNgITqhw6brOZOEC/Wex6PDojgg3fgnD
-         g3+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794042791; x=1794647591;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=XBdcxSgsOzWhMK/iioasbAbzzS822OCTsFGBZkPYLKU=;
-        b=LKhZRM+JkpTnRPRF1al01O7201+577s8i8DG00ANYmDVu8UX6rxp9P1hqLtEzkgjjl
-         gaEwK0I9eIoJOx+l+WTD05FgSuSpQmLuKFNp9A9w7WrakJbL+vOLGs9/l7D8tbny7Ac1
-         wUkpA1O3tVJLcqvkjMBlfml7xb+djgD6fxyqr5rPc/VJxJr6gqy71KDDRJd+3WUTmj22
-         wRZYrkOAMiv4k5C0TMJIon9FC6OoPfXXFvNBcS3RS9sQqFkg4xjesKp5VXWzOt209SiH
-         EF917eX1hjSe5a+NFBQqQQr1YhugBAEOgC/xstedi2apxpkgZVY8hUFypjtRyaVC0O3k
-         2xhg==
-X-Forwarded-Encrypted: i=1; AL+hErED7KQW800Lg3cFoTKcfSpDkkJ3Xha7BwaW7SaLvKhNE4NQJ9nQmZvjxZ3LrIn+tCi93AiJd7G+UXWqGVjR7g==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+fo50UQ14uLonF/dUbh/ykshEQfkUgQMHapg5iwU2O1vEuzhrL
-	4iuXxkBUXwfkt+75KMZqwrpAVmX6BLPiw5T/E6KtW8HyU/4JTDjzUSl0
-X-Gm-Gg: AYBFou29smda2qS10bedF0AI3cVxCEVSHdhTilwtA/V0VC98dQRWxbnRxS3YMv5iFM5
-	1+KiPzS50i0wmw6w52cle7hs7qVWWuvwj6mJ9r8CgISqyTW67dIiMvwHVm32lrcfwaC4/M8aB5w
-	L2MZzT/y20LpthJ+7ir9URtuiI7VEJ5eASqX/fNsbVOIkQl/6b5JkV2F8ryrmZ3gVgYQvWT+z+t
-	jhjU2uPQ0AsH5FQdx4qGjzIML1sg7RtaiHeOUiX/LnelbdD3/SVXCio2CjxFXos+96gAXh1MCX8
-	zZeQHeGwVg/qvuqE5IJJT+CoRPfvpyzI4u5B4oTsnGIOTAD2eGhQhg2HGcNKxQe/woNwuxDdvUR
-	odd4y0g4/IZY6TWv5mbVwiFjxLjbUI/I/LTPXmfAeLxa+dht2iMZxJcTzdr9hnfBo6fWN2VfQqw
-	gqX+y+2WZ2xkPG1aS//JSAw5m02jMSSHbLJVvpfo69c5exnVH89c12/xPNcBYvPbnRTblYYffeG
-	PdD4/qVAf8NR5AqWAgXCzLkK20Bm0leShHP+WYcmE4dGhl9suortxt8q1dvZtQv5B5tht3MQFan
-	wC0S/p5vlypxQTVmY0o4FOXkVB6wbknHOhf8dP6h2FSNylRtCg==
-X-Received: by 2002:aa7:c3cb:0:b0:6b3:c422:9257 with SMTP id 4fb4d7f45d1cf-6b597805d85mr2374834a12.25.1794042790711;
-        Sat, 07 Nov 2026 01:13:10 -0800 (PST)
-Received: from letov ([62.41.24.155])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b6e82bc5d7sm1405043a12.13.2026.11.07.01.13.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Nov 2026 01:13:09 -0800 (PST)
-From: Alexander Letuchiy <asalde.le1@gmail.com>
-To: Akari Tsuyukusa <akkun11.open@gmail.com>
-Cc: Alexander Letuchiy <asalde.le1@gmail.com>,
-	Roman Vivchar <rva333@protonmail.com>,
-	devicetree@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/5] dt-bindings: watchdog: mediatek,mtk-wdt: Add compatible for MT6895
-Date: Sat,  7 Nov 2026 12:13:02 +0300
-Message-ID: <20261107091302.16545-1-asalde.le1@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <au7UMdlP9O6oo41i@buffalo-ssd>
-References: <au7UMdlP9O6oo41i@buffalo-ssd>
+	by smtp.kernel.org (Postfix) with ESMTPS id 5ABB51F008A2;
+	Sat,  7 Nov 2026 12:22:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794054124;
+	bh=EO7R+T49bwB8v+cw1KxuhoaSRsFWSxfXrC6vOceJYnY=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=RUDqoKYNqBTpBDwdF8ah4CIPVv0GjexfMdS1VPExW6hhnhRhB99qgxn2k1v7bti12
+	 3PaOFzrhAkfUr70VTPSFwTyvD8o9FK0iqBcFhOPle0c98Zqww7NaxDAM4xKsfHwg4W
+	 GiQD/zZQggEcoA1eCOSyjZL937cdDlA/rGGzSwsuGhR8wuta5nK808dWN6Y2BrxGnV
+	 r8TE7HmgTGQcrzpqqA5XitVjPQIOAhyHcIS7X+cyV4D8BMqXDOlEHSArinPy8uwJIr
+	 Xr+eHgYp4GLfOhxUE2Oyao38McGwBuzou5iT7F3elavD5n+2cb8ZC54cc/AW6UJaxX
+	 aqEzSJ+gzcdRg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id D966747BE0;
+	Sat,  7 Nov 2026 12:22:02 +0000 (UTC)
+From: Rui Cao via B4 Relay <devnull+i.udp0.com@kernel.org>
+Date: Sat, 07 Nov 2026 20:21:59 +0800
+Subject: [PATCH 2/4] dt-bindings: watchdog: mediatek,mtk-wdt: Add MT6833
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -109,23 +82,60 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261107-mt6833-base-v1-2-bda21083e9f3@udp0.com>
+References: <20261107-mt6833-base-v1-0-bda21083e9f3@udp0.com>
+In-Reply-To: <20261107-mt6833-base-v1-0-bda21083e9f3@udp0.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Sean Wang <sean.wang@mediatek.com>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, linux-serial@vger.kernel.org, 
+ Rui Cao <i@udp0.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794054121; l=892;
+ i=i@udp0.com; s=20261107; h=from:subject:message-id;
+ bh=BmzvMDSSGsZ+iD74UsWjZpukUgHxSh4ohrYyIUhF5jE=;
+ b=F57GxYhOMBYbveCONM116XPFb4pK0L12+SfnY49y8GXm9fBg4NWCDOdE9k9AtF/ZThFPv++p0
+ yd0LKdZEn5wCoZw8LDCNADha3POq9r+6aEPlO5YwWRiGrxn6mZG+eXC
+X-Developer-Key: i=i@udp0.com; a=ed25519;
+ pk=XZJKcKgnUUjjyw8KuKy7u2QeIX0JLY/L1Fxzwwje41w=
+X-Endpoint-Received: by B4 Relay for i@udp0.com/20261107 with auth_id=1443
+X-Original-From: Rui Cao <i@udp0.com>
+Reply-To: i@udp0.com
+Content-Transfer-Encoding: 7bit
 
-Hi Akari,
-(Resending as plain text, the lists rejected my previous reply because
-it had an HTML part. Sorry for the duplicate.)
+From: Rui Cao <i@udp0.com>
 
-On Sat, Nov 07, 2026 at 08:18 AM, Akari Tsuyukusa wrote:
-> Please give MT6895 its own "mediatek,mt6895-wdt" compatible without
-> "mediatek,mt6589-wdt" fallback. Its TOPRGU reset support can be added
-> once the actual reset layout has been confirmed.
+Add MediaTek's MT6833 (Dimensity 700). Its watchdog works as MT6589's,
+which it falls back to.
 
-Thanks for the explanation, I missed that the mt6589 entry now
-registers a reset controller. I'll make mediatek,mt6895-wdt a
-standalone compatible in v2 and add a driver match entry for it without
-reset data.
+Signed-off-by: Rui Cao <i@udp0.com>
+---
+ Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-I'll wait for comments on the rest of the series before sending v2.
+diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+index f9b725592c2..dfdc06c758d 100644
+--- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+@@ -38,6 +38,7 @@ properties:
+               - mediatek,mt6572-wdt
+               - mediatek,mt6582-wdt
+               - mediatek,mt6797-wdt
++              - mediatek,mt6833-wdt
+               - mediatek,mt7622-wdt
+               - mediatek,mt7623-wdt
+               - mediatek,mt7629-wdt
 
-Best regards,
-Alexander
+-- 
+Git-157)
+
+
