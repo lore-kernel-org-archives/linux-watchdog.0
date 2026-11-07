@@ -1,91 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794033072;
-	b=iD+9sJ775nZld+LKsDWvyH0alimFIXsljw5qWwcIwNIOonAOL0pnNq5E5PSRDBZP3dqJ
-	 v0RedElv89KRpIY9nia3SBNF0rT7xZ/S1A8KFzdoRq7Lt0JnJeLUl1RGWYUqh+UadatTF
-	 7rlN1ZLluJPpRMQSPtoUyTtqVMVk2P55FQpVT5UbgTZDLJG8lfqnXDvA5311UOYtyw2bl
-	 VA5SgUJ0x3x7eBC90lDrkYkcuYHcEl5dkQhUU1UUcCjLXtRuVFDiWpxSnILAFJJm+neVA
-	 lZeOcyjVm5yplTnaeaY9hsBGmw1dpaiTckuxRl03NVHzkFusSQU/SnMJEbb59P57rAA==
+	t=1794039503;
+	b=m8NeBxNEdnGUjMLlqtiQb5/yPItvnEyJdPmfS1ksCXqtHS2E6jShqGWan9am8jKxLs7n
+	 OFrmwEw1siB6n6Ulr/udcPEQgnog05fAS6F7pzL4DRnKWi/JlIXNypZrmJQXfLOaIWz7b
+	 YDHT6Se+lapc2y/839bxML1Q/BgWarBCqTLP3MLvIzgJtJ5ej7nxKi+JTO+eIrH+O4McS
+	 JumhK9mA0lQG74I0sd0McjK2K95qkg1jv2X8iUoJfP3w3CF3m7wmRLiwoQ0czNj/XvfPV
+	 +aCKjdbfhS40dh4o+Li/Q9KnS/lQ6iOmoeQrtpEKcZQI7zyw34bknTTXhS3M55mR5Hg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794033072;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794039503;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=OcclpOoyR9VbzHL5lXvcmBGzh1lq20n1nrPwq5+OX9o=;
-	b=lDXYAeFQnYj+s553ebZUW4dNKvD9w5CDtPt8Z9EkEvZmm6r/jttrwd5NcFQykXRlGeq4
-	 zyIysIxr+YKQU5yxBmRFP7lzzVHoanjjHSKhW9V6jeOp82jMoFfIkJ52Ev77fuh+CQCEj
-	 ZS6dgRuWmBJhHFv58iFI8XS3DlZHgeZk5jiwjncxiYS4+TCb4yXTLYEfRbgYbBVtqQgVX
-	 G3nu5ezBQiM0sD5ShG1AhVTlmuSku7aRl5zSvOso9qARGBNFMsfmLzB/WlalFGEv1BLgm
-	 At2kyEi+EBG3EtLrrH8tkkOY6W6zCimzdMp7oVFK5zCH2+PczeBv4HRsMnzDA6iHzFw==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=An1bRoE/6CxmwaSRosrMArcH/TfHD3aBe6vo4ktdg0I=;
+	b=VB3D9MCoibxR1Qm7xsQQp2ieq3XfoXCOP0ltJixQkeA1heKAKoRAdzYmmLBqMQdeypRU
+	 cCSxrRtCev1YnwX0h+AygNyDbp6TowgkvWyZUSrp/qdXm9QiVJNZ60/6hr/IjRKq4kE0l
+	 LRfqfUROPFCQI7VsTRkB6C8CRiApMVIv7Dv7DKpeJP9SdyCm3LzgVm+WqQKJOvp58UtwC
+	 x6BmHFkU3DTKe+ldyXq6tLcqE5Nq88mG6Ka2oofuGIY+OWFlzqOBGsnbsVw5sdjJbjwqd
+	 U9jEKkTGTlSr8XXE93eLjEm4OMYXeyO1I8qrDCIIlDjhTAX6lJipcn0sKQafJJE3jkg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ZYI+R8wK;
-	arc=none smtp.remote-ip=74.125.82.181
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uUdLLuxy;
+	arc=none smtp.remote-ip=209.85.214.170
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EFBE606A32C
-	for <linux-watchdog@vger.kernel.org>; Sat,  7 Nov 2026 06:31:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7EFBE606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B7F606A326
+	for <linux-watchdog@vger.kernel.org>; Sat,  7 Nov 2026 08:18:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A3B7F606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ZYI+R8wK
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-36ff9c9da34so1778682eec.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 06 Nov 2026 22:31:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=uUdLLuxy
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2e940d5d2beso4771815ad.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 07 Nov 2026 00:18:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794033071; x=1794637871; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OcclpOoyR9VbzHL5lXvcmBGzh1lq20n1nrPwq5+OX9o=;
-        b=ZYI+R8wK5I1Y3OH9QuK415gbEyaFx5Z8BY5+x5BSZeL82bX19jJR6vtzgwmKF2xc4/
-         OuIeOmziZ3r8oVwuSdsCzXiI3CXVW8jfWU0lHT1fxEfjKWSwxp8f2kBqDjTu+l5FnL2Q
-         kq5t2A/BWCGD3/h8qJZCuqbtiZ8kFUK3x6f15VqRVK0JoPCLzZOL4NIlrCNVCqBaE8v5
-         VyArRGf9EuyzLn2a+PinCdNbWy85Ul79UeUBe0Xh56TC4RXVoaqs92G77WfD4574mJYi
-         8dpPydxCpgD/CigqjvIFn4j2HDvMwrZIUAEE75KyOBWrnfvvlOQDDJsQkYO8W2GGN8Tb
-         zIkg==
+        d=gmail.com; s=20260707; t=1794039502; x=1794644302; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=An1bRoE/6CxmwaSRosrMArcH/TfHD3aBe6vo4ktdg0I=;
+        b=uUdLLuxyl3UJP4spFk3NxgQpmrV3TmK9yeFUh1vl5evvBlg6C5YftzRlsdtpVUqUAL
+         VPwKMdFyu4VK1c5tKq8BWJQ/IrK34OvioJHOCG0eqvMUASiYSn985yNhimije8kbYFC1
+         3ATGnIJnKzT/V0igv4JRmNc3IjiAOUyD64Q2ruQVvdcyYFLRgNIl3o+soZ9NhK7zf0tg
+         NQ67e3pwL4aZszws6XccLeLQAyYDC9EdfD2oxlJ7uZRR13Vd3SipU6b6R9En4o+yQwrG
+         78Z3yJtteRvnYajuzqPZnJFQdEEjaqRfEZ5WAdcYmDpNkukpza7aul36o6VZBbUDh2Sz
+         Sv+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794033071; x=1794637871;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OcclpOoyR9VbzHL5lXvcmBGzh1lq20n1nrPwq5+OX9o=;
-        b=VUYebpGMkrIDG449PTEsHGhkldEpLWSOBzYCFXcGsr72h0NEtV3GCo6BawsRgoNNk5
-         WeF775axRbDsOJVNf+16X2o20E9Z4uRVcQ8ZHopPFy3EVxHxo65yjnY0Lr38PPsSgQkZ
-         JLcwNj4RQfVoY34V00hZv5NOylB2A8qiQQx/p7/slizG5tOAaLpMQ1yCXgBXrrcs53uf
-         41mc2sg5LuUPDQFC+kEWoDfOKxn0wH5pgjxNzUK8FRaIl9EsIxz2jEE03z8TWZa6GaAO
-         l6lykd0jGxkUgE9hdgrBXbjYnn3ryQJ3ltbUPQ+mY7kBTpwIqBUJ9XzY23QZD9FXheI2
-         wSjQ==
-X-Gm-Message-State: APuU4Z+8fdCOA9t4HJqLEy6LusuI9H4eStB6ayEIMQW7OJdc+RCNCL0j
-	aeydvUkx+bTDwC+WbzqsQpS8WPiwvDuxo+YARquEjI0BBJ+pi7lbaYe7
-X-Gm-Gg: AYBFou0IAejusdgSVRPnHjTADMyv1EMY5BLKT7ZA67l47cWbj9apkQUEH6CUOLT0UJ8
-	0AHUWohbskC2ZdBMpaKQt3yUUosVRrTss1IMfaL+V8oq6+PtVlKOEqpdRLtcFd3aVSUVlzd6mHG
-	pE1YpJ4NWT9ZiFY4WROs8p8oSxGp2GfwU5LaPvPqQRjf+7ua81f5AubjQvAA7RaexWVKsR15LXg
-	5lH2ut/cb15P6IA3PX62g5hjvH4Ausx2NENeegucZoNn4rhuzY09iwS8Jm7BzTxt+FATVxe6h4f
-	nPUHzsp2PHaABRb0uQO8Lfi88Uljig8STiveY5mK5yFL9jkw+3HGqJQy3W3OPDCvauLnuEL8GNU
-	U6Q7E1fRLejEV8lIufbTXrDaSQ1iCICAd+3GUYnQxvABRUbo/mblRO3dg5yIFN3Y/cfoqymNrYN
-	tJmGqw6B/2r+9TZrtYN6txRkMu0u1PckNkVVxpOJwrerbD33cDba7CglbTdschPf4+Hj9aHu8r5
-	Db65R5y8IzW6Saxhc0DhIBM4j1k1fJ3LShodHtAL2YHAuqj+I4Kcim2WceHuhhObTYONXKDJ615
-	oYUHOBxQEe+XsQ6mp9c+xZ1gbxo8CgzrE8psXyTQ61+Gk0JwW2jcwg==
-X-Received: by 2002:a05:7301:fc0c:b0:369:9af5:7bc9 with SMTP id 5a478bee46e88-36f75f25cecmr6718753eec.23.1794033070720;
-        Fri, 06 Nov 2026 22:31:10 -0800 (PST)
-Received: from LAPTOP-LJ15R92N.localdomain ([49.43.7.133])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36faa6a649csm12405728eec.26.2026.11.06.22.31.07
+        d=1e100.net; s=20260707; t=1794039502; x=1794644302;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=An1bRoE/6CxmwaSRosrMArcH/TfHD3aBe6vo4ktdg0I=;
+        b=rkIzw7wR61mniQvpBNY0FTw7NXYrG04oO3ZvEFdK5YumBcK9mYsgbjBAg7k3wj61Vy
+         Tvi0sxSfQpRmjkBJb2pwOJ4pUTmDN6dJ7d7cOvIfC21jjMacAFYhe9dKUohgHRlHtBoq
+         A11bG7pHtFYbbwFq4wFiLEWDsu1bz/FCPBTezmPiiydrU8CKc8JL/kSAuoW8K2u/Qccx
+         yaR62APntMONVUrDkvlCmRsKiFgIuKstqtpHcg3ipE1CQCIs6YmqEuECRChFO8DE2eTW
+         bIcVw2f0lknGC2op8Sh0vPR/DrKZ9NJt5TOgtYmKnSlQnbL6vy8jyHyqb99EMDZmuL3D
+         zA7g==
+X-Forwarded-Encrypted: i=1; AL+hErEYpS2ayjrX0JpsT5pqSPIpVZDdOcEflhUksEGQLcGOe9jeqKf0FqCLvM8mZ0l9BlNM26vdfZAvnhBDI56GIw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+lAYWUzAyN5Kb3Di39lAkcqfoO03HIk+3CGKWLbh9B6zL+uE/E
+	0v8PUELp3lJXz986wlv8Mb8K2KVDSOEu7ESEwAFkG+LwVnM1FAjL0A6w
+X-Gm-Gg: AYBFou3uQPHNwyqjetuizvoYNeRY4gnh35jvhDuy5TuOBUlr+VVpU0JjuxHLoQmNnPU
+	0dkp0T8gND+4AUqjlVFI1VMy89sLtoskpzMlMOao6CSbQjLB5fQulRA2jGRi0W7enseuQzBtRXP
+	rNnHGzlzgROLi1S9fNm+i7vYtDo7Jor4mtyz/m/oXfW1rNeigtHU7U4D4EPAQs1tvotnusneHMR
+	9QxJF42maHY+lW4rAy3ZGMNilnuSSgmKOObsK04DQ6t94jx9yxJCwJx/t9OQ/tH/GhF55U8Ut94
+	GvPr8Iqolc6W0amecOIEx0xC1GldKNKtcHubezkMs/K00bcOVSueLrY8JPjQ8aedduYKovJY2hp
+	FvIveBktSeazoRLwINtvn4WdcDmNXWupv8Iu6fQFx0EEXsOBtQFxSRbSeOu2Y/VeSunlRuElBU0
+	4Fpy6NQreAMeY3AOOOstE8/aBqPQBDpv+AUubDNLF936ECeBEvGbea08+pXT0qS60ay0bgWsG9z
+	Wo/K8B8IgCYSTLw/5B4f6mJH+dlTNEJRkq+eshjeUugbJIyMshumiTbYdL+pFUNThHObjRMt9VX
+	/9vJ2tOPtJTegvST0w==
+X-Received: by 2002:a17:902:d48d:b0:2e8:1c7b:3b6e with SMTP id d9443c01a7336-2ed40aca726mr55809015ad.26.1794039501791;
+        Sat, 07 Nov 2026 00:18:21 -0800 (PST)
+Received: from buffalo-ssd ([2a09:bac5:45bc:1e1e::300:1a])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ed47528e5dsm11943395ad.4.2026.11.07.00.18.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 22:31:10 -0800 (PST)
-From: Akshat Rawat <akshatrawat095@gmail.com>
-To: wim@linux-watchdog.org,
-	linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org,
-	linux-omap@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Akshat Rawat <akshatrawat095@gmail.com>
-Subject: [PATCH] watchdog: omap_wdt: use guard(mutex) to simplify locking
-Date: Sat,  7 Nov 2026 06:31:50 +0000
-Message-ID: <20261107063151.441-1-akshatrawat095@gmail.com>
-X-Mailer: git-send-email 2.53.0
+        Sat, 07 Nov 2026 00:18:21 -0800 (PST)
+Date: Sat, 7 Nov 2026 17:18:17 +0900
+From: Akari Tsuyukusa <akkun11.open@gmail.com>
+To: Alexander Letuchiy <asalde.le1@gmail.com>
+Cc: Roman Vivchar <rva333@protonmail.com>, devicetree@vger.kernel.org, 
+	linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/5] dt-bindings: watchdog: mediatek,mtk-wdt: Add
+ compatible for MT6895
+Message-ID: <au7UMdlP9O6oo41i@buffalo-ssd>
+References: <xUMh3NwVp4cBhFsWWFE2Xng4h8YH95iJM37_I158WAyVmsRCPbirWT1iU8eMFeiSFw8xco0X45o-2NOeB6Jc4_nWAg25pFPgDMwK3mKzm34=@protonmail.com>
+ <20261105222435.571449-1-asalde.le1@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -95,133 +102,55 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261105222435.571449-1-asalde.le1@gmail.com>
 
-Replace manual mutex_lock() and mutex_unlock() calls with the modern
-guard(mutex) constructor from <linux/cleanup.h>.
+Hi Alexander,
+(Resending with the Cc recipients I missed; sorry for the duplicate.)
 
-In each function, the mutex is held across the entire function scope.
-Using guard(mutex) eliminates manual unlock boilerplate and guarantees
-that the lock is released upon function exit.
+On Fri, Nov 06, 2026 at 01:24:34AM +0300, Alexander Letuchiy wrote:
+> On Thu, Nov 5, 2026 at 11:50 PM, Roman Vivchar wrote:
+> > Does mt6895 actually share the same reset layout as mt6589? Given the
+> > generation leap between these, the former is very unlikely to use
+> > the same resets.
+> 
+> The vendor kernel for this SoC binds the watchdog with the same
+> compatible list ("mediatek,mt6895-wdt", "mediatek,mt6589-wdt") at the
+> same address, and its register definitions are identical to mtk_wdt.c.
+> 
+> The TOPRGU reset layout is the one thing I can't confirm, as I found no
+> reset table for MT6895 there. This series does not use it: the DT has
+> no #reset-cells and no consumers. If reset lines are needed later, I
+> will add a dedicated mt6895_data to the driver.
 
-Signed-off-by: Akshat Rawat <akshatrawat095@gmail.com>
----
- drivers/watchdog/omap_wdt.c | 24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+The MT6589 wdt driver now also registers a TOPRGU reset controller:
+f12d5facded7 ("watchdog: mediatek: Add wdt/toprgu resets for mt6589")
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 2a6de73e6f0b..956d9513a81c 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -27,6 +27,7 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
- #include <linux/module.h>
-+#include <linux/cleanup.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/mm.h>
-@@ -133,7 +134,7 @@ static int omap_wdt_start(struct watchdog_device *wdog)
- 	struct omap_wdt_dev *wdev = to_omap_wdt_dev(wdog);
- 	void __iomem *base = wdev->base;
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 
- 	wdev->omap_wdt_users = true;
- 
-@@ -158,8 +159,6 @@ static int omap_wdt_start(struct watchdog_device *wdog)
- 	omap_wdt_reload(wdev); /* trigger loading of new timeout value */
- 	omap_wdt_enable(wdev);
- 
--	mutex_unlock(&wdev->lock);
--
- 	return 0;
- }
- 
-@@ -167,11 +166,11 @@ static int omap_wdt_stop(struct watchdog_device *wdog)
- {
- 	struct omap_wdt_dev *wdev = to_omap_wdt_dev(wdog);
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 	omap_wdt_disable(wdev);
- 	pm_runtime_put_sync(wdev->dev);
- 	wdev->omap_wdt_users = false;
--	mutex_unlock(&wdev->lock);
-+
- 	return 0;
- }
- 
-@@ -179,9 +178,8 @@ static int omap_wdt_ping(struct watchdog_device *wdog)
- {
- 	struct omap_wdt_dev *wdev = to_omap_wdt_dev(wdog);
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 	omap_wdt_reload(wdev);
--	mutex_unlock(&wdev->lock);
- 
- 	return 0;
- }
-@@ -191,13 +189,12 @@ static int omap_wdt_set_timeout(struct watchdog_device *wdog,
- {
- 	struct omap_wdt_dev *wdev = to_omap_wdt_dev(wdog);
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 	omap_wdt_disable(wdev);
- 	omap_wdt_set_timer(wdev, timeout);
- 	omap_wdt_enable(wdev);
- 	omap_wdt_reload(wdev);
- 	wdog->timeout = timeout;
--	mutex_unlock(&wdev->lock);
- 
- 	return 0;
- }
-@@ -298,12 +295,11 @@ static void omap_wdt_shutdown(struct platform_device *pdev)
- {
- 	struct omap_wdt_dev *wdev = platform_get_drvdata(pdev);
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 	if (wdev->omap_wdt_users) {
- 		omap_wdt_disable(wdev);
- 		pm_runtime_put_sync(wdev->dev);
- 	}
--	mutex_unlock(&wdev->lock);
- }
- 
- static void omap_wdt_remove(struct platform_device *pdev)
-@@ -324,12 +320,11 @@ static int omap_wdt_suspend(struct platform_device *pdev, pm_message_t state)
- {
- 	struct omap_wdt_dev *wdev = platform_get_drvdata(pdev);
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 	if (wdev->omap_wdt_users) {
- 		omap_wdt_disable(wdev);
- 		pm_runtime_put_sync(wdev->dev);
- 	}
--	mutex_unlock(&wdev->lock);
- 
- 	return 0;
- }
-@@ -338,13 +333,12 @@ static int omap_wdt_resume(struct platform_device *pdev)
- {
- 	struct omap_wdt_dev *wdev = platform_get_drvdata(pdev);
- 
--	mutex_lock(&wdev->lock);
-+	guard(mutex)(&wdev->lock);
- 	if (wdev->omap_wdt_users) {
- 		pm_runtime_get_sync(wdev->dev);
- 		omap_wdt_enable(wdev);
- 		omap_wdt_reload(wdev);
- 	}
--	mutex_unlock(&wdev->lock);
- 
- 	return 0;
- }
--- 
-2.56.0.windows.4
+The driver now registers a reset controller with 12 reset lines
+for the "mediatek,mt6589-wdt" compatible, regardless of whether the DT
+specifies #reset-cells or has any reset consumers.
+"mediatek,mt6589-wdt" used to be a watchdog-only fallback,
+since it did not register a TOPRGU reset controller.
+That is no longer true.
 
+Since the MT6895 reset layout is unconfirmed, it must not claim
+compatibility with the MT6589 TOPRGU reset controller by using
+"mediatek,mt6589-wdt" as a fallback.
+The compatible list is part of the Device Tree ABI and cannot be
+changed later.
+
+As I noted in [1], "mediatek,mt6589-wdt" is only a safe fallback where
+the reset layout is known to match. Many SoCs do not share MT6589's
+reset layout, and MT6895 gives no reason to be treated as an exception.
+We should not add yet another MT6589 fallback whose reset layout is not
+known to be correct.
+
+Please give MT6895 its own "mediatek,mt6895-wdt" compatible without
+"mediatek,mt6589-wdt" fallback. Its TOPRGU reset support can be added
+once the actual reset layout has been confirmed.
+
+[1] https://lore.kernel.org/linux-mediatek/xqnpukvhtezpqhwjnxbqeddiaqlro4m5yjukpplv5mjfxodlfp@ijaf2trst7p4/
+
+Best regards,
+Akari
