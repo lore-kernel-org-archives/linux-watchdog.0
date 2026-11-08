@@ -1,53 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794140298;
-	b=b3Hq9yilVrNe1T/joR41qRWoZO7bxVlhQ+bQMglgDrcKIZhXEPt19nv80c8WqTEYe6V6
-	 ETc57KTVwiZS2E4oz9gI19pGhJ2CZDr/foseN9SatEpDCsXJgFGgfIRK9J4XzMkyTiyqm
-	 1bVZbjxw26YDwv7HKXtEBWNovNMH5b6/Pu2Tizx8mnuw1DjvU18Hk90+oO2XEf0tmxf95
-	 6YHjqtTmz1fED070y5GCSA9B3UAVPznoJE0eSwWgIQ14Y5GTvFvK30yh+N6YkPYdA/OJo
-	 MsjpqxWxXzxMc5ozZ62wltOkkx/VqHi1EKmK4b5+aC7o6OA1IqwbAMhX8RsB4xu1kfw==
+	t=1794158185;
+	b=Eybm09AgUFnDMNa1Jt92a8lwG57PXX166bOwkhHq/qXjrPmVmno5HUNH2i/QQCFNKFJE
+	 v7dRQ5R5Ws2yFCrmZVWqDbxTobtjqk7Rn+AM6idMuQgM8oWRbpWIXGdIwqi2DgSRbgWnG
+	 vpUGkkLEuftRKqg6j/ygKVnIoot4liADckH4N05dD+tI5bQ8ARqdb5k3LtdDBpXeyQt1Z
+	 DIyuQNeB5q9YJnplKQx87ebujor2oNU1TP3ymscEdiQBuI1VKTb3REekvGhLYDWOVFRv2
+	 ALO2JPUw+buJJQbPnjWCG9i6HEK/8rNYmk8NcPymDPSQw3Ux28AP4LovCUNl+vRHAYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794140298;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
-	 References:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-CM-TRANSID:X-Coremail-Antispam:X-Originating-IP:X-CM-SenderInfo;
-	bh=AHMv9274CDbqYftJy2yBT59+TYLTbgqxJVfrvpKN+i8=;
-	b=myfidBVm0WTfIqQA0r6PAfGEBpARXgOBgnHaNwcw8EpuvDXFeTUkKTBqoC4GRdSZ3DDx
-	 MumcoPKbg7g3/pB7UyHOk2KeQoLTnui07p5qPGEUpQp8kuJWq1tmwZGakxbAwqhJCbbb5
-	 ZJrWi/LbfW3Y8IEuYsRVehNuiGRiuVHY/v2rk2hun+TE7vjYrlGVIKNh7m42YO7IJIM62
-	 4sCFBoqjQtNKzTL1wdM7qKv/9J0TuQgGH4OUtiaU5fo7hBjJ35iQuKzTuOnKsU3MCksJH
-	 R6vPgxVgYrkv2O2cczFDLvO0gGwVJTKUqA+m5IHhnF3blYJ7w7ZohdxgFivUnRWTDng==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794158185;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=ny40ItD42mZpCgBWTqVLSfuH066APrnwUjNEEqd6zYY=;
+	b=vAizLTNbt+3gl5+1BMGxTh6iy1Qb4HNxDqIa0LkmzyEmE1tFftysUWuZYoc9/GwVhFCy
+	 K5vEpwqti36VeU1y5iKSxzWfThzaGw7tiVVmEr8smg9Xr7aB6kvH4w7WqKWVblHDN8NG0
+	 Vln465KY7nSKldhPYH21azYYVyhde3HshNgJoFi2GzTOKNhgFulopy8dQlSc9aI96q60k
+	 2l1irQ0A1EMhrzJxC3sM2xwcvnNwUBQosCXCs1HP6XOeYvZYWk7y5OynUzXPAxRxNX3eX
+	 0zoZ20V7MjZ/9R6rx3MZ1h5lB51hcW4X7ZpGuyxogL377D6UaIy28I9LZ+Bbz3gb9JQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iscas.ac.cn;
-	spf=pass smtp.mailfrom=iscas.ac.cn;
-	arc=none smtp.remote-ip=159.226.251.25
-Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=eMdm40Qj;
+	arc=none smtp.remote-ip=35.89.44.33
+Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 000E7606A326
-	for <linux-watchdog@vger.kernel.org>; Sun,  8 Nov 2026 12:18:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 000E7606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from [172.100.0.8] (unknown [36.110.52.2])
-	by APP-05 (Coremail) with SMTP id zQCowAA3zrODaPBqtiabAA--.33423S2;
-	Sun, 08 Nov 2026 20:18:12 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Xingyu Wu <xingyu.wu@starfivetech.com>,
- Ziv Xu <ziv.xu@starfivetech.com>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: starfive-wdt: drop the runtime PM reference
- when start fails
-Date: Sun, 08 Nov 2026 12:18:07 +0000
-Message-ID: <20261108121811.3410002-1-vulab@iscas.ac.cn>
-In-Reply-To: <33e354db-b4f0-4f96-afcd-4912fb296ad1@roeck-us.net>
-References: <20261104021527.1468703-1-vulab@iscas.ac.cn>
- <20261104-aggressive-poised-lorikeet-a5cc5c@quoll>
- <33e354db-b4f0-4f96-afcd-4912fb296ad1@roeck-us.net>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFAE0606A31C
+	for <linux-watchdog@vger.kernel.org>; Sun,  8 Nov 2026 17:16:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFAE0606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=eMdm40Qj
+Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
+	by cmsmtp with ESMTPS
+	id POXqxFDODAR1iQ6VExPORq; Sun, 08 Nov 2026 17:16:24 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id Q6VDx1SphYskhQ6VDx4UY1; Sun, 08 Nov 2026 17:16:24 +0000
+X-Authority-Analysis: v=2.4 cv=CKMqXQrD c=1 sm=1 tr=0 ts=6af0ae68
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=c92rfblmAAAA:8 a=VwQbUJbxAAAA:8
+ a=jIBaumMvAAAA:8 a=_jlGtV7tAAAA:8 a=NcQoncRBLtcgVmGgl7MA:9
+ a=GvGzcOZaWPEFPQC_NcjD:22 a=I5rtZN7oS8nO7Wt2A-SP:22 a=nlm17XC03S6CtCLSeiRr:22
+ a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=ny40ItD42mZpCgBWTqVLSfuH066APrnwUjNEEqd6zYY=; b=eMdm40QjeSMeNFvKwm0C+EhTgU
+	BjxmCAB7AuJRTBFkHePxm2IrF5mtvvfKEGTylyhNKe9ZCiVxscKleZ+b7VC3abpCLSlKEyaH285Pf
+	KUICfUZ2qI7PYCRT4puNQA4EQz64ldXkqGatvAml1aUI3YHqExMhzJo5IOX60JKkdVLgdu9K6iijB
+	rYCVa46GeEdUSsONDN/SgWz6ACs0hSILokdkPqEZKo6imyJijtLqXNxww/P7CMNylvEHQ/W/82HAO
+	ZrTAfKOgPd7W13CObTp9ZiBw9sxPOJ/ocsTVjXeZHv1ZCx+POlOO6eefMmqiun1F5ZqtKvogiTVat
+	hDdlHcfA==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:49168 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xQ6VD-00000001kTE-181P;
+	Sun, 08 Nov 2026 22:46:23 +0530
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Walter Stoll <walter.stoll@duagon.com>,
+	Wentao Liang <vulab@iscas.ac.cn>,
+	Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH] watchdog: omap: Fix early_enable handling in omap_wdt_probe()
+Date: Sun,  8 Nov 2026 09:16:21 -0800
+Message-ID: <20261108171621.1042105-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.45.2
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -57,54 +84,92 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:zQCowAA3zrODaPBqtiabAA--.33423S2
-X-Coremail-Antispam: 1UD129KBjvJXoWrKr47Kw13uw45tFWrZrWxtFb_yoW8JF1fp3
-	9xKrs5trs7Jan7Aw4DZa17Za4rZ393K398tFyvgay093WYgF17tw1Syryj9ry7Zr95W3ZF
-	vF4Fv3sxCF4DAFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvYb7Iv0xC_Kw4lb4IE77IF4wAFc2x0x2IEx4CE42xK8VAvwI8I
-	cIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2
-	AK021l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v2
-	6r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxV
-	W0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv
-	7VC0I7IYx2IY67AKxVWUtVWrXwAv7VC2z280aVAFwI0_Cr1j6rxdMcvjeVCFs4IE7xkEbV
-	WUJVW8JwACjcxG0xvEwIxGrwCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCF
-	04k20xvE74AGY7Cv6cx26r48ZrWUJr1UMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I
-	8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWU
-	twCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x
-	0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_
-	Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x07
-	b818PUUUUU=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiBgAFA2rv4zLRFAAAsR
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xQ6VD-00000001kTE-181P
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:49168
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 4
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfIAwm37P+Egd+V+Flo57bcESEvMzZj/7Nz+H1owDsB1XWyRBsYkrUIQ6HPvNIZ/O/UtJEMsTnq9e+KMW8jRieBBSkJyoK6mmZxqa286Mwnjx/R1Zbtix
+ aKlg6wqRTzSPxugGgYaOOz1iTopSPj9FphH6KXKaYAByA5Q2HumB85x91gtpsqI7leiLauarr+hyINF1y1pIU5GrbPN5gw5oI7mEPauUIgSx8GnJYaxLugqa
 
-Hi Guenter,
+Commit cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling")
+updated omap_wdt_probe() to call omap_wdt_start() and set
+WDOG_HW_RUNNING before watchdog_register_device() when the early_enable
+module parameter is enabled, introducing two bugs:
 
-Sorry for the late reply, and for adding to the pile of patches on this
-driver. The extra work that created for you is on me.
+1. During probe, omap_wdt_probe() acquires an initial runtime PM
+   reference via pm_runtime_get_sync(), and omap_wdt_start() sets
+   omap_wdt_users, acquires a second runtime PM reference, and enables
+   the hardware timer. If watchdog_register_device() subsequently
+   fails, the error path drops only the initial runtime PM reference
+   without calling omap_wdt_stop(), leaking the second runtime PM
+   reference and leaving the hardware timer counting down without a
+   registered watchdog device or core keepalive worker to service it,
+   causing an unexpected system reset.
 
-I agree with the limited embargo. I will not send any further patch for
-starfive-wdt unless it carries a Reviewed-by or Acked-by from Xingyu or
-Ziv, and I have nothing else queued for this driver.
+2. The original post-registration omap_wdt_start() call was left in
+   place, so when early_enable is enabled and registration succeeds,
+   omap_wdt_start() is called a second time. This leaks a runtime PM
+   reference (preventing runtime suspend even after the watchdog is
+   stopped) and races with userspace after /dev/watchdog is exposed,
+   potentially re-enabling the hardware timer after userspace has
+   reconfigured or stopped it.
 
-My patch can simply be dropped. [PATCH v2 1/8] covers the same path: if
-starfive_wdt_start() fails after a successful resume, the runtime PM
-reference is now put before returning, so nothing is lost by dropping
-mine.
+Stop the watchdog via omap_wdt_stop() when omap_wdt_users is set on
+watchdog_register_device() failure, and remove the duplicate
+post-registration omap_wdt_start() call.
 
-For the record, in case it helps you work out the state of the driver:
-the November patch was not a resubmission of the September one you
-applied. The September fix replaced pm_runtime_get_sync() with
-pm_runtime_resume_and_get() and so handles a failed resume; it left the
-case where the resume succeeds and starfive_wdt_start() then fails, which
-is what the November patch addressed. Both were mine, from this one name
-and address.
+Fixes: cd004d8299f1 ("watchdog: Fix OMAP watchdog early handling")
+Cc: Walter Stoll <walter.stoll@duagon.com>
+Cc: Wentao Liang <vulab@iscas.ac.cn>
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Link: https://sashiko.dev/#/bug/linux-80221bbd-42ac-4fc0-bc11-3d1fd19f7c32
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+Also see
+https://patchwork.kernel.org/project/linux-watchdog/patch/20261104021535.1468760-1-vulab@iscas.ac.cn/
+for a partial fix of the problem.
 
-For transparency: the candidate came from our static analysis tooling, and
-DeepSeek and GPT-6.1 Sol were used to audit it and to help write the fix; it
-was found by inspection only and was not tested on hardware.
+ drivers/watchdog/omap_wdt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Thanks for sorting the driver out, and sorry for the noise.
-
-Wentao
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 2a6de73e6f0b..e96c1c513374 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -277,6 +277,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 
+ 	ret = watchdog_register_device(&wdev->wdog);
+ 	if (ret) {
++		if (wdev->omap_wdt_users)
++			omap_wdt_stop(&wdev->wdog);
+ 		pm_runtime_put(wdev->dev);
+ 		pm_runtime_disable(wdev->dev);
+ 		return ret;
+@@ -286,9 +288,6 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
+ 		wdev->wdog.timeout);
+ 
+-	if (early_enable)
+-		omap_wdt_start(&wdev->wdog);
+-
+ 	pm_runtime_put(wdev->dev);
+ 
+ 	return 0;
+-- 
+2.45.2
 
