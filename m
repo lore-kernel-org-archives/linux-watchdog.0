@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794265263;
-	b=Um3hKAnQ5DOrvoVRxnQCNO68wbsiEskGSTK4j+rvTXWhzGqZnS4XFThAshzAjmfWoM+K
-	 cxExvYdGAGVDZwem42mrS4M00uXPWfWo49SUK56RFOjEGsJOw9PhDO27SZ0H0VE5WWfZu
-	 U7pbal9VhakbnvdS2kjQvt0KZFuEYjYEB/LQElE/rWHqeV56a/ytBehUD50YOvgjSIcKG
-	 zqdqK9SQVzy8gr2NAUv2MmlH+Hhh4fObz9FJBaTDxYUzpzJ4+0Z6Q+FL0+Hze1BWSpj6X
-	 /iWJQhOKrcpPUzXiv2hj82/y17ukinLjpiDrAzZnamKCcuAyNBqZnKLK8SCGFAFQtdQ==
+	t=1794265803;
+	b=W2qnAbI4tJrRUwKUGG22FG2lRVaZoKG3Rp3e4sr0eTdPZqVkBntkbrhWHpSka5VHOtiL
+	 2kvSumK/KbieXhaycR6cjDzU12rzhkpVAiB0FH9Sd8+DFlOrc3uiLPkdRAWIwzii/2CE7
+	 ifgyK3ap28/3UA75kxUq1tPnSHfEWgHPPSg5YFdS8tyVqQXYp44G3+i79IDPU5povqtSK
+	 bAppxSiGxDGMGv5A7ZXljtPjX+TTWZWWs+bpy+7HvGFwQc9Xo3QstTKDWwdJY3A2Z9/Do
+	 S1S3AdX4ZEbE1y2XJlp4BSykSPOE0Z2xxpHZJoJoLTTlzujJv+vXneiUJiazdshJJPg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794265263;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794265803;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
@@ -15,37 +15,38 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=zL8FK8P5Vsdfkx0MZ8+/mUpFCsZNRdF7JxzCjScEi5g=;
-	b=XT/PCMIjXc1w6LDR8KZ3qkmdl2vx0x9EOxaoNIBOYntiuQYsGZ9FXW3Y3TmJWtAt5Fvq
-	 /0vgiDA3PcG1ysdV7ZarwTx3EHuI5U8MCkAXdqqNRJQdL7FRHg7WyujKrQV81liCGqo8o
-	 7+bGZqvvaFbpJLja18CK6hkBkXV2rXLyLl0KUkr4gCn0WqQhxOhZz+xIAvjBWcxdPety8
-	 GF8VwqUKjBxOYM4Qi6SYzUSVo9UAFPQk2GXqRiYBG0Dsa02W/RhR83014NdaDXRzOcTCG
-	 1vXnECSiIayYkh+tbGqjRskmP0awtLUoLknNFIF/t710Lw065H+we+jtzEkWCaZpRxQ==
+	bh=6+kzbC8NY48LGIWA5cXEEQo3ig6iDfaSEJx3zcs0cjU=;
+	b=CClXV3vNZxoVf50Nkw3AD98gOPi+T+u+8Y8/mF3latXcxDMkqyhTfk8vXvexiaOd/iCb
+	 RQYfqgvpmngG7YolV+oPtlsHtH6VwlnrNbgep6VJCdxXIMZ0aJu7pPe/PFudP/Khfn8cJ
+	 lOqA3IIsXdwbX0t2qBll/S0r77xOklQW5QoRu1U4H64mVQ45LkCi4SHDwHZQH40Xt3454
+	 oroAcEzRoULtKcrvasdyEM1H4yKpwMgz3dL7hiEMGQavhCOl1m+7M1pCnw8GZuoJgLrjX
+	 /wrQWGvHl6r9ln0UE3mQNNi/mZvU+Euq83hbJOlPkVbvOkj5QMxTj1r4JP9CLqSYT9g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=oEqpXKT3;
-	arc=none smtp.remote-ip=35.89.44.35
-Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=RjhQxviY;
+	arc=none smtp.remote-ip=44.202.169.35
+Received: from omta036.useast.a.cloudfilter.net (omta036.useast.a.cloudfilter.net [44.202.169.35])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 456EB606A31C
-	for <linux-watchdog@vger.kernel.org>; Mon,  9 Nov 2026 23:01:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 456EB606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE9FC606A332
+	for <linux-watchdog@vger.kernel.org>; Mon,  9 Nov 2026 23:10:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CE9FC606A332
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=oEqpXKT3
-Received: from eig-obgw-5006b.ext.cloudfilter.net ([10.0.29.217])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=RjhQxviY
+Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
 	by cmsmtp with ESMTPS
-	id QX6WxqspcRiNxQYMHxO7aS; Mon, 09 Nov 2026 23:01:01 +0000
+	id QYTdxrrXl4vCDQYUzxCJaG; Mon, 09 Nov 2026 23:10:02 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id QYMGxo2RLSeuLQYMGx8Dc6; Mon, 09 Nov 2026 23:01:01 +0000
-X-Authority-Analysis: v=2.4 cv=NYvm13D4 c=1 sm=1 tr=0 ts=6af250ad
+	id QYUyxFhehFhzrQYUzxZIAV; Mon, 09 Nov 2026 23:10:01 +0000
+X-Authority-Analysis: v=2.4 cv=JY+8rVKV c=1 sm=1 tr=0 ts=6af252c9
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=XwxYKhIv0tpjMc_zibUA:9 a=CjuIK1q_8ugA:10
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=gu6fZOg2AAAA:8
+ a=VwQbUJbxAAAA:8 a=R5C9hjxsAAAA:8 a=F3YKiNpd_WCGsebJcZcA:9 a=CjuIK1q_8ugA:10
+ a=-FEs8UIgK8oA:10 a=O8hF6Hzn-FEA:10 a=2RSlZUUhi9gRBrsHwhhZ:22
  a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
@@ -53,33 +54,28 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=zL8FK8P5Vsdfkx0MZ8+/mUpFCsZNRdF7JxzCjScEi5g=; b=oEqpXKT3wYL1wg/DZ1OCAmn/KQ
-	8jKL+gRhBFw50kw3/1IbtF+x3BKxyHO8/ZHuegflaUFp2X23elHmIUyEI0IVUD7Mygm00WsTG6ceO
-	JdulNAYghF6uY2e6jDXSkzFEmMkUNdPGavsBr/HVrzI5TO5K6PvbnI/THmShWtqcMHS9lOyBYbyUs
-	RWywmG6oBdddctKk8NwopLi1ceUUvqlrfkfydPoOVyqiIWoye4Fs+5P3RD/H4ypAbRDN4ekm+pXZ3
-	/z2LXMfAIkRCZJArqkzHeEjxwUsJTCSbqMzWIS16vBnedaTksTU+Lo4KeEvhybi+KVl+gSYZZke62
-	u8Musk0g==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:54458 helo=server.roeck-us.net)
+	bh=6+kzbC8NY48LGIWA5cXEEQo3ig6iDfaSEJx3zcs0cjU=; b=RjhQxviYsdBU9ZRKWCxfSoDY9c
+	v9lXkQZWmDv/bYejN314/dIb2MNG1KLm8Of5IVuda7vj5idaSEiM0ErcBCrByVWG2TTPgn7Il5JHv
+	8sf3BDyTxDB1fxYS/2DrzrgjiL9+rx1AzJrYF6qFaRl4Wv9GupE8fZEGuwiumiT9uHlSYmwKmyO7E
+	9bRWyAFWpkkoYJiyHf2/bRUPlDM7B4l9O3LKiUYSokicmhu7Zr6CR1ocm5A5u3Jxd2TJBpmdR8ZfG
+	n0fuzY7Wvjq611n/OpcfjRClUxmV5EOsrz+rKg/o8i3pVHB9luTB9K1Bbrc1dwDIapgWLUWX/lQJT
+	o11tDuoQ==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:39438 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xQYMF-00000000mLs-46PO;
-	Tue, 10 Nov 2026 04:31:00 +0530
-Date: Mon, 9 Nov 2026 15:00:58 -0800
+	id 1xQYUy-00000000qO0-1y61;
+	Tue, 10 Nov 2026 04:40:00 +0530
+Date: Mon, 9 Nov 2026 15:09:59 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Stanislav Aleksandrov <lightofmysoul@gmail.com>
-Cc: Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Abel Vesa <abelvesa@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Hrishabh Rajput <hrishabh.rajput@oss.qualcomm.com>,
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Pavankumar Kondeti <pavan.kondeti@oss.qualcomm.com>,
-	linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] watchdog: gunyah_wdt: Re-enable the watchdog on resume
-Message-ID: <bbff9c33-0647-4608-9cd7-07a6801791e0@roeck-us.net>
-References: <20261109-gunyah-wdt-resume-v1-1-fbd84545ce92@gmail.com>
+To: Zhao Feng <zhaofeng2@cmss.chinamobile.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] watchdog: npcm: fix clock prepare leak when setting
+ timeout on a running watchdog
+Message-ID: <19258f94-ec01-48f4-9d04-22e5ecb5cac2@roeck-us.net>
+References: <20261109071004.1506-1-zhaofeng2@cmss.chinamobile.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -91,7 +87,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261109-gunyah-wdt-resume-v1-1-fbd84545ce92@gmail.com>
+In-Reply-To: <20261109071004.1506-1-zhaofeng2@cmss.chinamobile.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -100,43 +96,107 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xQYMF-00000000mLs-46PO
+X-Exim-ID: 1xQYUy-00000000qO0-1y61
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:54458
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:39438
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 3
+X-Email-Count: 16
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfOrb62qptEqRdWoGWZJrEZ0prCYiPotmVoSiPKTk0x4gas4ttLH087p0I+ikwwa09u79EWCWTtSa65ZQw9NUrQRxrtzaLW0b8trTCD4+3Z9T+Lhqplzs
- IS5XFE1b3IVL2vBOFSnNv69Vcnl7fiURyWu2ANms6nSCvzGzO6umgPd2R9h9WR3z2uOSEqewg+YtAAwmYyttb5OICQh/WXs+13zmrXqKxalbDb8JW+nP4+OL
+X-CMAE-Envelope: MS4xfHJfhF8LC3tywR9ppMS80ifcHtqUckj1fMMAvPhSiDiVlgl4tuhQhhmzOBdWCrBLyFehhhkYEXdohdZoAo/K9SaT1Ykbn+NLKwzuqDjo3OPpciIwxBfR
+ 2IyzSeLfhcaHIWjkqJz/6wyiOOUBX9VClo8HqzsyH0tmS6VLJmAgY5Lc2kcQqaxL1tUeaJsduN9BAdx3NproIVv61/w5qvpFlVQMcVpdP59DC1GUOKT6C0kJ
 
-On Mon, Nov 09, 2026 at 08:26:52AM +0000, Stanislav Aleksandrov wrote:
-> gunyah_wdt_suspend() disables an active watchdog, and
-> gunyah_wdt_resume() enables it again with gunyah_wdt_start(). start()
-> first disables the watchdog, which fails with -EINVAL when it is
-> already disabled. start() ignores that only while the watchdog is
-> inactive, but on resume it is still active for the watchdog core, so
-> start() returns before it enables the watchdog:
+On Mon, Nov 09, 2026 at 03:10:03PM +0800, Zhao Feng wrote:
+> npcm_wdt_start() unconditionally prepares and enables the watchdog
+> clock, and npcm_wdt_stop() is the only place that disables it.
+> npcm_wdt_set_timeout() calls npcm_wdt_start() again whenever the
+> watchdog is already active, so every WDIOC_SETTIMEOUT ioctl issued
+> while the watchdog is running takes one extra clock prepare/enable
+> reference that is never dropped.
 > 
->   gunyah-wdt gunyah-wdt: gunyah_wdt_start: Failed to stop gunyah wdt -22
+> Split the register programming out of npcm_wdt_start() into a
+> __npcm_wdt_start() helper that assumes the clock is already running,
+> and call the helper from npcm_wdt_set_timeout() instead; only the
+> watchdog .start callback (and the restart path, which intentionally
+> keeps the clock) now acquires the clock.
 > 
-> So after every system suspend, the watchdog is left disabled.
-> 
-> Move setting the timeout and enabling the watchdog into
-> gunyah_wdt_enable(), and call it on resume, where the watchdog is
-> already disabled.
-> 
-> Tested on the Samsung Galaxy XR (Qualcomm Halliday) with s2idle and
-> deep suspend.
-> 
-> Fixes: ca316e145c35 ("watchdog: Add driver for Gunyah Watchdog")
+> Fixes: af084fdccfaf ("watchdog: npcm: Enable clock if provided")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Stanislav Aleksandrov <lightofmysoul@gmail.com>
+> Signed-off-by: Zhao Feng <zhaofeng2@cmss.chinamobile.com>
 
 Applied.
 
+Couple of notes:
+
+The problem reported by Sashiko seems real, but I have any idea how to fix
+it, and it is unrelated to this patch.
+
+The error propagation patch has a number of issues (as reported by Sashiko)
+and will have to be resubmitted anyway. When thet is done it will have
+to be rebased to this patch.
+
 Thanks,
 Guenter
+
+> ---
+> Verified against current upstream master.  Not runtime-tested (no
+> Nuvoton NPCM hardware).
+> 
+> Note: this overlaps textually with Triet Hoang's pending
+> error-propagation patch
+> (https://marc.info/?l=linux-kernel&m=178955112320092)
+> but fixes a different bug; whichever lands second will need a
+> trivial rebase.
+> 
+>  drivers/watchdog/npcm_wdt.c | 17 +++++++++++++----
+>  1 file changed, 13 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+> --- a/drivers/watchdog/npcm_wdt.c
+> +++ b/drivers/watchdog/npcm_wdt.c
+> @@ -148,10 +148,8 @@
+> -static int npcm_wdt_start(struct watchdog_device *wdd)
+> +static void __npcm_wdt_start(struct watchdog_device *wdd)
+>  {
+>  	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+>  	u32 val;
+>  
+> -	clk_prepare_enable(wdt->clk);
+> -
+>  	if (wdd->timeout < 2)
+>  		val = 0x800;
+>  	else if (wdd->timeout < 3)
+> @@ -176,10 +174,19 @@
+>  	val |= NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
+>  
+>  	writel(val, wdt->reg);
+> -
+> -	return 0;
+>  }
+>  
+> +static int npcm_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> +
+> +	clk_prepare_enable(wdt->clk);
+> +
+> +	__npcm_wdt_start(wdd);
+> +
+> +	return 0;
+> +}
+> +
+>  static int npcm_wdt_stop(struct watchdog_device *wdd)
+>  {
+>  	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+> @@ -216,7 +223,7 @@
+>  		wdd->timeout = 2750;
+>  
+>  	if (watchdog_active(wdd))
+> -		npcm_wdt_start(wdd);
+> +		__npcm_wdt_start(wdd);
+>  
+>  	return 0;
+>  }
