@@ -1,54 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794181246;
-	b=3BkutwPiunxXoCoDp4FR+Pi4WeYrpU7Y2lMKoDJ49M6ypKCs9IzDNScnNvdS98yxfItp
-	 t89Wt+dzgJj2aLb6VOjN6kIP6GIAUlgUeA2QSCQmp8Kpmfh5lpQGJjcFhVQQoQyi90+ru
-	 opUknaIzc37FW/mOdj7d3Gin4Tpk3W5Ff6xHKlvsm3BNY6HzHIdBQW3hwYIWtxOUC1O4C
-	 muyh0b8zd+2z7ZOQuTXltr/ShfRxvrL0JSs6ZQxHXAU+FEagsCPgw13j0bHCmh04829yZ
-	 eWMrnJM91DCcUUmCG7Zmc3+9/WJGqi6m3Hr/hZFrkzFwhR4RKHRQQA7BepLCQHfOCeg==
+	t=1794208210;
+	b=NFj1vVHLAM908qVSpQwdH1PJe9V44NRLGAA5Ws3YFlW6IYwspn1GZsMxpu4lNm923EUt
+	 yIoW7qvve/cEAiIQ1PpxRco7BN/MlIQDgNRL7V818iTmBvCHi2SO/1beLplxNeKGiRZ3r
+	 fOH+108ndQF+SMD3dkueqBldLv3C0DniAL6QWpQEhgP4bWIBJrs2mGgHQpheKBSK1Eb/V
+	 977N7z8oGKbkPN9oPiJM1YD8BjFVjxd0UVGIyfeceaDC3v2hw6dxdLwzmrGNPc3cuGeC3
+	 rk7nPUooyHVQzclNgR6GeS7aPKLvFHkumbQnhSus2J/a12SWlB1Q1xSXm5IA9lS8MYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794181246;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=5kj6jhrQ1XzNT4l0pw7NLshlWeayRq0AJzVuLE5W99E=;
-	b=3irg9evnq0htLbSIakHQGeVj58aWwnv4V5eWKTonZix2YrSBS+ymMkVTYmJWa31cuvFQ
-	 DkGhZmWeebArYWns/FfGOWYA1qvHGdN6gsHrmLyKN2imtnzlPGc4oAudoNcK9rld0F7lf
-	 TMPE3I/w/KMRjVGfuCJdPeC88NiWhuLcvE1CVf4y0X+m6+a/TP+keI1tonUGjpiPdE4CI
-	 fAFEVrofJVGwBiKZ5v8nT9wG9H6gTNYqzd+j9/+fka42umABsvZ38pLgxsUu06XosKc1b
-	 jUNGE91xrFLwodTYzT8ZTMsvlDnY1j6EAOVj/U/aoCcsSgigA56kG8dtgaOl2/YmzzQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794208210;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=JJ6qe9zMkWxzn6wlq5kkCPAnah3XYdAanji2PhYWtHE=;
+	b=z8JayuO4UYZ0lqC6KUS3ggXbhiveyNhDIVSGjTBWCmy9NmDDEDviskH60r0r4JATuLPM
+	 h93JPsgBKp7HOcpEkxPQY2KaFkJqkic7/NUFGhSz3rkyHpgUcaOMWz+DBU02rosASgUb9
+	 hoDc/0I285O+Yy7cKAQAGHzWEk5yk+6Nxc7SobttTTy8FNoKdwaPMXMv1d2ahJ6S6PM/r
+	 N+O0sEn32PzVUMm3At1cAzImceRAirpwtDS2EDrGXhj42ebs/n2Y0gMtbaRXcu/hiEruc
+	 3PCXumFFOzdzZs2eO0ySyvjfhf0YyHXRiE5MmNiuG11BrBzyXh8HooLP5tgUyYYEj/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lyGWRjJP;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51576606A31C
-	for <linux-watchdog@vger.kernel.org>; Sun,  8 Nov 2026 23:40:46 +0000 (UTC)
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=nROh6Ens;
+	arc=none smtp.remote-ip=111.22.67.139
+Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id ED238606A321;
+	Mon,  9 Nov 2026 07:10:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ED238606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lyGWRjJP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E85071F0089F;
-	Sun,  8 Nov 2026 23:40:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794181246;
-	bh=5kj6jhrQ1XzNT4l0pw7NLshlWeayRq0AJzVuLE5W99E=;
-	h=From:Subject:Reply-To:To:In-Reply-To:References:Date;
-	b=lyGWRjJP5Xj7NITKLk9i9dYhBgJwXg9WZvDY7/bmr4LfEoSv2T+MEKUzGHeClK0j1
-	 YitkYRfuQ9W5Zhk5JEf2SzrMZlilSiokXVrFkCPnn2hxPyNUtDPmabQtRpZ9skDhww
-	 WHd8/vI1B0/nSXRk5OQIYFwdnkuGsxv4+uAYJboT1F20Ne660I/zJrpczEmBZxFf/Q
-	 o34YJhsU7vh2VnmpnZuCRQs9oqCdimsWwI3n4fqNKzpYFhrbBT+TJnbyW3l7SwQ61S
-	 sJDLcIKnykG7iPugf0+3HWQszxlbVQD/DF87Azflblir5/zID6Uj3hcveIFJAx62PK
-	 6kex+mY7/0bJA==
-Message-ID: <sashiko-outbox-204168@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] watchdog: dw_wdt: Stop ping worker on system suspend
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guenter Roeck" <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-In-Reply-To: <20261108233329.1059273-1-linux@roeck-us.net>
-References: <20261108233329.1059273-1-linux@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 23:40:45 +0000
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=nROh6Ens
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=nROh6EnszJPw4NICV8O+0pSR6JIyPLtdaMlWOOENGKAyfu08ooNsxXsF/Edte180E6T06hsKdqrf+
+	 inwZANXSoTRKbvbNbrQFY3QfVQS9DTN+UnZ5C/Bns49dUpJWKrjZ5TAlmyPNQl8G2HptQ0F2mQk71K
+	 RH8lNsIvQFLXZ/dE=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app09-12009 (RichMail) with SMTP id 2ee96af171cd467-c76f3;
+	Mon, 09 Nov 2026 15:10:06 +0800 (CST)
+X-RM-TRANSID:2ee96af171cd467-c76f3
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from Z04181456177947 (unknown[10.55.1.71])
+	by rmsmtp-syy-appsvr10-12010 (RichMail) with SMTP id 2eea6af171cccca-85742;
+	Mon, 09 Nov 2026 15:10:06 +0800 (CST)
+X-RM-TRANSID:2eea6af171cccca-85742
+From: Zhao Feng <zhaofeng2@cmss.chinamobile.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Zhao Feng <zhaofeng2@cmss.chinamobile.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] watchdog: npcm: fix clock prepare leak when setting timeout on a running watchdog
+Date: Mon,  9 Nov 2026 15:10:03 +0800
+Message-ID: <20261109071004.1506-1-zhaofeng2@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.55.0.windows.5
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -57,66 +69,86 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] watchdog: dw_wdt: unresolvable SHA 0b0ff67cbc2aa in Fixes
-  trailer
---
+npcm_wdt_start() unconditionally prepares and enables the watchdog
+clock, and npcm_wdt_stop() is the only place that disables it.
+npcm_wdt_set_timeout() calls npcm_wdt_start() again whenever the
+watchdog is already active, so every WDIOC_SETTIMEOUT ioctl issued
+while the watchdog is running takes one extra clock prepare/enable
+reference that is never dropped.
 
-commit dfd3154d77d7cf35efcd8342d85817dd9459cc8c
-Author: Guenter Roeck <linux@roeck-us.net>
+Split the register programming out of npcm_wdt_start() into a
+__npcm_wdt_start() helper that assumes the clock is already running,
+and call the helper from npcm_wdt_set_timeout() instead; only the
+watchdog .start callback (and the restart path, which intentionally
+keeps the clock) now acquires the clock.
 
-> watchdog: dw_wdt: Stop ping worker on system suspend
->
-> When the Synopsys DesignWare watchdog is active with the watchdog core
-> heartbeat worker running (such as when WDOG_HW_RUNNING is set at boot,
-> when the watchdog is left running after /dev/watchdog is closed, or when
-> configured with a timeout exceeding wdd->max_hw_heartbeat_ms), the
-> watchdog core arms its hrtimer so the non-freezable watchdogd kthread
-> worker periodically pings the hardware.
->
-> Because dw_wdt_drv_probe() does not call watchdog_stop_ping_on_suspend(),
-> WDOG_NO_PING_ON_SUSPEND is not set and the watchdog core leaves its
-> hrtimer and ping work active across system suspend. After
-> dw_wdt_suspend() asserts dw_wdt->rst and disables dw_wdt->pclk and
-> dw_wdt->clk, an expiring timer queues watchdog_ping_work(), invoking
-> dw_wdt_ping() to write WDOG_COUNTER_RESTART_REG_OFFSET while the
-> controller is unclocked and in reset. This may trigger a synchronous
-> external abort, bus error, or system hang.
->
-> This did not matter and actually worked as expected since the watchdog
-> can not be stopped directly. However, commit 1bfe88893808 ("watchdog:
-> dw_wdt: add stop watchdog operation") implemented stop functionality by
-> resetting the watchdog core, and commit 0b0ff67cbc2aa ("watchdog: dw_wdt:
-> manage reset line during system suspend/resume") puts the watchdog hardwa=
-re
-> into reset during suspend, causing the potential problem described above.
->
-> Call watchdog_stop_ping_on_suspend() in dw_wdt_drv_probe() so the
-> watchdog core cancels its ping timer and work in PM_SUSPEND_PREPARE
-> before clocks are gated and resumes pinging in PM_POST_SUSPEND after
-> clocks and reset are restored.
->
-> Fixes: f29a72c24ad4 ("watchdog: dw_wdt: Convert to use watchdog infrastru=
-cture")
-> Fixes: 1bfe88893808 ("watchdog: dw_wdt: add stop watchdog operation")
-> Fixes: 0b0ff67cbc2aa ("watchdog: dw_wdt: manage reset line during system =
-suspend/resume")
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Link: https://sashiko.dev/#/bug/linux-4cde70aa-2cd0-405d-a626-7b41bfe6bbb7
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: af084fdccfaf ("watchdog: npcm: Enable clock if provided")
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhao Feng <zhaofeng2@cmss.chinamobile.com>
+---
+Verified against current upstream master.  Not runtime-tested (no
+Nuvoton NPCM hardware).
 
-[Severity: Low]
-The commit SHA 0b0ff67cbc2aa ("watchdog: dw_wdt: manage reset line during
-system suspend/resume") cited in the commit description and third Fixes
-trailer cannot be resolved in the repository. Should this reference
-cbe95d1faf57 ("watchdog: dw_wdt: manage reset line during system
-suspend/resume") instead:
+Note: this overlaps textually with Triet Hoang's pending
+error-propagation patch
+(https://marc.info/?l=linux-kernel&m=178955112320092)
+but fixes a different bug; whichever lands second will need a
+trivial rebase.
 
-  Fixes: cbe95d1faf57 ("watchdog: dw_wdt: manage reset line during system s=
-uspend/resume")
+ drivers/watchdog/npcm_wdt.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108233329.1059=
-273-1-linux@roeck-us.net?part=3D1
+diff --git a/drivers/watchdog/npcm_wdt.c b/drivers/watchdog/npcm_wdt.c
+--- a/drivers/watchdog/npcm_wdt.c
++++ b/drivers/watchdog/npcm_wdt.c
+@@ -148,10 +148,8 @@
+-static int npcm_wdt_start(struct watchdog_device *wdd)
++static void __npcm_wdt_start(struct watchdog_device *wdd)
+ {
+ 	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+ 	u32 val;
+ 
+-	clk_prepare_enable(wdt->clk);
+-
+ 	if (wdd->timeout < 2)
+ 		val = 0x800;
+ 	else if (wdd->timeout < 3)
+@@ -176,10 +174,19 @@
+ 	val |= NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
+ 
+ 	writel(val, wdt->reg);
+-
+-	return 0;
+ }
+ 
++static int npcm_wdt_start(struct watchdog_device *wdd)
++{
++	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
++
++	clk_prepare_enable(wdt->clk);
++
++	__npcm_wdt_start(wdd);
++
++	return 0;
++}
++
+ static int npcm_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	struct npcm_wdt *wdt = to_npcm_wdt(wdd);
+@@ -216,7 +223,7 @@
+ 		wdd->timeout = 2750;
+ 
+ 	if (watchdog_active(wdd))
+-		npcm_wdt_start(wdd);
++		__npcm_wdt_start(wdd);
+ 
+ 	return 0;
+ }
+-- 
+2.39.2
+
+
+
