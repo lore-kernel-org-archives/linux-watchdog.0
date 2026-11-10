@@ -1,111 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.142
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794327199;
-	b=ZY5Dk9+9fDI2ZWlY6YZONh5nEHeVm7Hmou4Hwr/CF/DyHPisTULEJM/sRdIlaEgHS5PO
-	 VyRicyq7C4impEl0aL9BqJLnyoFjA03A2qXiNEgjyqcUQZ/BSvE23mKj/9Si5uXn6fch4
-	 wDkqzEnthjgcDC4C5L8X+hhqD+xONPsrqJTQ3hJRQOFF21wFQ1VvVO5eS+kjRoKNrjGUB
-	 RoovSX0FCrLPS+Gw844Io1D4pciQKtSlepFWK7T6+N3HsLc+4oKjCyY0A7w3WviX98o3p
-	 KrC2oEnbZOROn+1fRTpEGpZXOp+qgE2Sv2qImWdy/oRWny0+sWMDiGdX/A03vAyxgFw==
+	t=1794327696;
+	b=ZY+tRGqphY5uyRO6CrKB73FydMvYYIbIDgioudeP44WTmhWvBaKW4cVYbk3SDhgYC1tQ
+	 zESmHkdq3jmRgUJGj268KDb4LvR/pSRAGWyOav7LGiSe+YrwB7pn84MB0i2C18RFelBCM
+	 FfNcOgVUm8ed8Pki7D+4JVjH1KSMEQGqwIqACoUpVc5RY9dY7iJjTlgaQGucf1K+Hn1mc
+	 12d28Nw1Yr0avtut4Ik9RNBXPAaVe2Z4rKLa8/ICF6twJFkJfLTFZeR9kSMuS1vtbSpd1
+	 MBTsaHvlA0sdtNuvK1d4ho2EDV0Lqgt4NsLGKf1zw85HwayI3mOrP4QGH5vCkue4tpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794327199;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=;
-	b=E1ITqk59R0aCLcqPnGZ5erWfvjCNSauyFgfsKCvsC0khKV29RMNpkpmuuPg0JbxRAiMY
-	 57lz2pMXR83OfRovOh6YWm/E4L8LqZWg1SgC/H7NbI+UJk9cvhlaCNbPJ+0754j84yX55
-	 utx8S9vEQH+Cbywi8iYbGv5ObiyR+50b3JMVo+FpzFB5xZSntw9MHrMK8XYXs/BbvCPFT
-	 bx5N3XmogbpLvy7LqrBQ51pFU+ysCXEOvEZFs//F96ZbDCbsOG3PrsOaF8JxrnK1GtMAh
-	 /tZqMiczTzISBGDNPlW3MrphJgXAIelL3lIdW60GXHHyf9/jciLmrInEtUdheAdzcdA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794327696;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=bP5wdLNpyiJ9+ruTpF6sR5/wEnB1y9H630XlBE2DLdQ=;
+	b=F7VKwlzn36Mbc6JTKu0pYTJm7gBHN2mO1N0qJeOz40fy5WeA/IN9+afg1TbU5oS5d6h5
+	 ARSO+aPXIV7AGvKjaFVmaOheSg0+EeLG9BqMLJf5UJH9I8EpqTtHF0QphoOGwmUFiqAvE
+	 czX3Gq3D6xiBAEY6nmMDOc+YLpzlQcSUNFiUBw4n+Jo+ngOt06Vih8zVv/9a3qiFfT6IQ
+	 SVte1E7bDNbDkca3LESicO32ec9lYPx+/WMmYcrloqQGnUToUCWzicYAtzccihjnYmaZq
+	 qJseg/mmZ5LNLqOHHcUZ2J8K63vKEBbqw4nAOBbGfqTGvpmHiKXEVxd7biIlBvux2WA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW;
-	arc=none smtp.remote-ip=103.168.172.142
-Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JTGfbKd2;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAA0C60A2619
-	for <linux-watchdog@vger.kernel.org>; Tue, 10 Nov 2026 16:13:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CAA0C60A2619
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A73606A320;
+	Tue, 10 Nov 2026 16:21:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailflow.phl.internal (Postfix) with ESMTP id ECCF613813D7
-	for <linux-watchdog@vger.kernel.org>; Tue, 10 Nov 2026 11:13:17 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Tue, 10 Nov 2026 11:13:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794327177;
-	 x=1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=
-	asQC+qHDAv/I83EYngLJ0bkBe+uuEnPcLg0jrc2OX9kVtaPYAd/md3quox9jqmy4
-	S/jELTpXjA2k1IxJWtdK3HZW4IriVAHis0xufJR256BBPAzbfZ5QsGw2eqYq1k/I
-	S4qzaUtb3Ob4GAV2mxThnKp0r/zG0TfcXAK+eUmyQOHhHqtyGONG7gkgzRBQG2d0
-	/gzJT11LHsGNvLKSZnn9JL3iytYjrT3V7KZt2FZsHfjjQeZHywjaesrjJhD0e7vN
-	Y6/iN3Jg7w8xS8OVdYMBSUZOfxDnVhVfPJGqKe/oSxsAZXPn7y2e4GOOItdMLZ2R
-	LLVckhHoSzC+MGE1iJu5eg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794327177; x=
-	1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=p
-	jDZKFBWlX484yfO06iZThedU7MnSaqyMkXKHKaXomC5/xVavgZU65SsCjokZJWML
-	GjeTj8Lq4+LWeI1CWzzxuQj2m4isbVa0ssa9g7eZhXilCypVINe5kxTBiobUF6uZ
-	Gtle0jaTmJtlAyGlrtNmbTTDPt9uAjbADo1dgbyzsDA47ykOoKjYt1o87LKBSqHb
-	mP2YIbspjWDiF2EJOgZRHTKT7VhzsY0TtBEN2nWcPAnRSw5Q7HRlPmorpTONvfpP
-	auvP37j94bGeH1y2GQ4LwX12DjFEZi+3xGQave3kINRA2PBRPI5FXxcFzbhhhvXR
-	Tsc8Y3Jb1FgwsS6Y0dcjg==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794327177; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PGxpbnV4LXdhdGNoZG9nQHZnZXIua2VybmVsLm9yZz4=;
-	s=fm2:rsa-sha256:ZLZwF74xOPGetw4rsdm3qUVfg94IihwG/64QI/5ehMgBL15
-	3HHguCZ0yMutrDiVEurmmwnkeMNMJlj1rTT70soKhpOTwOytSuH0Y5cI0mOBUpLy
-	Eh3ivJ4iruhIOYLxyTN/RzEouunP1Lw3yxY2yJ684d29wvyIGcbFqnVpxf679nB3
-	1A1OM/rLl/u6ZniqDfAW4hoHM+5tTLZK0tbfAi3hk+lVKa8IPHgYgVEBR1tmZA/5
-	x90m7n2EyQzgm5IzwVSIpNKQZVLIvQ5rSibPTi2xej+eFIVmwieHfuw5cTZWb5TI
-	MtzMnuY7sHH9XGfIu/JUM4NR5O173ACgvYMlQUA==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:NY+qH6VFe1gb9eaYka4u3Pju9dQg6z2rB5jHAxzea+M=:YUoKa4y1cAE3r8AhMFawDzVW7orX9AEZ4cmB97mmTGA=;
-X-ME-Sender: <xms:gELzat-KhdG49YOXD28knxP-wmxhvouurLuqg65ijoK_1PztTiM67w>
-    <xme:gELzashOw3MORHNRaj5VZYoHPjgRatChT2__Hps4-a7QS4ExIju8qL8_9B3SiDtB2
-    sGKQug7JFF_lfIFqrxv09JzfzrzZWKrRlvdLjWPWqavJafwb6XI9q0tBA>
-X-ME-Proxy-Cause: dmFkZTEwJqmeu88i0D1P4NSr1o0RdeyL0ncQrpwlZpsRiyH4mGhKK76jqiY9/AURvmAyKQ
-    Xh2LjT8fovpOgpIQnvH5QYWZs5UCg8lDhPsbwXo4GfEZeWp/aOvfLOYPWjqnmAFI1BwG/q
-    XyZG43p0HoLIgnysLFo6MzsLlgysOWgB08DJdha5yxDuEjeXR7MU6VvvNb4tgDJLpz9WaL
-    DOmlUn0Mje4CQssJm+pxYVCWPCE7uxZNBjliBSIc14Pa1+Q+euFKNdLxxVitjY9vJ+1g1T
-    +rig9iVkFuoti3t+qEcHMM2vh4+G+ag1IzrG3We9+FcQnC6cOfB1bItA6vAPi6A+u1KULf
-    wxoJ36bIqa+kM9OWApvgKo4MId3H8RRe0FCkMwp8Cj2i2hPzQqFijO+zALFklT7XBp4yQ4
-    D0Bsmvzif3sMMCJY2OSk1bwCPIIRPEFuJI4Mi/vpw7sfUa+jfrhN159tiieQQE7aztSV43
-    DlSawBFw+hJYm5oAPkD2NlBoL/gRh3vgmwf+Y/GbihlHM/o3EcsWCertLTOcD6iStWXR7G
-    LAS2aVSdVtxoGSiZj2/kYUSfLhEBFCn05KpxcrFYCW/FmzT2YT72YPVx3p0wR8sMiJ3lAW
-    x+8+3z8XttowLJjfinG9ew4R0xJsilSkEkmhmN5AqofFDl0uTCDo7P0ixMQQ
-X-ME-Proxy: <xmx:hkLzak2BPEyGi10FxxkrY3byRVHSjq_0wLclV2jUuSmkyRE3xcj4fw>
-    <xmx:hkLzakkySXPgYGwh_r1Ql-VHDAdYXcQ3p0tjVOV29OCOWQo8MbFMmw>
-    <xmx:hkLzavloJp1yUj6WriMMnPneQ8pVgU9Ew-sH84r-kdZ-OdXPheHDYw>
-    <xmx:hkLzarPnZB-B1EOixQtLefzjQeDp3wnHNrTbJ3SPpTKyjOvpO-EsFA>
-    <xmx:iULzajThipr-UxTyuQQEJ7jWDCsE73KlfzXTf41eZRpd8Rpi4a2MNCT2>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id AC32432A0097; Tue, 10 Nov 2026 11:12:48 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JTGfbKd2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45351F0089F;
+	Tue, 10 Nov 2026 16:21:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794327695;
+	bh=bP5wdLNpyiJ9+ruTpF6sR5/wEnB1y9H630XlBE2DLdQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=JTGfbKd2jUS4VPVhdDdly/iy8wv65CnMHH+paZDTMqxrPURLhYqh8+dlyT/KoAc8y
+	 KFHIePGE/iaUd2Bp4HDpKPw+QT/oIjrpRkf44ON2CuFDW7ZTjlIF5SL2X5AHk6m6eP
+	 6Eby4xYgGaEay2rXmCfdQi3oIjCbBenzGIQsbQFXJ9VA109Xo6Kv/GX19HjXNP52qb
+	 tpwLWp4ocPqZbJcu0lTXwD9/3ZSLs689Ffhz9ED5AXWRVNT9ptrcEkwxQnac671Jx3
+	 q/WMEHxrdrl4NlVyPxeVMU9//QT+82C2U2tLXqDqykMv8p7NQ9oqZsB+sbtRDczRd6
+	 E6o5a0YVNbIxg==
+Message-ID: <eb9fdef7-2cef-425b-a62e-c28b7dbe1596@kernel.org>
+Date: Tue, 10 Nov 2026 17:21:27 +0100
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -115,97 +51,111 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AK-jVwBtQCQR
-Date: Tue, 10 Nov 2026 17:12:28 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
- "Jonathan Cameron" <jic23@kernel.org>
-Cc: "Svyatoslav Ryhel" <clamor95@gmail.com>,
- "Arnd Bergmann" <arnd@kernel.org>,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Bartosz Golaszewski" <brgl@kernel.org>, "Mark Brown" <broonie@kernel.org>,
- "Conor Dooley" <conor+dt@kernel.org>, "Daniel Thompson" <danielt@kernel.org>,
- "Helge Deller" <deller@gmx.de>, devicetree@vger.kernel.org,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- dri-devel@lists.freedesktop.org, "Jingoo Han" <jingoohan1@gmail.com>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
- "Liam Girdwood" <lgirdwood@gmail.com>, "Linus Walleij" <linusw@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-fbdev@vger.kernel.org,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
- linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
- "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
- llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
- mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
- patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
- "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
- "Support Opensource" <support.opensource@diasemi.com>
-Message-Id: <991009b6-e62b-46bd-9a0b-43c3b7a6d10a@app.fastmail.com>
-In-Reply-To: <avM5EnC9yujUZcCO@nsa>
-References: 
- <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
- <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
- <20260912232047.19c4cb10@jic23-hlaptop> <avM5EnC9yujUZcCO@nsa>
-Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/6] watchdog: tegra_wdt: Support Tegra20
+To: Artur Kowalski <arturkow2000@gmail.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner
+ <tglx@kernel.org>, Thierry Reding <thierry.reding@kernel.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, clamor95@gmail.com
+References: <20261110-t20-for-upstream-v1-0-5923449951fe@gmail.com>
+ <20261110-t20-for-upstream-v1-3-5923449951fe@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20261110-t20-for-upstream-v1-3-5923449951fe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Nov 10, 2026, at 16:39, Nuno S=C3=A1 wrote:
-> On Sat, Sep 12, 2026 at 11:20:47PM +0100, Jonathan Cameron wrote:
->> On Thu, 10 Sep 2026 20:14:15 +0200 "Arnd Bergmann" <arnd@arndb.de> wr=
-ote:
+On 10/11/2026 13:39, Artur Kowalski wrote:
+> +static int tegra20_wdt_init(struct platform_device *pdev, struct tegra_wdt *wdt,
+> +			    void __iomem *regs)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *np;
+> +	struct resource res;
+> +	int ret;
+> +
+> +	/*
+> +	 * RST_SOURCE belongs to the clock and reset controller, whose driver
+> +	 * doesn't use it. Map only this register, without requesting it, as
+> +	 * the region belongs to the clock and reset controller.
+> +	 */
+> +	np = of_find_compatible_node(NULL, NULL, "nvidia,tegra20-car");
+> +	if (!np)
+> +		return dev_err_probe(dev, -ENODEV,
+> +				     "clock and reset controller not found\n");
+> +
+> +	ret = of_address_to_resource(np, 0, &res);
+> +	of_node_put(np);
+> +	if (ret)
 
->> > drivers/iio/adc/ad7793.c
->> Maybe. Analog devices ack needed.
->>=20
->> Production part but this one indeed fails to probe.  Analog
->> folk, do you want to fix this one up?
->
-> Given it's production we should fix. Looking at platdata seems to nice=
-ly
-> fir in DT. Issue is that I don't have HW with me to test. So I'll maybe
-> just remove platdata and assume some defaults.
+Looks like doing syscon here. This in general is more fragile.
 
-Sounds good. I already dropped my removal patch for this one.
+...
 
->> > drivers/iio/frequency/ad9523.c
->> Maybe. Analog Devices ack needed.
->>=20
->
-> Hmm we definitely use this one and we have OF support out of tree with
-> likely some DT abuse of what can be in DT or not. Not sure if I have
-> some HW around but we'll need to fix it.
->
-> In general for ADI parts, I think we can drop the ones that are not
-> recommended for new designs. All the others I tempted to say we should
-> keep. Naturally we need to fix all the drivers that do not compile
-> without platdata. And for the ones with defaults we can also just remo=
-ve
-> platdata and use the plain defaults.
+> +/*
+> + * Tegra30 and later list "nvidia,tegra20-timer" as well, but match their more
+> + * specific compatible string.
+> + */
+>  static const struct of_device_id tegra_wdt_of_match[] = {
+>  	{ .compatible = "nvidia,tegra30-timer", .data = &tegra30_wdt_soc },
+> +	{ .compatible = "nvidia,tegra20-timer", .data = &tegra20_wdt_soc },
 
-Ok, I'll leave it alone as well now.
+Why in reversed order?
 
-I currently still have patches to remove adp8860/8870 (backlight), ad7877
-(touchscreen), ad714x (touch) and adxl34x (input, not the iio one), which
-are currently unusable with DT but are all listed as in production.
+>  	{ },
+>  };
+>  MODULE_DEVICE_TABLE(of, tegra_wdt_of_match);
+> 
 
-I assume you want to fix all of these and keep them in the kernel,
-but possibly still remove the adxl34x and only keep the IIO driver for
-that part?
 
-I also have patches to remove platform_data probing from ad5761, adf4350,
-ad5791, ad5421 and ad5504, these all have DT support.
-
-See=20
-https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/=
-?h=3Dboard-remove-7.4
-for the updated series. I hope to slowly get through that. Let
-me know if you want me to skip any more of those patches.
-
-Thanks,
-
-    Arnd
+Best regards,
+Krzysztof
