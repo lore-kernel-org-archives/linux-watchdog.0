@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794338554;
-	b=0PWDw4Ls6YK8yv6+3PcmHIuTf4KegTNs6+HpiQkc1zJCcOw4ubRlgOCAAHzKrJa66unQ
-	 UynGIPORWnNJyqyruBuC5hWNLBG/aoLLuzGH5s5SoonD/ICKHPdXAxao23EGx0FxttRH/
-	 c7HNkysutuO3AaZEtPYcndXoA8XjgOhPVuWna42pZ0b6ppWh+7i5WamjPxmhSzxDq7Voz
-	 p2LOpbk/6HiBH6IC8SnEy2WPwvWaBBVPY/MfDjWMzO1N/U8Mx3CI0lnO3QziCVvDOhu3p
-	 f6v1g7+8oFj02mGomPqJNv5cr4X60CQ9OyyaGVoe2oHdzHLbbXspkdFkPNhLHn8BVOw==
+	t=1794338555;
+	b=IRk5v2tBVn4xLYHXHbnCx7KmDDOmO34YmE0ihv8TLJUzKubCGU0Q+ryCcVluluufDrkc
+	 d5Q2YAPt5y4jxtpKpB8esaY0Nc3p/qkWoQLmt585w5eq/ysdF9DFFYjpDlzziqjaZEPSG
+	 d7R+IujpS8SaHIqZNfzw87euxXIMgELxIOTK7FM+qUruMKL2jtQ6yWk2t0phhT1OxZdIh
+	 xlX03X6Z/erHeTBYs9wHOXn+Li5G5GcvDw4DexzqzxB7nPZD3XqCovB5LQiTwW2qlWgSB
+	 dpuFBaL+MGteGyjtSC4JSXhdTJkTbwQxtcsBWOO3Ad8LgAA74cZ9XZswYPJwOQIC35Q==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794338554;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=L4VYNMQJjxkVQtRujzGGBXYJJspdXKkimKgznnscdQY=;
-	b=FtmHCw/2rlbbG4SAcb6O/coSLmqrQbRlXjnSdankjXXm9C3czgJnTZ6X9hUDRlpm70Ie
-	 oRc6v8bAXl0B9OuJhLf5LRIlpactVI0ZVk3q8R76yG76EDJtxJyFD9Xp4jqUsUI2iW2vX
-	 Z+Fk2C6XJEFHZhj1ZA8gHbjZFCshKZyDZsUYggW4KgAPFDUhsqN0l3jL6Iq/oYm9JZc3J
-	 CRIyl8fDy+Q9Vp7eAQhdFnvbXwr9a8GSV9tOuMHMltM9uCoDu+4qgZludPCiuLMamChsW
-	 GCoICrkoptjTIzvyaXRBEf3TG44my/iX83G9eEkQETBiYA6SRIh2MSxNjxbMbNcYkeA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794338555;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Wv4YmS5I/QtVuoDrIm2R5tBBAXU/92I2IsMHmbWiOeM=;
+	b=UL6XXZuQPW9MsgAu0tmLQ8ShA1ablosIQq1EuwR8PP+Ak8oZ/Ii+tbssfjWuK60pqpSX
+	 2owogkR8Bh7chypKMBweZE36PSK9XRbHBLsFYxpIyXANzqfOxR7RU/txLEcb0BM5GLWQg
+	 e5V+ylmhE7ymzB6EkA7+p62kr1QNcoxuXj/7VfRelpqVWcV2OJvwqiB/Y1vG9wp6pRlPH
+	 vkE1aJtjv1kZS5iJiTpI/rMwzXLyiydLksGZyFXBKxOlp54t2epHIh9Ommdq1Rzdtg0CC
+	 EvXbQLHGoy9lg3/N369y02y3gzGMbMRVwGNO9JZScdJyxLMlV80f8bRSwFcpU9NfggA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SG3DouA8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iwTv+p8I;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D275606A332;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD109606A32E;
 	Tue, 10 Nov 2026 19:22:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SG3DouA8
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iwTv+p8I
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
 	t=1794338554;
-	b=GvbASUcpbhal2m0F75bNv2xG22LAF2DIS48SiabLfAGuPlg0Lw5MAvUxtZoBAigqyFl9
-	 OIAvl303ZQlvWpiqlvvRw0AUbS0ffhPjKZCPqY45J51xxUABUPTVbHxWJdQtopSYCGEud
-	 sm3praV0w6C/Nosx0AytYN1+9io82tvLckvhE87eNdrW3daWrBIfqgRewBTMTEN/o2WNR
-	 2ALzBcFzq7Y5zppmwdv2DIk1+O1+N83sfEZ28ZoHX5MBk9+aABqqHEO2ZB5km1hV4gNdE
-	 8kNWSPH9dpE+x+uPEHBR96xGIV6WWLEp5CGGVRGphGbBnpbkLRWNz1NmLyFl2sDDRXQ==
+	b=Pni05cul1edQvDBv+Q0Obf52Y25T6cxVkBOZwW517EKT9I40RYk68ecHFniKDc27s7rM
+	 6SyPIOynBMrWsvOX2JEV6sj0gFCytmYYfh+BlmmMHxtkgEQZoF0MtgggERuPdmoXnQqQp
+	 6kMqCsmftBSbvfR81y7Qt33OCOXCVTThCmvl/Uh4wCcUPVEjV3pI3WnEMhLLS7TRgqd9o
+	 sJyzR9rbUHNmeZuiEbCrjpp6o2CaWV1ujqa2gF08AZKnVK/+x9mDf3/rOaWBXEJa9jW4m
+	 pZ3XaLi8+pPmPImEKXjAiOxDP4sFSILJ/aAvEBWrTHHFUrnRA+BTw979Pn8Ri4owstQ==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
 	c=relaxed/relaxed; t=1794338554;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=L4VYNMQJjxkVQtRujzGGBXYJJspdXKkimKgznnscdQY=;
-	b=GBV9Nu3+ytYR7QbDLLU1/F0K0/wgUdmNfhj62f8ruDBQjuYV2tLOBaN765BZvdfxhfqE
-	 74paKxJ0nZD1tgAiP2epOLlselECLxXDtHQrhm8c8HN6cpoB5z3aZeUqk63wtsQCzNv1M
-	 2PddeV/iFLIZ1eayB7kx7TY6AslTsilzm+hDvCZ8by99Fs85775UyNzuMDSdx4dvKlw3/
-	 nvDYngO3TNiFsD6yAnZHlTK0+gLbZj7NqomvXzPDm+qW42HXGO442Jg9vYu+hDPnwj7fD
-	 N8aIrsNMiybzj2X8davS3MlDuQPLvUBf8ioaskFdsz4jde1PIrehVtEK1OJTHAqQgLg==
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Wv4YmS5I/QtVuoDrIm2R5tBBAXU/92I2IsMHmbWiOeM=;
+	b=EjSD2QCl9KD3cCCGHdDSAV7GpZwKDVMwM+/LH/TUzfS4z0ATtv2ZLS7bAnSy0lVu4ynN
+	 rOQixjtgMRPfs9npH0YSA9PQQu4E4rq2IFkoIP3y3wb2nG3wMTAScVPsWylQ24DgmQoqa
+	 Tztjqm+YWcPPSkyKwpJtLh50utJMUmJ/XZ2BVIVREz1vZfawM1i3ERYkOtPTRvhy0bSiU
+	 lTDmnyvICu8F/XvkDbPkrrKaavDilYY7O+rA572RhtqrVcqzf5Yf8BkoQT0YRbAIq5IlB
+	 MBXJvhfy+GcchoSS4ir0iylLSyRO2L9X+2m1XD4Y5nnvAQGPaNbWvZS5AwaU3QemgrQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 3C4AD1F0089F;
+	by smtp.kernel.org (Postfix) with ESMTPS id 3C4C81F008A1;
 	Tue, 10 Nov 2026 19:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1794338554;
-	bh=L4VYNMQJjxkVQtRujzGGBXYJJspdXKkimKgznnscdQY=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=SG3DouA8GglzEjIYZKYfmLZWuXG4xOUiXErBIm+x/oHTkSQFXzzmXBnNxmuBFmwjL
-	 swYNdaWRn1Xe19BQbf/QMzz4iqrR5a3MpxBUGqoje5FRpFQ12gEdIQ5JfizUK1v+6K
-	 RIv/+tPKHHtRqAO0UW9iI3+U5TVTtPkIYTGFQVMvqdW9FyX29vCZKX1ubfnaAZ4nKA
-	 +tQraBSsQoSOhicMjuhDtxpTRz9Zjgh2gJtTcvYO2/ZeoJVVhn7XU2we4kGXbKxhHz
-	 OreLsZlicYXdLyZ8WiyD0843H3W9Vo9kVrynFSfN0g7otzm9qGPD1UMItR7VdyCfUq
-	 rqiB2xFdceWBQ==
+	bh=Wv4YmS5I/QtVuoDrIm2R5tBBAXU/92I2IsMHmbWiOeM=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=iwTv+p8I6g6+Yht7K6k/DsUmaJC65JNqwht04hpcJTagXg2kQRiyd0P7/+jTLlHlm
+	 oyz0x2ZsQ1Y6iAvfjI296N9MLOQ4FqAzC3REdLhJvTdHPpBBxlxj/b2YcZCMOtl7k5
+	 6eO+UDIVB6IG+IeKTjj3GmhS6y+gqX3O8ZnitmvD+TerJCTjw7p5GqItYqjvG8bCTM
+	 r0LLM8euvTOfdVioSnawRfoFb4cIi69aKkcGr2IKhQUWylySLBZNnfpDbbrYV1ALBb
+	 rYCKyDMlT14eGtOGFceHod9uPLYDEdR54Ga7HKS8bIIl1pdWi07xUgRbyNTvEeD13j
+	 XG/J6wY5D/EoA==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 8FCCC48C59;
+	by lkml.kernel.org (Postfix) with ESMTP id A95A548C35;
 	Tue, 10 Nov 2026 19:22:32 +0000 (UTC)
 From: Roman Vivchar via B4 Relay <devnull+rva333.protonmail.com@kernel.org>
-Subject: [PATCH 0/3] watchdog: mediatek: fix mt6797
-Date: Tue, 10 Nov 2026 21:22:20 +0200
-Message-Id: <20261110-6797-wdt-v1-0-7f07755b6074@protonmail.com>
+Date: Tue, 10 Nov 2026 21:22:21 +0200
+Subject: [PATCH 1/3] dt-bindings: watchdog: mediatek,mtk-wdt: fix mt6797
+ compatible
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -84,11 +84,9 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzNDQ0MDXTNzS3Pd8pQS3dREAxNTCzOzZEtjMyWg8oKi1LTMCrBR0bEQfnF
- pUlZqcglIv1JtLQA5GQiZbAAAAA==
-X-Change-ID: 20261110-6797-wdt-ea045866c936
+Message-Id: <20261110-6797-wdt-v1-1-7f07755b6074@protonmail.com>
+References: <20261110-6797-wdt-v1-0-7f07755b6074@protonmail.com>
+In-Reply-To: <20261110-6797-wdt-v1-0-7f07755b6074@protonmail.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
  Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -101,40 +99,99 @@ Cc: Ben Grisdale <bengris32@protonmail.ch>, linux-watchdog@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
  Roman Vivchar <rva333@protonmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794338551; l=979;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794338551; l=3012;
  i=rva333@protonmail.com; s=20260510; h=from:subject:message-id;
- bh=YuCtHZXtAm427+WUFBsF2fwoSMRhW21Cd4n+6tsctgU=;
- b=X9izG8476fidywRoRhvuRH/2/lNsb1YV3dppMtAdUa7unbApAM95ag7j0PgxItcT54aiKLXln
- qDG8auL6RscAMxy95MMQx0tVRM9dMuUrrZQ9x4RfTPdUV61Y30HVmbB
+ bh=Zw97QWbf++CwhqrLj51/69tH/MLwpOaRQogdPi+R4S0=;
+ b=8oQIrY9yvADvaSdBrJfYTzEmQNP0HQ2PwbUUgck0/rybLTdtwhNV/ylo/EN0MVnBLhBV8kfDk
+ E+Y/Bjfg6pmAyPrlVhtEc8ce93ohgTTUQcCvAc/MxK0gwLDy9p+MfZU
 X-Developer-Key: i=rva333@protonmail.com; a=ed25519;
  pk=zww/nWjBGoQ4POXCG0BV6fx2iuXK6jx77rsKPA5YK5Y=
 X-Endpoint-Received: by B4 Relay for rva333@protonmail.com/20260510 with
  auth_id=777
 X-Original-From: Roman Vivchar <rva333@protonmail.com>
 Reply-To: rva333@protonmail.com
+Content-Transfer-Encoding: 7bit
 
-This series fixes improper mt6797 watchdog compatible, since it's
-actually different from the mt6589. It also adds own reset header for
-the SoC and reset table in the driver to mapping IDs to bits.
+From: Roman Vivchar <rva333@protonmail.com>
 
+The TOPRGU reset bits on the mt6797 SoC do not match that of mt6589,
+therefore they are not compatible [1].
+
+Deprecate the mt6589 fallback for mt6797 and add its own compatible
+string. Also add a new binding header for the actual watchdog resets on
+the SoC.
+
+Link: https://www.96boards.org/documentation/consumer/mediatekx20/additional-docs/docs/MT6797_Register_Table_Part_1.pdf [1]
 Signed-off-by: Roman Vivchar <rva333@protonmail.com>
 ---
-Roman Vivchar (3):
-      dt-bindings: watchdog: mediatek,mtk-wdt: fix mt6797 compatible
-      watchdog: mediatek: add mt6797 support
-      arm64: dts: mediatek: mt6797: fix wdt compatible and add reset-cells
+ .../bindings/watchdog/mediatek,mtk-wdt.yaml        |  6 +++++-
+ include/dt-bindings/reset/mediatek,mt6797-wdt.h    | 25 ++++++++++++++++++++++
+ 2 files changed, 30 insertions(+), 1 deletion(-)
 
- .../bindings/watchdog/mediatek,mtk-wdt.yaml        |  6 ++++-
- arch/arm64/boot/dts/mediatek/mt6797.dtsi           |  3 ++-
- drivers/watchdog/mtk_wdt.c                         | 27 ++++++++++++++++++++++
- include/dt-bindings/reset/mediatek,mt6797-wdt.h    | 25 ++++++++++++++++++++
- 4 files changed, 59 insertions(+), 2 deletions(-)
----
-base-commit: 630059a5a632377b9b7b487baccde92b7ae1dd47
-change-id: 20261110-6797-wdt-ea045866c936
+diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+index 8e8991ac95ea..d9b5675794cc 100644
+--- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
+@@ -24,6 +24,7 @@ properties:
+           - mediatek,mt6589-wdt
+           - mediatek,mt6735-wdt
+           - mediatek,mt6795-wdt
++          - mediatek,mt6797-wdt
+           - mediatek,mt7986-wdt
+           - mediatek,mt7988-wdt
+           - mediatek,mt8163-wdt
+@@ -38,7 +39,6 @@ properties:
+               - mediatek,mt2701-wdt
+               - mediatek,mt6572-wdt
+               - mediatek,mt6582-wdt
+-              - mediatek,mt6797-wdt
+               - mediatek,mt7622-wdt
+               - mediatek,mt7623-wdt
+               - mediatek,mt7629-wdt
+@@ -49,6 +49,10 @@ properties:
+               - mediatek,mt8365-wdt
+               - mediatek,mt8516-wdt
+           - const: mediatek,mt6589-wdt
++      - items:
++          - const: mediatek,mt6797-wdt
++          - const: mediatek,mt6589-wdt
++        deprecated: true
+ 
+   reg:
+     maxItems: 1
+diff --git a/include/dt-bindings/reset/mediatek,mt6797-wdt.h b/include/dt-bindings/reset/mediatek,mt6797-wdt.h
+new file mode 100644
+index 000000000000..32a2bdaf47c7
+--- /dev/null
++++ b/include/dt-bindings/reset/mediatek,mt6797-wdt.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
++
++#ifndef _DT_BINDINGS_RESET_MEDIATEK_MT6797_WDT_H_
++#define _DT_BINDINGS_RESET_MEDIATEK_MT6797_WDT_H_
++
++/* TOPRGU resets */
++#define MT6797_TOPRGU_INFRA_RST		0
++#define MT6797_TOPRGU_MM_RST		1
++#define MT6797_TOPRGU_MFG_RST		2
++#define MT6797_TOPRGU_VENC_RST		3
++#define MT6797_TOPRGU_VDEC_RST		4
++#define MT6797_TOPRGU_IMG_RST		5
++#define MT6797_TOPRGU_DDRPHY_RST	6
++#define MT6797_TOPRGU_MD_RST		7
++#define MT6797_TOPRGU_INFRA_AO_RST	8
++#define MT6797_TOPRGU_CONN_RST		9
++#define MT6797_TOPRGU_APMIXED_RST	10
++#define MT6797_TOPRGU_PWRAP_SPICTL_RST	11
++#define MT6797_TOPRGU_CONN_MCU_RST	12
++#define MT6797_TOPRGU_MJC_RST		13
++#define MT6797_TOPRGU_AUDIO_RST		14
++#define MT6797_TOPRGU_C2K_SYS_RST	15
++#define MT6797_TOPRGU_C2K_WDT_RST	16
++
++#endif /* _DT_BINDINGS_RESET_MEDIATEK_MT6797_WDT_H_ */
 
-Best regards,
---  
-Roman Vivchar <rva333@protonmail.com>
+-- 
+2.56.0
 
 
