@@ -1,74 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.198
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.70
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794453407;
-	b=ne9oylDYIEEERhqqwTuBBYZPnVCnLG60+AyGC1AIcsw2y5lovGlKiKbZBkQyF8HX8z/z
-	 n0M9fMh4WGpKTCuY8q+tO175gR/kNDtZ+H6hAyvA6BMDO04xXAau188qw3QUWkOU592BT
-	 H5pyx8GHMFJ9gJswHegDO7j7S4cfBZ76QTLHnDgeA7HsiHxiuSwJmuMlDo5bLYjZ5S9Ne
-	 +g9EZBWp+F86OsSeEsyDMcMvqNK5kkWtmjTbC5iH7DBg78i85jV6TKOcn+96rsrpqfRKP
-	 KAdM6XSWL9cp4bNQFI7s+mNS47rR/80aCrhrrGXLqwKUBxvGQBaFTOXumhRmWyvptJQ==
+	t=1794453408;
+	b=iW4qh2ukMlpoPmSy+CHMxmpSkY0NEPkITeqKVoePdY6A8HNUPC7ws2AboFt6Pw0NJV7c
+	 z5Ks5RBYEc5Dsg+X5A/iVmhK4pa/UBO+tBFI5g4v+mmfrqtpPOnS4SyYKg0+F3Ug5TiCE
+	 9v232G4Lwhx539V8KAeyFMGeHi14BmVr3FAcdfEfNXRpLPda41jqE89qt8CGDUEWJCq/H
+	 cphBbnji2Ttd0S4Kz+f1unsJV2GXnU6rd6FpG9HbhNroW9Ey82LPPXbKBQRONF8aSqvvg
+	 NDBSmzALuvccKNnnOMS/3WnSWsEU2ts2fcMC1q+ud1DjaFwigvNG8F2N84smwhkv1kw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794453407;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794453408;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
 	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
 	 Content-Type;
-	bh=hWKawNdn0hEGYVFD9BxgfOol/1CwMbnzrNRl9vbJ07E=;
-	b=2W9OLCF5rEYnlbqyP+t2O9/m3h/AKN8UZWVETuYQCPdJgi+OM8qRe3JxdilRvqWG/Zf2
-	 Onk3lcUmH5kyRRDGpRfzmgCjN55j5LJ8Vg9SICv0Zfmq9SHbaNAjGGo4B/ViyJoDPSqe4
-	 +wpcKVAQPfIq//7TniKWkhxaXvjNdrPzow7ZZOYQK2NnnBvoQwJoKiMCqDMG1c79BXaNj
-	 MxSNil07Z6E4+9nQsHy9Y7iqkjf+wfCKbLFkpEnoa0hJRR7+qUPsecDXCeDTxnwgqVToS
-	 z3PQGCDvmKvDL0T+ZXELi9N6i+XlHxTGf4vRB7uDLD+UomHmIrXIABf8x7JAAoOYOhA==
+	bh=lZW+gmoGRsyxzo4WZhRv/r2tVUKs5H5gx3c1REXho3A=;
+	b=b9QlxkVxrmeILV+CsdP6e3+BBXtObVgfyT1WcZG0oGDSPnNbPC88LEnPZc7NARYon/rt
+	 WFDCrO1dMCFAz6wQoMMuqv3k5OByjJlFpR5X1aNxjlyTX7rCGjxiCCO74du5x4E10VrY3
+	 kdEecJyLdVH/60ZL5fj/qqTU54Ey6fDGz6Q956TDJaApsg0QxLlRgUAy3YYYxp4+MWpUk
+	 JCFlgs/fqyF3H9YF+tYEmT2Dj86lR2+D+zA1GSF/2LCQ7zwyAhCf3JaaNHEBYkgin9/3p
+	 /1fnNaEUCW5p1yMkfSEDI7l9CEXIpk86MpnODw6jmACwYNc4V1ztZYUWmJxmFDQrN4A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--mrungta.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="Ea/4LJ9Z";
-	arc=none smtp.remote-ip=74.125.82.198
-Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=Igj2c8PD;
+	arc=none smtp.remote-ip=74.125.82.70
+Received: from mail-dl1-f70.google.com (mail-dl1-f70.google.com [74.125.82.70])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F32160A260A
-	for <linux-watchdog@vger.kernel.org>; Thu, 12 Nov 2026 03:16:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3F32160A260A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D540606A32A
+	for <linux-watchdog@vger.kernel.org>; Thu, 12 Nov 2026 03:16:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0D540606A32A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--mrungta.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=Ea/4LJ9Z
-Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-36f479b9819so6300782eec.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 11 Nov 2026 19:16:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=Igj2c8PD
+Received: by mail-dl1-f70.google.com with SMTP id a92af1059eb24-1af203073e0so4436129c88.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Nov 2026 19:16:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1794453405; x=1795058205; darn=vger.kernel.org;
+        d=google.com; s=20260707; t=1794453407; x=1795058207; darn=vger.kernel.org;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=hWKawNdn0hEGYVFD9BxgfOol/1CwMbnzrNRl9vbJ07E=;
-        b=Ea/4LJ9Znxf+/qcCYyUIdcKwbpGKvfC60TUIuO/uVVJ0/eB+rPYs+bR1sTYDqnwMuL
-         PWwwLjI9bdrFjY0VMhep+ociG/QLkAFmjhGcya0Ry/enx4auK3iUDRMS22ZjPrV0ctXZ
-         liVO8HnuhUwtgaY6Cj63YQ5Mh/cncnMPEg9PjhvH+2ltRF7VoYatOvoYMCx+Sqh6w/aT
-         WMy9Uus5GmaOHankSoEHnd8jV1Tg5WjztTLABi8kiuiXGbyi9btMBnRyrwS1UKP/XUfT
-         mmFtiN1uymkVlmW0MqOGxCzdNDeTbNy4nMKhLssxXOlvvcaIV/2yD5yLl7ouZeUrzHyh
-         E8Bw==
+        bh=lZW+gmoGRsyxzo4WZhRv/r2tVUKs5H5gx3c1REXho3A=;
+        b=Igj2c8PDGnbRQ8aKkyOza4Np51eZ1P5nFTI2410sbp5Wpp4Bl8cwoZesVfxexAUm15
+         FEZdQnX8dk+v1HuPbhnD0hmIzATEhlqIWjZWEWA0RB03VQRuamkbUWcxY0b0+4d5rWXZ
+         NdWHwucMlXp+NC5/iXiqwYkJrUHLd/N32DKxDTQvnpwHcLSZoTBGi5lQZ2sCmFlc0DFy
+         unAhYSE7xF3t+PkmzejDx4YRsVXo6tfsw2CNryR9zbwqarP6jLxr6ICM8STNakp2peJ6
+         vqkXNwe5M/EaEsZBjfyXbeHoQAY+ZSgAms2izP/zx7ltU0VuictFg3LKnhXnfsfBYhLV
+         koug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794453405; x=1795058205;
+        d=1e100.net; s=20260707; t=1794453407; x=1795058207;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hWKawNdn0hEGYVFD9BxgfOol/1CwMbnzrNRl9vbJ07E=;
-        b=YQpJc6UW6Qt58lutuOsipvgxbys37J2Z8KLvvo1heI9S3HQ5cWiRccHzFbydiKHAk2
-         8hJ63Qz9/a16+iY0GRMd6O6Satb6j2y5hNglKFZ4NPP/B5bTNhyB1I+iz6skzvc7V0E9
-         t9wXV1w8QeWHO5VlzaQrK/OmOCLNbfX6Zi65rZH5T6+R6+ywsMgC2i/gGc8WYUiGeOqH
-         HblwF2NbOIo6W8NAkRNnJ5YJ9uIef/YOrJgWLuJpRfjSrkcDTxzoQZISw01GU8ACO+wP
-         Oiz4uo88dh4QAxNzE+08fLcHly9llz2VhSH73dwTcvY/QPKzxqdadHYqZuYPVH+QGCyN
-         eiMA==
-X-Forwarded-Encrypted: i=1; AL+hErE60/hSqq9e5YxTxDXQaCdpFJSsqhDFX8hrVsbik+aT3q2iYn+8Wh+LOl5K4FPfmTBydhh6SDJrc8izs91DAQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8Gjx3HqO8PcM2LBg2sz3WrC7o5qF7Nr7rsSmx2hYfbOMJutoKx
-	vzf6PyZSUKAc53QgBdv61z39qdgMp6LoQBCqbjmL7s1G5QCtaC5889IeSbRqpaEPd3RfQSLIb6I
-	izKnzkw45xQ==
-X-Received: from dybry8.prod.google.com ([2002:a05:7301:4d08:b0:35f:390d:248a])
- (user=mrungta job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:87c1:20b0:36c:c483:7077
- with SMTP id 5a478bee46e88-377abbd9353mr1683715eec.14.1794453405137; Wed, 11
- Nov 2026 19:16:45 -0800 (PST)
-Date: Wed, 11 Nov 2026 19:16:28 -0800
+        bh=lZW+gmoGRsyxzo4WZhRv/r2tVUKs5H5gx3c1REXho3A=;
+        b=KS+Y4SdVDWdjrujCije9XPhjtikKpnbbfZBs5Z2q0++uBIkS/rocGggKt8h/vd4Lg/
+         m2CPDiNcvOjwJaKJ67QuLSNr/MR60X4MfXPlSipIBJbIvz3VCDJWikB6d+imCCnkIiao
+         7fLiae8TGgiaWHPMWymiS3p6rzX1kbZ7lEOm+/yEzlSkBq6BUpc27/si1bK9877QW88T
+         DinvvjFYE2zEA03hCBfj/jFuxwznCNdaEKulSu+O8u/guJGoUFVFekWD87BBt9rWRd+J
+         1Aikf1RSFbdh0MZywTb+F3Bh9vi7uctnLxKHG3qOJURSG4yd6np007n2KVK1tuCGnFfC
+         6hsg==
+X-Forwarded-Encrypted: i=1; AL+hErGu0D6soeD2MqeFnHGvG8Ybv7g1fRwlPlh22+gY5J3CO3EAGiKJ0wHmAVRUGoM61UtltQ/EDdq1vNrGDDWFrg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+AL+RBZDx1N7zyT+YqVN5iPqay3ww5g/0yvG/SSbDZgSmONiWJ
+	MuPRCi+L4er7xFiTip3inHA14dHSaN24m03G1jF5UHgJiyM/FBDcxUpZzFkoFp2DolZ5kAOdF/6
+	yxTldpFofJQ==
+X-Received: from dlbsn14.prod.google.com ([2002:a05:7022:b90e:b0:1b2:450f:bfdf])
+ (user=mrungta job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7023:a4c:b0:1b2:6d3f:6305
+ with SMTP id a92af1059eb24-1b3c023d80dmr3948812c88.1.1794453406916; Wed, 11
+ Nov 2026 19:16:46 -0800 (PST)
+Date: Wed, 11 Nov 2026 19:16:29 -0800
 In-Reply-To: <20261112031629.396819-1-mrungta@google.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -81,9 +81,8 @@ Precedence: list
 Mime-Version: 1.0
 References: <20261112031629.396819-1-mrungta@google.com>
 X-Mailer: git-send-email 2.56.0.611.g1030f0b940-goog
-Message-ID: <20261112031629.396819-7-mrungta@google.com>
-Subject: [PATCH v4 6/7] watchdog: pretimeout_panic: Use nmi_panic() when
- invoked from NMI context
+Message-ID: <20261112031629.396819-8-mrungta@google.com>
+Subject: [PATCH v4 7/7] watchdog: qcom: Register pretimeout interrupt as NMI
 From: Mayank Rungta <mrungta@google.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
 	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>
@@ -93,51 +92,83 @@ Cc: Marc Zyngier <maz@kernel.org>, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com
 	Douglas Anderson <dianders@chromium.org>, Mayank Rungta <mrungta@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-When a watchdog pretimeout interrupt is registered as an NMI (or
-pseudo-NMI), pretimeout_panic() executes in NMI context. Calling plain
-panic() from NMI context is unsafe if the current CPU was already inside
-vpanic() with regular interrupts disabled (where the watchdog is no
-longer fed): vpanic() assumes panic_cpu == raw_smp_processor_id() only
-occurs when entered via nmi_panic(), so it falls through into a
-recursive panic on the same CPU, corrupting the static panic buffer,
-panic notifiers, and crash dump state.
+When a system is completely unresponsive due to an interrupt storm or
+deadlocked CPU cores with standard interrupts disabled, a standard
+watchdog pretimeout bark interrupt will fail to execute, preventing the
+pretimeout governor from capturing CPU backtraces before the hardware
+reset bite.
 
-Invoke nmi_panic() when in_nmi() is true so that an NMI interrupting a
-CPU that is already panicking safely returns, or stops via
-nmi_panic_self_stop() if another CPU is panicking.
+Attempt to request the Qualcomm watchdog pretimeout bark interrupt as an
+NMI (or pseudo-NMI) using request_nmi(). If NMI registration is not
+supported on the platform (e.g. pseudo-NMIs are disabled), gracefully
+fall back to a standard interrupt via devm_request_irq().
 
+When NMI is used, enable the NMI during probe to balance IRQF_NO_AUTOEN
+and register a devres cleanup action to disable and free the NMI upon
+driver unbind.
+
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Mayank Rungta <mrungta@google.com>
 ---
- drivers/watchdog/pretimeout_panic.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/watchdog/qcom-wdt.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/pretimeout_panic.c b/drivers/watchdog/pretimeout_panic.c
-index 8c3ac674dc45..634ae3b6c961 100644
---- a/drivers/watchdog/pretimeout_panic.c
-+++ b/drivers/watchdog/pretimeout_panic.c
-@@ -5,7 +5,10 @@
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index 4eb1bf979012..4a99cf43c4e1 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -52,6 +52,7 @@ struct qcom_wdt {
+ 	unsigned long		rate;
+ 	void __iomem		*base;
+ 	const u32		*layout;
++	int			irq;
+ };
  
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/panic.h>
-+#include <linux/preempt.h>
- #include <linux/watchdog.h>
-+#include <asm/irq_regs.h>
- 
- #include "watchdog_pretimeout.h"
- 
-@@ -17,7 +20,10 @@
-  */
- static void pretimeout_panic(struct watchdog_device *wdd)
- {
--	panic("watchdog pretimeout event\n");
-+	if (in_nmi())
-+		nmi_panic(get_irq_regs(), "watchdog pretimeout event\n");
-+	else
-+		panic("watchdog pretimeout event\n");
+ static void __iomem *wdt_addr(struct qcom_wdt *wdt, enum wdt_reg reg)
+@@ -74,6 +75,14 @@ static irqreturn_t qcom_wdt_isr(int irq, void *arg)
+ 	return IRQ_HANDLED;
  }
  
- static struct watchdog_governor watchdog_gov_panic = {
++static void qcom_wdt_free_nmi(void *arg)
++{
++	struct qcom_wdt *wdt = arg;
++
++	disable_nmi(wdt->irq);
++	free_nmi(wdt->irq, &wdt->wdd);
++}
++
+ static int qcom_wdt_start(struct watchdog_device *wdd)
+ {
+ 	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
+@@ -311,10 +320,23 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		if (irq < 0 && irq != -ENXIO)
+ 			return irq;
+ 		if (irq > 0) {
+-			ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
+-					       "wdt_bark", &wdt->wdd);
+-			if (ret)
+-				return ret;
++			wdt->irq = irq;
++
++			ret = request_nmi(irq, qcom_wdt_isr, IRQF_NO_AUTOEN,
++					  "wdt_bark", &wdt->wdd);
++			if (ret) {
++				/* Fallback to normal interrupt if NMI not supported */
++				ret = devm_request_irq(dev, irq, qcom_wdt_isr, 0,
++						       "wdt_bark", &wdt->wdd);
++				if (ret)
++					return ret;
++			} else {
++				enable_nmi(irq);
++				ret = devm_add_action_or_reset(dev, qcom_wdt_free_nmi,
++							       wdt);
++				if (ret)
++					return ret;
++			}
+ 
+ 			wdt->wdd.info = &qcom_wdt_pt_info;
+ 			wdt->wdd.pretimeout = 1;
 -- 
 2.56.0.611.g1030f0b940-goog
 
