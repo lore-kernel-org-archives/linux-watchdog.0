@@ -1,74 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.200
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794453400;
-	b=SlbRzCfyBKys/lNI4+wL/lc1v+L3obObiK02tLCBMv9HL+hokfvi1WfLhmPzESM6BfYP
-	 /CytG3owaL+eBWbOdNRjpZtOVDYcN6ZzrqFaAxm6RT2BlrjiM7n2bt3AEU57kF1N91j21
-	 7OE95UiiwzTqY4FkBGkFzMAbenbYfymx8eFJYMCpf+q4IC0dlltyf3oHyk3Z6n0VqZOVc
-	 ko4IIcaUaGWlyRhLMPCjfnR0U+REhC12eO1g9lo0dqR6iyXowYW9We8mn0kSYUW1riQuk
-	 20lImWBw5goQKwcRXFp0JaZpp5SJgir5gJHIzhEEVsalkE4WdK+HrTmItPA5tRnATGA==
+	t=1794453403;
+	b=U912oH2ifG+N5CDvYVDHZ04r1eGjZpqEWPEI1qHEYj5E0IhDjd5W1Vrg4r5PCH5FqTFd
+	 71MwMMf2DMVOCtNLWAvsXXzo91tvDq3BfbJo4+1nRTle2yOzOBinHr8vsgC1Zpa4PmXxk
+	 12emgFRan7Ya+aPJRYggWiCMmOp7G3Yz/QUUrwIdzZZ+QqcD5441l4p/vjMpWxZDh55yK
+	 L5zd7Yj0OPmI7K99b1hpxIawdtaGTQ3vKyJEQ/xFIuD5tonLba4ae/dbKnnkqQkwF+IG5
+	 ueczN2TYT0Ekp/L3NhAdfXfsTRxUK527pePDb79JTOjKfaQ7kTl69xOiYbMCGCyoZCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794453400;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794453403;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
 	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
 	 Content-Type;
-	bh=tE/X1+1LRXogvMObjlwO8yeEBLS2Ilxt7hicZM4/X7Q=;
-	b=GAgFNoWyra2MoGTm98qMjvZyPzEQjAf/8CDNO7udCG6wKy+2egG0siXaPuLQYkTMLVUX
-	 BZW80nViOvu6ZG8KFC92CLdTby1yT9t2cHSufXgiuriYIsCl7T59u4qASQ+tIKSxM7xTn
-	 oTTP6BrbUk9Uf5XPi4GXzVR4+PQKQb6aHoyZVLD4TWeFVSjDFuH8BYN4AnY3OLe9zmaJ1
-	 //ZCfmonASPNuP5/JQGvh0A9PE7/AZKQgUaEZ3OOvKadqHTrtJPTSSZV2rkEE69yn+Oyh
-	 VMsUG8EbOcbsHy7/9OX6cOjf+jXpkmfBqkVPgbTF+LN8IEmRbdbUHWyLNFop6S0hWBA==
+	bh=L39CR+CBenA/NXHH1oDntch59w/4ZX+SRL912KR+wXs=;
+	b=fcN+WLu3uwpqs5jdN7t+nbsjPy3K3RyOTdFmaZOlbvZoBaDFSuBsNOKDpiEKUhA5PLhL
+	 LVps6Cz389NJPxee7SyBdWXREZJYMmCpnB8bvyWA8KDmnLmxbAT6S34XR3HkQtcl3ocaa
+	 B2QdpT+EkF8xeQg8vFtpYlhMRHEgfZWvqz2vUVYhzGJfqrMEWUhzkZ9YzhKSDpfBndyAR
+	 uUIQtReZyfQegg78E1Z/GfxlMYMhG+vaAalq/yv0lrw5xdjhwh5YviRXvfvozJUf+Yl2f
+	 X1K5wR4W2BgyALeu5DPOmqDStT4wZNJAB1tk0d0n6ySkkWN8me42sh4kdetmOHHhPRQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--mrungta.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=pH1DLdbw;
-	arc=none smtp.remote-ip=74.125.82.199
-Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="fZ+/Ydj/";
+	arc=none smtp.remote-ip=74.125.82.200
+Received: from mail-dy1-f200.google.com (mail-dy1-f200.google.com [74.125.82.200])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FBCF606A896
-	for <linux-watchdog@vger.kernel.org>; Thu, 12 Nov 2026 03:16:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5FBCF606A896
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A345F606A8B0
+	for <linux-watchdog@vger.kernel.org>; Thu, 12 Nov 2026 03:16:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A345F606A8B0
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--mrungta.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=pH1DLdbw
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-378722fd4a3so45234eec.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 11 Nov 2026 19:16:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=fZ+/Ydj/
+Received: by mail-dy1-f200.google.com with SMTP id 5a478bee46e88-36ecd5db581so789562eec.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 11 Nov 2026 19:16:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1794453399; x=1795058199; darn=vger.kernel.org;
+        d=google.com; s=20260707; t=1794453402; x=1795058202; darn=vger.kernel.org;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=tE/X1+1LRXogvMObjlwO8yeEBLS2Ilxt7hicZM4/X7Q=;
-        b=pH1DLdbw+gETk/H0CifzwIx04O/4oB3PetQ24AEjlG4FYHxlGshk2MEvYDjBx7l15u
-         b/oVUFvWtaXGvgd/MqsVgY6yM1V1OytJSfNcl10gkqdRVi3Qrh7PoNXV889BKE9gCr0F
-         Lr5k/qQ8fjGe5P1cke51Rg5Cno2fmg9LyBaAO+Wq8gqryL1kztFPgnFSaG+yzIH/fci8
-         35HkYoNESbIyeMQwFm9qDySS3heavK8/a+5t0Bn/Bp379k9c6pbzC9ISiaFwDnx0Tp4z
-         cPLI0L2iWKUo3Y7BKzB6Y6l3GsQAlkQ2CLO+UZkajnjNvpba4Sa9+9YsMRVAqKblTkDn
-         ibOg==
+        bh=L39CR+CBenA/NXHH1oDntch59w/4ZX+SRL912KR+wXs=;
+        b=fZ+/Ydj/FgLNUQ+y/kZ30Ugr5pjInyVUH7hkeCMRcK/PgDLmUsNrc9WIYQye2+B+Fa
+         Nw4V1BObffYhgl/L/FxMwyd2E/5vWBea2Hsk/R7k7LiBp4p4q7H9pyed9U8YF3Fa2BQ+
+         kOj20hfu4WQjneIsGScQ2k559KQor+5JVvleWAcPhirMs+FKW3rV1SdNYudaHLQy3DmU
+         jzT2kuaH6n0UXKqGQYHnysZnsT9rRN2Ce3q6NyS/A8ZqVMMquk/VS1uZGKRsRGlzpGkz
+         XkC0ypJhc4pzy1JHmTF94XnV5nAqT6nhOAxZUhFS+QJFgzpwK3Wjz0O5qUS2/Fw0eiVD
+         GEkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794453399; x=1795058199;
+        d=1e100.net; s=20260707; t=1794453402; x=1795058202;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=tE/X1+1LRXogvMObjlwO8yeEBLS2Ilxt7hicZM4/X7Q=;
-        b=C2FCbQcNG5XxuodUDg/6Ql3M59TZWSQiu9+GPx8HWyd6izwfsuUUp6ruN/oINslMTo
-         hhMVRjQh1lemR/pH31sumoUyIUWhlR8MNLUQh6b3WAeS0TXNO5M0956b5GzXf9F9ppsf
-         AcwjC+9l7aM1yIR1e/3RRgzUqnuUBU44XI3vcqgxsXfJ30gDh18a9nS5BJc3OfluBwqM
-         +vl638gp1s5yjQJmUe2j4+Oa4pI1jdM0xGG2d/HQfM7YFiq02zBAfMcTSAVCbLNZIIjW
-         Ujkq56ysw6klzxjh16uEoMAcxEgth6EGO7KvQCwRvp8rnlsTj4b0in3007Zyr0jO33tF
-         GP3Q==
-X-Forwarded-Encrypted: i=1; AL+hErGRRox+Bxjo8h2sqa60WyE86Ly0OegqVhdxI+4sO/ihY/iGmmJ9Mswbi0gDFYscvZk+LqxItEZ1DmdZdnomOw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+2TPkHka6n8rTg7DGVh8l+B5MDvJFfhFuWGsgsXFKRAdhLKAAC
-	JaC3xKyI2oP3zFPvr22rzkG0IVpm4BnWnnuhX/04ig5lb29+GDiu3gdONk5o/ZAtQMO2J/uhL+2
-	zOH8WiS58XQ==
-X-Received: from dyay16.prod.google.com ([2002:a05:693c:62d0:b0:36a:117:523b])
- (user=mrungta job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:8219:b0:36a:1008:5815
- with SMTP id 5a478bee46e88-3768385dee6mr5336168eec.5.1794453399190; Wed, 11
- Nov 2026 19:16:39 -0800 (PST)
-Date: Wed, 11 Nov 2026 19:16:25 -0800
+        bh=L39CR+CBenA/NXHH1oDntch59w/4ZX+SRL912KR+wXs=;
+        b=tyHdlrBkDivd7Jj/TfR5bFn4cnA+m1mx1AEQ7O5xOJnqZ3ujnFb+BNjAdUWHStRru/
+         kr88Wgy2SWUWOpgYIGeKl6BWqVI7rsdFHs2cpRHrRWYP2CEov6yoUQPrjrRnRZ86Axsm
+         S4VG7p0RhDM/zwJgdXgKPkH4fvii1AvEiD+SB6ccT7fOoAxYcQf2b8OycO/HtcgZ4y7o
+         PAuox1xeDOmtf5ADZzxA1HFmpMuvpQEEXIKL3Aj/F0QNNs66mw0A8sfIAAiTVlh59d5H
+         QeqNjqnKwZXP5XFBYDYxSYdhi8FOI0E33dih3SSvUskV5oBl1H0HplFA7pR8/VdCTN8u
+         n96Q==
+X-Forwarded-Encrypted: i=1; AL+hErGGEnTd9iStTyHbGBbzhLJR1dyAZLX3qi9XKZtthXrR5CBO8VLLfk+iz9ua4kdIo1W229e0aFluZMam7c/l2g==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/iHYgZFHtLlfwFRwy5bEG7HL3mjwfCn4bnvFzEsMwIY3qAbCxv
+	bBg7BNxDXyNi8BuMr8O1xjf/MZ5N/934UzIiZDbHxTy5B4i1S1aBhLvasyCmDeS78T25YaE0MpV
+	Q4pfXBsNyYg==
+X-Received: from dlbtz9.prod.google.com ([2002:a05:7022:eac9:b0:1b0:ab15:db1d])
+ (user=mrungta job=prod-delivery.src-stubby-dispatcher) by 2002:a05:701b:4549:20b0:1b3:aceb:b8dd
+ with SMTP id a92af1059eb24-1b3c034a955mr3990077c88.38.1794453401434; Wed, 11
+ Nov 2026 19:16:41 -0800 (PST)
+Date: Wed, 11 Nov 2026 19:16:26 -0800
 In-Reply-To: <20261112031629.396819-1-mrungta@google.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
@@ -81,8 +81,8 @@ Precedence: list
 Mime-Version: 1.0
 References: <20261112031629.396819-1-mrungta@google.com>
 X-Mailer: git-send-email 2.56.0.611.g1030f0b940-goog
-Message-ID: <20261112031629.396819-4-mrungta@google.com>
-Subject: [PATCH v4 3/7] genirq: Implement synchronous disable_nmi()
+Message-ID: <20261112031629.396819-5-mrungta@google.com>
+Subject: [PATCH v4 4/7] genirq: Export NMI APIs for qcom-wdt
 From: Mayank Rungta <mrungta@google.com>
 To: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
 	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>
@@ -92,68 +92,54 @@ Cc: Marc Zyngier <maz@kernel.org>, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com
 	Douglas Anderson <dianders@chromium.org>, Mayank Rungta <mrungta@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Currently, disable_nmi_nosync() is the only interface to disable an NMI
-line. Drivers stopping their devices need a synchronous variant that
-guarantees any running instance of the NMI handler has completed on other
-CPUs before returning.
+Currently, request_nmi(), free_nmi(), enable_nmi(), and disable_nmi() are
+restricted to built-in kernel code because they are not exported.
 
-Implement disable_nmi() by validating the descriptor, disabling the line
-via __disable_irq_nosync(), and synchronizing in-flight NMI handlers via
-__synchronize_nmi().
+Export these symbols with EXPORT_SYMBOL_FOR_MODULES() restricted to the
+qcom-wdt module so it can register and manage its pretimeout NMI when
+built as a loadable module.
 
 Signed-off-by: Mayank Rungta <mrungta@google.com>
 ---
- include/linux/interrupt.h |  1 +
- kernel/irq/manage.c       | 24 ++++++++++++++++++++++++
- 2 files changed, 25 insertions(+)
+ kernel/irq/manage.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
-index ee2dd5349697..4a220142e16c 100644
---- a/include/linux/interrupt.h
-+++ b/include/linux/interrupt.h
-@@ -245,6 +245,7 @@ DEFINE_LOCK_GUARD_1(disable_irq, int,
- 		    disable_irq(*_T->lock), enable_irq(*_T->lock))
- 
- extern void disable_nmi_nosync(unsigned int irq);
-+void disable_nmi(unsigned int irq);
- extern void disable_percpu_nmi(unsigned int irq);
- extern void enable_nmi(unsigned int irq);
- extern void enable_percpu_nmi(unsigned int irq, unsigned int type);
 diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index bd7cf91719d7..073fd3595d2c 100644
+index 073fd3595d2c..ace4d2796382 100644
 --- a/kernel/irq/manage.c
 +++ b/kernel/irq/manage.c
-@@ -829,6 +829,30 @@ void disable_nmi_nosync(unsigned int irq)
- 	disable_irq_nosync(irq);
+@@ -852,6 +852,7 @@ void disable_nmi(unsigned int irq)
+ 	if (!__disable_irq_nosync(irq))
+ 		__synchronize_nmi(desc, true);
  }
++EXPORT_SYMBOL_FOR_MODULES(disable_nmi, "qcom-wdt");
  
-+/**
-+ * disable_nmi - Disable an NMI and wait for any pending handlers
-+ * @irq:	Interrupt to disable
-+ *
-+ * Disable the selected interrupt line. Disables and enables are nested.
-+ *
-+ * The interrupt to disable must have been requested through request_nmi().
-+ * This function ensures existing instances of the NMI handler have
-+ * completed before returning.
-+ *
-+ * Cannot be called from NMI context.
-+ */
-+void disable_nmi(unsigned int irq)
-+{
-+	struct irq_desc *desc = irq_to_desc(irq);
-+
-+	if (!desc || WARN_ON(in_nmi()) || WARN_ON(!irq_is_nmi(desc)) ||
-+	    WARN_ON(irq_settings_is_per_cpu_devid(desc)))
-+		return;
-+
-+	if (!__disable_irq_nosync(irq))
-+		__synchronize_nmi(desc, true);
-+}
-+
  void __enable_irq(struct irq_desc *desc)
  {
- 	switch (desc->depth) {
+@@ -919,6 +920,7 @@ void enable_nmi(unsigned int irq)
+ {
+ 	enable_irq(irq);
+ }
++EXPORT_SYMBOL_FOR_MODULES(enable_nmi, "qcom-wdt");
+ 
+ static int set_irq_wake_real(unsigned int irq, unsigned int on)
+ {
+@@ -2189,6 +2191,7 @@ const void *free_nmi(unsigned int irq, void *dev_id)
+ 
+ 	return __cleanup_nmi(irq, desc);
+ }
++EXPORT_SYMBOL_FOR_MODULES(free_nmi, "qcom-wdt");
+ 
+ /**
+  * request_threaded_irq - allocate an interrupt line
+@@ -2455,6 +2458,7 @@ int request_nmi(unsigned int irq, irq_handler_t handler,
+ 
+ 	return retval;
+ }
++EXPORT_SYMBOL_FOR_MODULES(request_nmi, "qcom-wdt");
+ 
+ void enable_percpu_irq(unsigned int irq, unsigned int type)
+ {
 -- 
 2.56.0.611.g1030f0b940-goog
 
