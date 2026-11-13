@@ -1,88 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794596872;
-	b=EyYjudM/A1ykEO54xadauKoItX6e6ohzaU0CK31i7DYfYiKK7Y0egKFC1diLpOcNRdyF
-	 rd4FnqMxoZdwNWObUNPu/17Fa+r3I0JQXVGFJdeVl2S/ly3F4/CYmCFZ53gcGqfIg2/iE
-	 Ys6VJ7N5CllpX1eHR3L57Lib7XAmhmn8StrGQKYkajrMSiQEbN/U5dJxP4L5lL+udNR7p
-	 J6co3KppKbDZwCe7s0p4FglF8n57YC1fZPiF6gz/whNUOw4cfSbIQNR5I5Ytdm3DW64ie
-	 POFoNuKrR6HhDVXx7JpwwGDzGGG9Y14pZUCY+O6ElRPOieuw6vw8jINFp8taXM2Q0ug==
+	t=1794596875;
+	b=x6SAR4av3UC12wzqFHXCxaTFnRCHR7+S4Ii+bRbZYXbA/892Z3gH41XZBkjWeZByn8qc
+	 wUFYUXn4phz1AFdZDg5u/c9/snuu1RiTnSnEhwmfCY/oX2xmfIXCsi31abG68k5m8wyNT
+	 r084oUP+bDa2GJSuNR4hmchO86bWHmfwpBNLL2tMt0kKPfPgOp5u7qLj2a2PMbr3MEbqc
+	 dTxE+aGNc0vnygBIfb9dR0Gm0ZtFJY1VB6nCeeMgLOJz7pz0P6/z3hYtrrUsfm2+6kUEe
+	 Ele378E6PSxwFYMSL0OrDv7iRVXjOZZQfoX/spLeGr92m8RlwDZPmom3oyheWWI5X3A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794596872;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794596875;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=498bVPav8qEVV2GYaYtJAWa131hP7OjDlibTUA65Q0o=;
-	b=CDgEZxRDxoxnNd8NiCDEPaJo0toW9Ipv9dA3Xez0a5Zre58+B3KcWj2zi2/74m6r/91e
-	 l8vRCF3GfF4Lwz39TjXgV+6TJzKx7N++Df9i3qj40MNc1JQ7NFDqKeffFbQRboTFg8ot+
-	 dwW6B7z8CaC+bkUqrg48p+PCZuQUEoK5/ciTB3DNYn8UpG2Uaq9WGtyVQ5DWZQYxfcKvR
-	 h8VhqlRJJRzpY1ZBICZaE4YA1+BmOiaV+EXnIiwcquLvf/JIJGqYgsbg7/x6g1MzI2gpr
-	 QfXDpHDSqJ5wSi4suMAXoQgEcVMTD+34eSdSEdZ9zuafbOn1dK9cQzskdO74qnrjhrA==
+	bh=vksi6xdBiN572U8/PprSF6T1ZcI65MaLXrT+W5UPb/M=;
+	b=0iNfIiAoYNxEDjyArNEVsfiR3yHZLAuS1RB8BwWgE/KqECx7aQUl/BgKcGmpT+63rZnV
+	 UlcM5q4Zit86BQhfr/zrlqDUpKLlUhGISNoPBWTpelspJFwmDgXEpQt23c5gCIDedQ3Ge
+	 HBOmhW4EwcWA5Ow8fbrJwVDopYjzVKvjq12Ign+Xu5E1mmWy9AWFtxjkzrOWa7ZgFg77v
+	 811pONTy0TnWuk/7r2fdMiU404rl1FoQi1OnUYHW1Hkx7raI6LHKQjvX5uNPecMgpfVIt
+	 qexCn93dhR1VsQWvoSyqbTEEJ2E9zdQ9tXxJXPRUgPwFsb7SUxRSy3RGhixiotAVkkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HePccj35;
-	arc=none smtp.remote-ip=209.85.218.50
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bFjkGDON;
+	arc=none smtp.remote-ip=209.85.218.51
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6E4060A2619
-	for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 19:07:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6E4060A2619
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB22660A261B
+	for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 19:07:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB22660A261B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HePccj35
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c50abd5b4fcso65174866b.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 11:07:51 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bFjkGDON
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c5067a2411bso255022166b.2
+        for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 11:07:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794596870; x=1795201670; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794596873; x=1795201673; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=498bVPav8qEVV2GYaYtJAWa131hP7OjDlibTUA65Q0o=;
-        b=HePccj35FvhTjvXwtdVBJgEGNVeh2KrOUDPZqigubVdBbr/KLsuRN5y64YNXHBWId4
-         m5z0PK1xgJg2mvVjc5PNTWLFyq96goUIFhvhIPhZLDaMHVwkfH1EPNEemnp6vzvRPKLg
-         Yuy1HRPofIJAEzZc6kSFJD1IKjUzSort9TdQEdO9ff62aiFdDCjMk7tpoNy2qzHJ8s96
-         YMdgBD2K4ZYcf0zITt9tCnTJE3UbVZJCXEo3J7dmh0cYnycfUhsDbPWzieA+Tru3tD+O
-         CE6bH2un439G7EPfZMZmwydwevOgw046xvR0kNIjHzWfD+tp7t1hWAKcpujb0Shia4NI
-         mV9g==
+        bh=vksi6xdBiN572U8/PprSF6T1ZcI65MaLXrT+W5UPb/M=;
+        b=bFjkGDONSYnmUt0iBBDN+sBDopI7ikDsKpWVytszNlJgTae66dMDCiRZOAt5mLIY+s
+         q1LywO7q27xilrn7scZ4dSAsbplZ1ghm5uDWf5LME2ful/5VEle53jfHvSJBkhpAjd3p
+         O+9nm8RHUCbu6LNeCr8PQpqG9uY8s9AZpF+U4RMTeZsdd8Aov0vSFzmueef7+1xwzMpN
+         6Q1jCE+2tveXveOZTjlik8Y4wllQipC/oRz/uHHKlYJH44dACS1fR3Hp1oUj628Pt94t
+         uRP/PJpDgm9b6n4MM6qAaeWG3cE/6uJDdbnyGzFix+pPxfnA7fCUeAz+2RvCNZu8cGtk
+         Yexw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794596870; x=1795201670;
+        d=1e100.net; s=20260707; t=1794596873; x=1795201673;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=498bVPav8qEVV2GYaYtJAWa131hP7OjDlibTUA65Q0o=;
-        b=1Bj4cLqqIRs+nWofE0OPuWdVO7my/K4FysPW0AwlIbtxHME/7ETH10yVnn+C5tHYBF
-         RwdjKFm1LL5zWO3EL55h6JRKGd9x8qg5BR1+cKurps+PUPkydGXHKMzI7kd3upMJdPna
-         d9CMbK2wLAe4qTXLJQfMgU/cCHgNhFj+nynoZHfP0VabUY9qKlLJxAd0ALRmnEKBVWWx
-         hO8iNxWTmCR1YYfgc+fw25/PbL2BLSKZwgt9etRVJO0xZUolcM0WMw8T9n9W3Wagq/bB
-         IRHS50VQWXGbjcK6Ap94zyEwsZ+Yki8U3LQjZdeuw5LguHuO/v2/A8Z4gYO6jerg9hEQ
-         2oLw==
-X-Forwarded-Encrypted: i=1; AL+hErGGUsFpm4gfRnx9W92CrhlH9W/JtjChsEwcRrcfxANsp5hzF7MAFOiJdzzpwsEJjpSuZtBteeEq1FIf1dfg/Q==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/jbdsB87mDV4j3tPUnwuReFKFPouaju1IWScxxyBY8OYGU1wSK
-	WrMHB96F0N4PSGHxUZn3Zx/SMwal4D/m5TBSRk64jvko9S4qLr06j6GR2QTxurj9X3gfeQ==
-X-Gm-Gg: AYBFou3gnG8Qw6P5ja0rUqtTH7qNPnotVe1W3i6FkR6I35wKx2vfq7bf4XJuBtqOxgq
-	bLct24+CfvghO2cBrbQtToLTdyGYZd4+qsKSgtN4Spn68WnoG1fEbfs1cAaoTEbdhufH5hOhYQk
-	9h5kAdn/cAKz6Hz6c+ffg5aodt3tmW91019NkhUpsotg+qLOwCGW4cISnlNfB6tI2ZCueDa4C2k
-	05lwIAbJkPhsDDp4faeHovrZ4jQ2Nc1d34FGuC0J/jhxB9k1Bs7lNlDz2ntJlxB8jIcFis1xVhT
-	Iz42BBfwHC1bJSj4m7wExcAJRM3DNb/XMoYoiT5qhRyPetdtjggPUVzN1QHmfCoNyovz2mctBI7
-	MzBD4PBOcRJOz8CANhniqUpfyuBjWwCKB9pnvPy83+sUtGYPLp/lY7z6Xu10I/FwYAKZRYDvKe4
-	0nXMA2O9xAwkOooxWFpFhhDWS9CFKgAjOC/JC7L7/Cka6eBsRyMiIddo9+JSY0lBWucXixhKLbO
-	DB5I8+QCeNAmxvqWjtw7WOI9qRFVZ4zC+8Ff098SGW/9g6MD596pcB03Z5+OkfJXZRMcuZv3x2u
-	Fc51MG6OSurvYYQt4IS0hQylkVEiZuevccCTFoyWlaex1FEIOTM32puFxLChy76q
-X-Received: by 2002:a17:907:3f02:b0:c50:5186:6dc2 with SMTP id a640c23a62f3a-c509636b5f5mr389984566b.24.1794596870123;
-        Fri, 13 Nov 2026 11:07:50 -0800 (PST)
+        bh=vksi6xdBiN572U8/PprSF6T1ZcI65MaLXrT+W5UPb/M=;
+        b=VxMrkFKUHHRm2ry9mnv5rLmEgTdiUhiBNE1KQ0WMOl4YvQlGaPKRtYdJkrEF1zXplR
+         OTESBjC12jbyEg7hZs8HDEuujJgc3XK8GXIzSxwVgx8NK91fdb97KAtDwFafkdoUp2I1
+         Oo6zeaMRzoPqx4k8FAnSsf9hSEmAVxMSYQ6h5jcVyqEcH3PdQeP29EYJJG0fn0hXfqVp
+         badUcw4mS7VoPHxRC0E1Uqw+d7ZO7FnxQf2zXjmEbsT9P9pj+7Hz/0T9wNg9IIFLGm+h
+         KZyypI9w0+JIPgH9MwaTp19lHF3s+//mzFTwGIYxEPwGG9r42x/ja5mHndKyfBwx9txT
+         IEPQ==
+X-Forwarded-Encrypted: i=1; AL+hErF9QZh5T2aRPLXkWMp6GAs0iH13GnHMGETxAS2RGYQH4A9duTXZfPvAaHuvlb1kV3CA/sDvdQMejmYYDCKeJA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+iguJFeARsy0VWtDAV5pqwUQ8pSqSPaELSeZcRBabHxd3mbHmw
+	hqOX/S/0mRR7plwRCyVypGB29rCZLt7sHL6V2e5kBw/5IWvryj/pE2aWX92ivXoyLATVKw==
+X-Gm-Gg: AYBFou0aFBXCT6UodSd945yp77C7Z/QoGWgCVPSJY6YfiEwblpAeIEWAg6KCrkw07YY
+	8w8oMrRpiA6b+ts5Y/V9bZQVQGyVCA87V37NyCReRLVed//C3+b/fJMPDhItTPrjy8v+BP4KssK
+	ygroa5KQ1ljTPm5WdwWVmXAqVtk+nzYnRDzR2OuDnMB2NQ43B5RaaMpgi7uVRyxWrWVaqaMeHKF
+	95K+0BhMTDSdd9jLeQhTuLxv+XKtnPToJosK/WN/sRNM0t739ZILSeFGEzNNvFu1Lb9c5EDPcIt
+	goKQbEi04p7JIzbODlYvVw3TFmKtErJvjaEDTsnMsUpfdrQhydvxfaDJs9mYoInctN3MLl+kHfx
+	BWWDHaUXRHpdGMa17D+nN0ystC3oVxaiea/Neh6d2wV5neRrCGNAZQm2hNBu8NrcrxFWZ+B+DNz
+	hZ1h8yegwTrvYebfQnK0ONAA1eNMm1kL39lzYyuuBdAmr3tIUPeIVrTSB8RXx6uaki7tisRkgr8
+	8ZJQuW9LTb5mxtzu+IDveVAUllvq3YHEm34X6hK4RoN/gIkp2Z+njJyr/nrlBDl4V1P1JoFYMHW
+	3i/giNqTtHPSQqvmXQI84sBDkpBzG/s632+OaQBN6y4AGYmEMkuBfWU3M+y6uOxE/g==
+X-Received: by 2002:a17:906:9fcd:b0:c50:9149:48e4 with SMTP id a640c23a62f3a-c50963db437mr297220766b.11.1794596872956;
+        Fri, 13 Nov 2026 11:07:52 -0800 (PST)
 Received: from [192.168.1.100] ([163.245.50.16])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5095b23b09sm129444166b.26.2026.11.13.11.07.47
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5095b23b09sm129444166b.26.2026.11.13.11.07.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 11:07:49 -0800 (PST)
+        Fri, 13 Nov 2026 11:07:52 -0800 (PST)
 From: Alexander Letuchiy <asalde.le1@gmail.com>
-Date: Fri, 13 Nov 2026 22:04:59 +0300
-Subject: [PATCH v2 3/9] dt-bindings: watchdog: mediatek,mtk-wdt: Add
- compatible for MT6895
+Date: Fri, 13 Nov 2026 22:05:00 +0300
+Subject: [PATCH v2 4/9] watchdog: mediatek: Add support for MT6895
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -94,7 +93,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261113-initial-mt6895-v2-3-4ab0aa9fa391@gmail.com>
+Message-Id: <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
 References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
 In-Reply-To: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -119,28 +118,30 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Alexander Letuchiy <asalde.le1@gmail.com>
 X-Mailer: b4 0.15.2
 
-Add a compatible string for the watchdog of the MediaTek MT6895
-(Dimensity 8000/8100) SoC. It does not fall back to mediatek,mt6589-wdt,
-which implies the MT6589 TOPRGU reset layout, as the MT6895 one is not
-known yet.
+Add the compatible for the watchdog of the MediaTek MT6895 (Dimensity
+8000/8100) SoC. Its watchdog registers are the same as on the other
+supported SoCs.
+
+The TOPRGU reset layout of MT6895 is not known yet, so the entry has no
+match data and no reset controller is registered.
 
 Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
 ---
- Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
+ drivers/watchdog/mtk_wdt.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-index 8e8991ac95ea..d0a73b9c81d6 100644
---- a/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml
-@@ -24,6 +24,7 @@ properties:
-           - mediatek,mt6589-wdt
-           - mediatek,mt6735-wdt
-           - mediatek,mt6795-wdt
-+          - mediatek,mt6895-wdt
-           - mediatek,mt7986-wdt
-           - mediatek,mt7988-wdt
-           - mediatek,mt8163-wdt
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index a210fe1569e4..d8755979021b 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -607,6 +607,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
+ 	{ .compatible = "mediatek,mt6589-wdt", .data = &mt6589_data },
+ 	{ .compatible = "mediatek,mt6735-wdt", .data = &mt6735_data },
+ 	{ .compatible = "mediatek,mt6795-wdt", .data = &mt6795_data },
++	{ .compatible = "mediatek,mt6895-wdt" },
+ 	{ .compatible = "mediatek,mt7629-wdt", .data = &mt7629_data },
+ 	{ .compatible = "mediatek,mt7986-wdt", .data = &mt7986_data },
+ 	{ .compatible = "mediatek,mt7988-wdt", .data = &mt7988_data },
 
 -- 
 2.56.0
