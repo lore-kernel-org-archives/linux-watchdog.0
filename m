@@ -1,70 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.127.231.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794567109;
-	b=1jRYCP/404DcwcPFO5t4BqPUQOM2tt1+hlmSdF5Wdotqml0YnA5FDBcgY+fqWvJ767e2
-	 0WpHginqpV1oo3crdq/VJm6yu0l+3wrqZgDDg7q5CS2uuySlE89ZfqLdhBvH/cdKJ5w3A
-	 ljbWLrxC/dxzkIwekMKUmcU4H7i2JuWtnwvZ6fS3nBX4aeL3LqP59B16v7bpJw/kvoPFX
-	 /mFacTzp6ocFYj0Di9sDbPzeTzlERLEWwO0eiXX0jTHZwIJsNBwO+9Ko78BguhgLpsLmx
-	 7Kb6TSmgcjJrtnVj4VszgFM6JG/OZRr0yECDAvr0ag+oTJE+iMOSSS1XVDXslJardyQ==
+	t=1794567712;
+	b=gCWKdBpYIHyJJIpyPxuAViLfjBdQMOLYvPYw4M8o1ULceWhZabIhNB+lMgpWDrF9n9Hw
+	 HRguQHMBmxNU+q/Qloueiw33Mz11VPOZIIke2SWXLJUnU8QJNWgX6G5ywPpqukN6yFOlp
+	 PPQcGyjhGbIdT92POfSetHWHivEVtCtBnQUsl9xSXf3hxYIqjAJvCnFOYE+ubn/wpmAYR
+	 BQcc335z9qk3O4QT6juCchKbN6zQqA/hs6MxHbJEJKUR7sEdYwxanlqk28i/BRVdDbkPP
+	 HCY9uZNYWuqZiypgp19KHMwiBPD3AlDqsLVkAt0ikYNL2ykqHt8Ey3zSPEqEABcVxJg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794567109;
-	h=DMARC-Filter:DKIM-Signature:From:References:X-Original-From:Subject:
-	 Received:Content-Type:X-Mailer:Cc:Date:X-Lms-Return-Path:To:
-	 Message-Id:Mime-Version:In-Reply-To:Content-Transfer-Encoding;
-	bh=Hx9ycWhbTIn7Xgvg5k3iHKhms/avTNC2TMXeb54Q1lE=;
-	b=jWLRoapB+gkSjo3EjXTa7Yqn4pqykOf13S94ELiy/w/eZCK0wybOijMiJFW3TJ37NPch
-	 XO9DTtt3/au0oWXhmiMN28+BgggpiRVPAiyI3VfltundS76DX2o3NIDmiphAiEW1kY5iv
-	 dX9WNzoucK2bzMwTrYbRjqqmZ8swLho4f1Ya+0UwI/3G71s4QJU00ruRbTkhN42aNgbrj
-	 rnZUjimQvQJv9mbOo1wsHPDKcc+/oDGWlF6f3x2sH43zmsyyV0MxbPKgr26dmNIONKpji
-	 o/5knkFdGWcrs/JVcTgl9Cr0Ewo5iCYq3VF5d9+IwvCS4eAXevGLKhCSj9xYycBn9kQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794567712;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=gnfOWe7URm2R5IEmtcBKYwyWsMV7pkHa5vNwqA64Uu0=;
+	b=HPr6OhHM3sAq6ptrsm+mx/aDie0GVzpblJPHcyshtdsLwU64fNyjz/Bx8N0b6tFfOhJM
+	 2xF4ow/F7ZLWfwx99Ga3m6530eSXNd8yMuGi/7cKAGXn9WvT0bQwnRkYirougadzB0uX/
+	 Vadzq+e16eqhKQvnVga03Nj5ivE+l3Fb8FxhLBVlC2UghQt4Frrlkk2FLRKsGiOyjSo4G
+	 Eusi5MvFGyxVpJ4SzmKaljWfKkyn+PI7/td9OLTm2dyQxYVYu9q3yEzQtD948xqX4E93P
+	 XAAuj/UHJkFpMtlhoClIEJ587Mes2gTl3+kyXS51Lya6CAtE2o2N9VmTHdxSXul8FyQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.cipunited.com;
-	spf=pass smtp.mailfrom=oss.cipunited.com;
-	dkim=pass header.d=oss.cipunited.com header.i=@oss.cipunited.com header.a=rsa-sha256 header.s=feishu2303200042 header.b=fz6tH35p;
-	arc=none smtp.remote-ip=209.127.231.42
-Received: from va-2-42.ptr.blmpb.com (va-2-42.ptr.blmpb.com [209.127.231.42])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PETZx7ib;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 011B9606A8AF
-	for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 10:51:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 011B9606A8AF
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.cipunited.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.cipunited.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E4EB606A88F;
+	Fri, 13 Nov 2026 11:01:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oss.cipunited.com header.i=@oss.cipunited.com header.a=rsa-sha256 header.s=feishu2303200042 header.b=fz6tH35p
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2303200042; d=oss.cipunited.com; t=1794567100;
-  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
- reply-to:content-type:mime-version:in-reply-to:message-id;
- bh=Hx9ycWhbTIn7Xgvg5k3iHKhms/avTNC2TMXeb54Q1lE=;
- b=fz6tH35p4tNODfd3M7iYeRBi/bgqpbBclrsBV+hB/ngAH1JGgE3sbdwqDtYEB0GSfw0IRW
- JndzIPzaEyrN8S8OHiZdUlpf0QfhmFvkNCAUvhRUl7T8Vk0gOX6PPxj/gpqioIWB0zDvWU
- okE97fwjNgFceDgV4nV1qGXOuOW8LXJ2/GCoJAVur/7D4+biYRx/ylYdf4O23ysSdwStMc
- +MQiG4/FG6YqJmbiSIzqbtdF1gg4PrmQ6c26H3i6GP2w++MFfEu8jmGGTD4hRrtPA8LHzg
- IkEvDWblCkR1yC7kuVh+Plwkx5B4ylsWhTO9SBN4aID/MgVU88t1oLaIzkAXQQ==
-From: "Rong Zhang" <rongrong@oss.cipunited.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PETZx7ib
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B3251F000C4;
+	Fri, 13 Nov 2026 11:01:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794567712;
+	bh=gnfOWe7URm2R5IEmtcBKYwyWsMV7pkHa5vNwqA64Uu0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PETZx7ibkk9+XutdCS4JCUOUeliH2Y0UwsGLIVmAjcazlKfHYspzRdh+QY4S3eAMc
+	 w1VQXYA6b65aZHGKkDHL1hYLddM920ZD53tPRefBdMkSBJ25EhxmKmCNhUjA7MxFej
+	 WyifhRd8JVN2ayyK+MfKE3xHtv7mC3MbyH6RJzBcjDI73CuX+igU++l1TIagl7ydIF
+	 ZL263VmuraXzDt37VJebss4hUZ+8HA8nk8oxrI3FSkYPV1ttYv63sBGMQyRfQSCjTG
+	 x6NxUYQDw3q+hXR+/730vE/mBeT2Tu78GOyoS2uZ8v7nwlA+VSwzA/yn3tZO/VJQYu
+	 0AxWVxIkbUzjg==
+Message-ID: <sashiko-outbox-212658@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 3/8] MIPS: Loongson64: dts: ls7a-pch: Add missing
+ #address-cells to interrupt controllers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rong Zhang" <rongrong@oss.cipunited.com>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20261113-mips-ls7a-wdt-v2-3-e8abd6b2f77c@oss.cipunited.com>
 References: <20261113-mips-ls7a-wdt-v2-0-e8abd6b2f77c@oss.cipunited.com>
-X-Original-From: Rong Zhang <rongrong@oss.cipunited.com>
-Subject: [PATCH v2 8/8] MIPS: loongson3_defconfig: Enable LOONGSON1_WDT by default
-Received: from [127.0.1.1] ([171.15.157.139]) by smtp.feishu.cn with ESMTPS; Fri, 13 Nov 2026 18:51:35 +0800
-Content-Type: text/plain; charset=UTF-8
-X-Mailer: b4 0.17-dev-ce4c1
-Cc: "Rong Zhang" <i@rong.moe>, "Yao Zi" <me@ziyao.cc>, 
-	"Icenowy Zheng" <uwu@icenowy.me>, 
-	"Jiaxun Yang" <jiaxun.yang@flygoat.com>, <linux-mips@vger.kernel.org>, 
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, 
-	"Rong Zhang" <rongrong@oss.cipunited.com>
-Date: Fri, 13 Nov 2026 18:51:15 +0800
-X-Lms-Return-Path: <lba+26af6ebba+4e4860+vger.kernel.org+rongrong@oss.cipunited.com>
-To: "Keguang Zhang" <keguang.zhang@gmail.com>, 
-	"Wim Van Sebroeck" <wim@linux-watchdog.org>, 
-	"Guenter Roeck" <linux@roeck-us.net>, "Rob Herring" <robh@kernel.org>, 
-	"Krzysztof Kozlowski" <krzk+dt@kernel.org>, 
-	"Conor Dooley" <conor+dt@kernel.org>, 
-	"Thomas Bogendoerfer" <tsbogend@alpha.franken.de>
-Message-Id: <20261113-mips-ls7a-wdt-v2-8-e8abd6b2f77c@oss.cipunited.com>
+ <20261113-mips-ls7a-wdt-v2-3-e8abd6b2f77c@oss.cipunited.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 13 Nov 2026 11:01:51 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -73,156 +60,47 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-In-Reply-To: <20261113-mips-ls7a-wdt-v2-0-e8abd6b2f77c@oss.cipunited.com>
-Content-Transfer-Encoding: 7bit
 
-The Loongson-7A has a watchdog compatible with the one on Loongson
-2K0300. With the relevant node added to ls7a-pch.dtsi, enable
-LOONGSON1_WDT in defconfig to make it work by default.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] MIPS: dts: loongson: invalid #address-cells on ls7a-lpc node
+--
 
-This basically mirrors commit 5e73ad3ffceb ("MIPS: Loongson1: Add
-watchdog support for Loongson1 board") except that the driver is built
-as a module, since some LOONGSON64 platforms are not LS7A-based.
+commit b3cb4b22fb7d7fa764f95bec26fd2bfb7137915e
+Author: Rong Zhang <rongrong@oss.cipunited.com>
 
-The defconfig file is outdated, so this also refreshes it with
-savedefconfig.
+MIPS: Loongson64: dts: ls7a-pch: Add missing #address-cells to interrupt co=
+ntrollers
 
-Tested on Loongson-LS3A4000-7A1000-NUC-SE and Lenovo KaiTian M530Z.
+This commit adds #address-cells =3D <0> properties to the pic and lpc
+interrupt-controller nodes in ls7a-pch.dtsi.
 
-Signed-off-by: Rong Zhang <rongrong@oss.cipunited.com>
----
- arch/mips/configs/loongson3_defconfig | 54 ++++++-----------------------------
- 1 file changed, 9 insertions(+), 45 deletions(-)
+> diff --git a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi b/arch/mips/boot/d=
+ts/loongson/ls7a-pch.dtsi
+> index f304f99946f16..28038b8cdd146 100644
+> --- a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
+> +++ b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
 
-diff --git a/arch/mips/configs/loongson3_defconfig b/arch/mips/configs/loongson3_defconfig
-index 12cb1a6a1360..00c591f21938 100644
---- a/arch/mips/configs/loongson3_defconfig
-+++ b/arch/mips/configs/loongson3_defconfig
-@@ -66,7 +66,6 @@ CONFIG_NF_CONNTRACK_SNMP=m
- CONFIG_NF_TABLES=m
- CONFIG_NFT_CT=m
- CONFIG_NFT_NAT=m
--CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
- CONFIG_NETFILTER_XT_TARGET_CLASSIFY=m
- CONFIG_NETFILTER_XT_TARGET_MARK=m
- CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
-@@ -91,33 +90,11 @@ CONFIG_NF_TABLES_ARP=y
- CONFIG_IP_NF_IPTABLES=m
- CONFIG_IP_NF_MATCH_AH=m
- CONFIG_IP_NF_MATCH_ECN=m
--CONFIG_IP_NF_MATCH_RPFILTER=m
- CONFIG_IP_NF_MATCH_TTL=m
--CONFIG_IP_NF_FILTER=m
--CONFIG_IP_NF_TARGET_REJECT=m
--CONFIG_IP_NF_NAT=m
--CONFIG_IP_NF_TARGET_MASQUERADE=m
--CONFIG_IP_NF_MANGLE=m
--CONFIG_IP_NF_TARGET_ECN=m
--CONFIG_IP_NF_TARGET_TTL=m
--CONFIG_IP_NF_RAW=m
--CONFIG_IP_NF_SECURITY=m
--CONFIG_IP_NF_ARPFILTER=m
--CONFIG_IP_NF_ARP_MANGLE=m
- CONFIG_NF_TABLES_IPV6=y
- CONFIG_IP6_NF_IPTABLES=m
--CONFIG_IP6_NF_MATCH_RPFILTER=m
--CONFIG_IP6_NF_FILTER=m
--CONFIG_IP6_NF_TARGET_REJECT=m
--CONFIG_IP6_NF_MANGLE=m
--CONFIG_IP6_NF_RAW=m
--CONFIG_IP6_NF_SECURITY=m
--CONFIG_IP6_NF_NAT=m
--CONFIG_IP6_NF_TARGET_MASQUERADE=m
- CONFIG_NF_TABLES_BRIDGE=m
- CONFIG_BRIDGE_NF_EBTABLES=m
--CONFIG_BRIDGE_EBT_T_FILTER=m
--CONFIG_BRIDGE_EBT_T_NAT=m
- CONFIG_IP_SCTP=m
- CONFIG_L2TP=m
- CONFIG_BRIDGE=m
-@@ -189,7 +166,6 @@ CONFIG_VIRTIO_NET=m
- # CONFIG_NET_VENDOR_ATHEROS is not set
- # CONFIG_NET_VENDOR_BROADCOM is not set
- # CONFIG_NET_VENDOR_CHELSIO is not set
--# CONFIG_NET_VENDOR_CIRRUS is not set
- # CONFIG_NET_VENDOR_CISCO is not set
- # CONFIG_NET_VENDOR_DEC is not set
- # CONFIG_NET_VENDOR_DLINK is not set
-@@ -250,9 +226,9 @@ CONFIG_SERIAL_8250=y
- CONFIG_SERIAL_8250_CONSOLE=y
- CONFIG_SERIAL_8250_NR_UARTS=16
- CONFIG_SERIAL_8250_EXTENDED=y
--CONFIG_SERIAL_8250_MANY_PORTS=y
- CONFIG_SERIAL_8250_SHARE_IRQ=y
- CONFIG_SERIAL_8250_RSA=y
-+CONFIG_SERIAL_8250_MANY_PORTS=y
- CONFIG_SERIAL_OF_PLATFORM=y
- CONFIG_SERIAL_NONSTANDARD=y
- CONFIG_VIRTIO_CONSOLE=y
-@@ -263,11 +239,14 @@ CONFIG_GPIO_LOONGSON=y
- CONFIG_SENSORS_LM75=m
- CONFIG_SENSORS_LM93=m
- CONFIG_SENSORS_W83627HF=m
-+CONFIG_WATCHDOG=y
-+CONFIG_WATCHDOG_NOWAYOUT=y
-+CONFIG_WATCHDOG_SYSFS=y
-+CONFIG_LOONGSON1_WDT=m
- CONFIG_MEDIA_SUPPORT=m
- CONFIG_MEDIA_USB_SUPPORT=y
- CONFIG_USB_VIDEO_CLASS=m
- CONFIG_DRM=y
--CONFIG_DRM_RADEON=m
- CONFIG_DRM_AMDGPU=m
- CONFIG_DRM_AMDGPU_SI=y
- CONFIG_DRM_AMDGPU_CIK=y
-@@ -276,6 +255,7 @@ CONFIG_DRM_AMD_ACP=y
- CONFIG_DRM_AMD_DC_SI=y
- CONFIG_DRM_AST=m
- CONFIG_DRM_QXL=y
-+CONFIG_DRM_RADEON=m
- CONFIG_DRM_VIRTIO_GPU=y
- CONFIG_FB=y
- CONFIG_FB_RADEON=y
-@@ -288,27 +268,12 @@ CONFIG_SND=m
- CONFIG_SND_SEQUENCER=m
- CONFIG_SND_SEQ_DUMMY=m
- # CONFIG_SND_ISA is not set
--CONFIG_SND_HDA_INTEL=m
- CONFIG_SND_HDA_PATCH_LOADER=y
--CONFIG_SND_HDA_CODEC_REALTEK=m
--CONFIG_SND_HDA_CODEC_REALTEK_LIB=m
--CONFIG_SND_HDA_CODEC_ALC260=m
--CONFIG_SND_HDA_CODEC_ALC262=m
--CONFIG_SND_HDA_CODEC_ALC268=m
--CONFIG_SND_HDA_CODEC_ALC269=m
--CONFIG_SND_HDA_CODEC_ALC662=m
--CONFIG_SND_HDA_CODEC_ALC680=m
--CONFIG_SND_HDA_CODEC_ALC861=m
--CONFIG_SND_HDA_CODEC_ALC861VD=m
--CONFIG_SND_HDA_CODEC_ALC880=m
--CONFIG_SND_HDA_CODEC_ALC882=m
-+CONFIG_SND_HDA_INTEL=m
- CONFIG_SND_HDA_CODEC_SIGMATEL=m
--CONFIG_SND_HDA_CODEC_HDMI=m
--CONFIG_SND_HDA_CODEC_HDMI_GENERIC=m
--CONFIG_SND_HDA_CODEC_HDMI_INTEL=m
--CONFIG_SND_HDA_CODEC_HDMI_ATI=m
--CONFIG_SND_HDA_CODEC_HDMI_NVIDIA=m
- CONFIG_SND_HDA_CODEC_CONEXANT=m
-+CONFIG_SND_HDA_CODEC_REALTEK=m
-+CONFIG_SND_HDA_CODEC_HDMI=m
- # CONFIG_SND_USB is not set
- CONFIG_HIDRAW=y
- CONFIG_HID_A4TECH=m
-@@ -406,7 +371,6 @@ CONFIG_PRINTK_TIME=y
- CONFIG_STRIP_ASM_SYMS=y
- CONFIG_MAGIC_SYSRQ=y
- CONFIG_DEBUG_FS=y
--# CONFIG_SCHED_DEBUG is not set
- CONFIG_FUNCTION_TRACER=y
- CONFIG_FTRACE_SYSCALLS=y
- CONFIG_CMDLINE_BOOL=y
+[ ... ]
 
--- 
-2.55.0
+> @@ -26,6 +27,7 @@ lpc: interrupt-controller@10002000 {
+>  			interrupt-parent =3D <&pic>;
+>  			interrupts =3D <19 IRQ_TYPE_LEVEL_HIGH>;
+>  			#interrupt-cells =3D <2>;
+> +			#address-cells =3D <0>;
+>  		};
+> =20
+>  		ls7a_uart0: serial@10080000 {
+
+[Severity: Low]
+Does adding #address-cells to the lpc node break dtbs_check schema
+validation?
+
+Documentation/devicetree/bindings/interrupt-controller/loongson,pch-lpc.yaml
+sets additionalProperties: false and does not define #address-cells.
+Unlike pic, lpc is not referenced by any interrupt-map property, so dtc's
+check_interrupt_map() does not warn about it.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-mips-ls7a-=
+wdt-v2-0-e8abd6b2f77c@oss.cipunited.com?part=3D3
