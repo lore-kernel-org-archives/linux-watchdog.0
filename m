@@ -1,87 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794596889;
-	b=xF1PMFvj0+tiKZ7WDepj5wrDt4RXOwbBM6sMwLltsGpXNTzL8IEOSqT6TfLP3bujigPk
-	 KiF5P9eYsHdGeytYgM51J6dtYDJpU3PA8kl9QhRyhNfjCuZZAbN/5ClTq32IW85dwcRff
-	 j9dOKsv+KvCBUqnboV37cDyStQKYih4pLiLhgiiR2wTxWkT4+mUzWHMk2ec3rwTlTeTP5
-	 KSyoYmDHBIuD4FE8LJrTXqp7KigkoavfY3yKh8hnX8pEUXdyYdjkzuBIXtudaLICIw6Wx
-	 Xekxr7eFAfBlE79BNfH5YiGs/sSFGPE2GIx9eu+YGxEzcxhK65WFKpJ4j2Y99FoN2vw==
+	t=1794600449;
+	b=rwRGj1X+KSKRPk9DKYvHHNIhpM6qNP3muNY1FomgtB7AHIGrb++yzOq0y8FeIoHnvvT3
+	 CGQpgledM+c3KZXd70iGmkX3KjvZDJ4uPdtFyouRUD2leykzRAgDHNngnNmPZMPl0tzwV
+	 95HsJBq9GuHz0CeCJrJj89nUht00Rtn2tmwkKQ/RnW4/tTbYIKxiBltzM3GNrXMLWSMVE
+	 EtvvF4ZMmznPD6Uvj9Woy3bzpsHFqgtITYP64vLeI38WelIThmBLDby7GeKMqgw4dkLQE
+	 Qwbq7D9Hc8QyrSV5SVGRJB3Bd1b4hmKisuRbH+RNVn+Fgz99QMWz4LYvq/3ta2jQbzA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794596889;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer;
-	bh=gbvwDyU+Acc05Vuh8BWsHE5JqO4e+EP9kLEpKSKS7JE=;
-	b=wXLDUrkb2oTj/Xz2jGQaBc+q2LrV/EfnCxz4o5/TdFl6kT6KdmL6MSaSq/hkZabY78KC
-	 tp1+yMoNkRYw/RlqTXkT8mMXGdH18SFySGzgBfxfp+HgfFRpvdIg/hITIhTTW36DQ4UnH
-	 9JCgHArKcIVmnERDrFZMeMgJnesFGaUmOuid/7oGgm4UXbm7WkC0p+vMC17spYOME2duZ
-	 2htojL6wMWxF91XEioraJsRZLhV0btNW1W77B8FBCntdyQb3KShXhMxtNtNOKZRepSEev
-	 gEDbK1JyyZreXuUN1zrif7a3jXq/vV0ju932qa61cPPLi/SgwQf6WMJuuh3upKnYLyQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794600449;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=htTqT5qQQsfinBqGAaK56jZv9LjJpTibZcwETh7D530=;
+	b=ZSwF0S7z5ux65RknplQtvbc5V/KVOMughpLL4ueJRGziqYrjXxFv8o/o4kt6/TMNpMEv
+	 TuByqRftBXUY7YpY9R195cWgTIZkACQFRsNEnrjW4We4S2rGNR2U/kF+6Foc/NbeZKdfX
+	 BAbiTq2OZESMvzhsHg7UQuChtWZov+PofDsRYkH+uTsrETI8DJgkiMFGvhyB0NQu1yoID
+	 Dd7uxJbTpu8o1PG62+/m6exof5fLSpEhw2s6zkAWlHxtYxON3Bapl4RAXmTfRfP7hCY2V
+	 1kDOgE8Mfkep1TebcXF6Vemj7Z/JOV5/Ge4PBKwg69nXsQsTne8JbeeyUuPmzyiVgsg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=G4tedKCr;
-	arc=none smtp.remote-ip=209.85.218.53
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b="PqBD/5Tt";
+	arc=none smtp.remote-ip=35.89.44.35
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CEB360A383F
-	for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 19:08:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4CEB360A383F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83830606A333
+	for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 20:07:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 83830606A333
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=G4tedKCr
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c50a4a2132cso177909366b.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 13 Nov 2026 11:08:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794596888; x=1795201688; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=gbvwDyU+Acc05Vuh8BWsHE5JqO4e+EP9kLEpKSKS7JE=;
-        b=G4tedKCr9dTUHeL0osYHCYyb5sGhRprlJVyaCfkJKrgkZ5BdLEMGrYCpKPoiw3xGZE
-         x4wRFsryhr1u1jHmsxGRUOKaVgDvUO4AVRmCeUMx9wzbAg0704GjQ6NKSUpUYXOEo4Dr
-         OrO/R/o+d0heYsjmowV2I/rmWTmSUNqQa5XX7lVolvGkT4RCo3jKYaYjkK/TAkYRX/2v
-         877stSoQ+3S9I9peB61iNcUnGWiDacUURczzYPOiv1+pztlIgF1kc9mvqJrOIqRp52TM
-         AMxZWGQvbSW4A+weNKZq7Kj5NR4tGAj0T5HlFjLqtx35nCTxzVYBk+6lbsZ+fYOO5gkA
-         asyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794596888; x=1795201688;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=gbvwDyU+Acc05Vuh8BWsHE5JqO4e+EP9kLEpKSKS7JE=;
-        b=J6mivZAfpZurOx5+2FZwfVe2Hx5Ag+kvelXz58T5EUX1hQ2vDOELtzGivvvtcYv+Fd
-         lQzELFjcSTFjJCcztu+3eEgSwNJDBT1JYUTk1xtqJvcQUNyc2YEcAwfJIB1vgavRNsrl
-         gtZphNkA7KAXUWDgRQhCsjR4wmxkbTlRz+2A5I/K6OQRb2FKewfODrWy8BKf3YStKBja
-         Gb4fNxm/kjB5LEa+y/XNMBh7PFw7KGjo9c3cvXsIoLTJwDr7rx3iqJWOsytdCCy/0D8h
-         0rFrdvFPC2LJc6m+/qTg49oDKY1VsMkT+92BVE2aZSJBMv3GtJLx1le5k+/a29z4Xx+N
-         8efw==
-X-Forwarded-Encrypted: i=1; AL+hErG7Moxs6nX/UyPRAqY5KoBiXJU2C0AjBnWj8jh/rywas+b7E5vebwLfVPMHrfYWtjK0YMz4zkewbphBw/uhjQ==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/k0jByeg8WgSZhkLkpfItJVnu8ikRevNWW5waJ4/hUeafbI9Fx
-	bp2jTLirXUsgYa9ohwj78QjiMQ7juH29S4IdceouOlRN1OOXp9hwJrZ+21ZT3IyWIjNiqg==
-X-Gm-Gg: AYBFou0j48wWSMs/RICO312+K13nrIhHccn4PXsXUeG/YJIviWV6d3lKWB/6oNL7VAl
-	Ht5PssR3UVxFon1mPkmOj2ZnA6ntxvanVjgMdPgboye1r8F3q74ih7e8F0GEuDLc56Hm4Wld7uo
-	WFxktBdJnBMkFpp8BpIOB19KaFRMXwB6+IJEsMzS1YvmZacNigcWuUcPIZBN9fT9eeT099iv+De
-	6ZkV3/BnEYbuDGE+Qr1quew1rQx7/feoqTpjJRheaNZ1aKOlIsTeSRghlmW8MeheXYWZdUFmAwT
-	AFKkHmFDgB2CAl4EDuvL8bVUsTdzI+anaJu1q9K4dcvOwoQ4LDr1hYahZKpuoOgjl3MSrlRKeLx
-	OSj3bpYiRXKVq9j4laUwsd5Os0GnSGrIzh4FwCO1lxRbVKMjnEs5A8wejXq3VN8FRanI72iN+Fh
-	QVf7WvHgDUKTqzN9Gou2yY1Deg3YxfYHRxx4O1PEMAsfNTZbkfwXOC/y/nLlsYbX5RI9iNoAbIT
-	JIo64ilkXyoBwl46ayUTdZFJACUUvcfRonHplyyRYb6V1chXtHsTe3cvkf3M0XKUEXlaVxiTGsK
-	JLqp/lH/rSJYN5ectltuHaVJ4ECle+l4Scif5xxSygGKifAfzclAnnbOXNcjuz6v
-X-Received: by 2002:a17:907:8687:b0:c46:7645:86c with SMTP id a640c23a62f3a-c509641d1eamr287876866b.47.1794596887578;
-        Fri, 13 Nov 2026 11:08:07 -0800 (PST)
-Received: from [192.168.1.100] ([163.245.50.16])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5095b23b09sm129444166b.26.2026.11.13.11.08.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 11:08:07 -0800 (PST)
-From: Alexander Letuchiy <asalde.le1@gmail.com>
-Date: Fri, 13 Nov 2026 22:05:05 +0300
-Subject: [PATCH v2 9/9] arm64: dts: mediatek: Add Xiaomi Poco X4 GT
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=PqBD/5Tt
+Received: from eig-obgw-5003b.ext.cloudfilter.net ([10.0.29.155])
+	by cmsmtp with ESMTPS
+	id RcrOx7mY7RiNxRxYPx738c; Fri, 13 Nov 2026 20:07:22 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id RxYPxPsDjSgq1RxYPxx9KI; Fri, 13 Nov 2026 20:07:21 +0000
+X-Authority-Analysis: v=2.4 cv=c8KrQQ9l c=1 sm=1 tr=0 ts=6af76df9
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8 a=ljjBMBC2e4o7sOCpvawA:9
+ a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=htTqT5qQQsfinBqGAaK56jZv9LjJpTibZcwETh7D530=; b=PqBD/5TtYxfmCDcFwra45BkCJ1
+	m87KH9tpvW3/at0Kv0B2PeLY4f2dFC8mpnq6L9itcz0VnZm1KOxA5qs6lS/LS1faAgL0tpJGd1X9L
+	MGmiEtHa1e7TazG3zKj+z4fXcCuP6bfjSmCLJX6voagmtqSWRybxzVRIGXr3s94q6M2WhboQqIzaa
+	k/5U/rR87BE4t2NyVXIQNw7cM40E4aaaO76RZtfaUcWAn1Ko0h10/ylI6qQ9EX853wNp/FwrLlvP7
+	+JG1DNYZJSUw/Wg5IpW4mVD+/9PaEMoydy0nQb6ChSWp7uH2R/5sDF3U+pL3YoPy+VgURbWjxWQR0
+	D0aV/zeg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:46982 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xRxYO-00000003n5V-3ndb;
+	Sat, 14 Nov 2026 01:37:20 +0530
+From: Guenter Roeck <linux@roeck-us.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [GIT PULL] watchdog fixes for v7.4-rc3
+Date: Fri, 13 Nov 2026 12:07:20 -0800
+Message-ID: <20261113200720.2752960-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.45.2
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -91,160 +80,113 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261113-initial-mt6895-v2-9-4ab0aa9fa391@gmail.com>
-References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
-In-Reply-To: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Matthias Brugger <matthias.bgg@gmail.com>, 
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
- Sean Wang <sean.wang@mediatek.com>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Jiri Slaby <jirislaby@kernel.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, 
- Mattijs Korpershoek <mkorpershoek@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kees Cook <kees@kernel.org>, 
- Tony Luck <tony.luck@intel.com>, 
- "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
- linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, 
- linux-input@vger.kernel.org, phone-devel@vger.kernel.org, 
- Alexander Letuchiy <asalde.le1@gmail.com>
-X-Mailer: b4 0.15.2
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xRxYO-00000003n5V-3ndb
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:46982
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 2
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfJwulQV4u9XGfTnapYa/47ci0m6y5m+WDuLTW4N9fzxdeLffD/NbtPOcgDtjQjO/BJIagQ9/6fp/zYXEXrRJ9yjJmIRkGRhCuiD1vLjyiD1+ySBJaxhx
+ HMCBnUGWde4CmWU6eA7p+GmUMLpxtg01b9CqmmwNFDpOB9sQ9+4Ue3JlGHZCFHG1eCxgF6etJTFIMcfXvqZEToKw5gjuvCDiH2WbdwiIMiMKkiaXuPraU5YD
 
-Add a device tree for the Xiaomi xaga board, which is sold as Xiaomi
-Poco X4 GT, Redmi Note 11T Pro/Pro+ and Redmi K50i. It enables a serial
-console on UART0 and the volume down key on the SoC keypad. The power
-and volume up keys are connected to the MT6363 PMIC, which isn't
-supported yet.
+Hi Linus,
 
-The DT only describes the memory that Linux itself uses, which is the
-ramoops region. The bootloader updates the /memory node and adds the
-firmware carveouts to /reserved-memory, so their addresses are not
-hardcoded here. This DT must not be booted with a bootloader that does
-not do this, as Linux would then use memory owned by the firmware.
+Please pull watchdog fixes for Linux v7.4-rc3 from signed tag:
 
-The ramoops zone sizes place the console zone at the offset where the
-bootloader expects to find it.
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-fixes-for-v7.4-rc3
 
-Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
----
- arch/arm64/boot/dts/mediatek/Makefile              |  1 +
- .../arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts | 87 ++++++++++++++++++++++
- 2 files changed, 88 insertions(+)
+Thanks,
+Guenter
+------
 
-diff --git a/arch/arm64/boot/dts/mediatek/Makefile b/arch/arm64/boot/dts/mediatek/Makefile
-index a86fb313b1a9..d73489149ab5 100644
---- a/arch/arm64/boot/dts/mediatek/Makefile
-+++ b/arch/arm64/boot/dts/mediatek/Makefile
-@@ -6,6 +6,7 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += mt6795-evb.dtb
- dtb-$(CONFIG_ARCH_MEDIATEK) += mt6795-sony-xperia-m5.dtb
- dtb-$(CONFIG_ARCH_MEDIATEK) += mt6797-evb.dtb
- dtb-$(CONFIG_ARCH_MEDIATEK) += mt6797-x20-dev.dtb
-+dtb-$(CONFIG_ARCH_MEDIATEK) += mt6895-xiaomi-xaga.dtb
- dtb-$(CONFIG_ARCH_MEDIATEK) += mt7622-rfb1.dtb
- dtb-$(CONFIG_ARCH_MEDIATEK) += mt7622-bananapi-bpi-r64.dtb
- dtb-$(CONFIG_ARCH_MEDIATEK) += mt7981b-cudy-wr3000-v1.dtb
-diff --git a/arch/arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts b/arch/arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts
-new file mode 100644
-index 000000000000..8d529062eea1
---- /dev/null
-+++ b/arch/arm64/boot/dts/mediatek/mt6895-xiaomi-xaga.dts
-@@ -0,0 +1,87 @@
-+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
-+/*
-+ * Copyright (C) 2026 Alexander Letuchiy <asalde.le1@gmail.com>
-+ */
-+
-+/dts-v1/;
-+#include <dt-bindings/input/input.h>
-+
-+#include "mt6895.dtsi"
-+
-+/ {
-+	model = "Xiaomi Poco X4 GT";
-+	compatible = "xiaomi,xaga", "mediatek,mt6895";
-+	chassis-type = "handset";
-+
-+	aliases {
-+		serial0 = &uart0;
-+	};
-+
-+	chosen {
-+		stdout-path = "serial0:921600n8";
-+	};
-+
-+	memory@40000000 {
-+		device_type = "memory";
-+		/* The size is updated by the bootloader. */
-+		reg = <0x0 0x40000000 0x2 0x0>;
-+	};
-+
-+	reserved-memory {
-+		ranges;
-+		#address-cells = <2>;
-+		#size-cells = <2>;
-+
-+		/* The firmware carveouts are added by the bootloader. */
-+
-+		ramoops@48090000 {
-+			compatible = "ramoops";
-+			reg = <0 0x48090000 0 0xe0000>;
-+			no-map;
-+			record-size = <0x10000>;
-+			console-size = <0x40000>;
-+			ftrace-size = <0x10000>;
-+			pmsg-size = <0x10000>;
-+		};
-+	};
-+};
-+
-+&keypad {
-+	pinctrl-0 = <&keypad_pins>;
-+	pinctrl-names = "default";
-+	debounce-delay-ms = <32>;
-+	keypad,num-columns = <1>;
-+	keypad,num-rows = <1>;
-+	linux,keymap = <MATRIX_KEY(0, 0, KEY_VOLUMEDOWN)>;
-+
-+	status = "okay";
-+};
-+
-+&pio {
-+	keypad_pins: keypad-pins {
-+		pins-col {
-+			pinmux = <PINMUX_GPIO107__FUNC_KPCOL0>;
-+			bias-pull-up = <MTK_PUPD_SET_R1R0_01>;
-+			input-enable;
-+		};
-+	};
-+
-+	uart0_pins: uart0-pins {
-+		pins-rx {
-+			pinmux = <PINMUX_GPIO88__FUNC_URXD0>;
-+			bias-pull-up;
-+			input-enable;
-+		};
-+
-+		pins-tx {
-+			pinmux = <PINMUX_GPIO89__FUNC_UTXD0>;
-+		};
-+	};
-+};
-+
-+&uart0 {
-+	pinctrl-0 = <&uart0_pins>;
-+	pinctrl-names = "default";
-+
-+	status = "okay";
-+};
+The following changes since commit 7475ea8b58616b33c04afb976cf0fbaad9dd63fb:
 
--- 
-2.56.0
+  Linux 7.4-rc2 (2026-11-08 16:22:20 -0800)
 
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-fixes-for-v7.4-rc3
+
+for you to fetch changes up to f00afd5d8d5dc03994cb67246543d5c70571ebbe:
+
+  watchdog: rzv2h: Drop runtime PM handling from WDTDCR init (2026-11-09 15:22:40 -0800)
+
+----------------------------------------------------------------
+Watchdog fixes for v7.4-rc3
+
+* gunyah_wdt: Re-enable the watchdog on resume
+
+* mediatek: Register reset controller before watchdog device
+
+* meson_gxbb_wdt: fix suspend/resume handling of HW_RUNNING watchdog
+
+* mtk_wdt: Stop a running watchdog over system sleep even if not opened
+
+* npcm: fix clock prepare leak when setting timeout on a running watchdog
+
+* omap: Fix early_enable handling in omap_wdt_probe()
+
+* orion_wdt: load the pretimeout counter on Armada 370/XP start
+
+* rzv2h: Drop runtime PM handling from WDTDCR init, and use
+  pm_runtime_put_sync()
+
+* sbsa_gwdt: Limit the MediaTek WS0 race workaround to revision 0
+
+* sc1200wdt: add missing MODULE_DEVICE_TABLE()
+
+* sp5100_tco: Use release_mem_region() for EFCH MMIO resource
+
+----------------------------------------------------------------
+Guenter Roeck (3):
+      watchdog: sp5100_tco: Use release_mem_region() for EFCH MMIO resource
+      watchdog: mediatek: Register reset controller before watchdog device
+      watchdog: omap: Fix early_enable handling in omap_wdt_probe()
+
+Igor Velkov (2):
+      watchdog: orion_wdt: load the pretimeout counter on Armada 370/XP start
+      watchdog: meson_gxbb_wdt: fix suspend/resume handling of HW_RUNNING watchdog
+
+Lad Prabhakar (2):
+      watchdog: rzv2h: Use pm_runtime_put_sync()
+      watchdog: rzv2h: Drop runtime PM handling from WDTDCR init
+
+Qiwen Gong (1):
+      watchdog: sc1200wdt: add missing MODULE_DEVICE_TABLE()
+
+Stanislav Aleksandrov (1):
+      watchdog: gunyah_wdt: Re-enable the watchdog on resume
+
+Zexin Wang (1):
+      watchdog: sbsa_gwdt: Limit the MediaTek WS0 race workaround to revision 0
+
+Zhao Feng (1):
+      watchdog: npcm: fix clock prepare leak when setting timeout on a running watchdog
+
+zoan37 (1):
+      watchdog: mtk_wdt: Stop a running watchdog over system sleep even if not opened
+
+ drivers/watchdog/gunyah_wdt.c     | 27 +++++++++++++++++----------
+ drivers/watchdog/meson_gxbb_wdt.c |  6 ++++--
+ drivers/watchdog/mtk_wdt.c        | 30 ++++++++++++++++--------------
+ drivers/watchdog/npcm_wdt.c       | 15 +++++++++++----
+ drivers/watchdog/omap_wdt.c       |  5 ++---
+ drivers/watchdog/orion_wdt.c      |  3 +++
+ drivers/watchdog/rzv2h_wdt.c      | 10 +---------
+ drivers/watchdog/sbsa_gwdt.c      | 20 +++++++++++++-------
+ drivers/watchdog/sc1200wdt.c      |  1 +
+ drivers/watchdog/sp5100_tco.c     | 13 +++++--------
+ 10 files changed, 73 insertions(+), 57 deletions(-)
