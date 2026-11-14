@@ -1,78 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794665520;
-	b=ejSNRPubkyn+ilpipgMkRYvrM8MuunlsT9F22D6AAos/Z9J2NrKK4my8V+TNos8X2CXv
-	 e5n7l0SpXrBqa1DsWFOPUraYI/x4YEnV5vXopy3bq6bfdN5CEcgkufPniDcG995j8aqcu
-	 q5lBYf5NlLYgqbLa9geP3QZlDX26p/zr/Y+IYFjh2FtVvj/a2jiuCfbN1LnVWhzNPgcqQ
-	 chBi/HGHqt3eJ8xsdmlFiiqutxKc/vHcvykTDglCykGIOGz90EkaMkZCjH5UbHZbNhvek
-	 NQfwpLBYJSE+9O3NEn8CL6mjrJ4MvhpRn5Qr/0IS4JgXlFQJf4SsYts4tM0ojVBv6lA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794665520;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=f05iiBGpWBddCz8Nb3RpTO5mpmHSpExhxpSUuMmC0dU=;
-	b=BFDZcK2MvouxzGdi23EEW5eYbKvzSHAOAJUxjwoPKSj26swjMSAyPhFyHa1s6XtmtLyO
-	 biFE7jqUB3VoPFVFgb6LFtq1qgNzxSKB6yDFBdrAt+smRi4+NsYbO6Fm7A1QW7RYhenVl
-	 gQH97IzYAyUql3OLWwdGdZGUDk17KQbWESNv1sPwiOdGR8W6TlWz7b02xl61dsKfupjR9
-	 1Pc5R907inqrS2ZdIIA4JAz3+QZVZtWIlmawLw/p0khAIAX543IxphBPFWmZDfIqKcPAY
-	 5CitLP6k9UyTc+Fn9A2n3uCmPyIleFFF1vzQy7tyi2hUbSSBvHRSivWOu6NqC4o44uA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="OVD/h6Jm";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794667134;
+	b=tJD20RJD9XE6wDEgaEOb9w6/Qdmq5pdobYs2XUEuqsByA4RulbnIbwhvGk5Zw6yMqpLS
+	 NnE4vzG6YFzr9l8B7LoZsbdH+JqcZOopNWv/E6JgY7bZxF4ogKZirxeLiLAn/K6dot9OF
+	 3JhQW5iiJkSSZS1WfVd6MyCBFO1uIT+MMU8BkTD0jqHYtUt7VBoHU32RrDF3MwCNh2Wcp
+	 kMzGYjxfJl6B6CG/CnzqxdVXhltAz7vGpEYJQ5UUW5ICFV13si12AtJmjPUpn6/smEP9B
+	 0K9TInG4Q6uIy6TwJxYXoaxCCkRTBhpJ9HSDYLg/bQxERd76mMZ5PAmpxcf1WUClq5Q==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794667134;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=inxRtPDoKW6HBWSaGQKU9Zm3wRj+CHvePjBAwRXvJyQ=;
+	b=1YkcuE/ZEYgThXXmbQHNOx5YGrpjYZpilOdCuhlpQ17nGUfEjX009SMBE1ykYACBnR4+
+	 jtBMEMh4fW4rQDYm3NJySCKrTfC5Tl8WKeYldJUjtFRuUPe9up/9aK/KfexAxJQrclTnx
+	 mxG6KwfbQ4keUCqsuCriC5olmWkzUoBqZpI7aReZ4wdoBrS2RFB+GNMJu5f7KCCFqtmGS
+	 4glPvYDJT0ZqARpr3/sdqIcqIYxCgglSlbJuAelMyyv1UpMW/EwkrHSjBLGtzsgbJLf2O
+	 0ASna1ez+aNvf97yKt0Eog0PoegD5R/KOPig4HpGmir75sgd3f2PhEb/nw9w8uWMvIg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GCbqwJeS;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2461D606A323;
-	Sat, 14 Nov 2026 14:11:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 193D9606A329
+	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 14:38:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OVD/h6Jm
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794665519;
-	b=kCV8sctsqa0XPl6TyFNfRvpgZvtuQPWrQo5tu/Q04CO5uUzZ7RocTQzyWEqccu9nUs49
-	 akwzPkgC5drwKFHt66uiG4UTJfhHPBHOEi+pRpsJhT6o1esSRrsOU3Ic8Fe/iZ70SKO86
-	 RpFtq9czZ4hcIeoLPamk1jSojd2tELp2Ws5bL6ZrR1Mh5ZNS0Wo70dHLaJdxxYJHcmSyf
-	 tMQ+fS8WVagHnC2D2CeiR7kkLX29Pz1GbvVV8EiuXeZWpimfkQ1WkheLYFxykuhgONmK6
-	 Rufl7RJRzQy5fdCviYG7UAbymC1wkvNKCVBCwLc2ItyHLVWdOFkK9Xn0K9KayfCH4LA==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794665519;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=f05iiBGpWBddCz8Nb3RpTO5mpmHSpExhxpSUuMmC0dU=;
-	b=MBbKHpNU1fTUC/SabKEPD648GUuodxoj25E44ed8X42F4WxwFQbzK/rwtxnMf25rKcVY
-	 YK78H2VlIsrZkU94FOwAbTdS1QE2n4ZP2BwJTXHPPk/O2zluUYHjpfKBkJ9BKYPLaYoXP
-	 UZswn9kKXO0hzq96BGtTym9W+DFs9WXomrRqj0Np4g4TF1zaTCAIhOrWg9EU0iig331Cj
-	 vXqifXj2oi7PCH+O6zDtYLPwIzLBDG+CQJqryMhieoZaEWyK9+clV0xB1sNzgFqzuxWiC
-	 5jce+1xzGeGwWw6eXNs93qQc6ZT36eGH4gcgsXud2KBovQQtMPxANKTAwxinGduOrtA==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 545CF1F000C4;
-	Sat, 14 Nov 2026 14:11:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GCbqwJeS
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C6691F000C4;
+	Sat, 14 Nov 2026 14:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794665519;
-	bh=f05iiBGpWBddCz8Nb3RpTO5mpmHSpExhxpSUuMmC0dU=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=OVD/h6JmenNlGz89Xsn1RpD/iKSFRkBy+UH1GC5XOvWIxos5EQcaZ5QzVrCtzKfWk
-	 yhBcAIVjqh0AuH2Z3qoTtaS7mA56fHFtDkiQ2CK+9Vu6H+mKBbRNMGYeflT2JikOKY
-	 Kp4zeyw8m6Pb85tp5ujfJQWn2eTYLGEByfMRT6pRG3pfZW89fhXUbgmrqQYCB3aP7d
-	 nDFzf6JbLZrG6H5paV7YcktSoxYCwjFLQ99XZDo1AFjHpDQatPsxB18j3FJ+8H0xYy
-	 gwiP3tJamsUzPej3daEZ5S5LMSiaz8kGPKsBnM9ZmEZGJGN11XhQSRDvSIYF/iTuLn
-	 G029wFCKeTjOg==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id C4E1C49DDE;
-	Sat, 14 Nov 2026 14:11:57 +0000 (UTC)
-From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Sat, 14 Nov 2026 17:11:55 +0300
-Subject: [PATCH v4] watchdog: Add ARM TWD (MPCore private) watchdog driver
+	s=k20260515; t=1794667133;
+	bh=inxRtPDoKW6HBWSaGQKU9Zm3wRj+CHvePjBAwRXvJyQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GCbqwJeSKLplD9HdVqRlLGlwfXDOogmpVi6ZYB5L9f4wm/qiZ88HHxttvUSbbFUwg
+	 jLw1VApqRcKmxw8J67s/yF8fE6yk4+YeN//jD/Yw6RRK1HcdpSf54FGxy0urwgZvtQ
+	 PubIPhc5eLwkUYTac2HSkTumexbVMp1aX1oXN1cJvDaNgalHAabi3vBlZhkinSqg2+
+	 PNSc1r36SKde7SQ/30sbRXXIr8nYEzwYoQ4zjXIPLZGayaVhLIb2vSS/12cBjR1bRb
+	 Ozhrr2d3h9/wUMwsuJgdawYHf/KvzmRrVhjarN985Z7gcBlmEfSxvI2+rH973ab0mm
+	 R1nnmtRlaZu3w==
+Message-ID: <sashiko-outbox-214641@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4] watchdog: Add ARM TWD (MPCore private) watchdog
+ driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fil Dunsky" <filipp.dunsky@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+In-Reply-To: <20261114-arm-twd-wdt-v4-1-5a3104b36331@gmail.com>
+References: <20261114-arm-twd-wdt-v4-1-5a3104b36331@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 14 Nov 2026 14:38:53 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -81,726 +59,384 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261114-arm-twd-wdt-v4-1-5a3104b36331@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMyw5AMBBA0V+RWZtEURK/Iha0U0bikbYeifh3x
- fIs7r3AkWVyUEUXWNrZ8TIH5HEEamjnnpB1MKRJWohESGzthP7QeGiPpTBGKjKZlB2EYrVk+Px
- udfPbbd1Iyr8LuO8H6AJyZW8AAAA=
-X-Change-ID: 20261015-arm-twd-wdt-71ff5cef355b
-To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: Fil Dunsky <filipp.dunsky@gmail.com>, linux-kernel@vger.kernel.org, 
- linux-watchdog@vger.kernel.org, Russell King <linux@armlinux.org.uk>, 
- linux-arm-kernel@lists.infradead.org
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794665515; l=22953;
- i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=OgL7JOIMJzsW6EaYUztrKsB+K6+qCOz1Rt2LBPc761E=;
- b=pRQnt21qyRfTEUY1KDcMKlAlltVIhML4rRvTk9yOmq4OpTDwsjYZMlLQTBpi0OEmLxk3brMD5
- 8ISMgW/iWyPD3s8pSn3fFcqGOynNEuDdxRY1YTDGstZsEQsHZTNMxp/
-X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
- pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
-X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
- auth_id=1085
-X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
-Reply-To: filipp.dunsky@gmail.com
-Content-Transfer-Encoding: 8bit
 
-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Thank you for your contribution! Sashiko AI review found 6 potential
+issues to consider:
+- [Medium] watchdog: arm_twd_wdt: CPU hotplug race in
+  twd_wdt_set_armed()
+- [Medium] watchdog: arm_twd_wdt: IRQ race in twd_wdt_cpu_online() and
+  offline()
+- [Medium] watchdog: arm_twd_wdt: watchdog left armed on probe error or
+  unbind
+- [Medium] watchdog: arm_twd_wdt: twd_wdt_clk_notify() resets full
+  timeout on rate change
+- [Low] watchdog: arm_twd_wdt: inaccurate suspend comment on CPU
+  watchdog restore
+- [Low] watchdog: arm_twd_wdt: full timeout reload on CPU_PM_EXIT in
+  twd_wdt_cpu_pm_notify()
+--
 
-ARM11 MPCore, Cortex-A5 and Cortex-A9 MPCore systems have a watchdog
-next to the local timer of every CPU, banked at the same address. The
-binding "arm,cortex-a9-twd-wdt" exists, but there has been no driver
-since mpcore_wdt was removed in v3.11, among other reasons because it
-only ever programmed the CPU that ran the ioctl.
+commit e14841698f0a4aae63c19877ba002e8fa6489c92
+Author: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Program, ping and stop the watchdogs of all online CPUs together with
-on_each_cpu(), and use a CPU hotplug state to arm the watchdog of a CPU
-coming online while the device is active and to stop it on a CPU going
-offline, which could not ping it any more. The watchdog is used in reset
-mode only, its interrupt is not needed.
+watchdog: Add ARM TWD (MPCore private) watchdog driver
 
-Bootloaders such as the one of the Securifi Almond+ start the watchdog
-before booting the kernel. A watchdog found running on any CPU is marked
-WDOG_HW_RUNNING and taken over with the driver's timeout without being
-stopped, unless it runs with a different prescaler: the prescaler cannot
-be changed in watchdog mode. Once the watchdog mode is set it can only
-be left through the disable register sequence, which is what stop does.
+This commit adds a watchdog driver for the banked per-CPU private watchdog
+on ARM11 MPCore, Cortex-A5 and Cortex-A9 MPCore systems, managing all
+online CPUs together across CPU hotplug, clock rate changes, CPU PM and
+suspend/resume.
 
-The TWD clock follows the CPU clock on many systems, so rate changes are
-followed through a clock notifier. A CPU whose power domain went down in
-idle gets its watchdog set up again on CPU PM exit, and the boot CPU on
-resume from suspend.
+> diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wd=
+t.c
+> new file mode 100644
+> index 0000000000000..1549e2b0fbbbf
+> --- /dev/null
+> +++ b/drivers/watchdog/arm_twd_wdt.c
+> @@ -0,0 +1,508 @@
 
-The watchdog is also registered as a restart handler with the default
-priority, for systems that have no other way to restart: the CPU that
-restarts the system, the only one left running, lets its own watchdog
-expire right away.
+[ ... ]
 
-Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
----
-ARM11 MPCore, Cortex-A5 and Cortex-A9 MPCore systems have a watchdog next
-to the local timer of every CPU. The binding "arm,cortex-a9-twd-wdt"
-(watchdog/arm,twd-wdt.yaml) exists and 15 dts/dtsi files describe the
-device, but there has been no driver since mpcore_wdt was removed in
-v3.11 ("watchdog: delete mpcore_wdt driver"). The reasons given then
-were that the watchdog is banked per CPU while the driver only
-programmed the CPU that happened to run the ioctl, that it used
-request_irq() for a per-CPU interrupt, and that it had no users.
+> +/* The following run on the CPU whose watchdog they access */
+> +static void twd_wdt_cpu_stop(void *data)
+> +{
+> +	struct twd_wdt *wdt =3D data;
+> +
+> +	writel(TWD_WDT_DISABLE_KEY1, wdt->base + TWD_WDT_DISABLE);
+> +	writel(TWD_WDT_DISABLE_KEY2, wdt->base + TWD_WDT_DISABLE);
+> +	writel(0, wdt->base + TWD_WDT_CONTROL);
+> +}
+> +
+> +static void twd_wdt_cpu_start(void *data)
+> +{
+> +	struct twd_wdt *wdt =3D data;
+> +	u32 ctrl =3D readl(wdt->base + TWD_WDT_CONTROL);
+> +
+> +	/*
+> +	 * In watchdog mode the prescaler cannot be changed, so a watchdog
+> +	 * started by the bootloader with a different one is stopped first.
+> +	 */
+> +	if ((ctrl & TWD_WDT_CTRL_WD_MODE) &&
+> +	    FIELD_GET(TWD_WDT_CTRL_PRESCALER, ctrl) !=3D TWD_WDT_PRESCALE)
+> +		twd_wdt_cpu_stop(wdt);
+> +
+> +	/*
+> +	 * Load the counter before enabling, it may still be zero. A watchdog
+> +	 * that is already running is reloaded and keeps running, the mode bit
+> +	 * cannot be cleared by writing the control register.
+> +	 */
+> +	writel(twd_wdt_ticks(wdt, wdt->wdd.timeout), wdt->base + TWD_WDT_LOAD);
+> +	writel(FIELD_PREP(TWD_WDT_CTRL_PRESCALER, TWD_WDT_PRESCALE) |
+> +	       TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE,
+> +	       wdt->base + TWD_WDT_CONTROL);
+> +}
+> +
+> +static void twd_wdt_cpu_ping(void *data)
+> +{
+> +	struct twd_wdt *wdt =3D data;
+> +
+> +	/* In watchdog mode a write to the load register reloads the counter */
+> +	writel(twd_wdt_ticks(wdt, wdt->wdd.timeout), wdt->base + TWD_WDT_LOAD);
+> +}
 
-This driver does not use the interrupt (the watchdog runs in reset mode)
-and programs, pings and stops the watchdogs of all online CPUs with
-on_each_cpu(). A CPU hotplug state arms the watchdog of a CPU coming
-online while the device is active and stops it on a CPU going offline.
-Clock rate changes are followed through a clock notifier, a CPU that
-lost its watchdog in a deep idle state gets it back on CPU PM exit, and
-the boot CPU on resume. A watchdog found running at probe time is
-reported as WDOG_HW_RUNNING and taken over.
+[ ... ]
 
-The driver was written for the Cortina Systems CS75xx / Securifi Almond+,
-whose boot loader arms the watchdog: the board resets ~300 s after boot
-unless it is serviced. It was previously sent as part of a series with
-the CS75xx interrupt controller, GPIO and I2C drivers; as it is not
-specific to that SoC, it is now sent on its own. The driver also
-registers a restart handler with the default (last resort) priority,
-since the CS75xx platform has no other way to restart.
+> +static void twd_wdt_set_armed(struct twd_wdt *wdt, bool armed)
+> +{
+> +	WRITE_ONCE(wdt->armed, armed);
+> +	/* Pairs with the barrier in twd_wdt_clk_notify() */
+> +	smp_mb();
+> +
+> +	on_each_cpu(armed ? twd_wdt_cpu_start : twd_wdt_cpu_stop, wdt, 1);
+> +}
+> +
+> +static int twd_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	twd_wdt_set_armed(watchdog_get_drvdata(wdd), true);
+> +
+> +	return 0;
+> +}
+> +
+> +static int twd_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	twd_wdt_set_armed(watchdog_get_drvdata(wdd), false);
+> +
+> +	return 0;
+> +}
+> +
+> +static int twd_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	on_each_cpu(twd_wdt_cpu_ping, watchdog_get_drvdata(wdd), 1);
+> +
+> +	return 0;
+> +}
+> +
+> +static int twd_wdt_set_timeout(struct watchdog_device *wdd, unsigned int=
+ t)
+> +{
+> +	wdd->timeout =3D t;
+> +	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
+> +		twd_wdt_ping(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static unsigned int twd_wdt_get_timeleft(struct watchdog_device *wdd)
+> +{
+> +	struct twd_wdt *wdt =3D watchdog_get_drvdata(wdd);
+> +	u64 ticks;
+> +
+> +	wdt->counter_min =3D U32_MAX;
+> +	on_each_cpu(twd_wdt_cpu_counter, wdt, 1);
+> +	ticks =3D (u64)wdt->counter_min * (TWD_WDT_PRESCALE + 1);
+> +
+> +	return div_u64(ticks, READ_ONCE(wdt->rate));
+> +}
 
-Tested on a Securifi Almond+ (Cortex-A9, two CPUs): the watchdog left
-running by the boot loader on both CPUs was taken over ("running on
-CPU0-1, taking over"); pinged from userspace for 60 s and then left
-alone, it reset the board when timeleft reached zero; reboot(2) issued
-from CPU1 restarted the board through the restart handler. Not tested:
-CPU hotplug (the platform has no cpu_die yet), suspend and CPU PM.
+[Severity: Medium]
+Can twd_wdt_set_armed() race with CPU hotplug without cpus_read_lock() and
+leave a watchdog armed on an offline CPU?
 
-Open questions:
+twd_wdt_cpu_online() and twd_wdt_cpu_offline() run at CPUHP_AP_ONLINE_DYN
+in the per-CPU cpuhp/%u thread while the CPU is already or still in
+cpu_online_mask with local interrupts enabled:
 
-1. The binding marks clocks as optional, the driver requires them (the
-   rate is needed to compute the timeout). Should the binding be
-   tightened, or should the driver fall back to something when there is
-   no clock? Several of the existing dts files have no clocks property;
-   the driver does not probe there.
-2. Is a separate MAINTAINERS entry for this driver the right thing, or
-   should it only be covered by the watchdog subsystem entry?
----
-Changes in v4:
-- rebase on v7.4-rc1
-- sent on its own, split out of "Cortina Systems CS75xx: interrupt
-  controller, GPIO, I2C and TWD watchdog"
-- do not take cpus_read_lock() in the clock notifier, which can be
-  called from CPU hotplug through cpufreq: publish the armed state and
-  the rate with WRITE_ONCE() and a full barrier first, then apply them
-  with on_each_cpu(), so that a rate change racing with start is never
-  missed (sashiko-bot)
-- restore the watchdog of a CPU on CPU PM exit when its power domain
-  went down in idle (sashiko-bot)
-- register the restart handler with the default priority instead of
-  128, so that it only runs when nothing else can restart the system
-- print the timeout and the clock rate only as debug messages
-- Link to v3: https://patch.msgid.link/20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com
+CPU0                              CPU1 (cpuhp/1)
+                                  _cpu_down()
+                                    twd_wdt_cpu_offline()
+                                      twd_wdt_cpu_stop(wdt)
+twd_wdt_start()
+  twd_wdt_set_armed(wdt, true)
+    WRITE_ONCE(wdt->armed, true)
+    on_each_cpu(twd_wdt_cpu_start, ...)
+                                    <IPI>
+                                      twd_wdt_cpu_start(wdt)
+                                    take_cpu_down()
+                                      __cpu_disable()  <-- offline & armed
 
-Changes in v3:
-- follow rate changes of the clock, which on many MPCore systems scales
-  with the CPU clock, and restore the watchdog of the boot CPU on resume
-  (sashiko-bot)
-- Link to v2: https://patch.msgid.link/20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com
+CPU1 finishes going offline with its watchdog running; because it is no
+longer in cpu_online_mask, subsequent pings or stops never reach it and the
+system resets when the counter expires.  During bringup, an on_each_cpu()
+IPI from twd_wdt_set_armed() can likewise arrive on the target CPU between
+READ_ONCE(wdt->armed) and twd_wdt_cpu_start()/twd_wdt_cpu_stop() in
+twd_wdt_cpu_online(), and twd_wdt_get_timeleft() can read TWD_WDT_COUNTER
+as 0 from an online CPU before twd_wdt_cpu_online() or after
+twd_wdt_cpu_offline().
 
-Changes in v2:
-- do not include <linux/mod_devicetable.h> (Uwe)
-- the prescaler cannot be changed in watchdog mode (verified on the
-  board), so a watchdog left running by the boot loader with a different
-  prescaler is stopped before it is reprogrammed (sashiko-bot)
-- Link to v1: https://patch.msgid.link/20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com
+Unlike twd_wdt_clk_notify(), twd_wdt_set_armed() and twd_wdt_get_timeleft()
+are only called from watchdog ops and PM callbacks in task context, so they
+can guard their operations with cpus_read_lock().
 
-To: Wim Van Sebroeck <wim@linux-watchdog.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
----
- MAINTAINERS                    |   6 +
- drivers/watchdog/Kconfig       |  15 ++
- drivers/watchdog/Makefile      |   1 +
- drivers/watchdog/arm_twd_wdt.c | 508 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 530 insertions(+)
+> +
+> +/*
+> + * The TWD runs from the peripheral clock, which follows the CPU clock. =
+While
+> + * the rate goes up, count with the new rate already: the watchdog then =
+just
+> + * fires later than asked until the change is done.
+> + */
+> +static int twd_wdt_clk_notify(struct notifier_block *nb, unsigned long e=
+vent,
+> +			      void *data)
+> +{
+> +	struct twd_wdt *wdt =3D container_of(nb, struct twd_wdt, clk_nb);
+> +	struct clk_notifier_data *cnd =3D data;
+> +	unsigned long rate;
+> +
+> +	switch (event) {
+> +	case PRE_RATE_CHANGE:
+> +		if (cnd->new_rate <=3D cnd->old_rate)
+> +			return NOTIFY_OK;
+> +		rate =3D cnd->new_rate;
+> +		break;
+> +	case POST_RATE_CHANGE:
+> +		rate =3D cnd->new_rate;
+> +		break;
+> +	case ABORT_RATE_CHANGE:
+> +		rate =3D cnd->old_rate;
+> +		break;
+> +	default:
+> +		return NOTIFY_DONE;
+> +	}
+> +
+> +	if (!rate)
+> +		return NOTIFY_OK;
+> +
+> +	WRITE_ONCE(wdt->rate, rate);
+> +	/*
+> +	 * Pairs with the barrier in twd_wdt_set_armed(): either the watchdog
+> +	 * is started with the new rate or it is seen armed here and pinged.
+> +	 */
+> +	smp_mb();
+> +
+> +	if (READ_ONCE(wdt->armed))
+> +		on_each_cpu(twd_wdt_cpu_ping, wdt, 1);
+> +
+> +	return NOTIFY_OK;
+> +}
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 93abbb315..245d80c13 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2544,6 +2544,12 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git
- F:	arch/arm/mach-*/
- F:	arch/arm/plat-*/
- 
-+ARM TWD WATCHDOG DRIVER
-+M:	Fil Dunsky <filipp.dunsky@gmail.com>
-+L:	linux-watchdog@vger.kernel.org
-+S:	Maintained
-+F:	drivers/watchdog/arm_twd_wdt.c
-+
- ARM/ACTIONS SEMI ARCHITECTURE
- M:	Andreas Färber <afaerber@suse.de>
- M:	Manivannan Sadhasivam <mani@kernel.org>
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index f7d0a0c2c..907e861ec 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -465,6 +465,21 @@ config ARM_SP805_WATCHDOG
- 	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
- 	  the timeout is reached.
- 
-+config ARM_TWD_WATCHDOG
-+	tristate "ARM TWD (MPCore private) Watchdog"
-+	depends on HAVE_ARM_TWD || COMPILE_TEST
-+	depends on HAS_IOMEM
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the private watchdog found next
-+	  to the local (TWD) timer of every CPU in ARM11 MPCore, Cortex-A5
-+	  and Cortex-A9 MPCore systems. The watchdogs of all online CPUs are
-+	  driven together. A watchdog left running by the bootloader is
-+	  taken over.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called arm_twd_wdt.
-+
- config ARM_SBSA_WATCHDOG
- 	tristate "ARM SBSA Generic Watchdog"
- 	depends on ARM64
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 9ac406677..4ff0bced5 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -40,6 +40,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
- # ARM Architecture
- obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
- obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
-+obj-$(CONFIG_ARM_TWD_WATCHDOG) += arm_twd_wdt.o
- obj-$(CONFIG_ARMADA_37XX_WATCHDOG) += armada_37xx_wdt.o
- obj-$(CONFIG_AIROHA_WATCHDOG) += airoha_wdt.o
- obj-$(CONFIG_ASM9260_WATCHDOG) += asm9260_wdt.o
-diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wdt.c
-new file mode 100644
-index 000000000..1549e2b0f
---- /dev/null
-+++ b/drivers/watchdog/arm_twd_wdt.c
-@@ -0,0 +1,508 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Watchdog driver for the ARM Cortex-A9/A5 and ARM11 MPCore private
-+ * (TWD) watchdog
-+ *
-+ * Every CPU has its own watchdog, banked at the same address, and any of
-+ * them resets the system when it expires. The watchdog device therefore
-+ * programs, pings and stops the watchdog of every online CPU, and a CPU
-+ * that is brought online or taken offline has its watchdog set up or
-+ * stopped on the way. Once the watchdog mode bit is set it can only be
-+ * cleared by writing the disable sequence to the disable register.
-+ */
-+
-+#include <linux/bitfield.h>
-+#include <linux/bits.h>
-+#include <linux/clk.h>
-+#include <linux/cpu.h>
-+#include <linux/cpu_pm.h>
-+#include <linux/cpuhotplug.h>
-+#include <linux/cpumask.h>
-+#include <linux/delay.h>
-+#include <linux/io.h>
-+#include <linux/math64.h>
-+#include <linux/minmax.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm.h>
-+#include <linux/smp.h>
-+#include <linux/watchdog.h>
-+
-+#define TWD_WDT_LOAD		0x00
-+#define TWD_WDT_COUNTER		0x04
-+#define TWD_WDT_CONTROL		0x08
-+#define TWD_WDT_RESET_STATUS	0x10
-+#define TWD_WDT_DISABLE		0x14
-+
-+#define TWD_WDT_CTRL_ENABLE	BIT(0)
-+#define TWD_WDT_CTRL_WD_MODE	BIT(3)
-+#define TWD_WDT_CTRL_PRESCALER	GENMASK(15, 8)
-+
-+#define TWD_WDT_RESET_FLAG	BIT(0)
-+
-+#define TWD_WDT_DISABLE_KEY1	0x12345678
-+#define TWD_WDT_DISABLE_KEY2	0x87654321
-+
-+/* Largest prescaler, the counter clock is the input clock divided by 256 */
-+#define TWD_WDT_PRESCALE	255
-+#define TWD_WDT_DEFAULT_TIMEOUT	30
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static unsigned int timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
-+
-+static enum cpuhp_state twd_wdt_hp_state;
-+
-+struct twd_wdt {
-+	struct watchdog_device wdd;
-+	struct hlist_node node;
-+	void __iomem *base;
-+	struct notifier_block clk_nb;
-+	struct notifier_block pm_nb;
-+	/*
-+	 * Changed first and then applied to all online CPUs: a CPU coming
-+	 * online meanwhile either sees the new value in its hotplug callback
-+	 * or is reached by on_each_cpu().
-+	 */
-+	unsigned long rate;
-+	bool armed;
-+	bool resume_armed;
-+	cpumask_t running;
-+	cpumask_t reset;
-+	u32 counter_min;
-+};
-+
-+static u32 twd_wdt_ticks(struct twd_wdt *wdt, unsigned int secs)
-+{
-+	u64 ticks = div_u64((u64)READ_ONCE(wdt->rate) * secs,
-+			    TWD_WDT_PRESCALE + 1);
-+
-+	return min_t(u64, ticks, U32_MAX);
-+}
-+
-+/* The following run on the CPU whose watchdog they access */
-+static void twd_wdt_cpu_stop(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+
-+	writel(TWD_WDT_DISABLE_KEY1, wdt->base + TWD_WDT_DISABLE);
-+	writel(TWD_WDT_DISABLE_KEY2, wdt->base + TWD_WDT_DISABLE);
-+	writel(0, wdt->base + TWD_WDT_CONTROL);
-+}
-+
-+static void twd_wdt_cpu_start(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+	u32 ctrl = readl(wdt->base + TWD_WDT_CONTROL);
-+
-+	/*
-+	 * In watchdog mode the prescaler cannot be changed, so a watchdog
-+	 * started by the bootloader with a different one is stopped first.
-+	 */
-+	if ((ctrl & TWD_WDT_CTRL_WD_MODE) &&
-+	    FIELD_GET(TWD_WDT_CTRL_PRESCALER, ctrl) != TWD_WDT_PRESCALE)
-+		twd_wdt_cpu_stop(wdt);
-+
-+	/*
-+	 * Load the counter before enabling, it may still be zero. A watchdog
-+	 * that is already running is reloaded and keeps running, the mode bit
-+	 * cannot be cleared by writing the control register.
-+	 */
-+	writel(twd_wdt_ticks(wdt, wdt->wdd.timeout), wdt->base + TWD_WDT_LOAD);
-+	writel(FIELD_PREP(TWD_WDT_CTRL_PRESCALER, TWD_WDT_PRESCALE) |
-+	       TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE,
-+	       wdt->base + TWD_WDT_CONTROL);
-+}
-+
-+static void twd_wdt_cpu_ping(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+
-+	/* In watchdog mode a write to the load register reloads the counter */
-+	writel(twd_wdt_ticks(wdt, wdt->wdd.timeout), wdt->base + TWD_WDT_LOAD);
-+}
-+
-+static void twd_wdt_cpu_counter(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+	u32 val = readl(wdt->base + TWD_WDT_COUNTER);
-+	u32 old = READ_ONCE(wdt->counter_min);
-+
-+	/* Called on all CPUs at once, keep the smallest value */
-+	while (val < old) {
-+		u32 prev = cmpxchg(&wdt->counter_min, old, val);
-+
-+		if (prev == old)
-+			break;
-+		old = prev;
-+	}
-+}
-+
-+static void twd_wdt_cpu_probe(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+	unsigned int cpu = smp_processor_id();
-+	u32 ctrl = readl(wdt->base + TWD_WDT_CONTROL);
-+
-+	if ((ctrl & (TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE)) ==
-+	    (TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE))
-+		cpumask_set_cpu(cpu, &wdt->running);
-+
-+	if (readl(wdt->base + TWD_WDT_RESET_STATUS) & TWD_WDT_RESET_FLAG) {
-+		cpumask_set_cpu(cpu, &wdt->reset);
-+		/* The flag is cleared by writing one */
-+		writel(TWD_WDT_RESET_FLAG, wdt->base + TWD_WDT_RESET_STATUS);
-+	}
-+}
-+
-+static void twd_wdt_set_armed(struct twd_wdt *wdt, bool armed)
-+{
-+	WRITE_ONCE(wdt->armed, armed);
-+	/* Pairs with the barrier in twd_wdt_clk_notify() */
-+	smp_mb();
-+
-+	on_each_cpu(armed ? twd_wdt_cpu_start : twd_wdt_cpu_stop, wdt, 1);
-+}
-+
-+static int twd_wdt_start(struct watchdog_device *wdd)
-+{
-+	twd_wdt_set_armed(watchdog_get_drvdata(wdd), true);
-+
-+	return 0;
-+}
-+
-+static int twd_wdt_stop(struct watchdog_device *wdd)
-+{
-+	twd_wdt_set_armed(watchdog_get_drvdata(wdd), false);
-+
-+	return 0;
-+}
-+
-+static int twd_wdt_ping(struct watchdog_device *wdd)
-+{
-+	on_each_cpu(twd_wdt_cpu_ping, watchdog_get_drvdata(wdd), 1);
-+
-+	return 0;
-+}
-+
-+static int twd_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
-+{
-+	wdd->timeout = t;
-+	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
-+		twd_wdt_ping(wdd);
-+
-+	return 0;
-+}
-+
-+static unsigned int twd_wdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct twd_wdt *wdt = watchdog_get_drvdata(wdd);
-+	u64 ticks;
-+
-+	wdt->counter_min = U32_MAX;
-+	on_each_cpu(twd_wdt_cpu_counter, wdt, 1);
-+	ticks = (u64)wdt->counter_min * (TWD_WDT_PRESCALE + 1);
-+
-+	return div_u64(ticks, READ_ONCE(wdt->rate));
-+}
-+
-+/*
-+ * The TWD runs from the peripheral clock, which follows the CPU clock. While
-+ * the rate goes up, count with the new rate already: the watchdog then just
-+ * fires later than asked until the change is done.
-+ */
-+static int twd_wdt_clk_notify(struct notifier_block *nb, unsigned long event,
-+			      void *data)
-+{
-+	struct twd_wdt *wdt = container_of(nb, struct twd_wdt, clk_nb);
-+	struct clk_notifier_data *cnd = data;
-+	unsigned long rate;
-+
-+	switch (event) {
-+	case PRE_RATE_CHANGE:
-+		if (cnd->new_rate <= cnd->old_rate)
-+			return NOTIFY_OK;
-+		rate = cnd->new_rate;
-+		break;
-+	case POST_RATE_CHANGE:
-+		rate = cnd->new_rate;
-+		break;
-+	case ABORT_RATE_CHANGE:
-+		rate = cnd->old_rate;
-+		break;
-+	default:
-+		return NOTIFY_DONE;
-+	}
-+
-+	if (!rate)
-+		return NOTIFY_OK;
-+
-+	WRITE_ONCE(wdt->rate, rate);
-+	/*
-+	 * Pairs with the barrier in twd_wdt_set_armed(): either the watchdog
-+	 * is started with the new rate or it is seen armed here and pinged.
-+	 */
-+	smp_mb();
-+
-+	if (READ_ONCE(wdt->armed))
-+		on_each_cpu(twd_wdt_cpu_ping, wdt, 1);
-+
-+	return NOTIFY_OK;
-+}
-+
-+/*
-+ * A CPU whose power domain was turned off in idle comes back with its
-+ * watchdog stopped. Only then set it up again: reloading a watchdog that
-+ * kept running would ping it on every idle exit.
-+ */
-+static int twd_wdt_cpu_pm_notify(struct notifier_block *nb,
-+				 unsigned long action, void *data)
-+{
-+	struct twd_wdt *wdt = container_of(nb, struct twd_wdt, pm_nb);
-+
-+	if (action != CPU_PM_EXIT && action != CPU_PM_ENTER_FAILED)
-+		return NOTIFY_DONE;
-+
-+	if (READ_ONCE(wdt->armed) &&
-+	    !(readl(wdt->base + TWD_WDT_CONTROL) & TWD_WDT_CTRL_WD_MODE))
-+		twd_wdt_cpu_start(wdt);
-+
-+	return NOTIFY_OK;
-+}
-+
-+static int twd_wdt_restart(struct watchdog_device *wdd, unsigned long action,
-+			   void *data)
-+{
-+	struct twd_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	/* Only this CPU is still running, let its watchdog expire right away */
-+	writel(1, wdt->base + TWD_WDT_LOAD);
-+	writel(TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE,
-+	       wdt->base + TWD_WDT_CONTROL);
-+	mdelay(500);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_ops twd_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= twd_wdt_start,
-+	.stop		= twd_wdt_stop,
-+	.ping		= twd_wdt_ping,
-+	.set_timeout	= twd_wdt_set_timeout,
-+	.get_timeleft	= twd_wdt_get_timeleft,
-+	.restart	= twd_wdt_restart,
-+};
-+
-+static const struct watchdog_info twd_wdt_info = {
-+	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-+			  WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
-+	.identity	= "ARM TWD watchdog",
-+};
-+
-+static int twd_wdt_cpu_online(unsigned int cpu, struct hlist_node *node)
-+{
-+	struct twd_wdt *wdt = hlist_entry(node, struct twd_wdt, node);
-+
-+	/*
-+	 * Also called for every online CPU at probe time. A watchdog that is
-+	 * running while the device is not active would not be pinged.
-+	 */
-+	if (READ_ONCE(wdt->armed))
-+		twd_wdt_cpu_start(wdt);
-+	else
-+		twd_wdt_cpu_stop(wdt);
-+
-+	return 0;
-+}
-+
-+static int twd_wdt_cpu_offline(unsigned int cpu, struct hlist_node *node)
-+{
-+	struct twd_wdt *wdt = hlist_entry(node, struct twd_wdt, node);
-+
-+	/* Nobody pings the watchdog of an offline CPU */
-+	twd_wdt_cpu_stop(wdt);
-+
-+	return 0;
-+}
-+
-+static void twd_wdt_remove_instance(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+
-+	cpuhp_state_remove_instance_nocalls(twd_wdt_hp_state, &wdt->node);
-+}
-+
-+static void twd_wdt_remove_pm_notifier(void *data)
-+{
-+	struct twd_wdt *wdt = data;
-+
-+	cpu_pm_unregister_notifier(&wdt->pm_nb);
-+}
-+
-+static int twd_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct twd_wdt *wdt;
-+	struct clk *clk;
-+	int ret;
-+
-+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(wdt->base))
-+		return PTR_ERR(wdt->base);
-+
-+	clk = devm_clk_get_enabled(dev, NULL);
-+	if (IS_ERR(clk))
-+		return dev_err_probe(dev, PTR_ERR(clk), "failed to get clock\n");
-+
-+	wdt->rate = clk_get_rate(clk);
-+	if (!wdt->rate)
-+		return dev_err_probe(dev, -EINVAL, "clock rate is zero\n");
-+
-+	wdt->clk_nb.notifier_call = twd_wdt_clk_notify;
-+	ret = devm_clk_notifier_register(dev, clk, &wdt->clk_nb);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "failed to register clock notifier\n");
-+	platform_set_drvdata(pdev, wdt);
-+
-+	wdt->wdd.info = &twd_wdt_info;
-+	wdt->wdd.ops = &twd_wdt_ops;
-+	wdt->wdd.parent = dev;
-+	wdt->wdd.min_timeout = 1;
-+	wdt->wdd.max_timeout = div_u64((u64)U32_MAX * (TWD_WDT_PRESCALE + 1),
-+				       wdt->rate);
-+	wdt->wdd.timeout = min_t(unsigned int, TWD_WDT_DEFAULT_TIMEOUT,
-+				 wdt->wdd.max_timeout);
-+	watchdog_init_timeout(&wdt->wdd, timeout, dev);
-+	watchdog_set_nowayout(&wdt->wdd, nowayout);
-+	watchdog_stop_on_reboot(&wdt->wdd);
-+	watchdog_stop_on_unregister(&wdt->wdd);
-+	watchdog_set_drvdata(&wdt->wdd, wdt);
-+
-+	on_each_cpu(twd_wdt_cpu_probe, wdt, 1);
-+	if (!cpumask_empty(&wdt->running)) {
-+		/*
-+		 * Left running by the bootloader: the online callback takes it
-+		 * over with our settings on every CPU without stopping it.
-+		 */
-+		wdt->armed = true;
-+		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
-+	}
-+
-+	ret = cpuhp_state_add_instance(twd_wdt_hp_state, &wdt->node);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_add_action_or_reset(dev, twd_wdt_remove_instance, wdt);
-+	if (ret)
-+		return ret;
-+
-+	wdt->pm_nb.notifier_call = twd_wdt_cpu_pm_notify;
-+	ret = cpu_pm_register_notifier(&wdt->pm_nb);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_add_action_or_reset(dev, twd_wdt_remove_pm_notifier, wdt);
-+	if (ret)
-+		return ret;
-+
-+	if (!cpumask_empty(&wdt->reset)) {
-+		wdt->wdd.bootstatus = WDIOF_CARDRESET;
-+		dev_info(dev, "last reset caused by the watchdog of CPU%*pbl\n",
-+			 cpumask_pr_args(&wdt->reset));
-+	}
-+
-+	if (watchdog_hw_running(&wdt->wdd))
-+		dev_info(dev, "running on CPU%*pbl, taking over\n",
-+			 cpumask_pr_args(&wdt->running));
-+
-+	ret = devm_watchdog_register_device(dev, &wdt->wdd);
-+	if (ret)
-+		return ret;
-+
-+	dev_dbg(dev, "timeout %u s (max %u s), clock %lu Hz\n",
-+		wdt->wdd.timeout, wdt->wdd.max_timeout, wdt->rate);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id twd_wdt_of_match[] = {
-+	{ .compatible = "arm,arm11mp-twd-wdt" },
-+	{ .compatible = "arm,cortex-a5-twd-wdt" },
-+	{ .compatible = "arm,cortex-a9-twd-wdt" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, twd_wdt_of_match);
-+
-+/*
-+ * The watchdogs lose their state in suspend. The secondary CPUs get theirs
-+ * back through the hotplug state, the boot CPU through resume.
-+ */
-+static int twd_wdt_suspend(struct device *dev)
-+{
-+	struct twd_wdt *wdt = dev_get_drvdata(dev);
-+
-+	wdt->resume_armed = READ_ONCE(wdt->armed);
-+	if (wdt->resume_armed)
-+		twd_wdt_stop(&wdt->wdd);
-+
-+	return 0;
-+}
-+
-+static int twd_wdt_resume(struct device *dev)
-+{
-+	struct twd_wdt *wdt = dev_get_drvdata(dev);
-+
-+	if (wdt->resume_armed)
-+		twd_wdt_start(&wdt->wdd);
-+
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(twd_wdt_pm_ops, twd_wdt_suspend, twd_wdt_resume);
-+
-+static struct platform_driver twd_wdt_driver = {
-+	.probe = twd_wdt_probe,
-+	.driver = {
-+		.name = "arm-twd-wdt",
-+		.of_match_table = twd_wdt_of_match,
-+		.pm = pm_sleep_ptr(&twd_wdt_pm_ops),
-+	},
-+};
-+
-+static int __init twd_wdt_init(void)
-+{
-+	int ret;
-+
-+	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "watchdog/arm_twd:online",
-+				      twd_wdt_cpu_online, twd_wdt_cpu_offline);
-+	if (ret < 0)
-+		return ret;
-+	twd_wdt_hp_state = ret;
-+
-+	ret = platform_driver_register(&twd_wdt_driver);
-+	if (ret)
-+		cpuhp_remove_multi_state(twd_wdt_hp_state);
-+
-+	return ret;
-+}
-+module_init(twd_wdt_init);
-+
-+static void __exit twd_wdt_exit(void)
-+{
-+	platform_driver_unregister(&twd_wdt_driver);
-+	cpuhp_remove_multi_state(twd_wdt_hp_state);
-+}
-+module_exit(twd_wdt_exit);
-+
-+MODULE_DESCRIPTION("ARM TWD (MPCore private) watchdog driver");
-+MODULE_LICENSE("GPL");
+[Severity: Medium]
+Does calling twd_wdt_cpu_ping() on every clock rate change reset the
+watchdog countdown to the full wdd.timeout instead of scaling the remaining
+time in TWD_WDT_COUNTER?  On systems where cpufreq scales the CPU and TWD
+clocks during normal activity, frequent rate changes will continually
+reload TWD_WDT_LOAD and prevent the watchdog from expiring when userspace
+stops pinging it.  Also, when cnd->new_rate > cnd->old_rate,
+PRE_RATE_CHANGE already updates wdt->rate to cnd->new_rate and pings all
+CPUs, and POST_RATE_CHANGE then repeats the same update and IPIs.
 
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-change-id: 20261015-arm-twd-wdt-71ff5cef355b
+> +
+> +/*
+> + * A CPU whose power domain was turned off in idle comes back with its
+> + * watchdog stopped. Only then set it up again: reloading a watchdog that
+> + * kept running would ping it on every idle exit.
+> + */
+> +static int twd_wdt_cpu_pm_notify(struct notifier_block *nb,
+> +				 unsigned long action, void *data)
+> +{
+> +	struct twd_wdt *wdt =3D container_of(nb, struct twd_wdt, pm_nb);
+> +
+> +	if (action !=3D CPU_PM_EXIT && action !=3D CPU_PM_ENTER_FAILED)
+> +		return NOTIFY_DONE;
+> +
+> +	if (READ_ONCE(wdt->armed) &&
+> +	    !(readl(wdt->base + TWD_WDT_CONTROL) & TWD_WDT_CTRL_WD_MODE))
+> +		twd_wdt_cpu_start(wdt);
+> +
+> +	return NOTIFY_OK;
+> +}
 
-Best regards,
---  
-Fil Dunsky <filipp.dunsky@gmail.com>
+[Severity: Low]
+When a CPU wakes from a power-off idle state that reset its TWD block, does
+calling twd_wdt_cpu_start() reload the full wdd.timeout instead of
+restoring the remaining counter value from CPU_PM_ENTER?  If CPUs
+repeatedly enter and exit deep idle on timer or device interrupts before
+wdd.timeout elapses, each wakeup resets the countdown and keeps the
+watchdog from firing even if userspace is hung.
 
+[ ... ]
 
+> +static int twd_wdt_cpu_online(unsigned int cpu, struct hlist_node *node)
+> +{
+> +	struct twd_wdt *wdt =3D hlist_entry(node, struct twd_wdt, node);
+> +
+> +	/*
+> +	 * Also called for every online CPU at probe time. A watchdog that is
+> +	 * running while the device is not active would not be pinged.
+> +	 */
+> +	if (READ_ONCE(wdt->armed))
+> +		twd_wdt_cpu_start(wdt);
+> +	else
+> +		twd_wdt_cpu_stop(wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static int twd_wdt_cpu_offline(unsigned int cpu, struct hlist_node *node)
+> +{
+> +	struct twd_wdt *wdt =3D hlist_entry(node, struct twd_wdt, node);
+> +
+> +	/* Nobody pings the watchdog of an offline CPU */
+> +	twd_wdt_cpu_stop(wdt);
+> +
+> +	return 0;
+> +}
+
+[Severity: Medium]
+Can an IPI from twd_wdt_clk_notify() or twd_wdt_ping() interrupt
+twd_wdt_cpu_stop() or twd_wdt_cpu_start() when called from
+twd_wdt_cpu_online() and twd_wdt_cpu_offline()?
+
+Unlike on_each_cpu(), CPUHP_AP_ONLINE_DYN callbacks run in task context
+with local interrupts enabled while the CPU is in cpu_online_mask:
+
+twd_wdt_cpu_offline()
+  twd_wdt_cpu_stop()
+    writel(TWD_WDT_DISABLE_KEY1, wdt->base + TWD_WDT_DISABLE)
+    <IPI: twd_wdt_cpu_ping()>
+      writel(..., wdt->base + TWD_WDT_LOAD)
+    writel(TWD_WDT_DISABLE_KEY2, wdt->base + TWD_WDT_DISABLE)
+    writel(0, wdt->base + TWD_WDT_CONTROL)  <-- stays in watchdog mode
+
+Writing TWD_WDT_LOAD between TWD_WDT_DISABLE_KEY1 and TWD_WDT_DISABLE_KEY2
+breaks the hardware unlock sequence, leaving the watchdog armed when the
+CPU goes offline or when twd_wdt_cpu_start() tries to change the prescaler.
+In twd_wdt_cpu_start(), an IPI from twd_wdt_clk_notify() arriving after
+twd_wdt_ticks() reads the old wdt->rate is also overwritten when
+twd_wdt_cpu_start() resumes and writes the stale tick count to
+TWD_WDT_LOAD.  Disabling local IRQs around the register accesses in
+twd_wdt_cpu_online() and twd_wdt_cpu_offline() avoids both races.
+
+> +
+> +static void twd_wdt_remove_instance(void *data)
+> +{
+> +	struct twd_wdt *wdt =3D data;
+> +
+> +	cpuhp_state_remove_instance_nocalls(twd_wdt_hp_state, &wdt->node);
+> +}
+
+[ ... ]
+
+> +	on_each_cpu(twd_wdt_cpu_probe, wdt, 1);
+> +	if (!cpumask_empty(&wdt->running)) {
+> +		/*
+> +		 * Left running by the bootloader: the online callback takes it
+> +		 * over with our settings on every CPU without stopping it.
+> +		 */
+> +		wdt->armed =3D true;
+> +		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+> +	}
+> +
+> +	ret =3D cpuhp_state_add_instance(twd_wdt_hp_state, &wdt->node);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D devm_add_action_or_reset(dev, twd_wdt_remove_instance, wdt);
+> +	if (ret)
+> +		return ret;
+
+[Severity: Medium]
+Does using cpuhp_state_remove_instance_nocalls() in
+twd_wdt_remove_instance() leave the hardware watchdogs armed if probe fails
+after cpuhp_state_add_instance() or if the device is unbound before
+/dev/watchdog is opened?
+
+When a bootloader leaves a watchdog running, cpuhp_state_add_instance()
+arms all online CPUs with wdt->wdd.timeout and sets WDOG_HW_RUNNING.  If a
+later step in twd_wdt_probe() fails, or if the device is unbound while
+WDOG_ACTIVE is still clear (where watchdog_cdev_unregister() stops the
+keepalive worker without calling watchdog_stop()),
+cpuhp_state_remove_instance_nocalls() skips twd_wdt_cpu_offline() and
+leaves all CPUs counting down to a system reset.  Using
+cpuhp_state_remove_instance() runs twd_wdt_cpu_offline() on each online CPU
+during teardown.
+
+[ ... ]
+
+> +/*
+> + * The watchdogs lose their state in suspend. The secondary CPUs get the=
+irs
+> + * back through the hotplug state, the boot CPU through resume.
+> + */
+> +static int twd_wdt_suspend(struct device *dev)
+> +{
+> +	struct twd_wdt *wdt =3D dev_get_drvdata(dev);
+> +
+> +	wdt->resume_armed =3D READ_ONCE(wdt->armed);
+> +	if (wdt->resume_armed)
+> +		twd_wdt_stop(&wdt->wdd);
+> +
+> +	return 0;
+> +}
+
+[Severity: Low]
+Is the comment above twd_wdt_suspend() accurate about how secondary CPUs
+have their watchdogs restored?  twd_wdt_suspend() runs before
+pm_sleep_disable_secondary_cpus() and clears wdt->armed via twd_wdt_stop(),
+so when pm_sleep_enable_secondary_cpus() brings secondary CPUs back online
+before twd_wdt_resume(), twd_wdt_cpu_online() sees wdt->armed as false and
+twd_wdt_resume() -> twd_wdt_start() is what restarts the watchdog on all
+online CPUs.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114-arm-twd-wd=
+t-v4-1-5a3104b36331@gmail.com?part=3D1
