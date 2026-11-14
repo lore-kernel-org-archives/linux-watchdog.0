@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794676561;
-	b=ae26RYf1ykSVjvT+RvbS+O5du+KtPMfPgTG3jPASbCLWcwtadxRZ2HvF56REC/L2p+c/
-	 Gmz9SuFFrK5PFmEdVETg791y17XEWwXuTyUC6HL4P+6P+gxpTaOeJxLvlPnJTiqTUOOM3
-	 ibTGtgAnMYa38k02eeD0DMi8odqh4xZAxsLzaZN5BK9zg8HpVDWUseJmwpYbJePEBdVms
-	 rkF5axA2ldmQq6lczs7FAZeNtzuN9s0L8IjolzsSbc0p5Soo2y2Rrd5+Uc5cfFYuWqpkz
-	 n2d+oJ4CXxNruE0WV4FnxZXhauU2/du3NQrMDTb6WL8okk0kNxps0YBGY/9XQzEiQjA==
+	t=1794676967;
+	b=Zf6XZ6KSpm7Ss0P8Y3q+/uTlKeO/Oe8P1WzPwGRf14m81Yc77NLa8C28DopEYjl47/As
+	 bDkSf1K0PQ3eRMOZQ15hEpeig4j9tmWwwBafD4T81Tk8VQPXsN+4KxLmf6ayk9aCU1naQ
+	 +QOB8mjm2PtaR/dZUyP8SXoGd6aI7ovorfTLHw7y8R/fRJLh73ePwaQCWidRRKN670sRS
+	 qjWYoPxUXo+ldgvsiR0RBLZOf6pPosHOYHkJ8Yb7rjUOl7a/ZI+TF1WhuFly7AG40vXs0
+	 lthH0aDtiw99a1L8yTvEWnC0s35hUvHtrchQRc2YPdfFg+9kktBtozgiCzc2p0Jq8dw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794676561;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794676967;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
@@ -15,75 +15,75 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=Hs/PkOTJBUnLc2WxQnpdLATsC3XXPb/XE2GbbAtWhEw=;
-	b=312PTx7ogT55IlBdXNLVO2985KuKIu8q9v3+HLcnFNSVs5FBGIACZNqGKqL510SBM8Ug
-	 UOqjR+shZ/Zq0Ea1BlmXPpoolP0IEx7xNSTfirQh2mfBnoJ6iJpvwAQis1WEtbBTra4EH
-	 V/Nu5c+xaukNWKFQ75P0L2CLgfFB7BfEDMpwI3ty45eDl3goCFtqCuR/SF1TcMRW7fwY6
-	 aISGOcFLhsG7+pVRjdhn9WBkDAvydmoMS7DBdlq7tFYV7zdAp9Sbd61Ul5HKLzDTknYDm
-	 f/8n9nIfmHwrFRqi30U7FgluZk0raWJ8mwyZy3lpRIPNWjPdWFs09mFfU82geXpqYyw==
+	bh=PkmzYMQrJ+f+2RbIonUJxeJ2n2q97YNDRbeN91mqvik=;
+	b=mCghYKXPJwfQmjoguiwJAWH1zoTM718dVL3N/PAqv/zXipYaR7GoZW4quoXWR+W1rs9c
+	 ZCcdLJZU8TQDHpwxtLpS97dbwQ6E0kSQ6KfdlC9rks826OzqcL5+/utrjH3912YCyXJvp
+	 gOJxBq7ia0eIrYo4VhVA9RY5bMk3tIkqzLvrKq+3yaEXIErJedxKNnM4Sn/6ZluZiZyC/
+	 I+RvzFTzBHIA1UAHLfVl5jNX2Dup0pECX6YeHvQtSUT27itPOaeGQ/lTtWRFTj8GAvIol
+	 q86+ZJW76z8uIZK4TwLyKwqt9t5yObMERYJxzKf6XUWEpz3+dSqIrKrKUy/m932kTRg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IQXunpTp;
-	arc=none smtp.remote-ip=35.89.44.35
-Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vNMRetAN;
+	arc=none smtp.remote-ip=35.89.44.37
+Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C7D3606A329
-	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 17:16:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C7D3606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0AF606A334
+	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 17:22:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CD0AF606A334
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IQXunpTp
-Received: from eig-obgw-6002b.ext.cloudfilter.net ([10.0.30.203])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vNMRetAN
+Received: from eig-obgw-5001b.ext.cloudfilter.net ([10.0.29.181])
 	by cmsmtp with ESMTPS
-	id SG4FxH0KuRiNxSHM9xCRt5; Sat, 14 Nov 2026 17:16:01 +0000
+	id Rtj6xGXNPVK9USHSgxmWqC; Sat, 14 Nov 2026 17:22:46 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id SHM8xQN1t8cn4SHM8xzHyu; Sat, 14 Nov 2026 17:16:00 +0000
-X-Authority-Analysis: v=2.4 cv=Qrde3Uyd c=1 sm=1 tr=0 ts=6af89750
+	id SHSfxwQPUxmi7SHSgxA3Bd; Sat, 14 Nov 2026 17:22:46 +0000
+X-Authority-Analysis: v=2.4 cv=KuFN2XWN c=1 sm=1 tr=0 ts=6af898e6
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=rxihhvIKAAAA:8
- a=XYAwZIGsAAAA:8 a=DtZlJFn97RoajThK6kYA:9 a=CjuIK1q_8ugA:10
- a=vyXZNj8PikhivSrfMdal:22 a=E8ToXWR_bxluHZ7gmE-Z:22 a=KPbNTLLc3YvdawN95zVk:22
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10
+ a=3h6KpzBizPpaPHiOcEgA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
 	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
 	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=Hs/PkOTJBUnLc2WxQnpdLATsC3XXPb/XE2GbbAtWhEw=; b=IQXunpTp3P2M6XyKFh39c7GJ7T
-	wZ61qrjKhD8BiNlKLaUwzvDV5mX/iRsySGUY+CsvsR8XtG3YuL9qpsKnTzYJh3j8UXodUzJ5MzAB+
-	3oDKtNuLlkKbeOcWDxTtwUX7rdd3X4YEX+CCrM7vzCTHOXiBe921ol/3c4cQwkg1hTjjVle5xORjO
-	DYc8x3rSYiR9CgM0FNAzVEwmsiVa0p6IAQOco0SjNCwMjREmz4vCdTT2YWQ1rwNqe/Ld8PQMcYqL2
-	CsA1JFP/TUmGl8RKYCMIa7Zr6lIM43mxrG3VKnt7gtZ6kwewzkpaqgGoHwdosHZn+uvWX5aQ0F4ys
-	bawXKeoQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:34542 helo=server.roeck-us.net)
+	bh=PkmzYMQrJ+f+2RbIonUJxeJ2n2q97YNDRbeN91mqvik=; b=vNMRetANoN4dxqqFfQ1I0nEJt8
+	VdPC52+NTgVIpETzcJa6D6zkyYsKlGVJigXEpUW7qUyOhs4mpo6XqZ2gyOPzv9Act+HTwFf82He2G
+	UC5o9GL+HHj2QFECaPTjlyas9gaf6blTTaC7vt7eduoqfbzy9yoEXNu2a38XcecXy14OKGm9FlOMd
+	ZO0ZsEytSEtgx5AfI/dRnqcaoFUyzbbDEci7soGWTj8Mi5sNbAjwviIGn9Ff0jWucIEktH6WS6Btx
+	W5RgZKX70rQvaqzyrEMibc0eWVVO2Mj7BTs7c/ysctAq7cOJqyX328+hhkPojA9g+jHzGc4Lcr2AD
+	Q6BNehVw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:55400 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xSHM6-00000000ZoN-11s0;
-	Sat, 14 Nov 2026 22:45:58 +0530
-Date: Sat, 14 Nov 2026 09:15:57 -0800
+	id 1xSHSe-00000000ch6-38VG;
+	Sat, 14 Nov 2026 22:52:44 +0530
+Date: Sat, 14 Nov 2026 09:22:43 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Rong Zhang <rongrong@oss.cipunited.com>
-Cc: Keguang Zhang <keguang.zhang@gmail.com>,
+To: Artur Kowalski <arturkow2000@gmail.com>
+Cc: Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Thierry Reding <thierry.reding@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Rong Zhang <i@rong.moe>, Yao Zi <me@ziyao.cc>,
-	Icenowy Zheng <uwu@icenowy.me>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/8] dt-bindings: watchdog: loongson,ls1x-wdt: Add
- compatible for Loongson-7A
-Message-ID: <6179a943-b12b-46dd-bb64-c187ff779bb1@roeck-us.net>
-References: <20261113-mips-ls7a-wdt-v2-0-e8abd6b2f77c@oss.cipunited.com>
- <20261113-mips-ls7a-wdt-v2-1-e8abd6b2f77c@oss.cipunited.com>
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	clamor95@gmail.com
+Subject: Re: [PATCH 2/6] watchdog: tegra_wdt: Move SoC specific parts into
+ match data
+Message-ID: <ea2ab23d-d628-46a7-9cad-0bbcd8722869@roeck-us.net>
+References: <20261110-t20-for-upstream-v1-0-5923449951fe@gmail.com>
+ <20261110-t20-for-upstream-v1-2-5923449951fe@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -95,7 +95,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261113-mips-ls7a-wdt-v2-1-e8abd6b2f77c@oss.cipunited.com>
+In-Reply-To: <20261110-t20-for-upstream-v1-2-5923449951fe@gmail.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -104,29 +104,38 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xSHM6-00000000ZoN-11s0
+X-Exim-ID: 1xSHSe-00000000ch6-38VG
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:34542
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:55400
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 13
+X-Email-Count: 29
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfJ+JCh+PorNtjbk2mcxpCZueYa7ltewUzaZ2rL28VjlcjKsnh25hNBK6RshotLufiM/4u/TKptaFSieDJjVZ5GzDLlcT8UEeYTVuUwX22XzG9TzJgmwQ
- JCBrrlFddsCELPvpmbriI5caLUvOfD3dqt1HkPSNk/UqSPb4OA6A5DIu7drrP2nw47UfmVDQg3wC8+YZhouDwyALNZWkJhS/mzu9r+cA3e9kT183FSrtjeUV
+X-CMAE-Envelope: MS4xfKVNiGRQkWOhDj+83vh+0hpqAlwvcM8B2Xo/WXQIl4JEOidBcg6veHr8N+aevFWseccJZA1lFQrg/VfZOTlcJmdxXIdsM30NSZRWzrlmAX24zRX5Fazf
+ 4HIbaWQG3vbW2rIxowQc1QY7Vc1YdpIh0xaTIsbBEr890uqqk951lh/Y+sfGXGKyWtYyLewfNmQv1FhqwOaM+rk5fbMNETuj3vsUFvPLLYLBR2OQLyMvFwtu
 
-On Fri, Nov 13, 2026 at 06:51:08PM +0800, Rong Zhang wrote:
-> The Loongson-7A has a watchdog compatible with the one on Loongson
-> 2K0300.
-> 
-> Add "loongson,ls7a-wdt" compatible.
-> 
-> Signed-off-by: Rong Zhang <rongrong@oss.cipunited.com>
-> Acked-by: Conor Dooley <conor.dooley@microchip.com>
+On Tue, Nov 10, 2026 at 01:39:07PM +0100, Artur Kowalski wrote:
+> The driver only supports the watchdog blocks of Tegra30 and later. Move
+> the parts that differ between SoC generations, namely the watchdog
+> operations, the maximum timeout and the register setup, into a per-SoC
+> structure selected through the match data, so that support for Tegra20,
+> which has no watchdog block, can be added.
 
-Applied.
+This does not make sense. Literally every watchdog operation is different.
+Tegra 20 support should be added with a separate driver.
+
+> 
+> Suspend and resume call the operations through the watchdog device, so
+> they work with any SoC.
+> 
+> No functional change.
+> 
+> Assisted-by: Claude:claude-opus-5-5
+
+This trailer is obsolete. Please have your agent follow AGENTS.md.
 
 Thanks,
 Guenter
