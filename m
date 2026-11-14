@@ -1,89 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794676967;
-	b=Zf6XZ6KSpm7Ss0P8Y3q+/uTlKeO/Oe8P1WzPwGRf14m81Yc77NLa8C28DopEYjl47/As
-	 bDkSf1K0PQ3eRMOZQ15hEpeig4j9tmWwwBafD4T81Tk8VQPXsN+4KxLmf6ayk9aCU1naQ
-	 +QOB8mjm2PtaR/dZUyP8SXoGd6aI7ovorfTLHw7y8R/fRJLh73ePwaQCWidRRKN670sRS
-	 qjWYoPxUXo+ldgvsiR0RBLZOf6pPosHOYHkJ8Yb7rjUOl7a/ZI+TF1WhuFly7AG40vXs0
-	 lthH0aDtiw99a1L8yTvEWnC0s35hUvHtrchQRc2YPdfFg+9kktBtozgiCzc2p0Jq8dw==
+	t=1794681807;
+	b=oTKQBajQ1/qXHD8Zk+XIGihQsDo7VTeNkyqiHrNxWnspkDc2yVGsZZ93pE7dTCbj8Feh
+	 /HcGOPfJNrjSxzILXij/U3kMEonPOiTfYhf+CQMC1H0QR3lBMHeERTZQgSncJvY6jtbfD
+	 8NQ3Fb+R3e5LrjC98u+2/q9XuGqq41PZrM5j2pj869ASEfh1xgOvZ8JKpORkLOpbkSNgC
+	 v8ehcd9INPQpDTbf2NgWCIG9DAXjMESMpHh/SpYUJlhEWReTrrw8obsNuEzDhw8dnnKk/
+	 FsHbsI43FfGEvvydbDc3NryeKcJhaABs+EV8oLzY+iDUnXsiu0dSZ8OiBzhXH3I1e/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794676967;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=PkmzYMQrJ+f+2RbIonUJxeJ2n2q97YNDRbeN91mqvik=;
-	b=mCghYKXPJwfQmjoguiwJAWH1zoTM718dVL3N/PAqv/zXipYaR7GoZW4quoXWR+W1rs9c
-	 ZCcdLJZU8TQDHpwxtLpS97dbwQ6E0kSQ6KfdlC9rks826OzqcL5+/utrjH3912YCyXJvp
-	 gOJxBq7ia0eIrYo4VhVA9RY5bMk3tIkqzLvrKq+3yaEXIErJedxKNnM4Sn/6ZluZiZyC/
-	 I+RvzFTzBHIA1UAHLfVl5jNX2Dup0pECX6YeHvQtSUT27itPOaeGQ/lTtWRFTj8GAvIol
-	 q86+ZJW76z8uIZK4TwLyKwqt9t5yObMERYJxzKf6XUWEpz3+dSqIrKrKUy/m932kTRg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794681807;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=5TfgGwSvpWd3UKEyFfVSx8qLB6KqQDyrVVkNkIiwI9k=;
+	b=1A5FmBfOMbNaUBS1p0qY0PII860t7FqQvmLRRwJZSsBZGuYG5/g0ok6+Tk3sTA/mkdU3
+	 aa5miUB5wznM/JqvRMznUG3HHY0hsNE+yLY7s9VUo5L/ihrfu/bQkAtNbU9lxCJ0tdYS5
+	 eYfx7EYXfrD0thTGxQJlON2NFemik9DFLmHaZPK3QyxkbuJNr1N+bNwlTfVKet7l+AUgo
+	 RJSWpCsq804yIeiH2nflpu7gT+xNLJC6vz+k+2e/5zyJ2KhBO2jKTJeLkFGmpfYM0eDbZ
+	 1pUYrsohVb21NSlmW3jOfhjsz6vNea1k/uY4X8ApDFycyhYPHh3btJFokPTPbyNN6Pg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vNMRetAN;
-	arc=none smtp.remote-ip=35.89.44.37
-Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=M2GHqvF7;
+	arc=none smtp.remote-ip=209.85.214.181
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0AF606A334
-	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 17:22:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CD0AF606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 388BB606A32D
+	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 18:43:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 388BB606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=vNMRetAN
-Received: from eig-obgw-5001b.ext.cloudfilter.net ([10.0.29.181])
-	by cmsmtp with ESMTPS
-	id Rtj6xGXNPVK9USHSgxmWqC; Sat, 14 Nov 2026 17:22:46 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id SHSfxwQPUxmi7SHSgxA3Bd; Sat, 14 Nov 2026 17:22:46 +0000
-X-Authority-Analysis: v=2.4 cv=KuFN2XWN c=1 sm=1 tr=0 ts=6af898e6
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10
- a=3h6KpzBizPpaPHiOcEgA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=PkmzYMQrJ+f+2RbIonUJxeJ2n2q97YNDRbeN91mqvik=; b=vNMRetANoN4dxqqFfQ1I0nEJt8
-	VdPC52+NTgVIpETzcJa6D6zkyYsKlGVJigXEpUW7qUyOhs4mpo6XqZ2gyOPzv9Act+HTwFf82He2G
-	UC5o9GL+HHj2QFECaPTjlyas9gaf6blTTaC7vt7eduoqfbzy9yoEXNu2a38XcecXy14OKGm9FlOMd
-	ZO0ZsEytSEtgx5AfI/dRnqcaoFUyzbbDEci7soGWTj8Mi5sNbAjwviIGn9Ff0jWucIEktH6WS6Btx
-	W5RgZKX70rQvaqzyrEMibc0eWVVO2Mj7BTs7c/ysctAq7cOJqyX328+hhkPojA9g+jHzGc4Lcr2AD
-	Q6BNehVw==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:55400 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xSHSe-00000000ch6-38VG;
-	Sat, 14 Nov 2026 22:52:44 +0530
-Date: Sat, 14 Nov 2026 09:22:43 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Artur Kowalski <arturkow2000@gmail.com>
-Cc: Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=M2GHqvF7
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2e99b1e5b4cso12307675ad.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 10:43:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794681806; x=1795286606; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=5TfgGwSvpWd3UKEyFfVSx8qLB6KqQDyrVVkNkIiwI9k=;
+        b=M2GHqvF724wS0kGiBHtx8IMO9pTfsh87vMMtqrh0TRHh53vXAGtSa6FsoFW83dLeV2
+         un9/GzDNYTMNeNa9ffERXaSfmRfXOo/Un4ca0Rgqo4MQep/6R5F3PxNbkc/BfTXC1eJ1
+         72BJBfR8k51ReNpQmJ+Ht24l+iVo3gyF/YKDRl5C6vKWLKOiLfzOdCQa+5a9QOlFlSEB
+         rzSeQIUV/ZsOp7QU+s9e+fcHGxJmr5LjP8oW6/JimEV2zwWVHU2nV/sDyutx+szaqZyK
+         QVxygWK/FbebtiJYQYDwQuEpkXJT+Uf3tqGkTYhBN8Apz0GwgbFqdVZKVE6RAQttshvi
+         RWrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794681806; x=1795286606;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=5TfgGwSvpWd3UKEyFfVSx8qLB6KqQDyrVVkNkIiwI9k=;
+        b=mbii2G0E8HUSjjnHJHD2mQWKQTTrYYEWEVWuax1mjPSByuEBoTfZdIWJyeziOu5gHp
+         0Qice4DBZPTo5hoY1NyYYHFO9W3EtIFKwZkCkiGNoS+LEvDs246oErsRb+p7aRhOGvcG
+         GPHS27gub8v3vrwl1TorYT73yX8W1AOBxyv690sGSBy9JCi90n+P6+EybSzuJLAz6y7Z
+         kDQlLbFyDGCV4xJgqzOL+b6OafqRhuBzDdfFtzqWm1aGoDiJpJrMqG+THKQ72yyy2BE1
+         XvjIKMwCHtmX9fOtOsRXQpyXa+5XuWtRYb3vPUQoIrJznqGR7DseHz+/QRTjNqm26uLm
+         NUAA==
+X-Gm-Message-State: APuU4Z+YY19by5KawtL8gP2CaS/7mmBMitpeC9lSE+CAqmVoaAxhx0U6
+	D+UfQsSQIlES4YzAC6prge2oLi3/XIIChRKn2Ju31oanLUTMt7TvYRCgtYu+Zw==
+X-Gm-Gg: AYBFou3HPROPHixHKWK71wcTQ3oBS5TNC2UPI97D46LvNUV6OVJcFs2l3JJnK60/12r
+	Afd9wq0pmCFxyG4hWQ3B9/06/VzMUHTBfN9OFtOsMnaxkd2Fuyu6bG14il2m1smrfvHwWNl95vE
+	pPQZS6hgaeB0FKSjBE5eLZV1aLbUSMUjqejcvEE2fnOYaTz8nRPMkGMwEvuTwGgdZjEnus7QUk2
+	ioRWzDNYtrI/mJzXEDTdqeiAVI+QixurcR9e9ESF7BU2odApcqVDVv/TuUL17Q6m8OD4aZRr3Pl
+	+wn3JduZ6UvZ1r0OAbrCZX3skQtyKgRL02muTMHEIXqEQmOeaOg4DVghtxFam8Qf9lCnDPLZFzG
+	qsk/ImzResQidcx4CWxMFg/QAaXcy0enWQbKXD2DElICCdHHxHHDOfTQIgNs/KyvyWlNLSrdbv9
+	G3hTgi6S4LQLQJLECUC4Fp0s5mhl4YfEeiS/zX2YSEQy6PJfBKXLDgXTA2UfhHoCWKrWuziiAv5
+	MfO7pa92FCXj/N9dnlbV0MDDXhhjmnGHp+BSsebgHAqXE6Dam9KEpTOgs+DNn402JxMrdUVxA2d
+	cFJ8VM7yDpzJbTcDX7U7Gb5tUjvsk6zzMPrPIeeI56XJUA++Xhn1ATVUtlz4mw4qWmjN94hnafg
+	=
+X-Received: by 2002:a17:90b:4c10:b0:3ac:9e76:aa9b with SMTP id 98e67ed59e1d1-3b1b07fee23mr6296426a91.7.1794681806420;
+        Sat, 14 Nov 2026 10:43:26 -0800 (PST)
+Received: from d.home.yangfl.dn42 ([2a09:bac1:76a0:28::1d2:6e])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b1aeb17853sm9700940a91.5.2026.11.14.10.43.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Nov 2026 10:43:25 -0800 (PST)
+From: David Yang <mmyangfl@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: David Yang <mmyangfl@gmail.com>,
 	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	clamor95@gmail.com
-Subject: Re: [PATCH 2/6] watchdog: tegra_wdt: Move SoC specific parts into
- match data
-Message-ID: <ea2ab23d-d628-46a7-9cad-0bbcd8722869@roeck-us.net>
-References: <20261110-t20-for-upstream-v1-0-5923449951fe@gmail.com>
- <20261110-t20-for-upstream-v1-2-5923449951fe@gmail.com>
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Viresh Kumar <vireshk@kernel.org>,
+	Andre Przywara <andre.przywara@arm.com>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] dt-bindings: watchdog: arm,sp805: reference the PrimeCell binding
+Date: Sun, 15 Nov 2026 02:42:33 +0800
+Message-ID: <20261114184257.535546-1-mmyangfl@gmail.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -93,49 +101,41 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261110-t20-for-upstream-v1-2-5923449951fe@gmail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xSHSe-00000000ch6-38VG
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:55400
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 29
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfKVNiGRQkWOhDj+83vh+0hpqAlwvcM8B2Xo/WXQIl4JEOidBcg6veHr8N+aevFWseccJZA1lFQrg/VfZOTlcJmdxXIdsM30NSZRWzrlmAX24zRX5Fazf
- 4HIbaWQG3vbW2rIxowQc1QY7Vc1YdpIh0xaTIsbBEr890uqqk951lh/Y+sfGXGKyWtYyLewfNmQv1FhqwOaM+rk5fbMNETuj3vsUFvPLLYLBR2OQLyMvFwtu
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 10, 2026 at 01:39:07PM +0100, Artur Kowalski wrote:
-> The driver only supports the watchdog blocks of Tegra30 and later. Move
-> the parts that differ between SoC generations, namely the watchdog
-> operations, the maximum timeout and the register setup, into a per-SoC
-> structure selected through the match data, so that support for Tegra20,
-> which has no watchdog block, can be added.
+Unlike the other PrimeCell bindings, the binding ends in
+unevaluatedProperties: false without referencing
+/schemas/arm/primecell.yaml#, so arm,primecell-periphid is not an
+evaluated property on an arm,sp805 node. Two nodes in the tree carry
+that property regardless -- watchdog@a2c000 in hisi-x5hd2.dtsi and
+watchdog@8000 in mps2.dtsi.
 
-This does not make sense. Literally every watchdog operation is different.
-Tegra 20 support should be added with a separate driver.
+`make CHECK_DTBS=y`:
 
-> 
-> Suspend and resume call the operations through the watchdog device, so
-> they work with any SoC.
-> 
-> No functional change.
-> 
-> Assisted-by: Claude:claude-opus-5-5
+  watchdog@a2c000 (arm,sp805): Unevaluated properties are not allowed
+  ('arm,primecell-periphid' was unexpected)
 
-This trailer is obsolete. Please have your agent follow AGENTS.md.
+Add the reference so the property becomes evaluable; both nodes then
+validate.
 
-Thanks,
-Guenter
+Fixes: 73d3e43f9813 ("dt-bindings: watchdog: sp-805: Convert to Json-schema")
+Signed-off-by: David Yang <mmyangfl@gmail.com>
+---
+ Documentation/devicetree/bindings/watchdog/arm,sp805.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml b/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+index bd7c09ed1938..690456839fcc 100644
+--- a/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
++++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+@@ -16,6 +16,7 @@ description: |+
+ 
+ allOf:
+   - $ref: /schemas/watchdog/watchdog.yaml#
++  - $ref: /schemas/arm/primecell.yaml#
+ 
+ # Need a custom select here or 'arm,primecell' will match on lots of nodes
+ select:
+-- 
+2.53.0
+
