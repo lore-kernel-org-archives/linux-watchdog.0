@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794676488;
-	b=wJTgYhsy36SZXoh/W1WEVfRRx2wn29w2LR3aQUrS0tO7UjBGijLb9XJ5+BOaJI1S0/3F
-	 CUS8m0HoeElXdRpN6gXOhGqii7nYT8k7WpPwl81W9ltt+SCZ+SbQ4rGACQaup06KPzc3z
-	 GQ3llh/Zluc0Qb4NaXV7+uyan2lo5557V4c3iFwaUov4WQtbSV1aD15QDEork93mN5Bfo
-	 OQw8ONRDcaU0g/GXNuo/0kicOh/EShKNi3sb/TszEjhm0/f85fFDkuvvbFV44eGO1ureQ
-	 X8YBwoVfkCScezLvnjQvKP7lRbGGqMHL8a4A0esmzxN6VyurMIyn1o42mS7p0PitMRA==
+	t=1794676561;
+	b=ae26RYf1ykSVjvT+RvbS+O5du+KtPMfPgTG3jPASbCLWcwtadxRZ2HvF56REC/L2p+c/
+	 Gmz9SuFFrK5PFmEdVETg791y17XEWwXuTyUC6HL4P+6P+gxpTaOeJxLvlPnJTiqTUOOM3
+	 ibTGtgAnMYa38k02eeD0DMi8odqh4xZAxsLzaZN5BK9zg8HpVDWUseJmwpYbJePEBdVms
+	 rkF5axA2ldmQq6lczs7FAZeNtzuN9s0L8IjolzsSbc0p5Soo2y2Rrd5+Uc5cfFYuWqpkz
+	 n2d+oJ4CXxNruE0WV4FnxZXhauU2/du3NQrMDTb6WL8okk0kNxps0YBGY/9XQzEiQjA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794676488;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794676561;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
@@ -15,69 +15,75 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
 	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
 	 X-Local-Domain:X-CMAE-Envelope;
-	bh=GKDv0ntQt/DftzZ6i79e0BggsuCIpXWxjqNNOb2L8rM=;
-	b=clllMH1hhlQ5XF1Oc6Bq5JkPupQ0/+HIf6E/SIPut/WMkzTzDlmxa2avZ5Zvs8pbOTLn
-	 wH8l5A/WwXpHhuTt+z4GYPNsf46iy8hZilZdujeP26AlYrBJToBYXfcTUPPZI7o60iVyf
-	 NPB8xDgIs88iiU215xiimbRWbMGdcnadoOXS5d2bNaFkjrunMhVkiqam2ntHUqUDpcdZh
-	 brzhH3B0XHMC5qcwCRtckLPUouDmhu/jrFbP1a2pIIIVN23xHaXDHN0anX2LbaDRupQv9
-	 j3MQXFRyjdiGp8XVgvFzvAMEZe8N+pDwfC3AQejfReRjHPU4v+YpvNTUlRNNZ+5OKyA==
+	bh=Hs/PkOTJBUnLc2WxQnpdLATsC3XXPb/XE2GbbAtWhEw=;
+	b=312PTx7ogT55IlBdXNLVO2985KuKIu8q9v3+HLcnFNSVs5FBGIACZNqGKqL510SBM8Ug
+	 UOqjR+shZ/Zq0Ea1BlmXPpoolP0IEx7xNSTfirQh2mfBnoJ6iJpvwAQis1WEtbBTra4EH
+	 V/Nu5c+xaukNWKFQ75P0L2CLgfFB7BfEDMpwI3ty45eDl3goCFtqCuR/SF1TcMRW7fwY6
+	 aISGOcFLhsG7+pVRjdhn9WBkDAvydmoMS7DBdlq7tFYV7zdAp9Sbd61Ul5HKLzDTknYDm
+	 f/8n9nIfmHwrFRqi30U7FgluZk0raWJ8mwyZy3lpRIPNWjPdWFs09mFfU82geXpqYyw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=XcXgoEYE;
-	arc=none smtp.remote-ip=35.89.44.39
-Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IQXunpTp;
+	arc=none smtp.remote-ip=35.89.44.35
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46B89606A336
-	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 17:14:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 46B89606A336
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C7D3606A329
+	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 17:16:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C7D3606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=XcXgoEYE
-Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IQXunpTp
+Received: from eig-obgw-6002b.ext.cloudfilter.net ([10.0.30.203])
 	by cmsmtp with ESMTPS
-	id SHKgxfrTTyb4YSHKyxgRsy; Sat, 14 Nov 2026 17:14:48 +0000
+	id SG4FxH0KuRiNxSHM9xCRt5; Sat, 14 Nov 2026 17:16:01 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id SHKxxYzMaFhzrSHKxxMrz3; Sat, 14 Nov 2026 17:14:47 +0000
-X-Authority-Analysis: v=2.4 cv=JY+8rVKV c=1 sm=1 tr=0 ts=6af89707
+	id SHM8xQN1t8cn4SHM8xzHyu; Sat, 14 Nov 2026 17:16:00 +0000
+X-Authority-Analysis: v=2.4 cv=Qrde3Uyd c=1 sm=1 tr=0 ts=6af89750
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=R5C9hjxsAAAA:8
- a=VwQbUJbxAAAA:8 a=ougBiSQobiDs1THvT_sA:9 a=CjuIK1q_8ugA:10
- a=KPbNTLLc3YvdawN95zVk:22
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=rxihhvIKAAAA:8
+ a=XYAwZIGsAAAA:8 a=DtZlJFn97RoajThK6kYA:9 a=CjuIK1q_8ugA:10
+ a=vyXZNj8PikhivSrfMdal:22 a=E8ToXWR_bxluHZ7gmE-Z:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
 	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
 	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=GKDv0ntQt/DftzZ6i79e0BggsuCIpXWxjqNNOb2L8rM=; b=XcXgoEYEcXVJBU60BEfTirXxSk
-	bYnh9opEB29ExJIIXG9OT0Jq4yZlcuJ4ilDsJv90eyTsh34prxKbFRVTIZFhl+lfMn/URM45MP8nm
-	YOJa+FGDClo4rTHL1QDhyETS4R2Hb+Xqlhm9fpls7H1Pq+ceM3FRmnd8YWc7dFQIWN3sqhQ1FapjP
-	q6umhevRAn2b+TCC1zxmckADLd1DEhjCcf8U8MXPUlQTtYMfQoWKBe4jkbMjpHsB3hnc34C6bCx7U
-	lmHXmREAe/gDPIGK4Lww8aCn0GMu3MhXh7QNYQJyh0myj8oVTJFebzFRC1HDGX89pdjZ8FVNdDgHq
-	GMQ2P4sg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:59624 helo=server.roeck-us.net)
+	bh=Hs/PkOTJBUnLc2WxQnpdLATsC3XXPb/XE2GbbAtWhEw=; b=IQXunpTp3P2M6XyKFh39c7GJ7T
+	wZ61qrjKhD8BiNlKLaUwzvDV5mX/iRsySGUY+CsvsR8XtG3YuL9qpsKnTzYJh3j8UXodUzJ5MzAB+
+	3oDKtNuLlkKbeOcWDxTtwUX7rdd3X4YEX+CCrM7vzCTHOXiBe921ol/3c4cQwkg1hTjjVle5xORjO
+	DYc8x3rSYiR9CgM0FNAzVEwmsiVa0p6IAQOco0SjNCwMjREmz4vCdTT2YWQ1rwNqe/Ld8PQMcYqL2
+	CsA1JFP/TUmGl8RKYCMIa7Zr6lIM43mxrG3VKnt7gtZ6kwewzkpaqgGoHwdosHZn+uvWX5aQ0F4ys
+	bawXKeoQ==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:34542 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xSHKw-00000000ZLK-44bb;
-	Sat, 14 Nov 2026 22:44:47 +0530
-Date: Sat, 14 Nov 2026 09:14:46 -0800
+	id 1xSHM6-00000000ZoN-11s0;
+	Sat, 14 Nov 2026 22:45:58 +0530
+Date: Sat, 14 Nov 2026 09:15:57 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: zhaofeng2@cmss.chinamobile.com
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Tomer Maimon <tmaimon77@gmail.com>, Joel Stanley <joel@jms.id.au>,
-	j.neuschaefer@gmx.net, Triet Hoang <triet.hoang.dev@gmail.com>,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: npcm: fix sleeping clock call in restart
- handler
-Message-ID: <05036d3e-2d80-4b8b-a99c-cbb896eb3051@roeck-us.net>
-References: <20261111064150.260-1-zhaofeng2@cmss.chinamobile.com>
- <20261111083236.248-1-zhaofeng2@cmss.chinamobile.com>
+To: Rong Zhang <rongrong@oss.cipunited.com>
+Cc: Keguang Zhang <keguang.zhang@gmail.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Rong Zhang <i@rong.moe>, Yao Zi <me@ziyao.cc>,
+	Icenowy Zheng <uwu@icenowy.me>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/8] dt-bindings: watchdog: loongson,ls1x-wdt: Add
+ compatible for Loongson-7A
+Message-ID: <6179a943-b12b-46dd-bb64-c187ff779bb1@roeck-us.net>
+References: <20261113-mips-ls7a-wdt-v2-0-e8abd6b2f77c@oss.cipunited.com>
+ <20261113-mips-ls7a-wdt-v2-1-e8abd6b2f77c@oss.cipunited.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -89,7 +95,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261111083236.248-1-zhaofeng2@cmss.chinamobile.com>
+In-Reply-To: <20261113-mips-ls7a-wdt-v2-1-e8abd6b2f77c@oss.cipunited.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -98,44 +104,27 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xSHKw-00000000ZLK-44bb
+X-Exim-ID: 1xSHM6-00000000ZoN-11s0
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:59624
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:34542
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 7
+X-Email-Count: 13
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfBfdQ6AmNfzxNYg0gi8LbVSJvYHVA7wicbdKGGFaGsKWzTF/8Soi0v0MEjKkm+fyiY/xJ/BGaPEoWtBFnfB4g+KIZts7i94bd5wxaHcU9rPWTHF0SXpR
- xf77Zy1jpFteRjSiR7mqBlRLBDV5LwNRNs9yyhpsQZfxxx3kyT6kj7U6IW+m420NfAvpdG1DO46T6X+teQ3DlCsVOhb+f9WgeTYu+AQknNckVZzGczV+BhUZ
+X-CMAE-Envelope: MS4xfJ+JCh+PorNtjbk2mcxpCZueYa7ltewUzaZ2rL28VjlcjKsnh25hNBK6RshotLufiM/4u/TKptaFSieDJjVZ5GzDLlcT8UEeYTVuUwX22XzG9TzJgmwQ
+ JCBrrlFddsCELPvpmbriI5caLUvOfD3dqt1HkPSNk/UqSPb4OA6A5DIu7drrP2nw47UfmVDQg3wC8+YZhouDwyALNZWkJhS/mzu9r+cA3e9kT183FSrtjeUV
 
-On Wed, Nov 11, 2026 at 04:32:36PM +0800, zhaofeng2@cmss.chinamobile.com wrote:
-> From: Zhao Feng <zhaofeng2@cmss.chinamobile.com>
+On Fri, Nov 13, 2026 at 06:51:08PM +0800, Rong Zhang wrote:
+> The Loongson-7A has a watchdog compatible with the one on Loongson
+> 2K0300.
 > 
-> The watchdog .restart callback runs in atomic context: it is invoked
-> from the restart handler chain via atomic_notifier_call_chain(), under
-> an RCU read-side critical section, on every reboot or restart.  Since
-> commit af084fdccfaf ("watchdog: npcm: Enable clock if provided"),
-> npcm_wdt_restart() calls clk_prepare_enable(), and clk_prepare()
-> takes a mutex unconditionally, so kernels built with
-> CONFIG_DEBUG_ATOMIC_SLEEP=y report
+> Add "loongson,ls7a-wdt" compatible.
 > 
->   BUG: sleeping function called from invalid context
-> 
-> on every reboot.  Worse, a panic-time restart can block on
-> prepare_lock and never issue the reset at all.
-> 
-> Get the clock with devm_clk_get_optional_prepared() at probe time and
-> keep it prepared for the lifetime of the driver, so the restart
-> handler only needs clk_enable(), which is safe in atomic context.
-> With the clock permanently prepared, npcm_wdt_start() and
-> npcm_wdt_stop() are simplified to clk_enable()/clk_disable() as well.
-> 
-> Fixes: af084fdccfaf ("watchdog: npcm: Enable clock if provided")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Zhao Feng <zhaofeng2@cmss.chinamobile.com>
+> Signed-off-by: Rong Zhang <rongrong@oss.cipunited.com>
+> Acked-by: Conor Dooley <conor.dooley@microchip.com>
 
 Applied.
 
