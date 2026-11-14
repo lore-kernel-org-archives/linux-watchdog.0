@@ -1,97 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794681807;
-	b=oTKQBajQ1/qXHD8Zk+XIGihQsDo7VTeNkyqiHrNxWnspkDc2yVGsZZ93pE7dTCbj8Feh
-	 /HcGOPfJNrjSxzILXij/U3kMEonPOiTfYhf+CQMC1H0QR3lBMHeERTZQgSncJvY6jtbfD
-	 8NQ3Fb+R3e5LrjC98u+2/q9XuGqq41PZrM5j2pj869ASEfh1xgOvZ8JKpORkLOpbkSNgC
-	 v8ehcd9INPQpDTbf2NgWCIG9DAXjMESMpHh/SpYUJlhEWReTrrw8obsNuEzDhw8dnnKk/
-	 FsHbsI43FfGEvvydbDc3NryeKcJhaABs+EV8oLzY+iDUnXsiu0dSZ8OiBzhXH3I1e/A==
+	t=1794682361;
+	b=Zbl2oi9+1fUqyagfMS1+k5G2zk23CH9QGSlDx7N6v+f/qpWL5jZtJTmVWmG3/LybED80
+	 mlyVPp+fJpvnPRdWjM96eWhZPTYQrpLYteBV2Y3/xNS0oLf8IboisPsMyU6EaE+v8lUXr
+	 IGLeYviYdUoDY4xNJh2WnSNGbEo3qd8WITEN74bzWQ/XzIUASz7W2VLHE0QAz8+6jRtyA
+	 pzlX6f5iWb+FqTIptFlIw0piv5kGL/CNgSyYN5HC7jW7twcU+2JpCPpk2K+d3af8B3uEF
+	 tbUsIoD8sjvmb4+hMLaobaeairOXRsEw9qpJNY0TxWnsyc5lP5APDD//drjrwQMAjdg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794681807;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794682361;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=5TfgGwSvpWd3UKEyFfVSx8qLB6KqQDyrVVkNkIiwI9k=;
-	b=1A5FmBfOMbNaUBS1p0qY0PII860t7FqQvmLRRwJZSsBZGuYG5/g0ok6+Tk3sTA/mkdU3
-	 aa5miUB5wznM/JqvRMznUG3HHY0hsNE+yLY7s9VUo5L/ihrfu/bQkAtNbU9lxCJ0tdYS5
-	 eYfx7EYXfrD0thTGxQJlON2NFemik9DFLmHaZPK3QyxkbuJNr1N+bNwlTfVKet7l+AUgo
-	 RJSWpCsq804yIeiH2nflpu7gT+xNLJC6vz+k+2e/5zyJ2KhBO2jKTJeLkFGmpfYM0eDbZ
-	 1pUYrsohVb21NSlmW3jOfhjsz6vNea1k/uY4X8ApDFycyhYPHh3btJFokPTPbyNN6Pg==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Type:Content-Transfer-Encoding:MIME-Version;
+	bh=zLZrkub1iNWGcsUrG6AoUeFQUZNpk/XAt3E+7j4A0WQ=;
+	b=eXi45vrpv+cJ7BXeVI7edePIjmp2GwgMKLr84Zb0xq5oaL/A754eurosOg74B5lj0iIC
+	 BCoL4LMrbF6JQi02R61mEMCtEW5yseGz4+JU8ONgAGN0YMCEEE0x/ZhyMSsw5XQdw1tnV
+	 pRqsYqUQ10TEPNdFggwNHbcTX1roSf/fIEZtttSO4SqcSyCeVdmoGjDxin42G8DpWoAMn
+	 blzc4p4LbzgKPrqnsqQLIlBMbnUT0BQ0GOhLumn4rpvKOmuVOldXz00e35OMMzWLc1+6l
+	 dxnz590R3omtAbEvjHIbW3cdhlhDyIZrcsf6dDAd5F+0GdtzwYcFlDFJD0ihHT0FXpA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=M2GHqvF7;
-	arc=none smtp.remote-ip=209.85.214.181
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=arXtzPsQ;
+	arc=none smtp.remote-ip=209.85.128.50
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 388BB606A32D
-	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 18:43:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 388BB606A32D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BFA8606A327
+	for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 18:52:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6BFA8606A327
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=M2GHqvF7
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2e99b1e5b4cso12307675ad.0
-        for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 10:43:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=arXtzPsQ
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4a210470b49so17045265e9.2
+        for <linux-watchdog@vger.kernel.org>; Sat, 14 Nov 2026 10:52:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794681806; x=1795286606; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=5TfgGwSvpWd3UKEyFfVSx8qLB6KqQDyrVVkNkIiwI9k=;
-        b=M2GHqvF724wS0kGiBHtx8IMO9pTfsh87vMMtqrh0TRHh53vXAGtSa6FsoFW83dLeV2
-         un9/GzDNYTMNeNa9ffERXaSfmRfXOo/Un4ca0Rgqo4MQep/6R5F3PxNbkc/BfTXC1eJ1
-         72BJBfR8k51ReNpQmJ+Ht24l+iVo3gyF/YKDRl5C6vKWLKOiLfzOdCQa+5a9QOlFlSEB
-         rzSeQIUV/ZsOp7QU+s9e+fcHGxJmr5LjP8oW6/JimEV2zwWVHU2nV/sDyutx+szaqZyK
-         QVxygWK/FbebtiJYQYDwQuEpkXJT+Uf3tqGkTYhBN8Apz0GwgbFqdVZKVE6RAQttshvi
-         RWrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794681806; x=1795286606;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1794682360; x=1795287160; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:message-id:date
+         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=5TfgGwSvpWd3UKEyFfVSx8qLB6KqQDyrVVkNkIiwI9k=;
-        b=mbii2G0E8HUSjjnHJHD2mQWKQTTrYYEWEVWuax1mjPSByuEBoTfZdIWJyeziOu5gHp
-         0Qice4DBZPTo5hoY1NyYYHFO9W3EtIFKwZkCkiGNoS+LEvDs246oErsRb+p7aRhOGvcG
-         GPHS27gub8v3vrwl1TorYT73yX8W1AOBxyv690sGSBy9JCi90n+P6+EybSzuJLAz6y7Z
-         kDQlLbFyDGCV4xJgqzOL+b6OafqRhuBzDdfFtzqWm1aGoDiJpJrMqG+THKQ72yyy2BE1
-         XvjIKMwCHtmX9fOtOsRXQpyXa+5XuWtRYb3vPUQoIrJznqGR7DseHz+/QRTjNqm26uLm
-         NUAA==
-X-Gm-Message-State: APuU4Z+YY19by5KawtL8gP2CaS/7mmBMitpeC9lSE+CAqmVoaAxhx0U6
-	D+UfQsSQIlES4YzAC6prge2oLi3/XIIChRKn2Ju31oanLUTMt7TvYRCgtYu+Zw==
-X-Gm-Gg: AYBFou3HPROPHixHKWK71wcTQ3oBS5TNC2UPI97D46LvNUV6OVJcFs2l3JJnK60/12r
-	Afd9wq0pmCFxyG4hWQ3B9/06/VzMUHTBfN9OFtOsMnaxkd2Fuyu6bG14il2m1smrfvHwWNl95vE
-	pPQZS6hgaeB0FKSjBE5eLZV1aLbUSMUjqejcvEE2fnOYaTz8nRPMkGMwEvuTwGgdZjEnus7QUk2
-	ioRWzDNYtrI/mJzXEDTdqeiAVI+QixurcR9e9ESF7BU2odApcqVDVv/TuUL17Q6m8OD4aZRr3Pl
-	+wn3JduZ6UvZ1r0OAbrCZX3skQtyKgRL02muTMHEIXqEQmOeaOg4DVghtxFam8Qf9lCnDPLZFzG
-	qsk/ImzResQidcx4CWxMFg/QAaXcy0enWQbKXD2DElICCdHHxHHDOfTQIgNs/KyvyWlNLSrdbv9
-	G3hTgi6S4LQLQJLECUC4Fp0s5mhl4YfEeiS/zX2YSEQy6PJfBKXLDgXTA2UfhHoCWKrWuziiAv5
-	MfO7pa92FCXj/N9dnlbV0MDDXhhjmnGHp+BSsebgHAqXE6Dam9KEpTOgs+DNn402JxMrdUVxA2d
-	cFJ8VM7yDpzJbTcDX7U7Gb5tUjvsk6zzMPrPIeeI56XJUA++Xhn1ATVUtlz4mw4qWmjN94hnafg
-	=
-X-Received: by 2002:a17:90b:4c10:b0:3ac:9e76:aa9b with SMTP id 98e67ed59e1d1-3b1b07fee23mr6296426a91.7.1794681806420;
-        Sat, 14 Nov 2026 10:43:26 -0800 (PST)
-Received: from d.home.yangfl.dn42 ([2a09:bac1:76a0:28::1d2:6e])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b1aeb17853sm9700940a91.5.2026.11.14.10.43.22
+        bh=zLZrkub1iNWGcsUrG6AoUeFQUZNpk/XAt3E+7j4A0WQ=;
+        b=arXtzPsQu1EPdBNkc+LZxUglq1R5SLX4eusig6pMw8mF+uodO9SP/GKWtCv5ee88ad
+         qzLLCcncsbqzHbficciXETtEUoSXk0O3jDG734ziXNUUd5P0ir6y/+0vY0Nl4m1iiWWb
+         1dfONHj65NKkeQp8SG7p60nJn+aIK7MovYXtz1yh+LYHkqEQaQmexlw0q27HKRB4M/VO
+         JqfgKJ/BhA3rzkBzRm32PUe+whOxsvdHAakAnA82iaBOKwFzdE9xkAr/lL1pO2BYZygw
+         ++FL9n5o5ZPEtM5bgyxvyLGDmdmkuVCDFQAzDXRJ2B4bv+9K5k4Ui1hPl/nMa+DItM8O
+         06jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794682360; x=1795287160;
+        h=mime-version:content-transfer-encoding:content-type:message-id:date
+         :references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zLZrkub1iNWGcsUrG6AoUeFQUZNpk/XAt3E+7j4A0WQ=;
+        b=y+lkoV2RDEARl35GoVKFq0mFILB1y68ehuJN/2obMptYENg8tIJ/Nxz1kvuvpSFOGP
+         O1lHk2w51HkGHOLy883BnrrJSyX3vX6d+3K49fKxhPa16W1dbUXaJpdPf4D/odpLz+Ym
+         vE1WRqPB8TsnyeV2mBg7SpnIcoZRwue+Z8sbb8Ujl4rOLGj1QzJYaRwjVVg5iVWqid+3
+         ScOk337H5fhNKAOP4DPKT+ziaEkhwNidrSxRCi0iGlNfwwc+0qui/NNHe4GvCLmbPdI9
+         abH2A4MafNprhqignUM4sKJ62awDO8HKCf4W8H0D++ayflP47BcSF/x2vqya7q6M1AfI
+         QOcA==
+X-Forwarded-Encrypted: i=1; AL+hErFSiQDfd9j2MN/oU+AnlDJ5knX43KisfU7muCGj6cM1eMT+PSNEyl/Tv4JxG1xWsFWyWTmC3N49Fy/1h+OOQw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8eMiHnwPQNzIriPYOviGmeb3chkExbT80KtRl5jM4iou2AkZbn
+	XCI1hjLkh3Gc88r7EpIYTCf+uIUlc8U8x+7ZDAxfHi9RzNPTIFUMkKQ5
+X-Gm-Gg: AYBFou3jFO6p5Ndo+f9eUCNK+eEopw5UqJT4h9F0ZgatJjQERr/2BoknZIz5yHUChet
+	/J8J6Q7MAlwtcd+lBVwZRzPapS6ummJOC8lYhGy8trwkMvpbIIvHiqdjw0AsnagQvJwZ8fIHmLp
+	knP3Fhp32+kvXeI86+Wns8L9q7QkPSyJp0678fsagCI8yQ6X7m/81la5+9sBBcsuaORqOZctfmI
+	bd1m1ypvw2bB72+Y5gYmVJNYHh/JQJlZ3h3US6pHtMGona51gkY9GGbxa9yXlpuZk8wWuwvh8AH
+	B+lgJ72eAE2gG6pBTBjiCEgxmtKt4/KSCUlVhDE8a1DfZhMTL/ORHL6liN5nY4G6GjbMfa7Ll3Y
+	MOq+l5I4bhUzD0zKwtW2SfwXM7Z1FDxGzepWnz0wjtKpQHydp+WaR4ewEfTL+PoHjg9kNzv/etd
+	FcRWfT/++Yd4CbFBoy6bbxWao35VDlxTF5QnnlWaT3gXPrVvuJQwEsYq0CJP84kDspypXSCQBDD
+	tuzL0j7yNaBQIiLoVnRrMOaIKOtvkIWxvLtunFMVp5Snqxn8+WvofcqPwpVlXWIfZB0vBDO7vto
+	9uPzRIaku+ehfA8EkdW5gK6WwTLsxVHZZ9xGZqxUgPiSDfnS8WSJ1xE=
+X-Received: by 2002:a05:600c:a14:b0:4bb:6994:abe0 with SMTP id 5b1f17b1804b1-4bb6994b7eemr9745705e9.1.1794682359704;
+        Sat, 14 Nov 2026 10:52:39 -0800 (PST)
+Received: from [127.0.1.1] (ip-024-180.users.dtel.ru. [91.210.24.180])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb55ae4414sm161858265e9.9.2026.11.14.10.52.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 10:43:25 -0800 (PST)
-From: David Yang <mmyangfl@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: David Yang <mmyangfl@gmail.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Andre Przywara <andre.przywara@arm.com>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] dt-bindings: watchdog: arm,sp805: reference the PrimeCell binding
-Date: Sun, 15 Nov 2026 02:42:33 +0800
-Message-ID: <20261114184257.535546-1-mmyangfl@gmail.com>
-X-Mailer: git-send-email 2.53.0
+        Sat, 14 Nov 2026 10:52:39 -0800 (PST)
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Russell King <linux@armlinux.org.uk>, linux-watchdog@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] watchdog: Add ARM TWD (MPCore private) watchdog driver
+In-Reply-To: <db3a09f6-a560-4522-9954-8aa63eb2d5fb@roeck-us.net>
+References: <20261114-arm-twd-wdt-v4-1-5a3104b36331@gmail.com>
+ <db3a09f6-a560-4522-9954-8aa63eb2d5fb@roeck-us.net>
+Date: Sat, 14 Nov 2026 21:52:32 +0300
+Message-ID: <179468235262.1897695.7261271002700550095@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -101,41 +101,35 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Unlike the other PrimeCell bindings, the binding ends in
-unevaluatedProperties: false without referencing
-/schemas/arm/primecell.yaml#, so arm,primecell-periphid is not an
-evaluated property on an arm,sp805 node. Two nodes in the tree carry
-that property regardless -- watchdog@a2c000 in hisi-x5hd2.dtsi and
-watchdog@8000 in mps2.dtsi.
+Hi Guenter,
 
-`make CHECK_DTBS=y`:
+On Sat, Nov 14, 2026 at 07:56:12AM -0800, Guenter Roeck wrote:
+> Watchdog drivers are supposed to watch the system as a whole, not on a
+> per-CPU level. This patch goes way beyond the scope of a system watchdog
+> driver. Per-CPU watchdogs are handled in kernel/watchdog.c. I do not think
+> it is a good idea to overlay that with a second per-CPU watchdog mechanism.
 
-  watchdog@a2c000 (arm,sp805): Unevaluated properties are not allowed
-  ('arm,primecell-periphid' was unexpected)
+Thanks, understood. Watching individual CPUs was not the intent: all the
+watchdogs get the same timeout and are pinged together from the ioctl,
+so the driver acts as one system watchdog. Going through every CPU only
+follows from the registers being banked, and it is what made the driver
+grow (hotplug state, CPU PM, the races Sashiko found).
 
-Add the reference so the property becomes evaluable; both nodes then
-validate.
+The board needs one system watchdog and nothing per CPU: its boot loader
+starts the watchdog of CPU0 only, and the SoC has no other watchdog.
+Would a driver along these lines be acceptable?
 
-Fixes: 73d3e43f9813 ("dt-bindings: watchdog: sp-805: Convert to Json-schema")
-Signed-off-by: David Yang <mmyangfl@gmail.com>
----
- Documentation/devicetree/bindings/watchdog/arm,sp805.yaml | 1 +
- 1 file changed, 1 insertion(+)
+- use the watchdog of CPU0 only: start, stop, ping and get_timeleft run
+  there through smp_call_function_single();
+- no CPU hotplug state: on 32-bit ARM CPU0 cannot be taken offline
+  unless the platform allows it with cpu_can_disable(), and the driver
+  would not probe if CPU0 is hotpluggable;
+- the watchdogs of the other CPUs are not used, one found running at
+  probe time is stopped;
+- keep following clock rate changes and set the watchdog up again on
+  resume;
+- keep the restart handler.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml b/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
-index bd7c09ed1938..690456839fcc 100644
---- a/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
-+++ b/Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
-@@ -16,6 +16,7 @@ description: |+
- 
- allOf:
-   - $ref: /schemas/watchdog/watchdog.yaml#
-+  - $ref: /schemas/arm/primecell.yaml#
- 
- # Need a custom select here or 'arm,primecell' will match on lots of nodes
- select:
--- 
-2.53.0
+Fil
 
