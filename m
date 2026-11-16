@@ -1,56 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794856182;
-	b=zzr9KOy4RWqitUpUlwxN9+2AIbbYGtP6kevKABB97e/XEHZhT6wuSvGfJiLFnC6DJ5Io
-	 MuzxWo6lhMDOmhlpqep8GOMat3LJ3y0WTTMRm84zf7M1e13kIhrqS5gtfIs9Y0TWa4uys
-	 y/5vY89FA1NM5LcuSnalwEMR41YjI0kABCrR0LGj49lcZJzDJLLOEwOMmEyzftbLZ8BYJ
-	 4p6PqVaiz6sZNQfYwa09pkouGlx41itFdqz8o0zokeJNFRQ8IdbciTTQrZJ3RDad8MiQf
-	 Ja+cuNbjNagcLj8EwfWwuOS40+jMeny3RMDapMfAxMFZZGj/GR9KIQFIRL9sF6acoSQ==
+	t=1794861378;
+	b=Knx2BDP7INXCYt72gXNVTOk0Z5EpSpytgtkbK3pXQx5VT80GYYrm+ToPRfZwQ26DKswQ
+	 LCpqPO1u0LsdCJke+jRkK89PA6+AFMJV+vG0TSA0zvt3lECsqxgKipYr64bDETzJo3/UN
+	 YpXwSyiHsZN7N2Sk6xl+Z2/cFt+wsgSVbImvz6qZ+52scrJC1BF91YaMTiA0RKpfFyddF
+	 /8w+pN3jRLFsLtOZEOeRYZ7TKADVufeabbDPux0ePXkA+Sy4w3nR/N8Tq7nZJ5a2RaLnG
+	 qUHIWLz956AcAT3YJrG2gX/wPLhLNub7ei+sjC20e3ywG7xEXLY2SLb5cM+ThX9wKOw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794856182;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=9QaDa8YBy9Tq8oTqEbb2KDxWoDS1PEL1JtCMbpcniKY=;
-	b=QX61sedjT6lSCm18apx0k0DnMlQQvcC4iFG8UyOjpnM0rBoaiMP18WwXTVoN1poNUzer
-	 4RI2WIZbJyXFpHCqyDmODktxNRLbRAhLuYawRdVaR9XRQ8GuFkvVue5g+b1HgQ0tQao22
-	 PZ7GyOTiTyZ8slFzQRl2zni5e6gZ2JISdJteogh7oKjhDu6uR/E6rTSB7bc3leEDOXlhM
-	 Ap+r05WNHEOB/M0CpjA7cJ/yJhoftIzi6VbOUFPjOAsH5v7r0zSD8SStRbUKt+AllbE4w
-	 E0BLRyqLW2qBVBj/m0VxWcbmgHLTUa24UEVmwCNTfM4KomMus4diYJ40wGKEEfXwypw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794861378;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
+	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
+	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
+	 X-Local-Domain:X-CMAE-Envelope;
+	bh=LR/ENSG1Oy0ZonFJqw+WDSGwM0wFAggM+KWeiz7ZDrc=;
+	b=c6nvC4QSBtkC93o/qLD6j713YB0hNpOit6oXPUPbRKkyHWw+Qy6rwxhRZqPVX9TdhiWY
+	 EUILghZjCwfK/wBHON3oWgMYDQwKvxOkXEt/p3OLJqu4waElE2PmYothDMh9sjYae42+4
+	 6pepcpTWzGQ+7UkoosRSEFK+wQEe79JNbLQw7WQBuh1MDhYAqsbv1247EY7TFucRArF0W
+	 e354juyM2IqmJ4ruNadRq7akW32xBpLtxvb9jXt9sv1zy+h1WlONS0hzivxpczF97Ft2e
+	 SMtBzDxqK0bDB/+TdP5obWQKo20hutJk2wJ/iSK1ap3MwVvhWbuqLrSrPf+R+TfMLoA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Miy3yIpP;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=Z0UzdlB+;
+	arc=none smtp.remote-ip=35.89.44.39
+Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C97A4606A335
-	for <linux-watchdog@vger.kernel.org>; Mon, 16 Nov 2026 19:09:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033AF606A31C
+	for <linux-watchdog@vger.kernel.org>; Mon, 16 Nov 2026 20:36:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 033AF606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Miy3yIpP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830501F000C9;
-	Mon, 16 Nov 2026 19:09:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794856182;
-	bh=9QaDa8YBy9Tq8oTqEbb2KDxWoDS1PEL1JtCMbpcniKY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Miy3yIpPPTyd5CAVqGjh+TAB/9x8sMyN7vN0foTorzztx6UI/Sp1/ys1we/47+aVW
-	 +vi0vMeoRLv9lIs/NMrORQtBcLY6pO5NuzRbB5FhTt4Kf9lwcAWjh+MUUEnhMiRh+Z
-	 7NLIflv+4GzDFclkw3hi9DDUzjuTtiLYmdavdrZLYSBJLpijmvtDzuj3qZ/MaCtq5x
-	 l+pjE6AL1HJzbWNb7T+BfC3MITSr0gdr+a5+3EmNf+oElyxKJvTBTCeVBSr3/HmILx
-	 BCrhmkxzTxEQpEmjnRxSACSFqEKXhEDS7M1pzGoWviFiIub2ty4fxVJyQNVKyWXLdN
-	 Ls1kKcrH4Hhyg==
-Message-ID: <sashiko-outbox-217543@kernel.org>
-From: sashiko-bot@kernel.org
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=Z0UzdlB+
+Received: from eig-obgw-6002b.ext.cloudfilter.net ([10.0.30.203])
+	by cmsmtp with ESMTPS
+	id T19LxnQZbyb4YT3R3xv83o; Mon, 16 Nov 2026 20:36:17 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id T3R2xmLfI8cn4T3R3xDOpi; Mon, 16 Nov 2026 20:36:17 +0000
+X-Authority-Analysis: v=2.4 cv=Qrde3Uyd c=1 sm=1 tr=0 ts=6afb6941
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=c92rfblmAAAA:8
+ a=8b9GpE9nAAAA:8 a=VwQbUJbxAAAA:8 a=mZs5ITWgARj6bgJpHwcA:9 a=CjuIK1q_8ugA:10
+ a=GvGzcOZaWPEFPQC_NcjD:22 a=T3LWEMljR5ZiDmsYVIUa:22 a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=LR/ENSG1Oy0ZonFJqw+WDSGwM0wFAggM+KWeiz7ZDrc=; b=Z0UzdlB+3hd953Y5/M8siTEDip
+	lgctCrYmv6Ow9mBHNRoS2tETGaOcfQTQgQ95EZOflVRGaZdAsRI9YgBCDqsPbg1+8erYm8pgbE0W0
+	N0JPEdoEo7kvOfGy3+dbFPE9sL2QkoNTaMgJIBuMgtg8Bfy3C/+VgLhEpcTKgz7eclfB4XRylHV2C
+	R5FyFK9moofQKcLHC4kiU/MPcNNJmNWEhxrjbu81+wp6MxZrEzsD8Q1lveTeJ+oVyOISbFZSE9C4l
+	uyRELnL1EJ8gNXu+nacu+v529orF5hlGjOMuexFc6+p6/8S/RgFQxJYmU7VIpodJBC9hOnldiSVAW
+	mbqYhtVg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:43056 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xT3R2-00000002IjR-0mCZ;
+	Tue, 17 Nov 2026 02:06:16 +0530
+Date: Mon, 16 Nov 2026 12:36:15 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Antonio Borneo <antonio.borneo@foss.st.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	=?iso-8859-1?Q?Cl=E9ment?= Le Goffic <clement.legoffic@foss.st.com>,
+	Marek Vasut <marex@denx.de>, linux-watchdog@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Sashiko <sashiko-bot@kernel.org>
 Subject: Re: [PATCH] watchdog: stm32_iwdg: use managed variant of
  dev_pm_set_wake_irq()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Antonio Borneo" <antonio.borneo@foss.st.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20261116190130.1191501-1-antonio.borneo@foss.st.com>
+Message-ID: <88ad5eb0-78a0-4ee7-9731-b04916307749@roeck-us.net>
 References: <20261116190130.1191501-1-antonio.borneo@foss.st.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 19:09:42 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -59,67 +88,72 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261116190130.1191501-1-antonio.borneo@foss.st.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xT3R2-00000002IjR-0mCZ
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:43056
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 5
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfIyIN7WNpr8cdMb3rfceKUF5Xti5+f1VZUMDJygHHU4xY8mrwE1SOmpaYo8NTHIadKva+1f2GrIpkuGNhpzlDCpsB4OBiK6JLStTTxJZ2UJ1XQkH54GM
+ k1O6vQcfjhGLI0pQP/yWQNgtc+EH1I4vvx2jTLbAjN8ewCdMDNUgPy7dOx4b2SpCh0rOaBBQyKxVq6GG/krRD41z2ZEflTevRnoD2w6Y2iMaHkx78HJh+Pio
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [Medium] watchdog: stm32_iwdg: NULL pointer dereference in
-  stm32_iwdg_isr() [1]
---
+On Mon, Nov 16, 2026 at 08:01:30PM +0100, Antonio Borneo wrote:
+> On probe failure after stm32_iwdg_irq_init() or on driver unbind,
+> the struct wake_irq allocated by dev_pm_set_wake_irq() is leaked
+> and dev->power.wakeirq remains attached to the device.
+> Any subsequent attempt to re-probe the device hits the
+> dev->power.wakeirq check in dev_pm_attach_wake_irq(), triggers a
+> dev_WARN_ONCE() splat, and fails probe with -EEXIST.
+> 
+> Use the managed version devm_pm_set_wake_irq().
+> 
+> This is reported by Sashiko inside the raw log of another commit
+> that touches the same driver.
+> 
+> Fixes: 3ab1663af6c1 ("watchdog: stm32_iwdg: Add pretimeout support")
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Link: https://sashiko.dev/#/message/20261116132416.1184447-3-antonio.borneo%40foss.st.com
+> Link: https://sashiko.dev/#/log/249869
+> Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
 
-commit faff7513f5bea59db8a5e975f7eb126068ba7dc8
-Author: Antonio Borneo <antonio.borneo@foss.st.com>
+Applied.
 
-watchdog: stm32_iwdg: use managed variant of dev_pm_set_wake_irq()
+Thanks,
+Guenter
 
-This commit switches stm32_iwdg_irq_init() to use devm_pm_set_wake_irq()
-so the wake IRQ is automatically detached on probe failure or driver
-unbind.
-
-Link: https://sashiko.dev/#/message/20261116132416.1184447-3-antonio.borneo=
-%40foss.st.com
-Link: https://sashiko.dev/#/log/249869
-
+> ---
+>  drivers/watchdog/stm32_iwdg.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> 
+> base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+> 
 > diff --git a/drivers/watchdog/stm32_iwdg.c b/drivers/watchdog/stm32_iwdg.c
 > index a8d2db2d3cf8b..f1056f8100cf0 100644
 > --- a/drivers/watchdog/stm32_iwdg.c
 > +++ b/drivers/watchdog/stm32_iwdg.c
-> @@ -298,7 +298,7 @@ static int stm32_iwdg_irq_init(struct platform_device=
- *pdev,
+> @@ -298,7 +298,7 @@ static int stm32_iwdg_irq_init(struct platform_device *pdev,
 >  		if (ret)
 >  			return ret;
-> =20
-> -		ret =3D dev_pm_set_wake_irq(dev, irq);
-> +		ret =3D devm_pm_set_wake_irq(dev, irq);
+>  
+> -		ret = dev_pm_set_wake_irq(dev, irq);
+> +		ret = devm_pm_set_wake_irq(dev, irq);
 >  		if (ret)
 >  			return ret;
 >  	}
-
-[Severity: Medium]
-This problem wasn't introduced by this patch, but can stm32_iwdg_isr() hit
-a NULL pointer dereference [1] if the interrupt fires before
-watchdog_set_drvdata() runs?
-
-stm32_iwdg_probe() calls stm32_iwdg_irq_init(), which requests the IRQ,
-before populating wdd->driver_data:
-
-drivers/watchdog/stm32_iwdg.c:stm32_iwdg_probe() {
-    ...
-	ret =3D stm32_iwdg_irq_init(pdev, wdt);
-	if (ret)
-		return ret;
-
-	watchdog_set_drvdata(wdd, wdt);
-    ...
-}
-
-If the watchdog is already running with the early-wakeup interrupt enabled
-(for example across driver rebind) and the IRQ fires in that window,
-stm32_iwdg_isr() gets NULL from watchdog_get_drvdata(wdd) and dereferences
-wdt->regs.
-
-[1] https://sashiko.dev/#/bug/linux-ebf60aef-da57-4fba-a11d-75c387866884
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116190130.1191=
-501-1-antonio.borneo@foss.st.com?part=3D1
