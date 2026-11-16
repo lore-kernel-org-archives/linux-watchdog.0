@@ -1,85 +1,48 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794783148;
-	b=4ChKyBi1+4es1sSmNz4UNDcIzUKtGvEmq/S03F5L8sGzus/Bk4S17satc8Y3vGGGwLD8
-	 N0ju+QVzuk6m8UtrI18ph4VeiFpbKy9xgHQ9LuSlOdx6M44tlOyP4yRPkva86u8M6YZQR
-	 QCSt9J2jBOyeS0y6SxhGMiHduVj9utT4j98XVQ3d1jA9Yw67IygrFwBiibmbjWYmE7wfd
-	 KtGBzKDjltOa55VU2RUJ0mLfli2Dd1mYUnvCgGm3thIMqBMuCQ0dgXevMXhZO28oGRLco
-	 8B0WwqqLHFI1ec7Vbms8ihTLZ8pCzQZ72RZRMwP4LshJ6lOTRlkTmVOoIz9tqRahFxA==
+	t=1794822602;
+	b=UTnliMa4N4KyRLdRGQRTqluMLIwcj+tFw0x3xVJ3G8NdLXX/VFolhcb3GhCzu/izV81v
+	 nI0OxlMqeFHqFRmpMJ8twWQ/bILVVmEM0O/+1y2wQ+5uzvVla6QdtIAvm1VQsOZg0xGwL
+	 uwfGh/BVSz6r0wUPxPvFU/svcadGWYYoIRdMMmT8TCBSLPAK1GFLGIwygyyhEZ7yPwsEi
+	 2km7iUhhKeRDx/Mx6MFWd+f1gJ6Ev8ZhIHVYHxmvnKfN3FKQw+9k2pknEFsVI4tYCHboD
+	 f3abO325Hip1G+29FXZQH774Xl3si94PgiTjAM1yQ1kxNqfBNPKCcNdZieRbMLdqZrA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794783148;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=ElkOEwzqFMVazDgPfmPJH8YI8hCqGrmAc8l3kEGiXOs=;
-	b=A/wCqro63xFBM682kAlFe7h/huQJcAgQSInyzIsf6GeTR10zOCi5W558VfpEeO3ayBpW
-	 9JnUofwn45dl5wghT3AwoIbKFjN0KRvd9neLsFaDZMcXXqm6HzIlV28+leVbkDhPZjmn9
-	 QIm0e5MVaP7P3UycJX/F6ZbmgZlHyTvnXLEQbJus1AY0vkq0uGueYTHs5NIwCw1fj1+HG
-	 rT3dc9nJp6zzMccHGVEQOtPZPNGpkVyyjCQq6cYUaSugY05UKVfZ9nrMXaQt2fGOpuzR6
-	 2hXLbBIFKaV6LrkfxNPtzMeYj3bf4os6LVLl7wZWBP569ptn5no5NsV/Z1rPsKf9bPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794822602;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
+	 X-Mailer;
+	bh=nutLsIkA5U1mmOC4x0bj+AK0SbP4YnNIzYe51iNndR0=;
+	b=4lqACphn4XEftv+DURHQ9v37xS9MOzKgwNZCoH9iOwxED3Y4167w2YomxUza8tS8RfdH
+	 7YH4H5JRXpB0I/pETmNkF4vwpBxrWlGhMaPZHqpMMNgk+WXW2yScMkoUmu85qo6NNNbZL
+	 QRB6UTa7w3m3v6L7fL40THF2aV/o6yaU+QkguzODXUlfkR3Hi5/mxBZsDtB7sqIH6bHXU
+	 CAxwH9o1V0JWSzMKniQwy6DH5Ov6a+6RQO4DnGPwAKF0qcW+iTU7E75g8igz+/hjan8bl
+	 Oyu8GoZT5vSTP38VRReT2ZBg06AMTMufqXwayIon/A69PPFkYtILmbTYhMxBsI4tZJw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=FepVLd+0;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GuIeV7IM;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A0A606A31F
-	for <linux-watchdog@vger.kernel.org>; Sun, 15 Nov 2026 22:52:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 84A0A606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C45CB606A31C;
+	Mon, 16 Nov 2026 09:50:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=FepVLd+0
-Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
-	by cmsmtp with ESMTPS
-	id ScfuxtuwrAR1iSj5IxUDqH; Sun, 15 Nov 2026 22:52:28 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id Sj5HxJ43QFhzrSj5Hx2SiZ; Sun, 15 Nov 2026 22:52:28 +0000
-X-Authority-Analysis: v=2.4 cv=JY+8rVKV c=1 sm=1 tr=0 ts=6afa37ac
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=1XWaLZrsAAAA:8
- a=GU_cOIP1yHUKzuPKd5EA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=ElkOEwzqFMVazDgPfmPJH8YI8hCqGrmAc8l3kEGiXOs=; b=FepVLd+0XyTfhGfWi2zYTb2dCo
-	mcQNf6o5gX92ChWdE+XflwR3p9AlWicMoCdct9OHP2k2u2zVi+K5MTgx7GhGGHY7dOefDzIYaebdg
-	dpMyDyg8lePJdF5RD24oSuZXYDXHlknH3uB7FFc+GKO+WkxfiG9l2/SN3OGZ+DS970NBC6jJpZRie
-	OFWj0YeaEPDIFvGZnQTObjZbzThOp/hfTWP+0fmqGujmtyNYOzTYKD2MgSudbGIfSTAVZmsKCR7QP
-	f0FyfyVTHXgRhZrcFWI+75ky4G0XcS8i9P0+Xs++AguHZ2RKIFUUv8O1K0026U+UujKjuQ4pbmxwf
-	bQaSnIkg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:50630 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xSj5H-00000000p0X-0myw;
-	Mon, 16 Nov 2026 04:22:27 +0530
-Date: Sun, 15 Nov 2026 14:52:26 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Mayank Rungta <mrungta@google.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Marc Zyngier <maz@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	"Kirill A . Shutemov" <kas@kernel.org>,
-	Douglas Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v4 6/7] watchdog: pretimeout_panic: Use nmi_panic() when
- invoked from NMI context
-Message-ID: <1720d199-fc7e-49db-9c64-6733c75caba5@roeck-us.net>
-References: <20261112031629.396819-1-mrungta@google.com>
- <20261112031629.396819-7-mrungta@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GuIeV7IM
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B0E1F000C4;
+	Mon, 16 Nov 2026 09:49:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794822602;
+	bh=nutLsIkA5U1mmOC4x0bj+AK0SbP4YnNIzYe51iNndR0=;
+	h=From:Date:Subject:To:Cc;
+	b=GuIeV7IM+HGlt1Rr9ogolyxWR3STxnvhFA73A9T4j7VW2STl5N+8+/paAqcj2Qq+h
+	 IxI+Fj5D+6hLsZ+ivrESmRf4pZtsyW5Tl2PaejKZTd6r36dexsv8F3YXbNB8ZlhHue
+	 42U9Cn/ga+lsihQTpfj60gRag19aYQh84ee6oRoESTK054VhpN84WN389556qA7I+B
+	 VU5THqIsKGwkKNgtbz+cEvzptZ4xQdF0zcy9Sif9kGRIVpr+gBSmtzI08pwwCdNZME
+	 6zfca1OQPpYgYvZQmdLQ1TowYGRQoSh5xz8VPhS3RpAVqxOCsXh6QdJbsvrHWtdBeX
+	 uXvCflislo5Pg==
+From: Linus Walleij <linusw@kernel.org>
+Date: Mon, 16 Nov 2026 10:49:58 +0100
+Subject: [PATCH] dt-bindings: watchdog: arm,twd-wdt: Allow power domains
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -89,48 +52,55 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261112031629.396819-7-mrungta@google.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xSj5H-00000000p0X-0myw
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:50630
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 23
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfN+z3ScCH6b1COoMWdKVEba92Vt/bO+xubMhiv6X1V2fG/PNkesgYx7xciabW2OYj3S86rC8NngvXr36MOG4iYKTN/WoQorJNNYkJbv01zjm74L5ePuI
- UpeWqYe00oHCa6Nf8jDbJ6uL4EEbblft3YE2iEYB0iOBdCxd74vuO9eyP6UxWbKH5seq4cotaWjdgtgA+Xos/ASO8xxhFuYuiPZn9dQoZWXLI8XPe0gd7SQ5
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261116-ux500-watchdog-twd-binding-v1-1-a26adc9cea5e@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAA/x3MUQqDMAwA0KuEfBtoCnOjVxn7qEms+amjdVMQ7
+ z7YO8A7sVtz65jgxGZf775WTMADoCy5FiNXTIAxxJGZR/octxBoz5ssuhbadqXJq3otpDGwPCT
+ eZc44AL6bzX788+frun4dhmHwbAAAAA==
+X-Change-ID: 20261116-ux500-watchdog-twd-binding-d201c8c27cfa
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Ulf Hansson <ulfh@kernel.org>, 
+ linux-pm@vger.kernel.org, Linus Walleij <linusw@kernel.org>
+X-Mailer: b4 0.16.0
 
-On Wed, Nov 11, 2026 at 07:16:28PM -0800, Mayank Rungta wrote:
-> When a watchdog pretimeout interrupt is registered as an NMI (or
-> pseudo-NMI), pretimeout_panic() executes in NMI context. Calling plain
-> panic() from NMI context is unsafe if the current CPU was already inside
-> vpanic() with regular interrupts disabled (where the watchdog is no
-> longer fed): vpanic() assumes panic_cpu == raw_smp_processor_id() only
-> occurs when entered via nmi_panic(), so it falls through into a
-> recursive panic on the same CPU, corrupting the static panic buffer,
-> panic notifiers, and crash dump state.
-> 
-> Invoke nmi_panic() when in_nmi() is true so that an NMI interrupting a
-> CPU that is already panicking safely returns, or stops via
-> nmi_panic_self_stop() if another CPU is panicking.
-> 
-> Signed-off-by: Mayank Rungta <mrungta@google.com>
+Allow TWD watchdog nodes to reference their power domain.
 
-Similar to the previous patch, this patch is independent of the rest
-of the series. Applied to watchdog-next.
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
+Signed-off-by: Linus Walleij <linusw@kernel.org>
+---
+Allow ARM TWD watchdog nodes to reference their power domain.
 
-Thanks,
-Guenter
+This binding-only change can be applied independently. The companion
+Ux500 power-domain consumer DTS changes will be submitted separately.
+---
+ Documentation/devicetree/bindings/watchdog/arm,twd-wdt.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/arm,twd-wdt.yaml b/Documentation/devicetree/bindings/watchdog/arm,twd-wdt.yaml
+index 9646ac72051e..5f6a9d6b9976 100644
+--- a/Documentation/devicetree/bindings/watchdog/arm,twd-wdt.yaml
++++ b/Documentation/devicetree/bindings/watchdog/arm,twd-wdt.yaml
+@@ -33,6 +33,9 @@ properties:
+   clocks:
+     maxItems: 1
+ 
++  power-domains:
++    maxItems: 1
++
+ required:
+   - compatible
+   - reg
+
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261116-ux500-watchdog-twd-binding-d201c8c27cfa
+
+Best regards,
+--  
+Linus Walleij <linusw@kernel.org>
+
