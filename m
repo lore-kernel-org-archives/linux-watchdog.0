@@ -1,95 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794839221;
-	b=YK28sDRp0aRnVLVjxpLHLY0XIponP7kYoCOcDzSZttlFYmOvp7SIUcRhsdeI1ImERVRI
-	 eCei9bBx5YJImfzL8ZvKebTawtB1Rn+u1BFTMKPPOAgV2GAjLIbkXAI1j6wVJf+7Ue+he
-	 nBXMsVaiWIL+XgfiuhemLf8NdyXgK5SmOokbW5Y7c4lpnd/9DJt9j+Le26zmkEsqNQRy8
-	 xtFrblaIFfvwh6B7cZArT72Puo0EjVqvj0OTxezl6VBiFoInwGVTA6ouVkQlW7EDz9pgM
-	 7dua5CbhRa9sYfoq2zbpFz+qSDOvIz9N7hz6OtkrrcoSYaJRhh/2MItXemS2MNu4lBQ==
+	t=1794839614;
+	b=NJE5S9hQDgPDG7bSWdGeXMkrLBKxbuvvWNZUB9jXNR4VGG5CtWIsWffRmhISvHCMclL1
+	 gP3NnY3qLbrkZAMmDP+FR5nR3RDrNUFzdEGLeMfGMKivsWcZifsdgAb/Vkj0cXQAC3/WN
+	 m7gDLYJWdVJaglgrfh0owfAMm9igeRmjO3vm0SYMES8aztmu+8L7lmG7+Rf+lVn+LNOhy
+	 7nLPphbTHrSzILRCSfZ6Y6mDUIFYyg40zSYCTqYO1WWLRHnOg0FGWo96eBtNv0oFsM4aS
+	 yJfWnBlSmBpCVa3/CYXnyIM1nvU68Eou8LlSlr3/cy22ST4hLXNZQWkuFj6tihsgIsQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794839221;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794839614;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=REYPW0V0Hw8OeT1V1MVJj6gyXDEMPTMuQhc+KEFGz8g=;
-	b=pyjSry75uThV7Nt5E7Zl4RSigIXuGzktWbUxKjeJTm6J6WBBNPYxgGyCcrT+zIif/uNm
-	 lI7V2FTcF9Li6AuZQK7c2MSLqq8tu9oVSLlu51LaFOEY9hMYr9uybwemrxOherpTYC+gR
-	 vnSpyxfU0TeD+1BJgjQHKifF0gqcRdL6sEs0gOOUMV9T0B4s4DtXVM775eztpVUlPS3DB
-	 C+EP2JMskERItaSicAjc/IsQbF+nT2wreSxxcrZ+VY3T2sWA/dyGIeTekK1Qf/dZla04C
-	 PnpHEwyUczSnaSMXTjPudiyG/xEEuXVR2Ri/weUNKgaCuHMX9X2fkUREHjurxWl18gw==
+	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=eWN9VxlSagJpciYGf6Tpt2UmBrCmiHzGp8LBUP4VuqY=;
+	b=ygHBJtz2yjcL1BbJDKsxRg6bl2zrO3tbcrRwfdUd5lbIb2+0CKotty3nUkD0c37nIJRQ
+	 UX8ycHrCSHo7kClbnzCuuWsfQ0Lhc068+ZRTxzM9nhtHP82tl7gYNRfIdJOyaCRWGtXzb
+	 K/E0BDw+6gedzVIo3os8tFzSaIbPsN6p9So6iHby9mFpZ5HMUIJRvmlsOOnBJWFJOYCH4
+	 LZU2iR7rllYVM1EAtgnTE0z0gKDiHzc6E6T0c4ymPtbTcS/l7R6iD58TuwTabybD7eQZ6
+	 nRkBl8KsIY6j9Up3hDXlJcC4b+aVd75rHNQT8ASk+n2K3ZvRwz+FFe2hKpamCY8nY0Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ti39duon;
-	arc=none smtp.remote-ip=44.202.169.39
-Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=BNpAvLlO;
+	arc=none smtp.remote-ip=35.89.44.35
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A048606A331
-	for <linux-watchdog@vger.kernel.org>; Mon, 16 Nov 2026 14:27:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3A048606A331
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C97B606A32C
+	for <linux-watchdog@vger.kernel.org>; Mon, 16 Nov 2026 14:33:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2C97B606A32C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ti39duon
-Received: from eig-obgw-5003b.ext.cloudfilter.net ([10.0.29.155])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=BNpAvLlO
+Received: from eig-obgw-5004b.ext.cloudfilter.net ([10.0.29.208])
 	by cmsmtp with ESMTPS
-	id SxFKxirCYOOJnSxfgx6Sic; Mon, 16 Nov 2026 14:27:00 +0000
+	id Sam3xJbaARiNxSxm1xNd4R; Mon, 16 Nov 2026 14:33:33 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id SxffxCH2SSgq1SxfgxYsjI; Mon, 16 Nov 2026 14:27:00 +0000
-X-Authority-Analysis: v=2.4 cv=c8KrQQ9l c=1 sm=1 tr=0 ts=6afb12b4
+	id Sxm1xDuBfuJrPSxm1xrCCh; Mon, 16 Nov 2026 14:33:33 +0000
+X-Authority-Analysis: v=2.4 cv=WLZ/XmsR c=1 sm=1 tr=0 ts=6afb143d
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
- a=QcAV74sXaHvaKY3IglgA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=8b9GpE9nAAAA:8
+ a=XsaZBAPq8O9JtFREHzgA:9 a=QEXdDO2ut3YA:10 a=T3LWEMljR5ZiDmsYVIUa:22
+ a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=REYPW0V0Hw8OeT1V1MVJj6gyXDEMPTMuQhc+KEFGz8g=; b=ti39duonapH/OckZv4V65mFYnf
-	zWs7h8UMwiLZo2J345Xd1MIc1V2i/uT11BD6YIUFmVrEqZCXsO9fQ1jvtAMaO25lWzhppbx2yF+4u
-	ruqcZar0Loo0GHdG2gXsWh00FxIPx//KLYx+ZSiejT9Qi/DGXN7R6mXNzw9gYS4vTQNJ/10Ab/vel
-	6UzeNg8+YQpL9dna+rPlI4tCX/xCL97vCOg7jIrOKSBgj3i/jUU+LqBtA+4YXaBSiWjNtWS11PqA5
-	m+DBvkQP0aGuSlKhPgzQtbh2iK4SnicdvXrN7+1See3aaD7idxTocydr4+J8Q01Dmh/veAdatWoae
-	3zPs4Pug==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:49322 helo=server.roeck-us.net)
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=eWN9VxlSagJpciYGf6Tpt2UmBrCmiHzGp8LBUP4VuqY=; b=BNpAvLlOurwf
+	3LgJPqnold/sZVJy9vXOgNltgq9B4FbhjsKofAbpypNFegkbnEvRiOSZRUXQQSmUfieDLK4rrnMB3
+	qg5b1Oy4QwWuLVo4mFzUwRDQyMxdj8RVzISrwkkPMNIGhN9342SHYRgueC/mk+lXrtnTFFpZ6w3Ep
+	0USfwNuhMSwYF9AhLQCFPGrglnJucTYd2b1OLR9JChcKwnThx1Hg5ZQfzqfIrEnyjAwClekYsBxoF
+	17KL+s1Ny9ePpskh/+jB/ywdoZze/jGv2E8L9CDjxHmK0kCWwtsFSGefA+GnvmVL8EKM31LA+MgQh
+	887QTBUhLjMzIBrBvflc3Q==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:60928)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xSxfd-00000003oF6-04lF;
-	Mon, 16 Nov 2026 19:56:57 +0530
-Date: Mon, 16 Nov 2026 06:26:56 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexander Letuchiy <asalde.le1@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Mattijs Korpershoek <mkorpershoek@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-serial@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
-	phone-devel@vger.kernel.org
-Subject: Re: [PATCH v2 4/9] watchdog: mediatek: Add support for MT6895
-Message-ID: <eaaa1e62-ad8c-4cd7-9855-f8efca36cb70@roeck-us.net>
-References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
- <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
+	id 1xSxlz-00000003swq-1hLl;
+	Mon, 16 Nov 2026 20:03:31 +0530
+Message-ID: <32157be8-28c1-403d-8485-96c1fe4543ef@roeck-us.net>
+Date: Mon, 16 Nov 2026 06:33:29 -0800
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -99,9 +76,74 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 06/15] ARM: stm32: enable arm smc watchdog on
+ stm32mp1xx
+To: Antonio Borneo <antonio.borneo@foss.st.com>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Russell King <linux@armlinux.org.uk>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Yannick Fertre <yannick.fertre@foss.st.com>,
+ Christophe Roullier <christophe.roullier@foss.st.com>,
+ devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org,
+ =?UTF-8?Q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>,
+ Amelie Delaunay <amelie.delaunay@foss.st.com>,
+ Sashiko <sashiko-bot@kernel.org>
+References: <20261116132416.1184447-1-antonio.borneo@foss.st.com>
+ <20261116132416.1184447-7-antonio.borneo@foss.st.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <20261116132416.1184447-7-antonio.borneo@foss.st.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -110,30 +152,50 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xSxfd-00000003oF6-04lF
+X-Exim-ID: 1xSxlz-00000003swq-1hLl
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:49322
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:60928
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 53
+X-Email-Count: 80
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfPCwiks/baVMmshF8Fnj6YCPeoILGB1rERBBZQ0r/KNKJN/1UpwDahho86m1P8CWqSMNWEIqVGzYtaEY1aMqWm4oepHzvnuZqBABU4bMc4I7Eqy+Cgte
- QMg24ixQbhj1Q9dUdykrl2AMaSEZIGMdVRkiecg5a1NYuToIJ1MVUPsIAnRLGF3E1UWPRtBMxLfFN74bbV824KftMbyLl5kOYCwIDw2aae7MPK7UsdKK4o1Z
+X-CMAE-Envelope: MS4xfIh8CZ5ZrsGPkRm/FscPWWZqWUoDtHIujNN+TYaQfgmNjv+Rxl4j/fLh1orcxFX3FkZ96Io8dkJ5oKfIcbeYE/3w0Q1ch5bBQvoCVWFJGeQ+OVP6roNO
+ wa6xJlbWq+KVTd/ge4Qso26LXPVDzrC3bnH0YMR3IXVwWW94n1q36YwFsRBpOPhNqwCkTIofJF0IZ2TY+QwEFulND2WPwqZrVOTQM1PcU1cMpYkjOpXSNQcQ
 
-On Fri, Nov 13, 2026 at 10:05:00PM +0300, Alexander Letuchiy wrote:
-> Add the compatible for the watchdog of the MediaTek MT6895 (Dimensity
-> 8000/8100) SoC. Its watchdog registers are the same as on the other
-> supported SoCs.
+On 11/16/26 05:24, Antonio Borneo wrote:
+> The watchdog IWDG1 is secure by default on STM32MP1xx SoCs.
+> On boards that keep it secure, Linux must use the arm,smc-wdt
+> driver to ping it.
 > 
-> The TOPRGU reset layout of MT6895 is not known yet, so the entry has no
-> match data and no reset controller is registered.
+> Enable the driver for mach-stm32 when ARCH_MULTI_V7 is enabled.
 > 
-> Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
 
-Applied.
+As mentioned before, that doesn't just enable it for STM32MP1xx SoCs,
+it force-enables it for all boards running ARCH_MULTI_V7. It also
+goes well beyond the current scope of "if ARCH_MULTI_V7" configurations.
+I would suggest NACK for that reason, but that isn't my call to make.
 
-Thanks,
 Guenter
+
+> Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
+> ---
+>   arch/arm/mach-stm32/Kconfig | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/arm/mach-stm32/Kconfig b/arch/arm/mach-stm32/Kconfig
+> index 4ac3384e397aa..de09b2afa0f2e 100644
+> --- a/arch/arm/mach-stm32/Kconfig
+> +++ b/arch/arm/mach-stm32/Kconfig
+> @@ -13,6 +13,8 @@ menuconfig ARCH_STM32
+>   	select RESET_CONTROLLER
+>   	select STM32_EXTI if ARM_SINGLE_ARMV7M
+>   	select STM32_FIREWALL
+> +	select WATCHDOG if ARCH_MULTI_V7
+> +	select ARM_SMC_WATCHDOG if ARCH_MULTI_V7
+>   	help
+>   	  Support for STMicroelectronics STM32MP1 processors using Cortex-A7
+>   	  cores. Note that support for the earlier Cortex-M based variants
+
