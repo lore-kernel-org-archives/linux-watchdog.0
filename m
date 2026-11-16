@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794839614;
-	b=NJE5S9hQDgPDG7bSWdGeXMkrLBKxbuvvWNZUB9jXNR4VGG5CtWIsWffRmhISvHCMclL1
-	 gP3NnY3qLbrkZAMmDP+FR5nR3RDrNUFzdEGLeMfGMKivsWcZifsdgAb/Vkj0cXQAC3/WN
-	 m7gDLYJWdVJaglgrfh0owfAMm9igeRmjO3vm0SYMES8aztmu+8L7lmG7+Rf+lVn+LNOhy
-	 7nLPphbTHrSzILRCSfZ6Y6mDUIFYyg40zSYCTqYO1WWLRHnOg0FGWo96eBtNv0oFsM4aS
-	 yJfWnBlSmBpCVa3/CYXnyIM1nvU68Eou8LlSlr3/cy22ST4hLXNZQWkuFj6tihsgIsQ==
+	t=1794839838;
+	b=2L3jNOLEvuQ+AcIxp+t5RCB/eZVab7Lg2pXy9yBm82M1eScuTloPOBEBlwYv78+k6jbA
+	 64ApGsOcz9LmfIIKXQWwzz8l8kp7XW4xewU36Lmm5QBrPce3crBAz5W76TsbzjOstIq5o
+	 j4yPbEN6zKfz5Xj7DCLi4q9tOi0E57kA2/k/dnt4VGEHc02qfF6P5E8RFGP5XzNd+TNUi
+	 yKatRkF7FtV9kIhHFngILvbAfUbq+kNoyOwH3jSsbuTkXP58keooyRKFla+yiX4Js75t6
+	 TdXSQn5Q1JNGL3ejTbNbtB6FO47kWq8lQJV7KskyUWU1YpYBXx89GNAY+qoX/2SRpzg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794839614;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794839838;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
 	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
@@ -15,58 +15,57 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
 	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
 	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=eWN9VxlSagJpciYGf6Tpt2UmBrCmiHzGp8LBUP4VuqY=;
-	b=ygHBJtz2yjcL1BbJDKsxRg6bl2zrO3tbcrRwfdUd5lbIb2+0CKotty3nUkD0c37nIJRQ
-	 UX8ycHrCSHo7kClbnzCuuWsfQ0Lhc068+ZRTxzM9nhtHP82tl7gYNRfIdJOyaCRWGtXzb
-	 K/E0BDw+6gedzVIo3os8tFzSaIbPsN6p9So6iHby9mFpZ5HMUIJRvmlsOOnBJWFJOYCH4
-	 LZU2iR7rllYVM1EAtgnTE0z0gKDiHzc6E6T0c4ymPtbTcS/l7R6iD58TuwTabybD7eQZ6
-	 nRkBl8KsIY6j9Up3hDXlJcC4b+aVd75rHNQT8ASk+n2K3ZvRwz+FFe2hKpamCY8nY0Q==
+	bh=7hSHlaQM1lE+i4LuhiemUki7VOefUOHjVjA72bigLyU=;
+	b=uJ7x/3LFUGPsYNv0r3LJlAZAaNxD9xG+BJ3xDrymbVyBNlaa+FqLXXm22nEUbTvD8r+i
+	 mI310tEh4iB+g2O0MtqNS77Y7zJMC8NOZ/YFJkn1peChqov2Ze8ZdEnTvFZW6cD/AuPth
+	 Pbf20ckDA90ziBTNszz3fql9noC9ZGgSnwnRIyZLGqFFZoQiwZ3M3UfACAdx6XRLTGZUG
+	 3UBnOvXSc/vfTfNbfD1OnnmcqkMx83cv3sN97btwe5m1Bnn5iOQ5iw1+Oa86+XeoNvL1H
+	 XyoI6k7wG/y/senTAfGKLzr+Yx0by4rpkAJ+hZq3n0dAmT5yQvTw3Cyx1NUX0hbbWwA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=BNpAvLlO;
-	arc=none smtp.remote-ip=35.89.44.35
-Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=VCMEJvEX;
+	arc=none smtp.remote-ip=35.89.44.39
+Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C97B606A32C
-	for <linux-watchdog@vger.kernel.org>; Mon, 16 Nov 2026 14:33:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2C97B606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1DF606A323
+	for <linux-watchdog@vger.kernel.org>; Mon, 16 Nov 2026 14:37:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B1DF606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=BNpAvLlO
-Received: from eig-obgw-5004b.ext.cloudfilter.net ([10.0.29.208])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=VCMEJvEX
+Received: from eig-obgw-5002b.ext.cloudfilter.net ([10.0.29.226])
 	by cmsmtp with ESMTPS
-	id Sam3xJbaARiNxSxm1xNd4R; Mon, 16 Nov 2026 14:33:33 +0000
+	id SsZIxlDxKyb4YSxpexrfMF; Mon, 16 Nov 2026 14:37:18 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id Sxm1xDuBfuJrPSxm1xrCCh; Mon, 16 Nov 2026 14:33:33 +0000
-X-Authority-Analysis: v=2.4 cv=WLZ/XmsR c=1 sm=1 tr=0 ts=6afb143d
+	id Sxpdx4zWvb2qJSxpdxt0Nd; Mon, 16 Nov 2026 14:37:17 +0000
+X-Authority-Analysis: v=2.4 cv=A7tsP7WG c=1 sm=1 tr=0 ts=6afb151d
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=8b9GpE9nAAAA:8
- a=XsaZBAPq8O9JtFREHzgA:9 a=QEXdDO2ut3YA:10 a=T3LWEMljR5ZiDmsYVIUa:22
- a=KPbNTLLc3YvdawN95zVk:22
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10
+ a=K-vJ0q7JDzK1tjjCEHQA:9 a=QEXdDO2ut3YA:10 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
 	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
 	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=eWN9VxlSagJpciYGf6Tpt2UmBrCmiHzGp8LBUP4VuqY=; b=BNpAvLlOurwf
-	3LgJPqnold/sZVJy9vXOgNltgq9B4FbhjsKofAbpypNFegkbnEvRiOSZRUXQQSmUfieDLK4rrnMB3
-	qg5b1Oy4QwWuLVo4mFzUwRDQyMxdj8RVzISrwkkPMNIGhN9342SHYRgueC/mk+lXrtnTFFpZ6w3Ep
-	0USfwNuhMSwYF9AhLQCFPGrglnJucTYd2b1OLR9JChcKwnThx1Hg5ZQfzqfIrEnyjAwClekYsBxoF
-	17KL+s1Ny9ePpskh/+jB/ywdoZze/jGv2E8L9CDjxHmK0kCWwtsFSGefA+GnvmVL8EKM31LA+MgQh
-	887QTBUhLjMzIBrBvflc3Q==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:60928)
+	List-Archive; bh=7hSHlaQM1lE+i4LuhiemUki7VOefUOHjVjA72bigLyU=; b=VCMEJvEXEmxO
+	4lb+xiR/cupcXfpnF7Kng96OOxsR1PaDSsOJWf12RN+rM0PwJ3paXLe4172J6u8yUJNt+35kyqWhM
+	VN6k8AHVQcaSAXGhCbplwkLFIqLZMMwdXk3tp6H8E7Z+/JLEQaOh5kz6/H0YhqqW6xI6/ApztBZ7j
+	a3ljMJ5j+LDSMADSX+03RfHuijSUJOo2+jLoJcHuaePi1695VPrMJ9QkcBMZoqQxjGJF3FxJSwW8A
+	YT7UFQDsUCwnoAL0+NzEslFJOA4GHWBrQccKBxG6qVy46KAGwB6J6pFbGvVmMmKYTEtcD04IvLobQ
+	l5JKWXhQJET2YPh11JpPlg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:36996)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xSxlz-00000003swq-1hLl;
-	Mon, 16 Nov 2026 20:03:31 +0530
-Message-ID: <32157be8-28c1-403d-8485-96c1fe4543ef@roeck-us.net>
-Date: Mon, 16 Nov 2026 06:33:29 -0800
+	id 1xSxpZ-00000003vvt-2Nii;
+	Mon, 16 Nov 2026 20:07:13 +0530
+Message-ID: <65280967-46b2-4c72-b9b4-0308ad8887eb@roeck-us.net>
+Date: Mon, 16 Nov 2026 06:37:11 -0800
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -77,8 +76,7 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 06/15] ARM: stm32: enable arm smc watchdog on
- stm32mp1xx
+Subject: Re: [PATCH v4 00/15] Update watchdogs support on STM32MP platforms
 To: Antonio Borneo <antonio.borneo@foss.st.com>, Rob Herring
  <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  Conor Dooley <conor+dt@kernel.org>,
@@ -95,7 +93,6 @@ Cc: linux-watchdog@vger.kernel.org,
  Amelie Delaunay <amelie.delaunay@foss.st.com>,
  Sashiko <sashiko-bot@kernel.org>
 References: <20261116132416.1184447-1-antonio.borneo@foss.st.com>
- <20261116132416.1184447-7-antonio.borneo@foss.st.com>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -141,7 +138,7 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261116132416.1184447-7-antonio.borneo@foss.st.com>
+In-Reply-To: <20261116132416.1184447-1-antonio.borneo@foss.st.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -152,50 +149,37 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xSxlz-00000003swq-1hLl
+X-Exim-ID: 1xSxpZ-00000003vvt-2Nii
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:60928
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:36996
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 80
+X-Email-Count: 99
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfIh8CZ5ZrsGPkRm/FscPWWZqWUoDtHIujNN+TYaQfgmNjv+Rxl4j/fLh1orcxFX3FkZ96Io8dkJ5oKfIcbeYE/3w0Q1ch5bBQvoCVWFJGeQ+OVP6roNO
- wa6xJlbWq+KVTd/ge4Qso26LXPVDzrC3bnH0YMR3IXVwWW94n1q36YwFsRBpOPhNqwCkTIofJF0IZ2TY+QwEFulND2WPwqZrVOTQM1PcU1cMpYkjOpXSNQcQ
+X-CMAE-Envelope: MS4xfNOb1cBcZKUo83RompEApiGGDxxoSzybqQftEINWILSlk0HcxFXZLIMkmv9yuULrjU97h7tw5KmRy3NyjoVgUextOaCVPw+OBeD3uFiIq0oe+FLJ1jJ3
+ sVmtNdAIL+1JQXhv0bwFbfPKopJOKAPQXWsZEzmot1uNPvyMR4SFX6S1BLxqf6fzQVg1ZIk8K0YhpdI1GZhg1Qe2Y+Hqmw3nBrEQRxuC2IAev6bDdLz8G8nm
 
 On 11/16/26 05:24, Antonio Borneo wrote:
-> The watchdog IWDG1 is secure by default on STM32MP1xx SoCs.
-> On boards that keep it secure, Linux must use the arm,smc-wdt
-> driver to ping it.
+> This series allows the stm32_iwdg watchdog driver to determine
+> whether the watchdog is already running and adds support for
+> STM32MP2xx devices.
 > 
-> Enable the driver for mach-stm32 when ARCH_MULTI_V7 is enabled.
+> It also completes and rationalizes the configuration of secure and
+> non-secure watchdogs across STM32MP devices and ST boards.
+> 
+> For STM32MP1xx devices, it enables the ARM SMC watchdog driver in
+> the machine Kconfig.
 > 
 
-As mentioned before, that doesn't just enable it for STM32MP1xx SoCs,
-it force-enables it for all boards running ARCH_MULTI_V7. It also
-goes well beyond the current scope of "if ARCH_MULTI_V7" configurations.
-I would suggest NACK for that reason, but that isn't my call to make.
+Applied: watchdog: stm32_iwdg: set driver data before requesting interrupt
+Applied: watchdog: stm32_iwdg: serialize accesses to EWCR register
+Applied: watchdog: stm32_iwdg: get hardware version during probe
+Applied: watchdog: stm32_iwdg: detect whether the watchdog is running
+Applied: watchdog: stm32_iwdg: add pretimeout support for iwdg v4.0
 
+Thanks,
 Guenter
-
-> Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
-> ---
->   arch/arm/mach-stm32/Kconfig | 2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff --git a/arch/arm/mach-stm32/Kconfig b/arch/arm/mach-stm32/Kconfig
-> index 4ac3384e397aa..de09b2afa0f2e 100644
-> --- a/arch/arm/mach-stm32/Kconfig
-> +++ b/arch/arm/mach-stm32/Kconfig
-> @@ -13,6 +13,8 @@ menuconfig ARCH_STM32
->   	select RESET_CONTROLLER
->   	select STM32_EXTI if ARM_SINGLE_ARMV7M
->   	select STM32_FIREWALL
-> +	select WATCHDOG if ARCH_MULTI_V7
-> +	select ARM_SMC_WATCHDOG if ARCH_MULTI_V7
->   	help
->   	  Support for STMicroelectronics STM32MP1 processors using Cortex-A7
->   	  cores. Note that support for the earlier Cortex-M based variants
 
