@@ -1,51 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.127.231.54
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794906602;
-	b=slohj6lRDhp9/wdX2/4/hFGrZF3S7Q7O3bfTAL49moH8+1qThvrFW4HNCNW7DLPXm2tj
-	 H7Cxxics/ciy3y5vBLVO9UK6zXsLwgAyul0qLYcshS88VOeHMidq6IhuZLt6yKOoTAZ3t
-	 O/71z/IUi69nCHhYduyhoT2ydumge2HU8zWMwPUwLUXrilfiP9klnuEczXzHOicq4Pj6J
-	 isKIQPdBtXjb7sdpv+WirQLw8xV5q7vJTcG0xfOwsOakOSCISY70gQGRSHrZoG1gX51v3
-	 2bowMkP4HUpe/HjeZQVe/GzI90GzUONXJLaw5aYz5ZvWRIke25jT+LJ/FOH2CuKBApA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794906602;
-	h=DMARC-Filter:DKIM-Signature:Date:Message-Id:X-Original-From:
-	 Mime-Version:Received:Content-Transfer-Encoding:Cc:From:Subject:
-	 Content-Type:References:To:X-Lms-Return-Path:In-Reply-To:X-Mailer;
-	bh=Hx9ycWhbTIn7Xgvg5k3iHKhms/avTNC2TMXeb54Q1lE=;
-	b=CzOV5qhpzJcNnB3d1xGgjj91e45AI2vbz/F5xvQ5qZ5PEl3O9n6IwHDBOJicyHXeQ6wK
-	 CQeTHDd+2ej8CeaxY03Waieg+gqd4gMzzNOW/Wcj8VPh0LagpPC9eEtkjT8LBEGA+lSd2
-	 u6mf3UWfoVT3T8A0S7TgiINMxqR0UVd0YuOHje9IktIjQ01yKFHL06/nvr8ueqIx0MOBd
-	 4WAkdHv5Z47bB0E4PVI6e4cwxHrXTjOSFuL1SuQIeEtEvlONk7l62mRbwOh4n8TVEIflC
-	 3thVUZhOMhXIZyU9og98By1fzpzX/sC9m0hpvMWrak4jUPBGplTqEWVc9z+fk25KJpQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.cipunited.com;
-	spf=pass smtp.mailfrom=oss.cipunited.com;
-	dkim=pass header.d=oss.cipunited.com header.i=@oss.cipunited.com header.a=rsa-sha256 header.s=feishu2303200042 header.b=jGs11Nw3;
-	arc=none smtp.remote-ip=209.127.231.54
-Received: from va-2-54.ptr.blmpb.com (va-2-54.ptr.blmpb.com [209.127.231.54])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794906699;
+	b=vjZd+U/QrbxxLmLZ5SORqYMDynkrIpWlxBZXT+Wb5TrRqn0NaNPNRSCR4zLgUbbT2UxV
+	 UhyGmRe6zx8O0aBQb3Oj+Rv4/hnsLAo9VHdgLRFDjDWlwVXRdM1ibK0/n0r55wl3eQxaP
+	 L7ipHlU96GOioyZzsT3H57mdqaCv4wzHPRmLX0ZGJXKvWxOkfMp+M0QXWu7oNq90RXdAY
+	 6D53EY7jJhq9C2NS404dRJpG9l1n65Qic+0lh20dfMS0c2kd4n5tTYwW1PB0RNi6nY8zo
+	 THogwd9JUl3Hn9pU12AYb/HDfzQzuhuVGlA0ZPFQ1TElb1jHBzLt6q4MLQcVkJgBZcA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794906699;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=GH2RTnN5eMd0yHmk4Ze/DUPXoCGAt6U5CjnSXWZgI9s=;
+	b=KKc5w4udnUvzth1lYFQuWzocbarTRA03bAz02Anz1JAMtkxJwwE81ga4EisS10/b05TE
+	 5HBNYfB3ty8m1MagWjB9MQP1VNYa+RnFfvnASrfrCcL7eNPjtqAxiy7UmC/SsBj6xPM/X
+	 TpeGGXqyhEe6VrWxRJo4gWxy0L69kM3XJNURjX+MGCy8AGVQZFY2HRXMN9wlGDXVdyGa5
+	 jiA3AonP9S5M6ri+GYhcdezQJVcBe20s4yB2shTrOaaWnpfG6WuFvW5aeF8mMdFJ6rl++
+	 TUYLYPs74BABSMhPkM0hru/yOYdcVo2QiUQwdz6FfMuIj/smRrWD4ouc5Fz8UcH+5gg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bwvWH87o;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C86F606A331;
+	Tue, 17 Nov 2026 09:11:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bwvWH87o
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794906699;
+	b=u9WcSmOe74dqZ/RYiXJQwhcYSKLIyUM/k/j97jFx/LsERsWgpgiRABbJLHtiCIH3T7jy
+	 Ncr7HnSyXT5QV++SqjWIMCXYbPui1GLMJBxek1bIP9DUqMCnJ6VScJuqXbyhAx44IfOoU
+	 w2FMS/TMU5V1H08VWMjrYYokTESnNMlZtjTSTaXX9kZ7xuV4QHv1VjQLjpVPeByMvZDvd
+	 5eNHfGNDFwVGI6Y5KCDULYXn3gmE5xaBGj//h729ndd5epKiJWDTLO9sqqZPspUo8+rxT
+	 Hgxw4+NG5h3Vhed/1n1yGBZS5CRy8un6maPvtOquGYv1L92dCMo0DNvZJVI3qhaxj3A==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794906699;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=GH2RTnN5eMd0yHmk4Ze/DUPXoCGAt6U5CjnSXWZgI9s=;
+	b=xxNJLNc6obY6OGg67JncRMkyWNsQNTGklC1Wb1BxwD7VubejwfdDyVEWTEnaQ9jApEjO
+	 r5Kvv4NQ3YhL5QnnJryx7cPVoYHIWyFvQsbLcjPCS7yl5P6/iRJb72tvcYqoTRoFQ/WG5
+	 Fio7WKSF0Dl6qpENOjh21iUJj5gT4s/3zYA2ishtU/tT9Yr9NnShMUuwp3htzrUDLIojK
+	 gQLA7mtpbwVWTwvftCXEK00Itm1AuHDVsesCpqMChIl3IPZTm/SqdFwaiBZN/6mX6nuhy
+	 696TSNYK98cfOsLQuKOeabhcU/83udBciEzdy/pWuX/hAzGvzSrFaXU6agGyLo+tCWQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E268606A334
-	for <linux-watchdog@vger.kernel.org>; Tue, 17 Nov 2026 09:10:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5E268606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.cipunited.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.cipunited.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oss.cipunited.com header.i=@oss.cipunited.com header.a=rsa-sha256 header.s=feishu2303200042 header.b=jGs11Nw3
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2303200042; d=oss.cipunited.com; t=1794906591;
-  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
- reply-to:content-type:mime-version:in-reply-to:message-id;
- bh=Hx9ycWhbTIn7Xgvg5k3iHKhms/avTNC2TMXeb54Q1lE=;
- b=jGs11Nw3eJ1S7u9WnjMBZmmlQ29/7OC5OFX/a/xK53RPHKOe9Hp++LPh8BpAG+lVZnjTce
- h4bikYiSAyvyKi12ahHVzRV5HqSAoSiZBWNesXhAsSqJnqtITmSduRXkwccX1WHgm0czyd
- Rslpg39C4ZtMuGIoQ0LFJsNyGTEACi0uU7L1NMjevTVEdJisSnH+hPsz4e2EqMPG6QJuQt
- dfI0liHVqos2oLWRDsgKTjFtGKtuZuwRjdJHtIy3EuJbX8+fKW1MafneC6CWPpHfLFAx1t
- J/fgSWHd4i++fhYLHo9I6iQHDdBhOEkKSW6+Cfn+zY+iCvOmlAvF4bRJn98YpA==
-Date: Tue, 17 Nov 2026 17:06:49 +0800
-Message-Id: <20261117-mips-ls7a-wdt-v3-7-2e88f7e1d6c5@oss.cipunited.com>
-X-Original-From: Rong Zhang <rongrong@oss.cipunited.com>
+	by smtp.kernel.org (Postfix) with ESMTPS id DCF871F000CB;
+	Tue, 17 Nov 2026 09:11:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794906699;
+	bh=GH2RTnN5eMd0yHmk4Ze/DUPXoCGAt6U5CjnSXWZgI9s=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=bwvWH87oYw8WWo+CKwg+5JPKmPodI4SNCBPEU4J8AgA+AauIhY4jkhNt250fKcpzS
+	 PDne/4R7usaJkD6fGgQPTio/doep0eF7h30tgaNUTPsb0x5ODxeBOB2lOhHrVTkcro
+	 AWBCNPemPLHkipwYbK/n1EaDZMghEaywqp5Hh4yWL0Km21akaUUgNQ48BlXPJdbOZp
+	 9mpk+VnoE9HmcoIHkURBWLX4tBwUBk1ZHIBxXTGIoTm1n/9ozIwbDaV2U1wTgySiH8
+	 YFJ5wZANDuGb/t+hKCOds3p5/cymCY0NrsS7gJBr3TFIUkFCNkm3r9j3yzWj37pu2L
+	 dkB0KlKWnCt+w==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 5E5574A77B;
+	Tue, 17 Nov 2026 09:11:37 +0000 (UTC)
+From: Rui Cao via B4 Relay <devnull+i.udp0.com@kernel.org>
+Date: Tue, 17 Nov 2026 17:11:33 +0800
+Subject: [PATCH v2 3/5] watchdog: mediatek: Add MT6833
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -54,175 +81,63 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Received: from [127.0.1.1] ([171.15.157.139]) by smtp.feishu.cn with ESMTPS; Tue, 17 Nov 2026 17:09:48 +0800
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261117-mt6833-base-v2-3-058a0685c40c@udp0.com>
+References: <20261117-mt6833-base-v2-0-058a0685c40c@udp0.com>
+In-Reply-To: <20261117-mt6833-base-v2-0-058a0685c40c@udp0.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Sean Wang <sean.wang@mediatek.com>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, linux-serial@vger.kernel.org, 
+ phone-devel@vger.kernel.org, Roman Vivchar <rva333@protonmail.com>, 
+ Rui Cao <i@udp0.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794906695; l=1016;
+ i=i@udp0.com; s=20261107; h=from:subject:message-id;
+ bh=b+SMsmXF4lIy9e6odjAYdc3PAu/hTjDn96dpS5CTy+E=;
+ b=dIK67eDYZoEmBPQ+hhU+D0gRmd9uuLWDbGnoXMjK4JmWt/tYUhv9JDXMU27TE8XI8gemcGHCy
+ InnqM3tQG7oBma8vqXpGLdDhPg59o8gZC1oGUb2ZgHn6kqMJQ4Of6Zo
+X-Developer-Key: i=i@udp0.com; a=ed25519;
+ pk=XZJKcKgnUUjjyw8KuKy7u2QeIX0JLY/L1Fxzwwje41w=
+X-Endpoint-Received: by B4 Relay for i@udp0.com/20261107 with auth_id=1443
+X-Original-From: Rui Cao <i@udp0.com>
+Reply-To: i@udp0.com
 Content-Transfer-Encoding: 7bit
-Cc: "Rong Zhang" <i@rong.moe>, "Yao Zi" <me@ziyao.cc>, 
-	"Icenowy Zheng" <uwu@icenowy.me>, 
-	"Jiaxun Yang" <jiaxun.yang@flygoat.com>, <linux-mips@vger.kernel.org>, 
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, 
-	"Rong Zhang" <rongrong@oss.cipunited.com>
-From: "Rong Zhang" <rongrong@oss.cipunited.com>
-Subject: [PATCH v3 7/7] MIPS: loongson3_defconfig: Enable LOONGSON1_WDT by default
-Content-Type: text/plain; charset=UTF-8
-References: <20261117-mips-ls7a-wdt-v3-0-2e88f7e1d6c5@oss.cipunited.com>
-To: "Keguang Zhang" <keguang.zhang@gmail.com>, 
-	"Wim Van Sebroeck" <wim@linux-watchdog.org>, 
-	"Guenter Roeck" <linux@roeck-us.net>, "Rob Herring" <robh@kernel.org>, 
-	"Krzysztof Kozlowski" <krzk+dt@kernel.org>, 
-	"Conor Dooley" <conor+dt@kernel.org>, 
-	"Thomas Bogendoerfer" <tsbogend@alpha.franken.de>
-X-Lms-Return-Path: <lba+26afc19dd+9d2bd8+vger.kernel.org+rongrong@oss.cipunited.com>
-In-Reply-To: <20261117-mips-ls7a-wdt-v3-0-2e88f7e1d6c5@oss.cipunited.com>
-X-Mailer: b4 0.17-dev-ce4c1
 
-The Loongson-7A has a watchdog compatible with the one on Loongson
-2K0300. With the relevant node added to ls7a-pch.dtsi, enable
-LOONGSON1_WDT in defconfig to make it work by default.
+From: Rui Cao <i@udp0.com>
 
-This basically mirrors commit 5e73ad3ffceb ("MIPS: Loongson1: Add
-watchdog support for Loongson1 board") except that the driver is built
-as a module, since some LOONGSON64 platforms are not LS7A-based.
+Match MT6833's watchdog. It works as MT6589's, but its TOPRGU reset
+layout isn't known well enough to describe, so it gets no match data
+and the driver registers no reset controller for it.
 
-The defconfig file is outdated, so this also refreshes it with
-savedefconfig.
-
-Tested on Loongson-LS3A4000-7A1000-NUC-SE and Lenovo KaiTian M530Z.
-
-Signed-off-by: Rong Zhang <rongrong@oss.cipunited.com>
+Signed-off-by: Rui Cao <i@udp0.com>
 ---
- arch/mips/configs/loongson3_defconfig | 54 ++++++-----------------------------
- 1 file changed, 9 insertions(+), 45 deletions(-)
+ drivers/watchdog/mtk_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/configs/loongson3_defconfig b/arch/mips/configs/loongson3_defconfig
-index 12cb1a6a1360..00c591f21938 100644
---- a/arch/mips/configs/loongson3_defconfig
-+++ b/arch/mips/configs/loongson3_defconfig
-@@ -66,7 +66,6 @@ CONFIG_NF_CONNTRACK_SNMP=m
- CONFIG_NF_TABLES=m
- CONFIG_NFT_CT=m
- CONFIG_NFT_NAT=m
--CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
- CONFIG_NETFILTER_XT_TARGET_CLASSIFY=m
- CONFIG_NETFILTER_XT_TARGET_MARK=m
- CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
-@@ -91,33 +90,11 @@ CONFIG_NF_TABLES_ARP=y
- CONFIG_IP_NF_IPTABLES=m
- CONFIG_IP_NF_MATCH_AH=m
- CONFIG_IP_NF_MATCH_ECN=m
--CONFIG_IP_NF_MATCH_RPFILTER=m
- CONFIG_IP_NF_MATCH_TTL=m
--CONFIG_IP_NF_FILTER=m
--CONFIG_IP_NF_TARGET_REJECT=m
--CONFIG_IP_NF_NAT=m
--CONFIG_IP_NF_TARGET_MASQUERADE=m
--CONFIG_IP_NF_MANGLE=m
--CONFIG_IP_NF_TARGET_ECN=m
--CONFIG_IP_NF_TARGET_TTL=m
--CONFIG_IP_NF_RAW=m
--CONFIG_IP_NF_SECURITY=m
--CONFIG_IP_NF_ARPFILTER=m
--CONFIG_IP_NF_ARP_MANGLE=m
- CONFIG_NF_TABLES_IPV6=y
- CONFIG_IP6_NF_IPTABLES=m
--CONFIG_IP6_NF_MATCH_RPFILTER=m
--CONFIG_IP6_NF_FILTER=m
--CONFIG_IP6_NF_TARGET_REJECT=m
--CONFIG_IP6_NF_MANGLE=m
--CONFIG_IP6_NF_RAW=m
--CONFIG_IP6_NF_SECURITY=m
--CONFIG_IP6_NF_NAT=m
--CONFIG_IP6_NF_TARGET_MASQUERADE=m
- CONFIG_NF_TABLES_BRIDGE=m
- CONFIG_BRIDGE_NF_EBTABLES=m
--CONFIG_BRIDGE_EBT_T_FILTER=m
--CONFIG_BRIDGE_EBT_T_NAT=m
- CONFIG_IP_SCTP=m
- CONFIG_L2TP=m
- CONFIG_BRIDGE=m
-@@ -189,7 +166,6 @@ CONFIG_VIRTIO_NET=m
- # CONFIG_NET_VENDOR_ATHEROS is not set
- # CONFIG_NET_VENDOR_BROADCOM is not set
- # CONFIG_NET_VENDOR_CHELSIO is not set
--# CONFIG_NET_VENDOR_CIRRUS is not set
- # CONFIG_NET_VENDOR_CISCO is not set
- # CONFIG_NET_VENDOR_DEC is not set
- # CONFIG_NET_VENDOR_DLINK is not set
-@@ -250,9 +226,9 @@ CONFIG_SERIAL_8250=y
- CONFIG_SERIAL_8250_CONSOLE=y
- CONFIG_SERIAL_8250_NR_UARTS=16
- CONFIG_SERIAL_8250_EXTENDED=y
--CONFIG_SERIAL_8250_MANY_PORTS=y
- CONFIG_SERIAL_8250_SHARE_IRQ=y
- CONFIG_SERIAL_8250_RSA=y
-+CONFIG_SERIAL_8250_MANY_PORTS=y
- CONFIG_SERIAL_OF_PLATFORM=y
- CONFIG_SERIAL_NONSTANDARD=y
- CONFIG_VIRTIO_CONSOLE=y
-@@ -263,11 +239,14 @@ CONFIG_GPIO_LOONGSON=y
- CONFIG_SENSORS_LM75=m
- CONFIG_SENSORS_LM93=m
- CONFIG_SENSORS_W83627HF=m
-+CONFIG_WATCHDOG=y
-+CONFIG_WATCHDOG_NOWAYOUT=y
-+CONFIG_WATCHDOG_SYSFS=y
-+CONFIG_LOONGSON1_WDT=m
- CONFIG_MEDIA_SUPPORT=m
- CONFIG_MEDIA_USB_SUPPORT=y
- CONFIG_USB_VIDEO_CLASS=m
- CONFIG_DRM=y
--CONFIG_DRM_RADEON=m
- CONFIG_DRM_AMDGPU=m
- CONFIG_DRM_AMDGPU_SI=y
- CONFIG_DRM_AMDGPU_CIK=y
-@@ -276,6 +255,7 @@ CONFIG_DRM_AMD_ACP=y
- CONFIG_DRM_AMD_DC_SI=y
- CONFIG_DRM_AST=m
- CONFIG_DRM_QXL=y
-+CONFIG_DRM_RADEON=m
- CONFIG_DRM_VIRTIO_GPU=y
- CONFIG_FB=y
- CONFIG_FB_RADEON=y
-@@ -288,27 +268,12 @@ CONFIG_SND=m
- CONFIG_SND_SEQUENCER=m
- CONFIG_SND_SEQ_DUMMY=m
- # CONFIG_SND_ISA is not set
--CONFIG_SND_HDA_INTEL=m
- CONFIG_SND_HDA_PATCH_LOADER=y
--CONFIG_SND_HDA_CODEC_REALTEK=m
--CONFIG_SND_HDA_CODEC_REALTEK_LIB=m
--CONFIG_SND_HDA_CODEC_ALC260=m
--CONFIG_SND_HDA_CODEC_ALC262=m
--CONFIG_SND_HDA_CODEC_ALC268=m
--CONFIG_SND_HDA_CODEC_ALC269=m
--CONFIG_SND_HDA_CODEC_ALC662=m
--CONFIG_SND_HDA_CODEC_ALC680=m
--CONFIG_SND_HDA_CODEC_ALC861=m
--CONFIG_SND_HDA_CODEC_ALC861VD=m
--CONFIG_SND_HDA_CODEC_ALC880=m
--CONFIG_SND_HDA_CODEC_ALC882=m
-+CONFIG_SND_HDA_INTEL=m
- CONFIG_SND_HDA_CODEC_SIGMATEL=m
--CONFIG_SND_HDA_CODEC_HDMI=m
--CONFIG_SND_HDA_CODEC_HDMI_GENERIC=m
--CONFIG_SND_HDA_CODEC_HDMI_INTEL=m
--CONFIG_SND_HDA_CODEC_HDMI_ATI=m
--CONFIG_SND_HDA_CODEC_HDMI_NVIDIA=m
- CONFIG_SND_HDA_CODEC_CONEXANT=m
-+CONFIG_SND_HDA_CODEC_REALTEK=m
-+CONFIG_SND_HDA_CODEC_HDMI=m
- # CONFIG_SND_USB is not set
- CONFIG_HIDRAW=y
- CONFIG_HID_A4TECH=m
-@@ -406,7 +371,6 @@ CONFIG_PRINTK_TIME=y
- CONFIG_STRIP_ASM_SYMS=y
- CONFIG_MAGIC_SYSRQ=y
- CONFIG_DEBUG_FS=y
--# CONFIG_SCHED_DEBUG is not set
- CONFIG_FUNCTION_TRACER=y
- CONFIG_FTRACE_SYSCALLS=y
- CONFIG_CMDLINE_BOOL=y
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 1630ab65d59..575233c7911 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -595,6 +595,7 @@ static const struct of_device_id mtk_wdt_dt_ids[] = {
+ 	{ .compatible = "mediatek,mt6589-wdt", .data = &mt6589_data },
+ 	{ .compatible = "mediatek,mt6735-wdt", .data = &mt6735_data },
+ 	{ .compatible = "mediatek,mt6795-wdt", .data = &mt6795_data },
++	{ .compatible = "mediatek,mt6833-wdt" },
+ 	{ .compatible = "mediatek,mt7986-wdt", .data = &mt7986_data },
+ 	{ .compatible = "mediatek,mt7988-wdt", .data = &mt7988_data },
+ 	{ .compatible = "mediatek,mt8167-wdt", .data = &mt8167_data },
 
 -- 
-2.55.0
+Git-157)
+
+
