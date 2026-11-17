@@ -1,61 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794912105;
-	b=iec/Tm5/W1UCAnfCf+EqXuh2ngveQGG/NjrHvJpJksrDLrWZu81sKzYTD1bvxwcJk+On
-	 ih6ZgCab7TIgODeT8KM6A/cFrw7T7o5VbBzpvwnPDkQOONK1KUkoANYqutZvFLXxupcwk
-	 iCfjCyDc4P2bpHFHRM7LOgSatYqJ1xQMkjzjWIoB/cqPmTx4BK/kqEKwuYYuGScgtK+tK
-	 nM3XJFR1o9x5Jh5m1tucWmH81Kel7XKI/qtSdq1FAdOlSfhWxNFNLHbHJZNJjEpV+Bh44
-	 G7XhJEGpLVQPGN3U1ABXeD7BRGWKYrPxxYL7/xrOP/C4kdZVAkZtPvrVZmb0ZqIP6sA==
+	t=1794912133;
+	b=ONhvGK+G3dwqjscF+p7xKqSjrpMa9M2LeHLOjuosls5Jytf78JZ+NOG2m6co2TDA7bvo
+	 dpQkxYrJAlkIKRBL0pf7wXEXDYXX9FIbteCc3F8dqPzs9GwK860r7Sk4XhLmc/Z090TWE
+	 QUmsImr9keusmFi33xipFd2VJynC9RJT9a33i9KWbzzggo++UCv5p6LIZHsWSEbiR/A80
+	 Uv/DCEB4hOuQn73dTe8a+vMQoK1O1oKFzEKzhedwL1QgY+Oy6noyZaInSWuL4MqVt+3LM
+	 ADzBhiV2vFdltjEnYNZ73NYGgsAizqGxFLnKxdtgg0CrckGnTq37C1IWQNRLoD5U1SA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794912105;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
-	 X-Originating-IP:X-CM-SenderInfo;
-	bh=lxBxby7GseHNWvedWcEPx/DCd8dfkDUfv43EA41t7es=;
-	b=lYC6qwvhK04G0c/ys2N8NL35MDuQxG7oqyOO4sF3nHi+Iw1titUKXM9NKc2fXOFT1UAF
-	 wNfZ92ShHsdATfNKXCnARZfjc4IKS8L9kEWri/P2aR/xGvWZ5Sz3F+eK8X4SUyx6gXkJA
-	 Fl0PQbTCgAk/IajpoR3YgZCHxuMlLtn3wyb/JLneU3jiPZxvATOS5yWYQF9h9A1T3gek/
-	 qR46JLtAzsn/7zAmNNvMEN5V5gT/Sm8KpFRiO6kbP/45BRfrjqDJgfU48bwBNrafjv7zR
-	 73WhGptVUMafkZfiIHDHOYiXfFt8BluvLIwz9RcxfUuuSVDUJu21Bupn4CfxovYRt7A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794912133;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
+	 Subject:Date:Message-ID:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:Content-Type:X-Last-TLS-Session-Version;
+	bh=wceIsHyc0JJfV1Tp3tL8VGdKFtx5ifQ7EH/SXRMWvMs=;
+	b=zBDigK5bBi/OAWlDUoCidmuf4lQuNZbUduyGcNwz7duAmumjiFWXgXXtfVQU8M6FLZUb
+	 /CbY1dPMkNtnOBDD7Yy/5yvYhHmxqKFcrfHCJPUhO5oeg9LlROX2Kok1bLe6phbB69vYy
+	 K4p/nstWKgCCQnWbzWQe9Uw2T5GpunV2vxjimO2BC4Hv99tgm43udOnwzYfABPsXYpsF2
+	 A16ut2LBClynxL1o6/vjIdvSNWq2hjaCS5k2xbR6oTCuF1G8lJxH/a345/oNycNj5jqc+
+	 HuNibeC3xGXcnsXWD2elc4bElqhAg4RrdspAn4vhVNXiTEeXIPG0oyil/APTpjxQkYw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=163.com;
-	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=XV0DBogJ;
-	arc=none smtp.remote-ip=117.135.210.4
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=a26lEPKG;
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528A0606A337;
-	Tue, 17 Nov 2026 10:41:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 528A0606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692C4606A329
+	for <linux-watchdog@vger.kernel.org>; Tue, 17 Nov 2026 10:42:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 692C4606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=XV0DBogJ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=lx
-	Bxby7GseHNWvedWcEPx/DCd8dfkDUfv43EA41t7es=; b=XV0DBogJJkLCFAc4R4
-	baUwq55sXiYrdA9/rIY0qdrPqVFzyA8zoB4gSnTYD6lQj4Mbs91rIqr1K0FWhdPi
-	m0ENP8OMve3DAiKn+G6aMGtc7dWw+P6uXXpkJnuMRojKzcNxSxqx7d4Cl5CP9WqY
-	AybVtfQJJoqv6/3X/YmGXVpu0=
-Received: from SYPC (unknown [])
-	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wDnD0FBL_xq7NVVIQ--.56040S2;
-	Tue, 17 Nov 2026 18:41:06 +0800 (CST)
-From: Yang Siyuan <hsyysy@163.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] watchdog: sunxi_wdt: stop the watchdog across system suspend
-Date: Tue, 17 Nov 2026 18:40:54 +0800
-Message-ID: <20261117104054.17381-1-hsyysy@163.com>
-X-Mailer: git-send-email 2.56.1
-In-Reply-To: <20261117092036.12192-1-hsyysy@163.com>
-References: <20261117092036.12192-1-hsyysy@163.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=a26lEPKG
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id E867EC4CBCA;
+	Tue, 17 Nov 2026 10:42:14 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 61C145FC81;
+	Tue, 17 Nov 2026 10:42:10 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9D08311BC05B4;
+	Tue, 17 Nov 2026 11:41:53 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1794912127; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=wceIsHyc0JJfV1Tp3tL8VGdKFtx5ifQ7EH/SXRMWvMs=;
+	b=a26lEPKGpRLbN20V+Guhv3+Ri3lgmGzYvJ9lhcDbnoztwv8hrDn+FB4Wm5cL8Gq54hX4LI
+	Zd/Zx/RRnC4xEEEZkSBZIY3E0VChxBDnl2qBszN/EpA8qomHLNGuZoi4h1mKqMjEeM57RB
+	IgfkmPfTFxq1THD6o9kLLC1nehFx22DVjHITXSbV6kJy/1MskOp7pEkNeO8aCZRgve6liv
+	iUXR2/+qBbBKrzLeD21mY0v+KPhOZEVl1opMjW1aTG+ZGaaaBInvMdB1XRbGlklCCCrwUB
+	dTwnW0TPclaOwwjY9QmOmvSSZKdpJpXlXQ4AiibFZx2eouDgjXeanClktsboyg==
+From: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Jun Chang <jun.chang@metanoia-comm.com>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Philipp Zabel <p.zabel@pengutronix.de>, Sebastian Reichel <sre@kernel.org>,
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>, Conor Dooley <conor@kernel.org>,
+ Jonathan Cameron <jic23@kernel.org>,
+ Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+ Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+ Samuel Holland <samuel.holland@sifive.com>,
+ Ben Zong-You Xie <ben717@andestech.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Ulf Hansson <ulfh@kernel.org>,
+ Jisheng Zhang <jszhang@kernel.org>, CL Wang <cl634@andestech.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Guenter Roeck <linux@roeck-us.net>, Adrian Hunter <adrian.hunter@intel.com>,
+ Minas Harutyunyan <hminas@synopsys.com>,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+ Randolph Sheng-Kai =?UTF-8?B?TGluKOael+iBluWHsSk=?= <randolph@andestech.com>,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-pm@vger.kernel.org,
+ linux-phy@lists.infradead.org, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-mmc@vger.kernel.org, linux-spi@vger.kernel.org,
+ linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject:
+ Re: [PATCH 00/25] riscv: add support for the Metanoia MT2824 SoC and MT5824
+ EVB
+Date: Tue, 17 Nov 2026 11:41:52 +0100
+Message-ID: <_koitdIgQPmk89LDhlUlJQ@bootlin.com>
+In-Reply-To: <f6bb6461-c9d0-4685-8c93-7e62691a93b8@sirena.org.uk>
+References:
+ <20261106-mt2824-v1-0-86087eaf5af4@bootlin.com>
+ <f6bb6461-c9d0-4685-8c93-7e62691a93b8@sirena.org.uk>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -65,104 +95,60 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDnD0FBL_xq7NVVIQ--.56040S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxCr1rury5ZF1ktF1UXryxXwb_yoW5Zw4fpF
-	4Yya4F9rW0qr4avr4ayw1DAF1rC34vg34UAryxG34fA3Z8Gr1rG3W0qryjywsxGrWrGF1r
-	CF1Ut3yxCayq9a7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jImhrUUUUU=
-X-CM-SenderInfo: 5kv152r16rljoofrz/xtbC7QK16Wr8L0LQSwAA3T
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+X-Last-TLS-Session-Version: TLSv1.3
 
-The H616 watchdog has a maximum timeout of 16 seconds.  systemd keeps
-/dev/watchdog0 open with RuntimeWatchdogSec=16s, but during system
-suspend all userspace is frozen and the watchdog core does not stop the
-hardware.  A suspend longer than the timeout therefore resets the board
-before it can resume.
+On Friday, 6 November 2026 at 12:15:09 CET, Mark Brown wrote:
+> On Fri, Nov 06, 2026 at 10:29:57AM +0100, Beno=C3=AEt Monin wrote:
+>=20
+> > The series is organised as:
+>=20
+> > - patches 1-14 add the device tree bindings, the Metanoia vendor prefix,
+> >   the RISC-V board schema and the SoC block compatibles
+> > - patch 15 adds ARCH_METANOIA and selects the AX45MP errata
+> > - patches 16-23 add the reset, SPI, watchdog, MMC, PHY and USB changes
+> >   needed to build and probe on this SoC
+> > - patch 24 adds the MT2824 SoC and MT5824 EVB device trees
+> > - patch 25 adds the MAINTAINERS entry
+>=20
+> This sort of thing tends to work better if you submit the patches for
+> subsystems as separate serieses, it avoids enormous CC lists and keeps
+> the individual serieses a managable size.
+>=20
+I agree, and I am reworking the series that way. Version 1 was intended
+as an overview of the complete SoC support, but it ended up being too
+big for a single series.
 
-Add system sleep PM ops to stop the watchdog before suspend and restart
-it after resume if it was running.  The driver did not store its private
-data in the platform device, so add platform_set_drvdata() for the PM
-callbacks.
+So version 2 of this current series will be only the platform basics
+(2 patches):
 
-Use DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr() so the callbacks are
-still referenced when CONFIG_PM_SLEEP is disabled, and use
-watchdog_hw_running() instead of a private flag to decide whether the
-hardware needs to be stopped and restarted.
+  - dt-bindings: vendor-prefixes: add Metanoia Communications
+  - riscv: add ARCH_METANOIA Kconfig entry
 
-Tested on an Anbernic RG35XX-SP: a 30-second s2idle suspend resumes
-without the 16-second watchdog reset, and /dev/watchdog0 keeps working
-afterwards.
+It will act as a prerequisite for the following new series, one per
+subsystem:
 
-Signed-off-by: Yang Siyuan <hsyysy@163.com>
----
-Changes in v2:
-- Use DEFINE_SIMPLE_DEV_PM_OPS()/pm_sleep_ptr() to avoid unused-function
-  warnings with CONFIG_PM_SLEEP=n.
-- Use watchdog_hw_running() instead of tracking running_at_suspend.
-- Drop the inaccurate ping-worker reference from the comment.
+  - reset: binding + reset-simple support (the separate reboot binding
+    is dropped; the RST block is described as a single node)
+  - SPI: optional DMA/IRQ binding, MT2824 compatible, atcspi200 IRQ
+    support + Kconfig
+  - watchdog: compatible + Kconfig
+  - MMC: compatible + MT2824 support (split between SD, eMMC and
+    auto-detection) + tuning/HS400
+  - PHY: USB2 PHY binding + driver/Kconfig
+  - USB DWC2: binding + params
 
- drivers/watchdog/sunxi_wdt.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+=46inally, once the subsystem bindings are accepted and the drivers
+are queued, I'll post the SoC DTS in its own series: board schema +
+cache/PLIC/PLICSW/PLMT compatibles + the MT2824/MT5824 DTS and the
+MAINTAINERS entry
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index a6500eb..3fdc7bf 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -225,6 +225,35 @@ static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
- 	return 0;
- }
- 
-+/*
-+ * The hardware watchdog has a maximum timeout of 16 seconds.  A system
-+ * suspend easily lasts longer than that, and the watchdog core does not
-+ * stop the hardware during system sleep.  Stop the watchdog explicitly
-+ * while suspended and re-arm it on resume if it was running.
-+ */
-+static int sunxi_wdt_suspend(struct device *dev)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_hw_running(&sunxi_wdt->wdt_dev))
-+		sunxi_wdt_stop(&sunxi_wdt->wdt_dev);
-+
-+	return 0;
-+}
-+
-+static int sunxi_wdt_resume(struct device *dev)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_hw_running(&sunxi_wdt->wdt_dev))
-+		sunxi_wdt_start(&sunxi_wdt->wdt_dev);
-+
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(sunxi_wdt_pm_ops,
-+				sunxi_wdt_suspend, sunxi_wdt_resume);
-+
- static const struct watchdog_info sunxi_wdt_info = {
- 	.identity	= DRV_NAME,
- 	.options	= WDIOF_SETTIMEOUT |
-@@ -307,6 +336,8 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(sunxi_wdt->wdt_base))
- 		return PTR_ERR(sunxi_wdt->wdt_base);
- 
-+	platform_set_drvdata(pdev, sunxi_wdt);
-+
- 	sunxi_wdt->wdt_dev.info = &sunxi_wdt_info;
- 	sunxi_wdt->wdt_dev.ops = &sunxi_wdt_ops;
- 	sunxi_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
-@@ -348,6 +379,7 @@ static struct platform_driver sunxi_wdt_driver = {
- 	.driver		= {
- 		.name		= DRV_NAME,
- 		.of_match_table	= sunxi_wdt_dt_ids,
-+		.pm		= pm_sleep_ptr(&sunxi_wdt_pm_ops),
- 	},
- };
- 
+Thanks everyone for the reviews, I will integrate the feedback in the
+next iterations of each series.
 
-base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
--- 
-2.56.1
+Best regards,
+Beno=C3=AEt
+
+
 
