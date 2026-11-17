@@ -1,99 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.176
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794953649;
-	b=2MMqdZa6Qx+aRuyyxPudK8h0tsGuovhc/IWUvvhs3OkMvTH2ext2UJowFt6CPensauTY
-	 ci/z5VYzEWpirfNjwm39QgrsqlcZ3+t0yRajBsj0BQbj9F3jl3GnxaodRRwr6dZ6mFiCB
-	 moDXFCXkCfbwnEP5uDHfH1ReHzBOwDNq6I3C8hVhrz8FR0xUEprm31ty6L/pSv3TV1Ua7
-	 vrO5a/57q+SZ/4+CamWi0YOVVttMvyZXOQjyhFIDJ+R9CBbFrSireixBRCtZQCrhbSbSn
-	 0LM/3xaJKlOu6BLbTAx9i6RG0blnp+wpaJbBvPC3SouSwS4O3RxpJYGY5J3k0ZYWtKA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794953649;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=kpd7hhfRhWWBKoEgTCNhAfk8GLYDUaewjNnHM0/FSkA=;
-	b=zWHDLz4cF1p54zTOOfhtWsb0q2+yECH36xKsJ0ccU5wVC6pYxlAVHxHO333mVRaGJmrM
-	 MNWJ/tsnOcmoFQEerh1tfJzMnyQTUlFVM3WOTzQyYznTuF4psuXQnMyMZFXoX56VUxEkI
-	 G8q1x3oYXqdWbbfj43OffkjxK/eqhLoE4X06tgNejrTWeVkD93C7d8rtCRaXe1xCk8OpH
-	 tn5vkwLk5e44HeQBzFnFmt6FVAeUnrN4aUcfZ6aFEJXyrgz9jO04WhRSSOguOMhnx5YWN
-	 YK//gonXWMK20dKEl5sXBEpzRuO1WEIuXt4T2IlJCaays08sky3vAJGcaKqVYP40fxA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=OkK7Oync;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.176
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.2
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794957549;
+	b=be0pWX7JlbncXmsB3iz0wpXIlRw+o7whHI7KA25yZhaQ/cWl5+uDk6raUc7aRD/FMI0b
+	 a0fgXpKYrje9HYE5PrqqGyDDfGHXJNS/QHI/mw5mwn4kW9dMkqd6elKRazIrtcLApNMn3
+	 1P6Yj9GDmLHbDbEAaYzJziqYb1fI8Oiry9U2ZZ7EYMfKnt8i1rqT4Q3bTlRCMm+kuWSEu
+	 eewFTXCdJBmKvLhMy9sexxsSLiiyhNtXP4T8caaT61YEFVOyahlSDZDTzj2JeaZqII+O4
+	 XYMAmRXguw7X9j9RFY1cihSM3l7lsJVZxohRE2BFM5roS0FnpjOwXSOctn5gdtRiEfg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794957549;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
+	 X-Originating-IP:X-CM-SenderInfo;
+	bh=taHVdrxL2EsPRjmw6qawffXd/pZALm22RNDv0mO72y4=;
+	b=L687yKWyUe98xNutijJ09sAOQKtWHL3awJkpo3StfAqh3IbzYWhQEcOvPuHopU6ztQFG
+	 Ys3hvUhN5sq7f1dcHG48+3C6aYNBgTqy2UZ77nJ001ay0+8lpxk3wOg09zs6FhMYk4Ad7
+	 2JshRlZpmPaf+5KCeWj0scaWxG22KUpFBNguDK69RGSNDDMt8XUyFX5NVboimAiIogIQY
+	 lyvaDajmezSDSovXSRoTWjyCpjeAmFbSEXZcv9f2kuB71VIvtm/hlFDJ2VWPcTLeylB8e
+	 RQ1z4dGjuHSjhPqMGKsvtcSL6kZt97CGctzOdV14hcGnDxxPlggLoliXQ+ejtG6d9cw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=163.com;
+	spf=pass smtp.mailfrom=163.com;
+	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b="H4/lTNlP";
+	arc=none smtp.remote-ip=220.197.31.2
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12752606A31C
-	for <linux-watchdog@vger.kernel.org>; Tue, 17 Nov 2026 22:14:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 12752606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B574606A32A;
+	Tue, 17 Nov 2026 23:19:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B574606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=OkK7Oync
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-5058b105df7so105222b6e.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 17 Nov 2026 14:14:08 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794953648; cv=none;
-        d=google.com; s=arc-20260327;
-        b=QyS91lin92T9DKzQSeL/I+7bvzm6cAPjW8NcJJ0WWQcxb4gBdSEstB6N4qdWF/fF0u
-         sayQ1FAEMd9YELPVjXfmvlsGsRHRmLJNrf8ezN9zNjTLLnS3eRGwW+gIQNIM4kcxr754
-         ErdiWeYzKeHmLBROc85I2NNsrZ7cXheV05552HyPteFsLKUzGUNsLMLxlBuY3514pqe7
-         oHa0LTmNrWqCLGILSrBnDJB4mtJDKAjYgPxw0BXUN/Mniu4Jp7Mw0D+82oTXgppAHU66
-         pKk0bL2RoTiYjavnQzWJ//nYAwwP2HrZCPf9pEl3+Pokl2m8d722cab3vPb7pJhXoKbW
-         JCOg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=kpd7hhfRhWWBKoEgTCNhAfk8GLYDUaewjNnHM0/FSkA=;
-        fh=nTua2UbRSZWthxUBjoxa7bgGcZH1urAvU5eGzRoVE0I=;
-        b=DDqMtyUPKKV23h9EaVI6U3Ss+WbMVNie2GnBsSwjtrhG4mE3s185YyxLnEO19d8qOO
-         76kJmuCz6a8l0422UEa/c804vDcoBqMZ8mTQ7cgToDrdmtmsy1FBiArfi5b/22NlZmiU
-         J1pcwk1UTOa+icEaFO7rieumKw5pXtZFx7GYroAsgGT0Pkpi6IBbP6DpWVwjlmXrmyU/
-         0v83dd/4UAiSkBXEPruYHAfkN6TDTzEO/PkEHjeKWx1TukGJIXQedXc2C8Glx4aO02Lj
-         uQWh+NYZ27xmuWcZ2SmEcdXL08U3+wDqfCeELdHuzN1LJbw6prZ8F4NjDebEKGdXtvns
-         8fPA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1794953648; x=1795558448; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=kpd7hhfRhWWBKoEgTCNhAfk8GLYDUaewjNnHM0/FSkA=;
-        b=OkK7Oync/0FMR4WGnKttZfm6jO4gY2WpTAuxMTPGGdgi9bYq6J7iIKBa8VpjHUZyO5
-         usHhSBmnLWPAXbr7C6Vs10jTLGe6cLQb/ULbjlEAznvTd3S2iUX0UJGNeMWMRtYpl/h+
-         +UKeSOLB1H37XnEWzPOp8L5VoUrnAYZz7NqroLlKzaTsWgueA4mg4DEkCra+oakCnwc0
-         6hh6uNVuy6hTVxPJNh14dfbCGZxnBU4W8QoTST6MBNSaIvKmXb4ZjqGqzStDARn1ahUj
-         6qzHVNjAWI8eUgCJkrSPt7USJefKcGjAegppKzl2HvuzY61fEW4j06rjTP+69RcQFWLF
-         yZJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794953648; x=1795558448;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kpd7hhfRhWWBKoEgTCNhAfk8GLYDUaewjNnHM0/FSkA=;
-        b=TGVAzczCWC+0cDCbtZY82kGQWe1sWZgjcXgYSMwi2ecwbfqKMkCVmMiY7eL3ju+tLZ
-         J9o51sLZc049XmfGNlSEVnrnlUCnJJ5cKEGozt9ivrOThZyLwpW9nJJZrTjlZ5y8lx8H
-         Aes+BDOy4i+WkEvICgGoKfPsycDejujFz19bV4RR+5s8+3aPCUjrdWqZJqPzBRLn+V6T
-         mxGHL7yCjbj4eXnt4NCnUYN3m5M1wsmLTzZ1QUvNIWDwuS7RFsa96rsnTtjLPorfbKHM
-         RDaEKhnQB9haj8pjHCyks6z5cE0nuPEdUr/IwLYQpFwhMIN4nGOIUK0PYQ3J+dvEIzKr
-         wLtQ==
-X-Gm-Message-State: APuU4Z/+4NGcx7qh6+b+/BNO53MP6GXU1dQ53Ym/VJ8A1A2AcRSxvk/k
-	fDsMypSoISOSW29dOqz6o0KdSwJML4qbGH/pqkYgHYFhIRaaMaVIjSZAe0xQf/tfZi/ZS6H0eKC
-	cGJUd8fMVqfdMS7AeTm1lliOzLj3LClWMG5H1DmDs
-X-Gm-Gg: AYBFou3bJwOtqhyQWYBzKmprAr06/HO5NQZUUu+L1nkmCiznE26IgLqWiLemRPZkIIt
-	+VD0hSsNZPu2Ct2qN8dWxoz13/JjTP+RnmeiIzU3xMyeGllsegl4AbtC1gYbIwA6OEA54DEPNmm
-	fFjvWaqg6xem+3shrHakkqyNwcDnchrLgPEDLmCkR5Vo1gbgykKd1MjPRURX8DP4n9142bhz7i2
-	c3ZF3uQp71fA3ZBL2bvRP9/np6Zxc+A7QLPMFLQ2jj3fr7p8J329UkFvtTG4QZX+UThoxgKYSlj
-	5kOGnfmGj/hzqS3G74ncGO3P8SvWmdIchGckpI8yzNJIYIiFlYgp0faZYpa2K4O5tEYjq9Iq1Ai
-	tX5pW/RCssUKkzeksSjdnCZzl42TAUDjG1TC0VVkzmY5cKiibFyiSoCFyQjsWZcKuJjw=
-X-Received: by 2002:a05:6808:30a9:b0:4b9:a88b:888b with SMTP id
- 5614622812f47-5774162054dmr1516905b6e.33.1794953647357; Tue, 17 Nov 2026
- 14:14:07 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=H4/lTNlP
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=ta
+	HVdrxL2EsPRjmw6qawffXd/pZALm22RNDv0mO72y4=; b=H4/lTNlPJkqWGJAb8H
+	JUjTZyrheqOowE8EJNYMsGNJIw67TO7fe8WTJWsjSJEJ7DMkLf7Ys/jS0mih1uBK
+	ht4JKHIpZH/UpVQeYawMgEud/Gw115AqeGxJH4aC4IcaZPsnzwhtuQzt8c27R8hP
+	RUWPwtZH2LCKHcjkHBldYa7l4=
+Received: from SYPC (unknown [])
+	by gzsmtp3 (Coremail) with SMTP id PigvCgCHdTzL4PxqjZGTGg--.50564S2;
+	Wed, 18 Nov 2026 07:18:35 +0800 (CST)
+From: Yang Siyuan <hsyysy@163.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3] watchdog: sunxi_wdt: stop the watchdog across system suspend
+Date: Wed, 18 Nov 2026 07:18:19 +0800
+Message-ID: <20261117231819.264381-1-hsyysy@163.com>
+X-Mailer: git-send-email 2.56.1
+In-Reply-To: <202611172344.RbQl66xu-lkp@intel.com>
+References: <202611172344.RbQl66xu-lkp@intel.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -103,90 +65,111 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261112031629.396819-1-mrungta@google.com> <20261112031629.396819-2-mrungta@google.com>
- <sashiko-outbox-210280@kernel.org>
-In-Reply-To: <sashiko-outbox-210280@kernel.org>
-From: Mayank Rungta <mrungta@google.com>
-Date: Tue, 17 Nov 2026 14:13:55 -0800
-X-Gm-Features: AclHuK-gfyGRgfHP6b95c4djqnr6JWB02JWcunq_dlapBgDtO9GdRA_nY1E9eCw
-Message-ID: <CABz7rdC2Q1qtUdhiXDpEydbhCnSaNSuS5jzcUK+cZFdNZmULgw@mail.gmail.com>
-Subject: Re: [PATCH v4 1/7] genirq: Synchronize in-flight handlers during NMI teardown
-To: sashiko-reviews@lists.linux.dev, Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>
-Cc: linux-watchdog@vger.kernel.org, Marc Zyngier <maz@kernel.org>, 
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, linux-kernel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, "Kirill A . Shutemov" <kas@kernel.org>, 
-	Douglas Anderson <dianders@chromium.org>, Mayank Rungta <mrungta@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PigvCgCHdTzL4PxqjZGTGg--.50564S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxCr1rury5ZF1ktF1UWw13CFg_yoWrJrW3pF
+	45Aa4Y9rW0qr4avr4aywnrAFn5CwnYg34UAryxG34rX3Z8Gr1rGF1Iqryjy39xGrWrGF1r
+	CF1Ut3yfGayq9a7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jso7tUUUUU=
+X-CM-SenderInfo: 5kv152r16rljoofrz/xtbC7gxFeWr84MwGWwAA35
 
-Sashiko has found one potential issue:
+The H616 watchdog has a maximum timeout of 16 seconds.  systemd keeps
+/dev/watchdog0 open with RuntimeWatchdogSec=16s, but during system
+suspend all userspace is frozen and the watchdog core does not stop the
+hardware.  A suspend longer than the timeout therefore resets the board
+before it can resume.
 
-> [Severity: Medium]
-> Can __synchronize_nmi() return while handle_fasteoi_nmi() is still runnin=
-g
-> on another CPU because it checks desc->nmi_active before querying
-> IRQCHIP_STATE_ACTIVE?
->
-> Unlike regular IRQ flow handlers, which acquire desc->lock before setting
-> IRQD_IRQ_INPROGRESS and calling chip->irq_eoi(), handle_fasteoi_nmi() run=
-s
-> without desc->lock.  On the NMI CPU, hardware acknowledge sets
-> IRQCHIP_STATE_ACTIVE first, then handle_fasteoi_nmi() increments
-> desc->nmi_active, then chip->irq_eoi() clears IRQCHIP_STATE_ACTIVE, and
-> finally desc->nmi_active is decremented:
->
-> CPU0 (NMI)                        CPU1
-> <NMI acknowledged in hw>
->   (IRQCHIP_STATE_ACTIVE =3D true)
->                                   __synchronize_nmi()
->                                     inprogress =3D
->                                       atomic_read_acquire(&desc->nmi_acti=
-ve);
->                                       -> 0
->   handle_fasteoi_nmi()
->     atomic_inc(&desc->nmi_active)
->     action->handler(...)
->     chip->irq_eoi()
->       (IRQCHIP_STATE_ACTIVE =3D false)
->                                     __irq_get_irqchip_state(...,
->                                       IRQCHIP_STATE_ACTIVE, &inprogress);
->                                       -> false
->                                   /* __synchronize_nmi() returns */
->                                   __cleanup_nmi()
->                                     irq_nmi_teardown()
->     atomic_dec(&desc->nmi_active)  <-- NMI handler still in flight
->
-> Querying IRQCHIP_STATE_ACTIVE before reading desc->nmi_active (or
-> re-checking desc->nmi_active after observing IRQCHIP_STATE_ACTIVE is
-> false) would prevent missing the handover between hardware-active and
-> software-active states.
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112031629.39=
-6819-1-mrungta@google.com?part=3D1
+Add system sleep PM ops to stop the watchdog before suspend and restart
+it after resume if it was running.  The driver did not store its private
+data in the platform device, so add platform_set_drvdata() for the PM
+callbacks.
 
-The observation is valid in theory, though practically benign for
-disable_nmi() and free_nmi():
+Use DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr(), and use
+watchdog_hw_running() instead of a private flag to decide whether the
+hardware needs to be stopped and restarted.
 
-In that window, IRQD_IRQ_DISABLED is already set by __irq_disable() or
-irq_shutdown() before __synchronize_nmi() is called. If
-__synchronize_nmi() reads desc->nmi_active =3D=3D 0 after
-smp_mb__after_spinlock(), then the NMI CPU's
-atomic_inc(&desc->nmi_active) occurred after IRQD_IRQ_DISABLED was
-set, so handle_fasteoi_nmi() is guaranteed to observe
-irqd_irq_disabled() =3D=3D true and skip action->handler().
+Tested on an Anbernic RG35XX-SP: a 30-second s2idle suspend resumes
+without the 16-second watchdog reset, and /dev/watchdog0 keeps working
+afterwards.
 
-By the time __synchronize_nmi() reads IRQCHIP_STATE_ACTIVE as false,
-chip->irq_eoi() has also completed, leaving only
-atomic_dec(&desc->nmi_active) in handle_fasteoi_nmi(). The IRQ mapping
-is not torn down in disable_nmi() or free_nmi(), and even if it were
-torn down immediately after free_nmi(), free_desc() frees struct
-irq_desc via call_rcu(&desc->rcu, delayed_free_desc), which cannot
-complete until the NMI CPU exits NMI context (nmi_enter() /
-ct_nmi_enter()), so no use-after-free can occur.
+Signed-off-by: Yang Siyuan <hsyysy@163.com>
+---
+Changes in v3:
+- Mark the PM callbacks __maybe_unused.  With CONFIG_PM_SLEEP=n the
+  pm_sleep_ptr() references expand to NULL, so both callbacks were unused
+  and a W=1 build warned about them.  Reported by the kernel test robot:
+  https://lore.kernel.org/oe-kbuild-all/202611172344.RbQl66xu-lkp@intel.com/
+- Reword the v2 changelog entry: pm_sleep_ptr() alone does not keep the
+  callbacks referenced when CONFIG_PM_SLEEP is disabled.
 
-Human review feedback on v4 as-is would still be very much
-appreciated. I plan to hold off on spinning a v5 just for this and
-will swap the check order in __synchronize_nmi() alongside any
-maintainer feedback.
+Changes in v2:
+- Use DEFINE_SIMPLE_DEV_PM_OPS()/pm_sleep_ptr() to avoid unused-function
+  warnings with CONFIG_PM_SLEEP=n.
+- Use watchdog_hw_running() instead of tracking running_at_suspend.
+- Drop the inaccurate ping-worker reference from the comment.
+
+ drivers/watchdog/sunxi_wdt.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index a6500eb..3fdc7bf 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -225,6 +225,35 @@ static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
+ 
++/*
++ * The hardware watchdog has a maximum timeout of 16 seconds.  A system
++ * suspend easily lasts longer than that, and the watchdog core does not
++ * stop the hardware during system sleep.  Stop the watchdog explicitly
++ * while suspended and re-arm it on resume if it was running.
++ */
++static int __maybe_unused sunxi_wdt_suspend(struct device *dev)
++{
++	struct sunxi_wdt_dev *sunxi_wdt = dev_get_drvdata(dev);
++
++	if (watchdog_hw_running(&sunxi_wdt->wdt_dev))
++		sunxi_wdt_stop(&sunxi_wdt->wdt_dev);
++
++	return 0;
++}
++
++static int __maybe_unused sunxi_wdt_resume(struct device *dev)
++{
++	struct sunxi_wdt_dev *sunxi_wdt = dev_get_drvdata(dev);
++
++	if (watchdog_hw_running(&sunxi_wdt->wdt_dev))
++		sunxi_wdt_start(&sunxi_wdt->wdt_dev);
++
++	return 0;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(sunxi_wdt_pm_ops,
++				sunxi_wdt_suspend, sunxi_wdt_resume);
++
+ static const struct watchdog_info sunxi_wdt_info = {
+ 	.identity	= DRV_NAME,
+ 	.options	= WDIOF_SETTIMEOUT |
+@@ -307,6 +336,8 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(sunxi_wdt->wdt_base))
+ 		return PTR_ERR(sunxi_wdt->wdt_base);
+ 
++	platform_set_drvdata(pdev, sunxi_wdt);
++
+ 	sunxi_wdt->wdt_dev.info = &sunxi_wdt_info;
+ 	sunxi_wdt->wdt_dev.ops = &sunxi_wdt_ops;
+ 	sunxi_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+@@ -348,6 +379,7 @@ static struct platform_driver sunxi_wdt_driver = {
+ 	.driver		= {
+ 		.name		= DRV_NAME,
+ 		.of_match_table	= sunxi_wdt_dt_ids,
++		.pm		= pm_sleep_ptr(&sunxi_wdt_pm_ops),
+ 	},
+ };
+ 
+
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
+-- 
+2.56.1
+
