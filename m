@@ -1,72 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.35
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794961689;
-	b=DznCFKUkT9pYi9685F3MvcaTJWuTXrzmZ5yeHMvSA3cAmzS2o5MuMvjBhUQi6E/fi9vZ
-	 +zsXDvoyW+LPNv6TkdrPzaK5fEn+kQWSrV1kVoz5aTBZG4tX47A2lWcmUIhIjz0NqgqXu
-	 4hxA0w6Qc5bQMDk2xWjyUcyDlPR+FF0k/KrLxANA8Q72e+p0EJQG9bRrqHtY7gY2lVleD
-	 0EVxC8rSiHPJgehxyRyv30YV9ZzOlCzfjI0Owj2gHeFxU5tilKueEp7jfCSfIGIbNlnEh
-	 GYQhWqF/n2C//J5mrwppZx2HcfU5KEtMS8fGna0Zne7qRbwA052Jnb0XLeYHvuZKv1w==
+	t=1794963101;
+	b=JIfjMfqTOQteLeR2LpVuAX1eJuZrsF1u012Slvi9+1217pZpQgdbzzfLeL9HYNg9DHcN
+	 n8ATKSc3QbiUprMAYr01Ko6RWMo3qfXiT0YptyGrHYWV3B/qOyDAJ5pzAnlnloTZAxi4y
+	 dqk4VPcgOEwCuSE3XvXvo5crK3JmFrDdGxjJO/JbxmFZbArVy8GgdxeQZsUGAIeDCSilM
+	 vMkQQ0ty7G2Vx3sqwCeZL2gAAqAGmtjQU9rTf2/1fUOY9RtEmlWcYEnJCcXd53Kg9c/Y8
+	 atz+Y2mPb31rSsBTX4S9AIbJiceHykR0wDSL5TYNEWTWIvRT4bXhQNNOcpu0DaE5c0w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794961689;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
-	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=reSEEgpGY2rZVkhwb8lhZbTfi6oOClaH9o6t7C24Jlw=;
-	b=y+YnGbM4+mCvapq3K6YKQjsV4jW1zi5Czof953/Jx8NhoCAjLF5QlF2e93+gtb8NbMEo
-	 9/asL2okKDfVKTyGK/mD38iQbjurojdeQaRxST+ETkf47Qysr4PTULlP4yredbtroejQL
-	 dBQdPbh/f7tBDDqwE9q6zOrFzF8ode/usyWfpi+AxW+XCXBxQOV3qGeUB9O8LILfFRLPm
-	 JZsKqouk2Pt71iQ/afSsr2W+ezmB2/F/xodvMV6/6nQyV8DNGobuQrNcLoN27D0cpHe+O
-	 IcvPuwXEEvhit8R9yDkAp0ZfYSkcY16/rq1Iwp1zwAdfns+74C2DmJxW4lDNbxP0A7g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794963101;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
+	 X-Originating-IP:X-CM-SenderInfo;
+	bh=E+RsS1tq+kLfqFUPfdWPYkZYK/Z9niwBH23LyHoXUfs=;
+	b=CcptQ7kQqshaUzdAfJfASr/QJG0Y+WUj5RYv2RV3HHwBqN/Pb06E6c3qSq7s1ndHV83N
+	 9OCXqJqeGu4h1xPpjTWyD17H4p9M2NM2EAZ6/TUTwJAgwYgGRY0OoiejCr4+bbR6qF+Ir
+	 uka60IEHjygMrMiPSs72FyOd4MekHXWouT/TTrCX0gndb5uFJvrDSUMeZJ/6/UHjfP910
+	 UL+TNViITrM6KqzZhvJXHoujuWwLaUMNdRiisRQpopSfpXs0S/y9+AwG47chw+hYxIjeE
+	 XvL9QfvWOniM3BN5az1RMUb7GlsGcAWYLBo4mdmRiomKKlf8bK1fkmIq/G6dKG7SnAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=1GE28hfd;
-	arc=none smtp.remote-ip=44.202.169.35
-Received: from omta036.useast.a.cloudfilter.net (omta036.useast.a.cloudfilter.net [44.202.169.35])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=163.com;
+	spf=pass smtp.mailfrom=163.com;
+	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b="bG+Ue8f/";
+	arc=none smtp.remote-ip=220.197.31.4
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B7AE606A32A
-	for <linux-watchdog@vger.kernel.org>; Wed, 18 Nov 2026 00:28:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B7AE606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ED86606A884;
+	Wed, 18 Nov 2026 00:51:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3ED86606A884
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=1GE28hfd
-Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
-	by cmsmtp with ESMTPS
-	id TQ2mxUyhP4vCDTTWxxRaBx; Wed, 18 Nov 2026 00:28:07 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id TTWxxH0QqYskhTTWxxgSwQ; Wed, 18 Nov 2026 00:28:07 +0000
-X-Authority-Analysis: v=2.4 cv=CKMqXQrD c=1 sm=1 tr=0 ts=6afcf117
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=QyXUC8HyAAAA:8 a=Byx-y9mGAAAA:8 a=9hZNRq4AwDQPDaotvscA:9 a=QEXdDO2ut3YA:10
- a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=reSEEgpGY2rZVkhwb8lhZbTfi6oOClaH9o6t7C24Jlw=; b=1GE28hfdQAP0
-	eH6SV9cVG88AXLzXwhB84q5isrt64bM2FNyooBXlLl9Y3sbPtnwzNIVM98gKU1k759lJz3poL4TSy
-	1mHFkiGocEbC4H0zCkNW67RtsTjlHpTHNI+I4h1dNNDmDddY5jYMd6pab0EvCy/FP1roMeuJqE92+
-	uQxaSt9NlSnIOU2Vpcr0SHx8b0bRIm2gXT5VP2R/5HyXvq/5ZuVqs5mM3tcHViwXUmJ6D8I1IyGEV
-	x7zIHxn6jvQCTZV96pHCgwF+VM/7vHMqmG/HRU6kECXyUZSXjvHDgkcKuOYyvISz4h1UNwWjpOOBU
-	Jszo388BL4qfRwbQKCLd+Q==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:48036)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xTTWw-00000002Q97-3Xcp;
-	Wed, 18 Nov 2026 05:58:06 +0530
-Message-ID: <ece4aa08-fb86-4f76-b4b8-a9351a71df14@roeck-us.net>
-Date: Tue, 17 Nov 2026 16:28:05 -0800
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=bG+Ue8f/
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=E+
+	RsS1tq+kLfqFUPfdWPYkZYK/Z9niwBH23LyHoXUfs=; b=bG+Ue8f/UZ5gtZAA+S
+	Cfs1vGehNw0RAcWGiRrj0YkI3g4WPMgDuC44WvS4aFS+swNndP7XBUxl0N2m8fln
+	CeP8a5WqncCJDI+hrMhqhK+dr0ugt0/PVQOgWmcHzzQTMXt+ETvqFzJgmfol3sxy
+	pAtwybU1J3AVMga+Yh7MMQavU=
+Received: from SYPC (unknown [])
+	by gzsmtp4 (Coremail) with SMTP id PygvCgBHsYd49vxqwTllGg--.46287S2;
+	Wed, 18 Nov 2026 08:51:05 +0800 (CST)
+From: Yang Siyuan <hsyysy@163.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4] watchdog: sunxi_wdt: stop the watchdog across system suspend
+Date: Wed, 18 Nov 2026 08:50:48 +0800
+Message-ID: <20261118005048.385059-1-hsyysy@163.com>
+X-Mailer: git-send-email 2.56.1
+In-Reply-To: <ece4aa08-fb86-4f76-b4b8-a9351a71df14@roeck-us.net>
+References: <ece4aa08-fb86-4f76-b4b8-a9351a71df14@roeck-us.net>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -76,113 +65,115 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] watchdog: sunxi_wdt: stop the watchdog across system
- suspend
-To: Yang Siyuan <hsyysy@163.com>, Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <202611172344.RbQl66xu-lkp@intel.com>
- <20261117231819.264381-1-hsyysy@163.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
- RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
- nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
- 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
- gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
- IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
- kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
- VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
- jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
- BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
- ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
- CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAmgrMyQFCSbODQkACgkQyx8mb86fmYGcWRAA
- oRwrk7V8fULqnGGpBIjp7pvR187Yzx+lhMGUHuM5H56TFEqeVwCMLWB2x1YRolYbY4MEFlQg
- VUFcfeW0OknSr1s6wtrtQm0gdkolM8OcCL9ptTHOg1mmXa4YpW8QJiL0AVtbpE9BroeWGl9v
- 2TGILPm9mVp+GmMQgkNeCS7Jonq5f5pDUGumAMguWzMFEg+Imt9wr2YA7aGen7KPSqJeQPpj
- onPKhu7O/KJKkuC50ylxizHzmGx+IUSmOZxN950pZUFvVZH9CwhAAl+NYUtcF5ry/uSYG2U7
- DCvpzqOryJRemKN63qt1bjF6cltsXwxjKOw6CvdjJYA3n6xCWLuJ6yk6CAy1Ukh545NhgBAs
- rGGVkl6TUBi0ixL3EF3RWLa9IMDcHN32r7OBhw6vbul8HqyTFZWY2ksTvlTl+qG3zV6AJuzT
- WdXmbcKN+TdhO5XlxVlbZoCm7ViBj1+PvIFQZCnLAhqSd/DJlhaq8fFXx1dCUPgQDcD+wo65
- qulV/NijfU8bzFfEPgYP/3LP+BSAyFs33y/mdP8kbMxSCjnLEhimQMrSSo/To1Gxp5C97fw5
- 3m1CaMILGKCmfI1B8iA8zd8ib7t1Rg0qCwcAnvsM36SkrID32GfFbv873bNskJCHAISK3Xkz
- qo7IYZmjk/IJGbsiGzxUhvicwkgKE9r7a1rOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
- 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
- pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
- J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
- pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
- 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
- ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
- I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
- nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
- HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
- JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAmgrMyQFCSbODQkACgkQyx8mb86fmYHlgg/9
- H5JeDmB4jsreE9Bn621wZk7NMzxy9STxiVKSh8Mq4pb+IDu1RU2iLyetCY1TiJlcxnE362kj
- njrfAdqyPteHM+LU59NtEbGwrfcXdQoh4XdMuPA5ADetPLma3YiRa3VsVkLwpnR7ilgwQw6u
- dycEaOxQ7LUXCs0JaGVVP25Z2hMkHBwx6BlW6EZLNgzGI2rswSZ7SKcsBd1IRHVf0miwIFYy
- j/UEfAFNW+tbtKPNn3xZTLs3quQN7GdYLh+J0XxITpBZaFOpwEKV+VS36pSLnNl0T5wm0E/y
- scPJ0OVY7ly5Vm1nnoH4licaU5Y1nSkFR/j2douI5P7Cj687WuNMC6CcFd6j72kRfxklOqXw
- zvy+2NEcXyziiLXp84130yxAKXfluax9sZhhrhKT6VrD45S6N3HxJpXQ/RY/EX35neH2/F7B
- RgSloce2+zWfpELyS1qRkCUTt1tlGV2p+y2BPfXzrHn2vxvbhEn1QpQ6t+85FKN8YEhJEygJ
- F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
- FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261117231819.264381-1-hsyysy@163.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xTTWw-00000002Q97-3Xcp
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:48036
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 4
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfEJqfFSvr+fdxpbi9iJjZYDKu75qWyOS6Yps+1FRr1xgseiI2fTkplsNhuSvasEHxxdoJFynaqOBu9mBFQuKfXLFgrSvEU6klFoday9NOK91XqIBQdxH
- YlpWzCHpZzLSiXbyqqVJoGwu8F8N759cOqIPFZSVFD7reUGWBS2UQhyOPcGCAou382dIlNeEM7YtKjl42Kgkk5m8srWfYY5wdwB4UFM9PL5m17Oi22hWTF1j
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PygvCgBHsYd49vxqwTllGg--.46287S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxCr1rury5ZF1ktF1UXF1UZFb_yoWrGr43pF
+	4Yya4FkrW0qr4avr4aywnrAFn5G3ZYg34UAryxG34fA3Z8Gr1rGFy0qr1UAwsxGrWrGF1r
+	uF1Ut3yxGayq9a7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jVYLkUUUUU=
+X-CM-SenderInfo: 5kv152r16rljoofrz/xtbC7Rm16Wr89nkdMgAA3e
 
-On 11/17/26 15:18, Yang Siyuan wrote:
-> The H616 watchdog has a maximum timeout of 16 seconds.  systemd keeps
-> /dev/watchdog0 open with RuntimeWatchdogSec=16s, but during system
-> suspend all userspace is frozen and the watchdog core does not stop the
-> hardware.  A suspend longer than the timeout therefore resets the board
-> before it can resume.
-> 
-> Add system sleep PM ops to stop the watchdog before suspend and restart
-> it after resume if it was running.  The driver did not store its private
-> data in the platform device, so add platform_set_drvdata() for the PM
-> callbacks.
-> 
-> Use DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr(), and use
-> watchdog_hw_running() instead of a private flag to decide whether the
-> hardware needs to be stopped and restarted.
-> 
-> Tested on an Anbernic RG35XX-SP: a 30-second s2idle suspend resumes
-> without the 16-second watchdog reset, and /dev/watchdog0 keeps working
-> afterwards.
-> 
-> Signed-off-by: Yang Siyuan <hsyysy@163.com>
-> ---
-> Changes in v3:
-> - Mark the PM callbacks __maybe_unused.  With CONFIG_PM_SLEEP=n the
->    pm_sleep_ptr() references expand to NULL, so both callbacks were unused
->    and a W=1 build warned about them.  Reported by the kernel test robot:
->    https://lore.kernel.org/oe-kbuild-all/202611172344.RbQl66xu-lkp@intel.com/
+The H616 watchdog has a maximum timeout of 16 seconds.  systemd keeps
+/dev/watchdog0 open with RuntimeWatchdogSec=16s, but during system
+suspend all userspace is frozen and the watchdog core does not stop the
+hardware.  A suspend longer than the timeout therefore resets the board
+before it can resume.
 
-That build report was for v1 of the patch. __maybe_unused is unnecessary
-with DEFINE_SIMPLE_DEV_PM_OPS.
+Add system sleep PM ops to stop the watchdog before suspend and restart
+it after resume if it was running.  The driver did not store its private
+data in the platform device, so add platform_set_drvdata() for the PM
+callbacks.
 
-Guenter
+Use DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr(), and use
+watchdog_hw_running() instead of a private flag to decide whether the
+hardware needs to be stopped and restarted.
+
+Tested on an Anbernic RG35XX-SP: a 30-second s2idle suspend resumes
+without the 16-second watchdog reset, and /dev/watchdog0 keeps working
+afterwards.
+
+Signed-off-by: Yang Siyuan <hsyysy@163.com>
+---
+Changes in v4:
+- Drop __maybe_unused again.  The W=1 report was against v1, which used
+  SET_SYSTEM_SLEEP_PM_OPS(); that macro expands to nothing when
+  CONFIG_PM_SLEEP=n, so the callbacks were unused.  v2 already replaced it
+  with DEFINE_SIMPLE_DEV_PM_OPS(), whose SYSTEM_SLEEP_PM_OPS() takes the
+  callback addresses through pm_sleep_ptr() even with CONFIG_PM_SLEEP=n,
+  so the functions are never unused.  The v3 change is reverted in v4.
+
+Changes in v3:
+- Mark the PM callbacks __maybe_unused, in response to a W=1 report that
+  turned out to be against v1.  Reverted in v4.
+
+Changes in v2:
+- Use DEFINE_SIMPLE_DEV_PM_OPS()/pm_sleep_ptr() to avoid unused-function
+  warnings with CONFIG_PM_SLEEP=n.
+- Use watchdog_hw_running() instead of tracking running_at_suspend.
+- Drop the inaccurate ping-worker reference from the comment.
+
+ drivers/watchdog/sunxi_wdt.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index a6500eb..3fdc7bf 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -225,6 +225,35 @@ static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
+ 
++/*
++ * The hardware watchdog has a maximum timeout of 16 seconds.  A system
++ * suspend easily lasts longer than that, and the watchdog core does not
++ * stop the hardware during system sleep.  Stop the watchdog explicitly
++ * while suspended and re-arm it on resume if it was running.
++ */
++static int sunxi_wdt_suspend(struct device *dev)
++{
++	struct sunxi_wdt_dev *sunxi_wdt = dev_get_drvdata(dev);
++
++	if (watchdog_hw_running(&sunxi_wdt->wdt_dev))
++		sunxi_wdt_stop(&sunxi_wdt->wdt_dev);
++
++	return 0;
++}
++
++static int sunxi_wdt_resume(struct device *dev)
++{
++	struct sunxi_wdt_dev *sunxi_wdt = dev_get_drvdata(dev);
++
++	if (watchdog_hw_running(&sunxi_wdt->wdt_dev))
++		sunxi_wdt_start(&sunxi_wdt->wdt_dev);
++
++	return 0;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(sunxi_wdt_pm_ops,
++				sunxi_wdt_suspend, sunxi_wdt_resume);
++
+ static const struct watchdog_info sunxi_wdt_info = {
+ 	.identity	= DRV_NAME,
+ 	.options	= WDIOF_SETTIMEOUT |
+@@ -307,6 +336,8 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(sunxi_wdt->wdt_base))
+ 		return PTR_ERR(sunxi_wdt->wdt_base);
+ 
++	platform_set_drvdata(pdev, sunxi_wdt);
++
+ 	sunxi_wdt->wdt_dev.info = &sunxi_wdt_info;
+ 	sunxi_wdt->wdt_dev.ops = &sunxi_wdt_ops;
+ 	sunxi_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+@@ -348,6 +379,7 @@ static struct platform_driver sunxi_wdt_driver = {
+ 	.driver		= {
+ 		.name		= DRV_NAME,
+ 		.of_match_table	= sunxi_wdt_dt_ids,
++		.pm		= pm_sleep_ptr(&sunxi_wdt_pm_ops),
+ 	},
+ };
+ 
+
+base-commit: aebb7274476403040d582c61478df8f4a7bf9cd3
+-- 
+2.56.1
 
