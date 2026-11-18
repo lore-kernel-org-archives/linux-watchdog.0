@@ -1,109 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.179
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794989815;
-	b=abxVHr04ocPPPdUMHaC9YPKRWa4R+Wl+6dxTQteCmDWh3StYnAKqPpTEoxk2UkJC8i3a
-	 xcy1Pm3v7CNIjDd0uMAPExJ2PDLuFKWl/UNmzhS3YyAqV67dFQQtHkZ047Rv3Ss3zmF6L
-	 /MAPQlQcLFvFyV4oAusEqJP57bsK7QCrlSyGCi3r86M7awYzVXmr2kgAdeQ15b7Rx9HHR
-	 PkDLYr8zrcAN5epMb4Zk9RtYttVnwdO/YbU9DfW2LJlS6BwEris45ZzyjjacwvgHzbc2m
-	 nAxJtLEn7J0WYjXewgTmyfzqq5L3WTufUWarxvxsKPpJE6U2JpiHBvbHun77F25enjw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794989815;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=DruTwIEuL419lERQzYgeQDALQqSuvj3CoTd7MhEXhE0=;
-	b=BsU9NIAdEzM1v3H/sKOVt54C8IqARlscbD24R8uWsf4KVDP6y9nLK3y5KkQk7NlKRb6u
-	 meFu4PVCGM6GmCqhpGoWg/oFTbDqhQgN+fXyuyFzbdpjNBAEhksAvtve7w9r+NV0pg8zW
-	 gigAAiGzNxQLnv/IeixSDCU6Lpm/zzsDIznIxoc/ZhWX4c2OQ7l/Wvl5McF048th1msvN
-	 oQFAIyl0LtmJ8zUmgBih7OTPDS4VL2m2H8NI7t3OYtTS2dcPiixJ5DsnDHzoY04SGsCVz
-	 57pTx/ea0kNyIS5BPeLgzgHiF2NkGsId7+0nbsRvTCPmK4FPChI79waYseOGezXhyow==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=USPeiRF6;
-	arc=none smtp.remote-ip=209.85.210.179
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794991874;
+	b=UQH0dQ+BgrpUnrsy9fnHFrGZJb3MrHR+Gpx3HCHEtwjOMWmeZEGHCEiGxa6nD/LvgkyO
+	 Vlt+74CKdCyQV2TueW0iiDZB3atEb4nyprYFRQ3vXPxE6ZHH+v0/ujAS2Druv6Q6/UIrh
+	 JZ9iZAbYXRLrnpEjfo1FzaYw9WuLhJpzKqqomyVzvTwTHFgQKZEgCVm5fVPpDMRGf1U6j
+	 VLev1aLFewipq3wEsFGmXP41npnOJxbEjcomHPl4I1b74Fh4HXlX24RhZ8G+/Jp47QPZT
+	 sOyrmVBflSbssIam+pP7nSI4WjwlT93/VMaLqQ1v2gBOyHOQDOqtUk3vTNL5fJQxUhQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794991874;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=zqyoWD35TthDZ9fMA6GPRCniAUEJBDI1Mdt+pqzYTnc=;
+	b=eB5K/D1InzHoOF2DeP2nhNO+sgu07Vf09Zw6Lwb8Odb14G7jbH0kAuWIxygVjhnnZdoj
+	 38WvVKPZwhblLdL3k/hIFyp/JOQFdvasVgbw5r3Qa723d62va3DrNWXcLriP8Jp74mZYQ
+	 N1OUF3QopNfYn04PTm3Yfr30RfLgC3bn2v+oLmD6YBuXEoh++V4hT0UH/H9QkKmfqSJMH
+	 By/flh0CfWSYd/2X3ZFx7MnADSdhaEbgAFHbt5QH6C6+FjWm6e7d0KkEQR8e5q+zpUWqO
+	 cNxcH9w9l86FHco5HnSJ6XICQNvshALS9Z/IiU9oS3DDjj+olqPdxXRKhv0PhXjT8Mg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oewXxXfS;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E73FE606A31C;
+	Wed, 18 Nov 2026 08:51:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oewXxXfS
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794991873;
+	b=DL8dr1tl0liE0YH/PSwYNSpOiodGVhXCItHW+qVhEFabbje5CGBLQUKSZWYIEKbeyuun
+	 iX1EgXZD1r6Ghwpfx9nG5DhPCwVWOwpZ68urYbDjl0vubSZnXUfNmRX4Ldk+BwIvt0yL5
+	 SJqh3de600TPvcG64eWCm2d+in3BWF+lJfroEJxKALogxzy6DmbnMHRwl3h+2BFDxM1KD
+	 F+nCzZvx3pLF3kkITQQ3vE0KdXr5NfetpepNe5H+UjjFfUa4k3bkL7tqsgWeiPFH82QM+
+	 gokXdNTQnr+R7zeaLBqHCzo11YclPmchEMoR4ijfH6fS+/rZD0aCzUtPqK3B5JH6JMQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794991873;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=zqyoWD35TthDZ9fMA6GPRCniAUEJBDI1Mdt+pqzYTnc=;
+	b=Kh/wYY15ZbGduQKr/kXrJ+sGkhIPQNdFn9DVOLtp/J8Dpv4fIMvs6hXN2KQNe7PReXHy
+	 MYMWrig7b0Y5s1SmPF11r3SGcheqCPc8fOBnbbAHHBnX3fPYuSzc4BvloZW8VG4vthP3S
+	 SbYwUEM2WLrwW5eyAoRrYdZl+MHz8s04ZBbyWOqNAZ2QdhbNRmW/hT60xh6B6boWZFyR+
+	 X7au4gT1hfE7E9s2OMNeVyE5NLzDxURa9k7ghzSwlLtXmzgFEtj5OsCX7CqJRGvhioXpJ
+	 II8V/XeJx8EKUCeJaV9S6/EVzKmlEfjx49e/5xlv5rL2/yMB05m9NtK9n94SMgjYwmw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65F6860A3807
-	for <linux-watchdog@vger.kernel.org>; Wed, 18 Nov 2026 08:16:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65F6860A3807
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=USPeiRF6
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-8b600fae14dso330831b3a.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 18 Nov 2026 00:16:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794989814; x=1795594614; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=DruTwIEuL419lERQzYgeQDALQqSuvj3CoTd7MhEXhE0=;
-        b=USPeiRF6Io8kJCL6UTsJnDfsRDziB0l2u00jfPT4LTitHF1kc0qS0uCA0/sU0+A3nS
-         MSnbfb7Uo+xh9nIJaQrTTff3HzFw4Jwrswz53GxG19I1ZlMjHaeZui1UudS75cXxKUfr
-         T69s0m1YLE/7gSegRNvNFQiyMp/PwGjQyL/a80PcorVvtBEhwajvDFZJY1lSxPczHNM5
-         DUD2Z6yU3WMtPr15R95iS8LEmMfpRlQNKMFSVSCZq4yEx4Z8LuiYOd5w4GCwbp0WBAyP
-         R6Q75mnzaHNPWnXZGxu1LoTWomnwwugazAgdf16Akj9z/36ep1+J6458Cp4GH2T6vhLl
-         g1lg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794989814; x=1795594614;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DruTwIEuL419lERQzYgeQDALQqSuvj3CoTd7MhEXhE0=;
-        b=xVMn2DCA5dmY9mkjKny5OYMryDwB7XyNDBvdNswYal+1TBWjeyaFAFP8APf3lgDOoX
-         Li5tob1DzTTL1QpO8C+x9yXzEXZGWrkjxYfzItKHmEgoldyunHwvVwwLmacDd6iCYYaH
-         Mu9j5bqQovPPlobexmQrRZAZjv1kJg1nnSLDnEqwKRwDh1cQv7pFCOn3OUGdE3MO2cMc
-         eHeAXsRvOuMQXr6VGIMebF1Opw0pnIdTG/xcNaAOE1coTxJXIkEUMugZcoeS7XxJSKOe
-         YSDFMvi6pANDXxszfYqrSbp7K2fimdo+WGjTWhA/Rh+kmnDOWkynchNpAzbIxChVdYod
-         XPig==
-X-Forwarded-Encrypted: i=1; AL+hErE4Uz87XFP+tD4jcz/CDbyHFGwim4PA9/YQ4khPhk+OYwEKc2e/N3zzCDXATReNhVSdr8krAPOujClgIqNCnA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9Eav1/MioU/E8XPxjSEWr4OdkG5tyLCDgRUy0Eejwm7kbeZsej
-	qVJCAwyALm6PY3kGVsa7eiVQXBeiV5noOzOqk60V//7w4RycA4Vzaocm
-X-Gm-Gg: AYBFou1vTVO0ltu+cIo1lR7rxQCcDIj7KPo+xGlOUO+mKruRNciDmr7qCnI5gDYs11h
-	l1hFOLD5ByHpZduIbA6T1bzRMh3VEwhKFs8HiM5sVaxcqnFD8ah8ijEPaEVlEjw7es4UAxge/Hr
-	WKpPvziBfIzYEskiy3wcVqyiIynKNYtQVdOspuXRwMah+JExIBnmHiZKx7azfUzEpmUmoNc4L1h
-	iKj9VYtJaxzUtVUX9Tnh3E/OCoVjsqqlaOJf/soenEk8+r0jcuK1Kn+2lKVulpKxVY45laHun5C
-	y9a9jv/PghshxXQuzzezOlBIZwtqvD8FNi0OvHlkUO9DALrhhj8Rw2Ce0kpR73THbx7t2FERA96
-	F363D75Np0HuihIcu+ddE3zP46I6VBS2ZTDiW/uPrafIVuHwqH1Wcj/dL5d1JPX7TfM233jKUqe
-	/jJK2JaLpiTMuBdIjKGuk2Cl/mmbUlFzZOb2KfagQtm/AZWqpSQd+yxxiSFW+LUDpdxOhaV4Pux
-	I7IgOP3O2m74eEbmn470MAkoNSPySa7VqMDQMjEcDLDdHSlCN97C9aQSxm8eYoNjqDqqaZO9s3S
-	vQa6ibR5jZmD/Fj+S9/t+lJcofGFvWLc6eFN5BcdLrXH41zFg5NSGibdYIzvmMWpOMHq+z8=
-X-Received: by 2002:a05:6a21:828c:b0:3f9:b55e:10bb with SMTP id adf61e73a8af0-3fe98af080bmr1592901637.87.1794989813764;
-        Wed, 18 Nov 2026 00:16:53 -0800 (PST)
-Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8c5cad8cefbsm764401b3a.31.2026.11.18.00.16.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2026 00:16:53 -0800 (PST)
-From: a0282524688@gmail.com
-To: lee@kernel.org,
-	Ming Yu <tmyu0@nuvoton.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: linux-kernel@vger.kernel.org,
-	Ming Yu <a0282524688@gmail.com>,
-	linux-gpio@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-can@vger.kernel.org,
-	linux-rtc@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	mfd@lists.linux.dev
-Subject: [PATCH v10 06/13] mfd: nct6694: Move module type macros to shared header
-Date: Wed, 18 Nov 2026 16:16:17 +0800
-Message-Id: <20261118081625.2399247-7-a0282524688@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20261118081625.2399247-1-a0282524688@gmail.com>
-References: <20261118081625.2399247-1-a0282524688@gmail.com>
+	by smtp.kernel.org (Postfix) with ESMTPS id 136C71F000C4;
+	Wed, 18 Nov 2026 08:51:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794991873;
+	bh=zqyoWD35TthDZ9fMA6GPRCniAUEJBDI1Mdt+pqzYTnc=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=oewXxXfSt7BSMqXPkE5JiLFURJVj6xFk6r6Kd+uedvcNGMpngr9Te+WbRVVPrEBtP
+	 HwhZ/LZwfkIZmFYDygAFFte117Kps0kCkSekaBPw0XEKWGdZptwamf56N4NvhTgRmv
+	 GUi/CAkbuvTkFsUWtEfNx9RlKE5PY1P+n9bdJ7S2SM0hc28uVqK9Ge/wAQPC0+OiN9
+	 AlkF1Gu9beF2/sGMPYxi418rf2141BNM+I1p2vO4Py0r5oD8PX3mnhZBCioq0z4phn
+	 x6Di/Vk42q67U0zTS98Qg3M1T9pbLf6/yWN8bt9ptkwlNFsH9Yoh1wGiQfBVI5tf31
+	 lGe1FFfx3TVVQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 6A6094ACA5;
+	Wed, 18 Nov 2026 08:51:11 +0000 (UTC)
+From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
+Date: Wed, 18 Nov 2026 11:50:52 +0300
+Subject: [PATCH v5] watchdog: Add ARM TWD (MPCore private) watchdog driver
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -113,207 +82,689 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261118-arm-twd-wdt-v5-1-886265008e78@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/1WNyw6CMBBFf4XM2jEMbTFx5X8YFqVMoUbAtLVoC
+ P8uj5XLk5x77gyBveMA12wGz8kFNw4rqFMGptNDy+ialaHIi5JyUqh9j3FqcGoiXshaZdgKpWp
+ YFy/P1n322r06OLzrB5u4JTajcyGO/rvfJbl5R5lI/pWTREKlBeWyFqUQdGt77Z5nM/ZQLcvyA
+ w0BmsC4AAAA
+X-Change-ID: 20261015-arm-twd-wdt-71ff5cef355b
+To: Guenter Roeck <linux@roeck-us.net>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Fil Dunsky <filipp.dunsky@gmail.com>, linux-kernel@vger.kernel.org, 
+ linux-watchdog@vger.kernel.org, Russell King <linux@armlinux.org.uk>, 
+ linux-arm-kernel@lists.infradead.org
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794991870; l=21958;
+ i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
+ bh=mZXrn3n3cXCWG2o0l+QcbWxy+4Cdwpc5PLn6GJ328Io=;
+ b=dL8x8JnhVQeZjEn7OK4d/5qh5vh/4Taz9xpJpOH3r1mFzuHaRNxUCn+wBmjOjQk70rdPbLZx5
+ k9BNv54puzsAusRcDcNujBR/sHPncpUgsP1k3TAmuCpgPT74/onn6t0
+X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
+ pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
+X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
+ auth_id=1085
+X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Reply-To: filipp.dunsky@gmail.com
 Content-Transfer-Encoding: 8bit
 
-From: Ming Yu <a0282524688@gmail.com>
+From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Each sub-device driver defines the module type used by its own
-commands. The upcoming HIF transport also needs to recognise
-NCT6694_RPT_MOD, as report accesses are served from a separate
-register space rather than through the command mailbox.
+ARM11 MPCore, Cortex-A5 and Cortex-A9 MPCore systems have a watchdog
+next to the local timer of every CPU, banked at the same address. The
+binding "arm,cortex-a9-twd-wdt" exists, but there has been no driver
+since mpcore_wdt was removed in v3.11, among other reasons because it
+only ever programmed the CPU that ran the ioctl.
 
-Move all module types into the shared header so that the transports
-and the sub-device drivers use a single set of definitions.
+Use the watchdog of CPU0 as the system watchdog: start, stop, ping and
+get_timeleft run there through smp_call_function_single(). CPU0 cannot
+be taken offline on 32-bit ARM unless the platform allows it, the driver
+does not probe then. The watchdogs of the other CPUs are left alone. The
+watchdog is used in reset mode only, its interrupt is not needed.
 
-No functional change.
+Bootloaders such as the one of the Securifi Almond+ start the watchdog
+before booting the kernel. A running watchdog is marked WDOG_HW_RUNNING
+and taken over with the driver's timeout without being stopped, unless
+it runs with a different prescaler: the prescaler cannot be changed in
+watchdog mode. Once the watchdog mode is set it can only be left through
+the disable register sequence, which is what stop does.
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-Signed-off-by: Ming Yu <a0282524688@gmail.com>
+The TWD clock follows the CPU clock on many systems, so rate changes are
+followed through a clock notifier. If CPU0 lost its watchdog in a deep
+idle state it is set up again on CPU PM exit, and on resume from
+suspend. The time of the last keepalive is kept and the watchdog is
+always loaded with the time left from it, so none of these extends the
+timeout.
+
+The watchdog is also registered as a restart handler with the default
+priority, for systems that have no other way to restart: the CPU that
+restarts the system, the only one left running, lets its own watchdog
+expire right away.
+
+Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
-Changes in v10:
-- None.
+ARM11 MPCore, Cortex-A5 and Cortex-A9 MPCore systems have a watchdog next
+to the local timer of every CPU. The binding "arm,cortex-a9-twd-wdt"
+(watchdog/arm,twd-wdt.yaml) exists and 15 dts/dtsi files describe the
+device, but there has been no driver since mpcore_wdt was removed in
+v3.11 ("watchdog: delete mpcore_wdt driver").
 
-Changes in v9:
-- Added Andi's Reviewed-by.
+As discussed on v4, this version uses the watchdog of CPU0 only, as the
+system watchdog. CPU0 cannot be taken offline on 32-bit ARM unless the
+platform allows it, and the driver does not probe then. The watchdogs of
+the other CPUs are not touched.
 
-Changes in v8:
-- Reworded the commit message to explain why the transport needs the
-  module types.
+The driver was written for the Cortina Systems CS75xx / Securifi Almond+,
+whose boot loader arms the watchdog of CPU0: the board resets ~300 s
+after boot unless it is serviced. The driver also registers a restart
+handler with the default (last resort) priority, since the CS75xx
+platform has no other way to restart.
 
-Changes in v7:
-- None.
+Tested on a Securifi Almond+ (Cortex-A9, two CPUs), also with
+PROVE_LOCKING: the watchdog left running was taken over; pinged from
+userspace for 60 s and then left alone, it reset the board when timeleft
+reached zero; reboot(2) issued from CPU1 restarted the board through the
+restart handler. Not tested: CPU PM and suspend, the platform has neither.
 
-Changes in v6:
-- None.
+Open questions:
 
+1. The binding marks clocks as optional, the driver requires them (the
+   rate is needed to compute the timeout). Should the binding be
+   tightened, or should the driver fall back to something when there is
+   no clock? Several of the existing dts files have no clocks property;
+   the driver does not probe there.
+2. Is a separate MAINTAINERS entry for this driver the right thing, or
+   should it only be covered by the watchdog subsystem entry?
+---
 Changes in v5:
-- Split from the monolithic v4 patch to follow the single logical change
-  principle.
+- use the watchdog of CPU0 only instead of the watchdogs of all CPUs,
+  which overlapped with the lockup detector (Guenter): no CPU hotplug
+  state, start, stop, ping and get_timeleft run on CPU0 through
+  smp_call_function_single(); do not probe if CPU0 is hotpluggable
+- keep the time of the last keepalive and load the watchdog with the time
+  left from it, so a clock rate change or CPU PM exit no longer extends
+  the timeout (sashiko-bot)
+- serialize the watchdog operations and the clock notifier with a mutex
+- stop the watchdog when the driver is removed (sashiko-bot)
+- fix the comment on suspend (sashiko-bot)
+- ignore clock notifications that do not change the rate
+- Link to v4: https://patch.msgid.link/20261114-arm-twd-wdt-v4-1-5a3104b36331@gmail.com
 
- drivers/gpio/gpio-nct6694.c         |  7 -------
- drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
- drivers/i2c/busses/i2c-nct6694.c    |  7 -------
- drivers/net/can/usb/nct6694_canfd.c |  6 ------
- drivers/rtc/rtc-nct6694.c           |  7 -------
- drivers/watchdog/nct6694_wdt.c      |  7 -------
- include/linux/mfd/nct6694.h         |  9 +++++++++
- 7 files changed, 9 insertions(+), 55 deletions(-)
+Changes in v4:
+- rebase on v7.4-rc1
+- sent on its own, split out of "Cortina Systems CS75xx: interrupt
+  controller, GPIO, I2C and TWD watchdog"
+- do not take cpus_read_lock() in the clock notifier, which can be
+  called from CPU hotplug through cpufreq: publish the armed state and
+  the rate with WRITE_ONCE() and a full barrier first, then apply them
+  with on_each_cpu(), so that a rate change racing with start is never
+  missed (sashiko-bot)
+- restore the watchdog of a CPU on CPU PM exit when its power domain
+  went down in idle (sashiko-bot)
+- register the restart handler with the default priority instead of
+  128, so that it only runs when nothing else can restart the system
+- print the timeout and the clock rate only as debug messages
+- Link to v3: https://patch.msgid.link/20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com
 
-diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
-index 9d51bf52e99a..b3eba9f344ef 100644
---- a/drivers/gpio/gpio-nct6694.c
-+++ b/drivers/gpio/gpio-nct6694.c
-@@ -13,13 +13,6 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
+Changes in v3:
+- follow rate changes of the clock, which on many MPCore systems scales
+  with the CPU clock, and restore the watchdog of the boot CPU on resume
+  (sashiko-bot)
+- Link to v2: https://patch.msgid.link/20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com
+
+Changes in v2:
+- do not include <linux/mod_devicetable.h> (Uwe)
+- the prescaler cannot be changed in watchdog mode (verified on the
+  board), so a watchdog left running by the boot loader with a different
+  prescaler is stopped before it is reprogrammed (sashiko-bot)
+- Link to v1: https://patch.msgid.link/20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com
+
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+---
+ MAINTAINERS                    |   6 +
+ drivers/watchdog/Kconfig       |  15 ++
+ drivers/watchdog/Makefile      |   1 +
+ drivers/watchdog/arm_twd_wdt.c | 465 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 487 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 93abbb315..245d80c13 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2544,6 +2544,12 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git
+ F:	arch/arm/mach-*/
+ F:	arch/arm/plat-*/
  
--/*
-- * USB command module type for NCT6694 GPIO controller.
-- * This defines the module type used for communication with the NCT6694
-- * GPIO controller over the USB interface.
-- */
--#define NCT6694_GPIO_MOD	0xFF
--
- #define NCT6694_GPIO_VER	0x90
- #define NCT6694_GPIO_VALID	0x110
- #define NCT6694_GPI_DATA	0x120
-diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
-index 32f96867635f..fde32010a66c 100644
---- a/drivers/hwmon/nct6694-hwmon.c
-+++ b/drivers/hwmon/nct6694-hwmon.c
-@@ -15,13 +15,6 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- 
--/*
-- * USB command module type for NCT6694 report channel
-- * This defines the module type used for communication with the NCT6694
-- * report channel over the USB interface.
-- */
--#define NCT6694_RPT_MOD			0xFF
--
- /* Report channel */
- /*
-  * The report channel is used to report the status of the hardware monitor
-@@ -38,13 +31,6 @@
- #define NCT6694_TIN_STS(x)		(0x6A + (x))
- #define NCT6694_FIN_STS(x)		(0x6E + (x))
- 
--/*
-- * USB command module type for NCT6694 HWMON controller.
-- * This defines the module type used for communication with the NCT6694
-- * HWMON controller over the USB interface.
-- */
--#define NCT6694_HWMON_MOD		0x00
--
- /* Command 00h - Hardware Monitor Control */
- #define NCT6694_HWMON_CONTROL		0x00
- #define NCT6694_HWMON_CONTROL_SEL	0x00
-@@ -53,13 +39,6 @@
- #define NCT6694_HWMON_ALARM		0x02
- #define NCT6694_HWMON_ALARM_SEL		0x00
- 
--/*
-- * USB command module type for NCT6694 PWM controller.
-- * This defines the module type used for communication with the NCT6694
-- * PWM controller over the USB interface.
-- */
--#define NCT6694_PWM_MOD			0x01
--
- /* PWM Command - Manual Control */
- #define NCT6694_PWM_CONTROL		0x01
- #define NCT6694_PWM_CONTROL_SEL		0x00
-diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
-index 158a533dfba7..d3e2316ff53c 100644
---- a/drivers/i2c/busses/i2c-nct6694.c
-+++ b/drivers/i2c/busses/i2c-nct6694.c
-@@ -12,13 +12,6 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
- 
--/*
-- * USB command module type for NCT6694 I2C controller.
-- * This defines the module type used for communication with the NCT6694
-- * I2C controller over the USB interface.
-- */
--#define NCT6694_I2C_MOD			0x03
--
- /* Command 00h - I2C Deliver */
- #define NCT6694_I2C_DELIVER		0x00
- #define NCT6694_I2C_DELIVER_SEL		0x00
-diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
-index e5f7f8849a73..262b4c26c9d4 100644
---- a/drivers/net/can/usb/nct6694_canfd.c
-+++ b/drivers/net/can/usb/nct6694_canfd.c
-@@ -18,12 +18,6 @@
- 
- #define DEVICE_NAME "nct6694-canfd"
- 
--/* USB command module type for NCT6694 CANfd controller.
-- * This defines the module type used for communication with the NCT6694
-- * CANfd controller over the USB interface.
-- */
--#define NCT6694_CANFD_MOD			0x05
--
- /* Command 00h - CAN Setting and Initialization */
- #define NCT6694_CANFD_SETTING			0x00
- #define NCT6694_CANFD_SETTING_ACTIVE_CTRL1	BIT(0)
-diff --git a/drivers/rtc/rtc-nct6694.c b/drivers/rtc/rtc-nct6694.c
-index 501c364277d8..86a03f02515c 100644
---- a/drivers/rtc/rtc-nct6694.c
-+++ b/drivers/rtc/rtc-nct6694.c
-@@ -14,13 +14,6 @@
- #include <linux/rtc.h>
- #include <linux/slab.h>
- 
--/*
-- * USB command module type for NCT6694 RTC controller.
-- * This defines the module type used for communication with the NCT6694
-- * RTC controller over the USB interface.
-- */
--#define NCT6694_RTC_MOD		0x08
--
- /* Command 00h - RTC Time */
- #define NCT6694_RTC_TIME	0x0000
- #define NCT6694_RTC_TIME_SEL	0x00
-diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
-index 57bcc1299973..94c630a9ced6 100644
---- a/drivers/watchdog/nct6694_wdt.c
-+++ b/drivers/watchdog/nct6694_wdt.c
-@@ -21,13 +21,6 @@
- 
- #define NCT6694_WDT_MAX_DEVS		2
- 
--/*
-- * USB command module type for NCT6694 WDT controller.
-- * This defines the module type used for communication with the NCT6694
-- * WDT controller over the USB interface.
-- */
--#define NCT6694_WDT_MOD			0x07
--
- /* Command 00h - WDT Setup */
- #define NCT6694_WDT_SETUP		0x00
- #define NCT6694_WDT_SETUP_SEL(idx)	(idx ? 0x01 : 0x00)
-diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
-index 2022b8fcc096..d752708c2a8d 100644
---- a/include/linux/mfd/nct6694.h
-+++ b/include/linux/mfd/nct6694.h
-@@ -8,6 +8,15 @@
- #ifndef __MFD_NCT6694_H
- #define __MFD_NCT6694_H
- 
-+#define NCT6694_HWMON_MOD	0x00
-+#define NCT6694_PWM_MOD		0x01
-+#define NCT6694_I2C_MOD		0x03
-+#define NCT6694_CANFD_MOD	0x05
-+#define NCT6694_WDT_MOD		0x07
-+#define NCT6694_RTC_MOD		0x08
-+#define NCT6694_RPT_MOD		0xFF
-+#define NCT6694_GPIO_MOD	NCT6694_RPT_MOD
++ARM TWD WATCHDOG DRIVER
++M:	Fil Dunsky <filipp.dunsky@gmail.com>
++L:	linux-watchdog@vger.kernel.org
++S:	Maintained
++F:	drivers/watchdog/arm_twd_wdt.c
 +
- #define NCT6694_VENDOR_ID	0x0416
- #define NCT6694_PRODUCT_ID	0x200B
- #define NCT6694_INT_IN_EP	0x01
--- 
-2.34.1
+ ARM/ACTIONS SEMI ARCHITECTURE
+ M:	Andreas Färber <afaerber@suse.de>
+ M:	Manivannan Sadhasivam <mani@kernel.org>
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index f7d0a0c2c..326546e24 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -465,6 +465,21 @@ config ARM_SP805_WATCHDOG
+ 	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
+ 	  the timeout is reached.
+ 
++config ARM_TWD_WATCHDOG
++	tristate "ARM TWD (MPCore private) Watchdog"
++	depends on HAVE_ARM_TWD || COMPILE_TEST
++	depends on HAS_IOMEM
++	select WATCHDOG_CORE
++	help
++	  Say Y here to include support for the private watchdog found next
++	  to the local (TWD) timer of every CPU in ARM11 MPCore, Cortex-A5
++	  and Cortex-A9 MPCore systems. The watchdog of CPU0 is used as the
++	  system watchdog. A watchdog left running by the bootloader is
++	  taken over.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called arm_twd_wdt.
++
+ config ARM_SBSA_WATCHDOG
+ 	tristate "ARM SBSA Generic Watchdog"
+ 	depends on ARM64
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 9ac406677..4ff0bced5 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -40,6 +40,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
+ # ARM Architecture
+ obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
+ obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
++obj-$(CONFIG_ARM_TWD_WATCHDOG) += arm_twd_wdt.o
+ obj-$(CONFIG_ARMADA_37XX_WATCHDOG) += armada_37xx_wdt.o
+ obj-$(CONFIG_AIROHA_WATCHDOG) += airoha_wdt.o
+ obj-$(CONFIG_ASM9260_WATCHDOG) += asm9260_wdt.o
+diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wdt.c
+new file mode 100644
+index 000000000..068b6483a
+--- /dev/null
++++ b/drivers/watchdog/arm_twd_wdt.c
+@@ -0,0 +1,465 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Watchdog driver for the ARM Cortex-A9/A5 and ARM11 MPCore private
++ * (TWD) watchdog
++ *
++ * Every CPU has its own watchdog, banked at the same address, and any of
++ * them resets the system when it expires. The driver uses the watchdog of
++ * CPU0 as the system watchdog and leaves the others alone: CPU0 cannot be
++ * taken offline, so the registers are always reached through it. Once the
++ * watchdog mode bit is set it can only be cleared by writing the disable
++ * sequence to the disable register.
++ */
++
++#include <linux/bitfield.h>
++#include <linux/bits.h>
++#include <linux/cleanup.h>
++#include <linux/clk.h>
++#include <linux/cpu.h>
++#include <linux/cpu_pm.h>
++#include <linux/delay.h>
++#include <linux/io.h>
++#include <linux/ktime.h>
++#include <linux/math64.h>
++#include <linux/minmax.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/platform_device.h>
++#include <linux/pm.h>
++#include <linux/smp.h>
++#include <linux/watchdog.h>
++
++#define TWD_WDT_LOAD		0x00
++#define TWD_WDT_COUNTER		0x04
++#define TWD_WDT_CONTROL		0x08
++#define TWD_WDT_RESET_STATUS	0x10
++#define TWD_WDT_DISABLE		0x14
++
++#define TWD_WDT_CTRL_ENABLE	BIT(0)
++#define TWD_WDT_CTRL_WD_MODE	BIT(3)
++#define TWD_WDT_CTRL_PRESCALER	GENMASK(15, 8)
++
++#define TWD_WDT_RESET_FLAG	BIT(0)
++
++#define TWD_WDT_DISABLE_KEY1	0x12345678
++#define TWD_WDT_DISABLE_KEY2	0x87654321
++
++/* Largest prescaler, the counter clock is the input clock divided by 256 */
++#define TWD_WDT_PRESCALE	255
++#define TWD_WDT_DEFAULT_TIMEOUT	30
++
++/* The CPU whose watchdog is used */
++#define TWD_WDT_CPU		0
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static unsigned int timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
++
++struct twd_wdt {
++	struct watchdog_device wdd;
++	void __iomem *base;
++	struct notifier_block clk_nb;
++	struct notifier_block pm_nb;
++	/* Serializes the watchdog operations and the clock notifier */
++	struct mutex lock;
++	/* Also read by the CPU PM notifier, which cannot take the lock */
++	unsigned long rate;
++	bool armed;
++	/* Time of the last start or ping in ns */
++	atomic64_t keepalive;
++	bool resume_armed;
++	u32 counter;
++	bool running;
++	bool reset;
++};
++
++/*
++ * Counter value for the time left until the watchdog has to expire: the
++ * watchdog is always loaded with it, so neither a clock rate change nor
++ * setting it up again after a CPU power down extends the timeout.
++ */
++static u32 twd_wdt_ticks(struct twd_wdt *wdt)
++{
++	s64 expires = atomic64_read(&wdt->keepalive) +
++		      (s64)wdt->wdd.timeout * NSEC_PER_SEC;
++	s64 left = expires - ktime_get_ns();
++	u64 ticks;
++
++	if (left <= 0)
++		return 1;
++
++	ticks = mul_u64_u64_div_u64(READ_ONCE(wdt->rate), left,
++				    (u64)NSEC_PER_SEC * (TWD_WDT_PRESCALE + 1));
++
++	return clamp_t(u64, ticks, 1, U32_MAX);
++}
++
++/* The following run on TWD_WDT_CPU */
++static void twd_wdt_cpu_stop(void *data)
++{
++	struct twd_wdt *wdt = data;
++
++	writel(TWD_WDT_DISABLE_KEY1, wdt->base + TWD_WDT_DISABLE);
++	writel(TWD_WDT_DISABLE_KEY2, wdt->base + TWD_WDT_DISABLE);
++	writel(0, wdt->base + TWD_WDT_CONTROL);
++}
++
++static void twd_wdt_cpu_start(void *data)
++{
++	struct twd_wdt *wdt = data;
++	u32 ctrl = readl(wdt->base + TWD_WDT_CONTROL);
++
++	/*
++	 * In watchdog mode the prescaler cannot be changed, so a watchdog
++	 * started by the bootloader with a different one is stopped first.
++	 */
++	if ((ctrl & TWD_WDT_CTRL_WD_MODE) &&
++	    FIELD_GET(TWD_WDT_CTRL_PRESCALER, ctrl) != TWD_WDT_PRESCALE)
++		twd_wdt_cpu_stop(wdt);
++
++	/*
++	 * Load the counter before enabling, it may still be zero. A watchdog
++	 * that is already running is reloaded and keeps running.
++	 */
++	writel(twd_wdt_ticks(wdt), wdt->base + TWD_WDT_LOAD);
++	writel(FIELD_PREP(TWD_WDT_CTRL_PRESCALER, TWD_WDT_PRESCALE) |
++	       TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE,
++	       wdt->base + TWD_WDT_CONTROL);
++}
++
++static void twd_wdt_cpu_ping(void *data)
++{
++	struct twd_wdt *wdt = data;
++
++	/* In watchdog mode a write to the load register reloads the counter */
++	writel(twd_wdt_ticks(wdt), wdt->base + TWD_WDT_LOAD);
++}
++
++static void twd_wdt_cpu_counter(void *data)
++{
++	struct twd_wdt *wdt = data;
++
++	wdt->counter = readl(wdt->base + TWD_WDT_COUNTER);
++}
++
++static void twd_wdt_cpu_probe(void *data)
++{
++	struct twd_wdt *wdt = data;
++	u32 ctrl = readl(wdt->base + TWD_WDT_CONTROL);
++
++	wdt->running = (ctrl & (TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE)) ==
++		       (TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE);
++
++	if (readl(wdt->base + TWD_WDT_RESET_STATUS) & TWD_WDT_RESET_FLAG) {
++		wdt->reset = true;
++		/* The flag is cleared by writing one */
++		writel(TWD_WDT_RESET_FLAG, wdt->base + TWD_WDT_RESET_STATUS);
++	}
++}
++
++static void twd_wdt_call(struct twd_wdt *wdt, smp_call_func_t func)
++{
++	smp_call_function_single(TWD_WDT_CPU, func, wdt, 1);
++}
++
++static void twd_wdt_set_armed(struct twd_wdt *wdt, bool armed)
++{
++	guard(mutex)(&wdt->lock);
++
++	atomic64_set(&wdt->keepalive, ktime_get_ns());
++	WRITE_ONCE(wdt->armed, armed);
++	twd_wdt_call(wdt, armed ? twd_wdt_cpu_start : twd_wdt_cpu_stop);
++}
++
++static int twd_wdt_start(struct watchdog_device *wdd)
++{
++	twd_wdt_set_armed(watchdog_get_drvdata(wdd), true);
++
++	return 0;
++}
++
++static int twd_wdt_stop(struct watchdog_device *wdd)
++{
++	twd_wdt_set_armed(watchdog_get_drvdata(wdd), false);
++
++	return 0;
++}
++
++static int twd_wdt_ping(struct watchdog_device *wdd)
++{
++	struct twd_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	guard(mutex)(&wdt->lock);
++
++	atomic64_set(&wdt->keepalive, ktime_get_ns());
++	twd_wdt_call(wdt, twd_wdt_cpu_ping);
++
++	return 0;
++}
++
++static int twd_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
++{
++	wdd->timeout = t;
++	if (watchdog_active(wdd) || watchdog_hw_running(wdd))
++		twd_wdt_ping(wdd);
++
++	return 0;
++}
++
++static unsigned int twd_wdt_get_timeleft(struct watchdog_device *wdd)
++{
++	struct twd_wdt *wdt = watchdog_get_drvdata(wdd);
++	u64 ticks;
++
++	guard(mutex)(&wdt->lock);
++
++	twd_wdt_call(wdt, twd_wdt_cpu_counter);
++	ticks = (u64)wdt->counter * (TWD_WDT_PRESCALE + 1);
++
++	return div_u64(ticks, wdt->rate);
++}
++
++/*
++ * The TWD runs from the peripheral clock, which follows the CPU clock. While
++ * the rate goes up, count with the new rate already: the watchdog then just
++ * fires later than asked until the change is done.
++ */
++static int twd_wdt_clk_notify(struct notifier_block *nb, unsigned long event,
++			      void *data)
++{
++	struct twd_wdt *wdt = container_of(nb, struct twd_wdt, clk_nb);
++	struct clk_notifier_data *cnd = data;
++	unsigned long rate;
++
++	switch (event) {
++	case PRE_RATE_CHANGE:
++		if (cnd->new_rate <= cnd->old_rate)
++			return NOTIFY_OK;
++		rate = cnd->new_rate;
++		break;
++	case POST_RATE_CHANGE:
++		rate = cnd->new_rate;
++		break;
++	case ABORT_RATE_CHANGE:
++		rate = cnd->old_rate;
++		break;
++	default:
++		return NOTIFY_DONE;
++	}
++
++	guard(mutex)(&wdt->lock);
++
++	if (!rate || rate == wdt->rate)
++		return NOTIFY_OK;
++
++	WRITE_ONCE(wdt->rate, rate);
++	if (wdt->armed)
++		twd_wdt_call(wdt, twd_wdt_cpu_ping);
++
++	return NOTIFY_OK;
++}
++
++/*
++ * A CPU whose power domain was turned off in idle comes back with its
++ * watchdog stopped. Only then set it up again: reloading a watchdog that
++ * kept running would ping it on every idle exit.
++ */
++static int twd_wdt_cpu_pm_notify(struct notifier_block *nb,
++				 unsigned long action, void *data)
++{
++	struct twd_wdt *wdt = container_of(nb, struct twd_wdt, pm_nb);
++
++	if (action != CPU_PM_EXIT && action != CPU_PM_ENTER_FAILED)
++		return NOTIFY_DONE;
++
++	if (smp_processor_id() == TWD_WDT_CPU && READ_ONCE(wdt->armed) &&
++	    !(readl(wdt->base + TWD_WDT_CONTROL) & TWD_WDT_CTRL_WD_MODE))
++		twd_wdt_cpu_start(wdt);
++
++	return NOTIFY_OK;
++}
++
++static int twd_wdt_restart(struct watchdog_device *wdd, unsigned long action,
++			   void *data)
++{
++	struct twd_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	/*
++	 * Only this CPU is still running, and it may not be TWD_WDT_CPU. The
++	 * watchdog of any CPU resets the system: let its own expire right away.
++	 */
++	writel(1, wdt->base + TWD_WDT_LOAD);
++	writel(TWD_WDT_CTRL_WD_MODE | TWD_WDT_CTRL_ENABLE,
++	       wdt->base + TWD_WDT_CONTROL);
++	mdelay(500);
++
++	return 0;
++}
++
++static const struct watchdog_ops twd_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= twd_wdt_start,
++	.stop		= twd_wdt_stop,
++	.ping		= twd_wdt_ping,
++	.set_timeout	= twd_wdt_set_timeout,
++	.get_timeleft	= twd_wdt_get_timeleft,
++	.restart	= twd_wdt_restart,
++};
++
++static const struct watchdog_info twd_wdt_info = {
++	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++			  WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
++	.identity	= "ARM TWD watchdog",
++};
++
++/* A watchdog left running would not be pinged any more */
++static void twd_wdt_disable(void *data)
++{
++	struct twd_wdt *wdt = data;
++
++	twd_wdt_set_armed(wdt, false);
++}
++
++static void twd_wdt_remove_pm_notifier(void *data)
++{
++	struct twd_wdt *wdt = data;
++
++	cpu_pm_unregister_notifier(&wdt->pm_nb);
++}
++
++static int twd_wdt_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct twd_wdt *wdt;
++	struct clk *clk;
++	int ret;
++
++	if (cpu_is_hotpluggable(TWD_WDT_CPU))
++		return dev_err_probe(dev, -EOPNOTSUPP,
++				     "CPU%d can be taken offline\n", TWD_WDT_CPU);
++
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	ret = devm_mutex_init(dev, &wdt->lock);
++	if (ret)
++		return ret;
++
++	wdt->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(wdt->base))
++		return PTR_ERR(wdt->base);
++
++	clk = devm_clk_get_enabled(dev, NULL);
++	if (IS_ERR(clk))
++		return dev_err_probe(dev, PTR_ERR(clk), "failed to get clock\n");
++
++	wdt->rate = clk_get_rate(clk);
++	if (!wdt->rate)
++		return dev_err_probe(dev, -EINVAL, "clock rate is zero\n");
++
++	wdt->clk_nb.notifier_call = twd_wdt_clk_notify;
++	ret = devm_clk_notifier_register(dev, clk, &wdt->clk_nb);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to register clock notifier\n");
++	platform_set_drvdata(pdev, wdt);
++
++	wdt->wdd.info = &twd_wdt_info;
++	wdt->wdd.ops = &twd_wdt_ops;
++	wdt->wdd.parent = dev;
++	wdt->wdd.min_timeout = 1;
++	wdt->wdd.max_timeout = div_u64((u64)U32_MAX * (TWD_WDT_PRESCALE + 1),
++				       wdt->rate);
++	wdt->wdd.timeout = min_t(unsigned int, TWD_WDT_DEFAULT_TIMEOUT,
++				 wdt->wdd.max_timeout);
++	watchdog_init_timeout(&wdt->wdd, timeout, dev);
++	watchdog_set_nowayout(&wdt->wdd, nowayout);
++	watchdog_stop_on_reboot(&wdt->wdd);
++	watchdog_stop_on_unregister(&wdt->wdd);
++	watchdog_set_drvdata(&wdt->wdd, wdt);
++
++	twd_wdt_call(wdt, twd_wdt_cpu_probe);
++	if (wdt->reset) {
++		wdt->wdd.bootstatus = WDIOF_CARDRESET;
++		dev_info(dev, "last reset caused by the watchdog\n");
++	}
++
++	if (wdt->running) {
++		/* Left running by the bootloader: take it over without a stop */
++		dev_info(dev, "running, taking over\n");
++		twd_wdt_start(&wdt->wdd);
++		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
++	}
++
++	wdt->pm_nb.notifier_call = twd_wdt_cpu_pm_notify;
++	ret = cpu_pm_register_notifier(&wdt->pm_nb);
++	if (ret)
++		return ret;
++
++	ret = devm_add_action_or_reset(dev, twd_wdt_remove_pm_notifier, wdt);
++	if (ret)
++		return ret;
++
++	ret = devm_add_action_or_reset(dev, twd_wdt_disable, wdt);
++	if (ret)
++		return ret;
++
++	ret = devm_watchdog_register_device(dev, &wdt->wdd);
++	if (ret)
++		return ret;
++
++	dev_dbg(dev, "timeout %u s (max %u s), clock %lu Hz\n",
++		wdt->wdd.timeout, wdt->wdd.max_timeout, wdt->rate);
++
++	return 0;
++}
++
++static const struct of_device_id twd_wdt_of_match[] = {
++	{ .compatible = "arm,arm11mp-twd-wdt" },
++	{ .compatible = "arm,cortex-a5-twd-wdt" },
++	{ .compatible = "arm,cortex-a9-twd-wdt" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, twd_wdt_of_match);
++
++/* The watchdog loses its state in suspend, set it up again at resume */
++static int twd_wdt_suspend(struct device *dev)
++{
++	struct twd_wdt *wdt = dev_get_drvdata(dev);
++
++	wdt->resume_armed = wdt->armed;
++	if (wdt->resume_armed)
++		twd_wdt_stop(&wdt->wdd);
++
++	return 0;
++}
++
++static int twd_wdt_resume(struct device *dev)
++{
++	struct twd_wdt *wdt = dev_get_drvdata(dev);
++
++	if (wdt->resume_armed)
++		twd_wdt_start(&wdt->wdd);
++
++	return 0;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(twd_wdt_pm_ops, twd_wdt_suspend, twd_wdt_resume);
++
++static struct platform_driver twd_wdt_driver = {
++	.probe = twd_wdt_probe,
++	.driver = {
++		.name = "arm-twd-wdt",
++		.of_match_table = twd_wdt_of_match,
++		.pm = pm_sleep_ptr(&twd_wdt_pm_ops),
++	},
++};
++module_platform_driver(twd_wdt_driver);
++
++MODULE_DESCRIPTION("ARM TWD (MPCore private) watchdog driver");
++MODULE_LICENSE("GPL");
+
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261015-arm-twd-wdt-71ff5cef355b
+
+Best regards,
+--  
+Fil Dunsky <filipp.dunsky@gmail.com>
+
 
