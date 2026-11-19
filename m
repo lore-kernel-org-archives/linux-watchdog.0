@@ -1,56 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795022245;
-	b=jx4dONmtZotuOEWZBbqi3xORcEDAtZBX8kKsyu9GZJ9nu8rzf2gQrrxTqbu8nIiG/+ov
-	 QMHmyf1GjiZKny6zoOEm7UnszeR7Z2BXucLZ4a2zNdzFlleUr/ftMJekCrTZ9GZ7CiRpQ
-	 0s6LdyeEF+g02DIV9pfaZXs60be6Mqlenb04JObLudlwxN+A+pm9d7cu/nm+TcEEp3PJR
-	 9TwnojG5iL6I8cL7OD6cukeEeQ0ax+ByQw8YkgCguAsLxTXkfOeq631DZU5bYp6Lg7M+W
-	 LPImhwf2d7Ed90f8FGVbSCQOEgrTVo/q5BPmBYH95zb6J6CRD9hko2Tmd9kWJSahU8Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795022245;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=29YuO3kvrSiDhNOnutLBpvLPM3N73jAY6n2TobXDa1c=;
-	b=z8w+KX19+Wz96QyavSZ5Z21mE30Y4IaSj92eSs6t4bZES4Jkfmzn6lbBYiOmXSKVId59
-	 DIdqRfLe/Ii/FWdP/Jg08rxkbssSQs0bfzKjOOaYnyqk5Bxf54Q0QMIY1tlHZ9xQgY3FZ
-	 kiq8BdzQe0hY19JEhxDFiXgph4lK3lbq51hRoSC9sru28rurO6xLWlesdTFplbCYqGMTG
-	 7TaOqh9ti/Y3isIi4oysKAThk1OCY7asdy6e5y5daWOaWciHHTIqei8mjwLXzrh1W6Xmh
-	 NF7YXqKT6Ma8vBLoKnURuOJUG3ZHD2L3e/CdB0SYXBXr2bRjNx6LMuFzGfLXqD+HuVw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d0Lbwri4;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.15
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795090844;
+	b=q83WJFr/VN7tuTIWbZCZ4JXvlpKnfeWcYUHehyItn5Xa7CujgUoI1eWgxjcMA7pS2hWD
+	 LwvovF22uEFa104VYsgPZy5+hMS4A774JqnGp+fybkYQHi2EXny70e+srDFh+Bzd74FBf
+	 EVaqEUPrC6At9cZqpSmmyNPuw/9SIbB0/aglqYyC8jm1UZyokF54yqwkn7h2pagIq/yqC
+	 g9wG6/VgzNZtKAG8g9umCCiqkpJhFGPLR8YHQIPJ028xOicA6iPD/Gw29lXh7ICDEyTCE
+	 R8di8Ae0GSsywdLPCzP683Lkjx0wZwEe79Fk223yXc8GG4fuPqDWWdVfoC2vnEulRaQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795090844;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-Zoho-Virus-Status:X-Zoho-AV-Stamp:X-ZohoMailClient;
+	bh=xIXJW7MCtZTIdpOIfOfmjYbyy/As+k09mrpNNQszvtI=;
+	b=GVMuQK0lvm2Guz5VByHynIKV03Rr7CAr/6xRSXBMyaJGqUEv/hj+J2NjPsc/Zargz61S
+	 1CKsMLP3Vex8TeHdIJzbNK28J6Ucfxufr4mH+R3+4oVN2rVADo/k6uqMe8QYbO7VZp8Xu
+	 Xp0TsJ/4fU19ffhaiIeEMdilH7QayZMh99xpy02nYDEEIPD9leo324qQQlK/e6GZGbr8H
+	 tMtAv2vTo2L0Z4u44D7RpJUxp+g9p4hA8Z+nPt4YyB/UENWdU0W6Xg1c/eFThHbUqSwP3
+	 S++rc/XLePpRpEnnpyLs1nUBcZRNt8fqPwaH5NE7AYx2KD+1CE3Ctd++pYAoJHlurZw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=ziyao.cc;
+	spf=pass smtp.mailfrom=ziyao.cc;
+	dkim=pass header.d=ziyao.cc header.i=@ziyao.cc header.a=rsa-sha256 header.s=zmail header.b=gNNpp7dX;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.15
+Received: from sender5-op-o15.zoho.com (sender5-op-o15.zoho.com [165.173.182.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42E6E606A330
-	for <linux-watchdog@vger.kernel.org>; Wed, 18 Nov 2026 17:17:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4186A606A325;
+	Thu, 19 Nov 2026 12:20:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4186A606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ziyao.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziyao.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d0Lbwri4
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF9FA1F000C5;
-	Wed, 18 Nov 2026 17:17:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795022245;
-	bh=29YuO3kvrSiDhNOnutLBpvLPM3N73jAY6n2TobXDa1c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=d0Lbwri4N4VYYLFYbr3mwWPvJ+QFUoV3UrjdkFy5T8cdfcgCBnv8AtGB19ao1WcZJ
-	 Rpv1+Rg41TQxO5B+zgjVJPqeFieSz9GPGKG0vi9nOwhzIga7Kf6YBDyCzZWSgwMvqD
-	 KM1klo9OcrdA8sNV0kDslOQvd5XElaKdyO5DaOBjqJtp3QZBasw6BH7IjNcUxLQhzY
-	 qgi3WVzhRfGfjzT+OJJY3OzgwlbgStCTRVxDVhywNxF5snrWHgX7wMXXRnmXMvaKXi
-	 rUwxUGzT9F8kRFM+J7bXWq9tirEOwUYJdDUm3iBpSeXuf57I4p9LMzi8HvSM0aibGR
-	 TdQGhiPrI4ITw==
-Message-ID: <sashiko-outbox-221636@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6] watchdog: Add ARM TWD (MPCore private) watchdog
- driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fil Dunsky" <filipp.dunsky@gmail.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20261118-arm-twd-wdt-v6-1-ce5c85b45c63@gmail.com>
-References: <20261118-arm-twd-wdt-v6-1-ce5c85b45c63@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 17:17:24 +0000
+	dkim=pass (1024-bit key) header.d=ziyao.cc header.i=@ziyao.cc header.a=rsa-sha256 header.s=zmail header.b=gNNpp7dX
+ARC-Seal: i=1; a=rsa-sha256; t=1795090809; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=KpbKCN1VuYF2IfZV/2FOHpzs7hLrqnFnRmmyW3ggEzitgaSYpLyVw3pnQWzhinfLzDT27i3mMQK2bnV5J3h3lVe/SaBXXgkOeAPXhnxAgtCLs2IjfbWMpSjHpQ97D/OzmUBY3LXdltPKRO59a1cC4LtIZU4cClAf2Ik3jCFgVbI=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1795090809; h=Content-Type:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=xIXJW7MCtZTIdpOIfOfmjYbyy/As+k09mrpNNQszvtI=; 
+	b=ITrksx1rQzSswiO6qbs8J1fOdqc7flC8t5H+y4u0gKLM6GSYehKYyPUKVduQqaTLO6zAW46biV2/cACDkFbcesnyX+LbSNyL1maFY+99orMXTurpPxBEo1rzwoYDPv92TttlLW3sr5aiQ7fsdTYzMdSVs7pFuDo4ciSnZxcQoGg=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=ziyao.cc;
+	spf=pass  smtp.mailfrom=me@ziyao.cc;
+	dmarc=pass header.from=<me@ziyao.cc>
+DKIM-Signature: a=rsa-sha256; b=gNNpp7dXVGfo9wL3/0jFEoHQHULJ7GSpQln1xRfVnXHfBSNwjvfMgkvKxvBV6tXluYLKZo6+M0EOddA+QckdgxUQpkwdp+7k9AevWpLB6quSaLd9atPf96X+fPzKOiUMkZF2qaBWgy09BgQM7e90EeWZmewl3Kykohb2Amrw1is=; c=relaxed/relaxed; s=zmail; d=ziyao.cc; v=1; bh=xIXJW7MCtZTIdpOIfOfmjYbyy/As+k09mrpNNQszvtI=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 179509080710384.30861796368492;
+	Thu, 19 Nov 2026 04:20:07 -0800 (PST)
+Date: Thu, 19 Nov 2026 12:19:57 +0000
+From: Yao Zi <me@ziyao.cc>
+To: "Rong Zhang" <rongrong@oss.cipunited.com>,
+	"Keguang Zhang" <keguang.zhang@gmail.com>,
+	"Wim Van Sebroeck" <wim@linux-watchdog.org>,
+	"Guenter Roeck" <linux@roeck-us.net>,
+	"Rob Herring" <robh@kernel.org>,
+	"Krzysztof Kozlowski" <krzk+dt@kernel.org>,
+	"Conor Dooley" <conor+dt@kernel.org>,
+	"Thomas Bogendoerfer" <tsbogend@alpha.franken.de>
+Cc: "Rong Zhang" <i@rong.moe>, "Yao Zi" <me@ziyao.cc>,
+	"Icenowy Zheng" <uwu@icenowy.me>,
+	"Jiaxun Yang" <jiaxun.yang@flygoat.com>,
+	<linux-mips@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 5/8] MIPS: Loongson64: dts: ls7a-pch: Add
+ miscellaneous clock node
+Message-ID: <av7pbVpkdO8dFGH7@pie>
+References: <20261113-mips-ls7a-wdt-v2-0-e8abd6b2f77c@oss.cipunited.com>
+ <20261113-mips-ls7a-wdt-v2-5-e8abd6b2f77c@oss.cipunited.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -59,104 +75,57 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261113-mips-ls7a-wdt-v2-5-e8abd6b2f77c@oss.cipunited.com>
+X-Zoho-Virus-Status: 1
+X-Zoho-AV-Stamp: zmail-av-0.2.13.1.5.4/295.87.94
+X-ZohoMailClient: External
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] watchdog: arm_twd_wdt: deadline overwritten on suspend/resume
-  by PM ping
---
+On Fri, Nov 13, 2026 at 06:51:12PM +0800, Rong Zhang wrote:
+> The Loongson-7A has an internal clock source for miscellaneous
+> peripherals. The clock source is nonconfigurable and has a fixed 50MHz
+> clock frequency.
+> 
+> Add a 50MHz fixed-clock node with label "pch_misc_clk" to represent it.
+> 
+> Signed-off-by: Rong Zhang <rongrong@oss.cipunited.com>
+> ---
+>  arch/mips/boot/dts/loongson/ls7a-pch.dtsi | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
+> index 9f0a183bd348..2ef1ad10a8ec 100644
+> --- a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
+> +++ b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
+> @@ -1,6 +1,12 @@
+>  // SPDX-License-Identifier: GPL-2.0
+>  
+>  / {
+> +	pch_misc_clk: clock-50000000 {
+> +		#clock-cells = <0>;
+> +		compatible = "fixed-clock";
+> +		clock-frequency = <50000000>;
 
-commit 8603b686668545855ad05ceff3a65c5bccb1efde
-Author: Fil Dunsky <filipp.dunsky@gmail.com>
+"compatible" property usually comes before other properties other than
+"device_type", see dts-coding-style.rst.
 
-watchdog: Add ARM TWD (MPCore private) watchdog driver
+With this fixed,
 
-This commit adds a watchdog driver for the ARM11 MPCore, Cortex-A5 and
-Cortex-A9 private (TWD) watchdog, using CPU0's watchdog as the system
-watchdog and preserving the expiration deadline across clock rate changes,
-CPU idle power down and system suspend/resume.
+Reviewed-by: Yao Zi <me@ziyao.cc>
 
-> diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wd=
-t.c
-> new file mode 100644
-> index 0000000000000..84e56ab8beea7
-> --- /dev/null
-> +++ b/drivers/watchdog/arm_twd_wdt.c
-
-[ ... ]
-
-> +static int twd_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	struct twd_wdt *wdt =3D watchdog_get_drvdata(wdd);
+> +	};
 > +
-> +	guard(mutex)(&wdt->lock);
-> +
-> +	if (!wdt->armed)
-> +		return 0;
-> +
-> +	atomic64_set(&wdt->expires, ktime_get_ns() +
-> +		     (s64)wdd->timeout * NSEC_PER_SEC);
-> +	twd_wdt_call(wdt, twd_wdt_cpu_ping);
-> +
-> +	return 0;
-> +}
+>  	pch: bus@10000000 {
+>  		compatible = "simple-bus";
+>  		#address-cells = <2>;
+> 
+> -- 
+> 2.55.0
 
-[ ... ]
+-- 
+Thanks,
+Yao Zi
 
-> +	watchdog_stop_on_reboot(&wdt->wdd);
-> +	watchdog_stop_on_unregister(&wdt->wdd);
-> +	watchdog_stop_ping_on_suspend(&wdt->wdd);
-> +	watchdog_set_drvdata(&wdt->wdd, wdt);
-
-[ ... ]
-
-> +/* The watchdog loses its state in suspend, set it up again at resume */
-> +static int twd_wdt_suspend(struct device *dev)
-> +{
-> +	struct twd_wdt *wdt =3D dev_get_drvdata(dev);
-> +
-> +	guard(mutex)(&wdt->lock);
-> +
-> +	wdt->resume_armed =3D wdt->armed;
-> +	/* Keep CPU PM from restoring the watchdog while it is suspended. */
-> +	smp_store_release(&wdt->armed, false);
-> +	if (wdt->resume_armed)
-> +		twd_wdt_call(wdt, twd_wdt_cpu_stop);
-> +
-> +	return 0;
-> +}
-> +
-> +static int twd_wdt_resume(struct device *dev)
-> +{
-> +	struct twd_wdt *wdt =3D dev_get_drvdata(dev);
-> +
-> +	guard(mutex)(&wdt->lock);
-> +
-> +	if (wdt->resume_armed) {
-> +		/* Publish the saved deadline before allowing CPU PM to restore it. */
-> +		smp_store_release(&wdt->armed, true);
-> +		twd_wdt_call(wdt, twd_wdt_cpu_start);
-> +		wdt->resume_armed =3D false;
-> +	}
-> +
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Does calling watchdog_stop_ping_on_suspend() cause wdt->expires to be
-overwritten with a full timeout on suspend and resume instead of preserving
-the saved deadline?
-
-watchdog_stop_ping_on_suspend() registers watchdog_pm_notifier(), which
-calls watchdog_dev_suspend() -> __watchdog_ping() -> twd_wdt_ping() at
-PM_SUSPEND_PREPARE before twd_wdt_suspend() clears wdt->armed, and calls
-watchdog_dev_resume() -> __watchdog_ping() -> twd_wdt_ping() at
-PM_POST_SUSPEND after twd_wdt_resume() sets wdt->armed back to true.
-Whenever the watchdog is active (or boot-running before open_deadline),
-both calls run while wdt->armed is true, resetting wdt->expires to
-ktime_get_ns() + wdd->timeout * NSEC_PER_SEC and reloading the counter with
-a full timeout.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118-arm-twd-wd=
-t-v6-1-ce5c85b45c63@gmail.com?part=3D1
+Meow-mrrp-mrow, I'm a cat.
