@@ -1,90 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795107116;
-	b=MoPLyGlOpRmZPaDgFdQurg6+3Rdt3+GvO74eUGpcbzuGrQu4LsDfooZ9enGtZtWKk7SO
-	 qu+srLuueVBbbx55HZRcx0GuQmhVjD8DGEkRLiJGfYsZhplm5IG08dBflucM4bWUZ+HG2
-	 OimDrMW4dCfnSVZDQfUGP+j+gMwRDiaTOaxGw6VSxkvrz8r0C7mBlPOSDh6CoydjY8FZn
-	 So8DKUWBQd3AG4oxXvYCGcrR7eGIUpKqlU0nC9QfPtGIaip7v3ygQPQzkwBCR+qqfSNDj
-	 tGEvq321Yoqi9NT7gSucqYEUoDlEi26kndCXz0oxdOU6jQAgIFJcbC+rj8uIbXhBUdw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795107116;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=VyuLjUWlndm/ZBOLKhEN/lw43++AjMQwOBflJ5LOk6s=;
-	b=ejyw6I03p0anZRZtu1VS3ctJ9tw4cpOmuolXopRPRcJuOiwyW52lfGw4pcDT79Qhy9s+
-	 ZGoVVGbuNvg2KZ4Yx5eYpdJgGH+G55v0N1b74psN3brW5y16SATiekCdUFktbpu3rJZ9G
-	 yGPoDB0jWzb4TYvSYVtrRBGFzx0P/FS56YbAuwypfsLclwVFZDhj0MG6hKISGuckR45m7
-	 Zr+MgmRWFRcHfONydE8Znk+1AbjIFJ5FzR5xQQxcJOlAEQVwyiMjZAq1xRnJjvKkuWwof
-	 tcnD396m3+s7H+fSdNVUb0/tz1lGTAvvnvOFvFiKsuYqzmDlONuDQSCCH4vUEk+dkUg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=TpqgAi2t;
-	arc=none smtp.remote-ip=44.202.169.37
-Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795107235;
+	b=Tnq4DqudRZDDvMK2i1QMjRZbGc1uv8Q8tKnLD9b1Z1dGFtt+h8VrrxncDgi9ZVwKFvqB
+	 fLnjLkeIetnNQ8Rx+wqJT8vxGH+xAa9B72M3/Ev6oJXstPjPcvEMEBNnvKlkgQe6e/iQ4
+	 bzAJSRLs8lwHNNDir1zXfuLxGC2mYy9WgmXoQH9rrAtFDCnnM+avMwjpG9R5yLjSma4dP
+	 WkUnW4rma/f+ngDnyECZTfW9VTaJCSQ/AgM3sfwCABgGZHSrlvMReBKpZgwQ5ywcLlSKm
+	 h0ga8Yxrc4+TDymt4g8jIY6ZU9mwTQNp72JmtNWE2qSq8w9mecjOmUrDkvAK2lBzNzg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795107235;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=uLq55cpvB+Q365G9MISzGTDd2mLVrHcfdN0AU9A81Mg=;
+	b=UtdJtrNDWyQd6HZfUZlPXNb6vu2ymwDyQd6wRpgIIdwHbdtnr1t+5mFe+XF3VMOV33hJ
+	 K9nQxuDLdkfhnA1jc0AOLsJrueMKuceGZiG9WGm5bLDx5VD7tY9Vp8YirQPCxs0Ee79xV
+	 GRmqTT66ljQMFdOVGW2z/gKsmHpn4EDRtNUy8jQGAeapJbqdphA43P8dxgXz4HYH3GmG6
+	 wBp4zWLnA3mnQSMaqQsAbkn6eGGz+o7NuaEAZuVwNarr60z7S+7WCJ3QOlDmLMpwNorQd
+	 3CN01BUVRcdOT3AopQIMAkAPNkD0f/Y3yz+I/Cgy+UYmTwk19ifux2bE81Md6k+O7VQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="i47GHb/X";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8C1260A2603
-	for <linux-watchdog@vger.kernel.org>; Thu, 19 Nov 2026 16:51:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B8C1260A2603
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2148D606A32F;
+	Thu, 19 Nov 2026 16:53:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=TpqgAi2t
-Received: from eig-obgw-6004b.ext.cloudfilter.net ([10.0.30.210])
-	by cmsmtp with ESMTPS
-	id U4YNxdny6V16IU5MYxNRcl; Thu, 19 Nov 2026 16:51:54 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id U5MXx7Hv2laNKU5MYx3cog; Thu, 19 Nov 2026 16:51:54 +0000
-X-Authority-Analysis: v=2.4 cv=UbpRSLSN c=1 sm=1 tr=0 ts=6aff292a
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
- a=VwQbUJbxAAAA:8 a=_jlGtV7tAAAA:8 a=IvRCNjoTNcy513YpXOgA:9 a=CjuIK1q_8ugA:10
- a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=VyuLjUWlndm/ZBOLKhEN/lw43++AjMQwOBflJ5LOk6s=; b=TpqgAi2tfvQr8FgT+aFEOK34fc
-	3BysAvJ3YX/SX8uqux912onyChgt5l0XwEoTIgfdY/1lBqm7IMEn6J/8+aGDb33+H/lB0s39d8TnS
-	B/mahwJPkIOGTLThSks0Cv7GF3nMMo6zlRDfPMzlIeFRp9S3LTTVWZufQrV0ZuSjvXLVk22NZBLiK
-	yUFAn+/tHSSCR2K7Qwjn6LLS07jB3IqxBZT+nL1igRkeT+1J9R9vZmtSKE6ONG5T/SUrA+Iy9o6GO
-	5YMPBYf8w1IaGxuiT/Nu5jdGrHh0xkEPD6ST9rtP5aNBQ4Dz6xwFiqbxswfmDbLD7C/DiRRdR6cpi
-	qSo3ZOzQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:56426 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xU5MU-00000003LGz-3x54;
-	Thu, 19 Nov 2026 22:21:51 +0530
-Date: Thu, 19 Nov 2026 08:51:49 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: a0282524688@gmail.com
-Cc: lee@kernel.org, Ming Yu <tmyu0@nuvoton.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-can@vger.kernel.org, linux-rtc@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH v10 06/13] mfd: nct6694: Move module type macros to
- shared header
-Message-ID: <670e71a1-6f47-4d27-ae6d-10c24c66e34c@roeck-us.net>
-References: <20261118081625.2399247-1-a0282524688@gmail.com>
- <20261118081625.2399247-7-a0282524688@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i47GHb/X
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795107235;
+	b=PEcF3gOz2+nHbDzNtGw0yfNU5PZLEwyqLtDGDqRtq3acZPsluuPNMQNjpljmihdAdzHN
+	 z79OhfHLgGksTxAqCDBfyY+ku3Olffc7NxFxl1hPOlNTHzofKyvzmtFkzudCz9m6t5lmn
+	 FPT7pWNy9Pypm2iAsKO9KnVIB4E+pmOvx98+NfHQll+lLBxsBPY/3ZN+Y0trgZ3LwNOSm
+	 0anpR+XIp14UBS3o8ql+rNx4BSE69yH4H1srD1r3h3vUddMdx5/MUdSnSuc3ZX/QLKGbQ
+	 hlxfT3BHyju6Mm5mRCaUvVVBXgkEjcxeIAeHBO/oLaSWXGtpakxLMJZtJBiIyX+CMww==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795107235;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=uLq55cpvB+Q365G9MISzGTDd2mLVrHcfdN0AU9A81Mg=;
+	b=eWuSe2tK+tVa0lV/5QMJXTR0M36brtenElRiWz8roeOtNWEneFVvebtMYLUDENfKyG99
+	 v4xV8L+A902khsCde9m77DPg5HK5uBJuArlMrTtoJZvsHXDBD8J8wloy2ihX9bpwCf0vE
+	 /rWfNh+L6NqSfRIgMVaWQoVPBKeBOS6EsGrgBzbu8fRlEOzZFkaQNTJ/yHZbXoKox3b2Q
+	 sXVDFO/g5BX+OmownwYWp8Kxz0J/3EQIkS/l/hxD8dMLxpwKwoswEhR87SpC7l4qF3hHe
+	 nu6Pw3r147/n/7gUnc/fuD8tnzAoa/hSoJCrQpXS8D3LXlkybB+B91PAEIPGXoW5i1A==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 83E021F000CC;
+	Thu, 19 Nov 2026 16:53:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795107234;
+	bh=uLq55cpvB+Q365G9MISzGTDd2mLVrHcfdN0AU9A81Mg=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=i47GHb/XxRTEhT6f3virlp3OhhN6ND7l3j49L3rivpsTNYshEFAkzJMNkvTpdCXdU
+	 OWju5q4TGRe6QhSuH0nw/fwI8bgjUmojEEvcK0C9pLIaKjWiHojMBYxc9K8wwMjTho
+	 tRfPgBwmSlcim1elnn81IK3828V2I9YxbFjfAiHzAaV1wKqdg1js9NcN2USVTKF/P2
+	 AyVv5ABsPZ0Oc0GJclvCmsA840momz9zUFgEnzHJ4RGOaT0ucUEe0lDuajo7H49Fnf
+	 f0u/ZOlGyTpkDVDRMlcV4Sv2R0FW+wdTd3qHhrvdV1B6nDQ+8YbiyCYIdZ4xWFlUxu
+	 GP/4X3pbPOLMQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id D88134B356;
+	Thu, 19 Nov 2026 16:53:53 +0000 (UTC)
+From: Arun Iyengar via B4 Relay <devnull+aiyengar1990.gmail.com@kernel.org>
+Date: Thu, 19 Nov 2026 16:53:54 +0000
+Subject: [PATCH RFC] watchdog: core: Ignore userspace keepalives once the
+ system goes down
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -94,77 +83,80 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261118081625.2399247-7-a0282524688@gmail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xU5MU-00000003LGz-3x54
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:56426
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 7
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfIo6d4mnsyhsT4vlwROUgmKM5fdUcnFfkBwBKnpRKk0OLn+NUhD3Won+Yq26y75LNG/7ugedutM1EPAvmKbpWOaUTJG5neVXw41USTDJwz1VZBYjwcUG
- YQgQ8/Fd0Tu7+mr1LgOgwLEhzAZSdfb1vO/1eERHnMlSdF2/56pdF7AbxBb7NWpqmnrnCbucPZZoKF6OuKhLc8yZw7djmERMVgUBMW0p5kO9DCq+uHYMPWBk
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261119-watchdog-reboot-keepalive-v1-1-c5902d959796@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMTQrCMBQGr1Le2kATVKpbwQN0K13k50v7VJqSp
+ FUovbtRlzMws1JCZCQ6VytFLJw4jAXkriI76LGHYFeYVK2OUsqTeOlsBxd6EWFCyOIBTPrJC4R
+ 3h9rvTaMar6j0U4Tn9+99o/Z6oe4v02zusPl7pW37AN59C/iCAAAA
+X-Change-ID: 20261119-watchdog-reboot-keepalive-fd50f4b828f2
+To: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Primoz Fiser <primoz.fiser@norik.com>, 
+ Arun Iyengar <aiyengar1990@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795107233; l=1792;
+ i=aiyengar1990@gmail.com; s=20261110; h=from:subject:message-id;
+ bh=8odbgLzkMjv4qHTEHWFN4RAGFDasNozQ665DspbA17w=;
+ b=1rDr9Uz/tDZ9di0LWUyCicF5QfSmb3YYmZIPw4SQUeYUDtf+J6cTiSsiEf2uwfyQtfnpUzVjo
+ kKRuVAQfoJECTRQvVUUMYLnkWlYJk1Ac3hTcM96ZL/kyMbrmU3CxEhn
+X-Developer-Key: i=aiyengar1990@gmail.com; a=ed25519;
+ pk=zXpRgUTrhaFe6jLyPqbBy3ccfkj04w0g2690Wv3mg+0=
+X-Endpoint-Received: by B4 Relay for aiyengar1990@gmail.com/20261110 with
+ auth_id=1480
+X-Original-From: Arun Iyengar <aiyengar1990@gmail.com>
+Reply-To: aiyengar1990@gmail.com
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 18, 2026 at 04:16:17PM +0800, a0282524688@gmail.com wrote:
-> From: Ming Yu <a0282524688@gmail.com>
-> 
-> Each sub-device driver defines the module type used by its own
-> commands. The upcoming HIF transport also needs to recognise
-> NCT6694_RPT_MOD, as report accesses are served from a separate
-> register space rather than through the command mailbox.
-> 
-> Move all module types into the shared header so that the transports
-> and the sub-device drivers use a single set of definitions.
-> 
-> No functional change.
-> 
-> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-> Signed-off-by: Ming Yu <a0282524688@gmail.com>
-> ---
-> Changes in v10:
-> - None.
-> 
-> Changes in v9:
-> - Added Andi's Reviewed-by.
-> 
-> Changes in v8:
-> - Reworded the commit message to explain why the transport needs the
->   module types.
-> 
-> Changes in v7:
-> - None.
-> 
-> Changes in v6:
-> - None.
-> 
-> Changes in v5:
-> - Split from the monolithic v4 patch to follow the single logical change
->   principle.
-> 
->  drivers/gpio/gpio-nct6694.c         |  7 -------
->  drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
->  drivers/i2c/busses/i2c-nct6694.c    |  7 -------
->  drivers/net/can/usb/nct6694_canfd.c |  6 ------
->  drivers/rtc/rtc-nct6694.c           |  7 -------
->  drivers/watchdog/nct6694_wdt.c      |  7 -------
->  include/linux/mfd/nct6694.h         |  9 +++++++++
->  7 files changed, 9 insertions(+), 55 deletions(-)
+From: Arun Iyengar <aiyengar1990@gmail.com>
 
-For hwmon and watchdog:
+A watchdog left running through a reboot should reset a system whose
+reboot hangs. But a daemon still pinging after reboot(2), such as
+systemd after "systemctl reboot -ff", keeps a hang in device_shutdown()
+from ever being reset.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Ignore userspace keepalives once system_state is past SYSTEM_RUNNING,
+as da9062_wdt and da9063_wdt do since commit 2f61b3a74699 ("watchdog:
+da9062: da9063: prevent pings ahead of machine reset").
 
-Guenter
+Signed-off-by: Arun Iyengar <aiyengar1990@gmail.com>
+---
+RFC: this changes every driver. A reboot or power-off whose
+device_shutdown() outlasts the timeout now ends in a watchdog reset.
+
+Tested on an Orange Pi Zero2 (H616, sunxi_wdt) on 7.3.5 with a test
+module that oopses holding a device lock: "systemctl reboot -ff" was
+reset after 14 s in 6 of 6 runs. Without the patch there was no reset
+within 90 s (one run, older 7.3 build). Other drivers and kexec are
+not tested.
+
+Developed with Claude (Anthropic) as a coding assistant, which wrote
+the code and the commit message. I reviewed and tested it.
+---
+ drivers/watchdog/watchdog_dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index aad3f1f1b4ce..0f149da49a69 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -201,6 +201,9 @@ static int watchdog_ping(struct watchdog_device *wdd)
+ 	if (!watchdog_hw_running(wdd))
+ 		return 0;
+ 
++	if (system_state > SYSTEM_RUNNING)
++		return 0;
++
+ 	set_bit(_WDOG_KEEPALIVE, &wd_data->status);
+ 
+ 	wd_data->last_keepalive = ktime_get();
+
+---
+base-commit: 865c2d0f1dd3f0937865dd11819eeb59298a814c
+change-id: 20261119-watchdog-reboot-keepalive-fd50f4b828f2
+
+Best regards,
+--  
+Arun Iyengar <aiyengar1990@gmail.com>
+
+
