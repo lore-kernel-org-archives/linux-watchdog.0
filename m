@@ -1,91 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795205440;
-	b=xBo3xJ/Nnuxa1eUweU+zUy5TkHHRT7d24Y4a4lGia6Xa64heWxQJFh4VVO/2c1YEOhfY
-	 UwHLvpwg9WP2PLNn5VLV2voiayFSN9RWluG7feWBIfZVymvJG+XXQPE0SBiRJ19FtTv20
-	 cJbYBa7JkZaanISgKHoZX5/zSySNwMN5Vbt2g4GhMMbwVSvIqNlyCt/P8kOQe0aqJyDmG
-	 Bb8hCjbvEgFrffybpUzVu++Fod261z2cHSV9/qgFJChgfUYnDgehJHlTbq4ZpoVInWTuv
-	 XbIv/0un09d4z7CM6lpOBC3TzOZp/1U27e5KIb8Yjo9LDwJ8gDzdq1eCWT5FOZMgedQ==
+	t=1795205951;
+	b=K3TLQZvGWCJvXSxF3SZQhNEZnyJzlqRS9a4Du8Bmcm9PKr3mPZS3wuHuhG/P1SzSGdz9
+	 P21FKryrWIFV/QeQfpbsSaS1BNYt6RvLBF0hiNxz93jo/kOQaRGSFric8sUpmCpNg154I
+	 CkGdXP2iFwT+wLHNfaSWKjGRDtZbjiRKItUKrNZJ+ZYFcsY6d+Erjxn20gWXbnPD307+j
+	 XWi8YRjQJReJXeyU07KVVyHd6ccI1kdMHZ+Yt/UFruxRkcSZlSiuh5cFhZ8icGWj1GP4x
+	 gqrX30URXB0WmRaUZj45zslOLWnEj7oPbMY8sPYy1Dh7Dyw25al9Fx++w9YGRLHTfcg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795205440;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=48fG40u44IzRAj1aROD5Y2Q1HOpJ9Yh55cmOS8ndJXw=;
-	b=vLVOzwbOQCAfl6aIRI5Y+wlSL4gtnTyJ3lcBGVwrQCk93M5dDC1t4OcB4LRdi3K9f+M/
-	 GxTD0nrLsg2FM9HpYfo8P0KgjNI4+rxc3Mt+R6MHCRP7Z3humdql7PWHUbA8jZsOk2Hg4
-	 7ecKRGKfsX6nfANeBx7vDzucwG12rSGzufCjPThSMXaaAq1/GcJU1Rimzr6hozBPd8rQt
-	 PG34GmgiHftr+5Nn1kyqHVfZ4qzlBY37xEZsGyqhiysj00nhT7iqIZ06VmjeUVE/gY7T9
-	 3AyU36WZhmXLFetpM9fykd/ro1RHJRzni1yzi3c5P/Sn88/tk7W4aY0t9GXwts1zy5g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795205951;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=ln9TCKu4OUh7XIieI2sv04OsrhZ+dQENCnmItiBJ9ls=;
+	b=HXaRQeDbLj4Oju7m9FUoln2/8oHjRZn7rUQzgQZL50FvuV6O41ojOJwwr/SEbEZv6cju
+	 ctfwYJy2YhnEE5WV/VnmLcR60bfoIFtwtwqIJt1e1SjkXl+gQSICAnWrB3utapHpaJUtE
+	 ncX1ti/hQPJQxppbRR6Zh919OQYattYdvYtGj6q46nSOGchkEQmoFTx/BfzG3xH39xVNH
+	 UxUzRO8OW24G2ELfvoWf+/bvPv0LBUVZp3ZmuzuTbMuDz98Id0ldKw0m104fAtYSvQa0q
+	 EtuE6n7SfP2RcJD0UkmTPvxEne2wht7lEukbzFO/3UkLcqXpP37ebpk2F4pUy69C0Zw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=r4Jknyks;
-	arc=none smtp.remote-ip=209.85.210.175
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XVFe2Ka5;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9041C606A6FD
-	for <linux-watchdog@vger.kernel.org>; Fri, 20 Nov 2026 20:10:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9041C606A6FD
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C06DF606A6CB
+	for <linux-watchdog@vger.kernel.org>; Fri, 20 Nov 2026 20:19:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=r4Jknyks
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-8c20d68c83fso1481776b3a.0
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 Nov 2026 12:10:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795205437; x=1795810237; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=48fG40u44IzRAj1aROD5Y2Q1HOpJ9Yh55cmOS8ndJXw=;
-        b=r4JknyksnkeFoXBitM2CtrdTAt/WByFNDdLy8fW8o6C+SCZHcfi3haoQwrCcoxrSPQ
-         /thSr3/NDKFBjjugwQ3XfxvkApFm0SR3J6zXBVhDJlv7BN2Y07A4ssVX8yys65ZyaIZ6
-         lBSjfDDHKq50FuHmmchlfoMqcC2sY4pzJhNGwCXu96Tonp/aO5WrpgNPPCQ7Fligl8vF
-         fIRsbh6s2fGkotYFjUEDBYUkglEEAEe3Jv4ArntzTm2mQRU6sjDp3uoOu0FXzhSN+Iyv
-         vww2suKoXeMaqE9r8Yk6vcgwx1LW6Lh7NIV/DtRq3KU+1fxNHNsKhK9KnwWPNN8s8E79
-         5oxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795205437; x=1795810237;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=48fG40u44IzRAj1aROD5Y2Q1HOpJ9Yh55cmOS8ndJXw=;
-        b=Bbg9J+Bq3Cyy3MSuL52OMemBjZCGaXWy17GPWvmkuCH6iUV4xNzc03KqpYXzPoKRAQ
-         M7/i7ByZ3xSpME/yuEiXYeHOLtIdKvi30ELhdyT2mC3a2r3xKksyEDgwjoT4A1opkw1W
-         9pgkcfcCpuwngfYINuQs9UWTMLUk/JETlOHvnrEJhQUFf6/Sn0lPMQGj8RJYuoKAi4l9
-         nwOE5S21RrF3euatd+SmyQsSvQcSki3q05rSBFZ9gEc6XhsQJO1g3if4Oq1/abzJlGE/
-         JI4zRXgifSO0FGg1+5epjR8uSAC6+d1Jaf99wu9h3UxRmJgwknvUo101oCMemHZ3Yhq/
-         uZAg==
-X-Gm-Message-State: APuU4Z99G0+UndgJNXDt7lKCZfHgQ/SeqLzbhRLnuMsfTE/jlXojIP8D
-	KoinfhxAFyXzcs/ugUz3LYSKBuWGbY07Uw2GtOuBNUMArEUqGP4Ra8B82LwJqrka
-X-Gm-Gg: AZFdTZfAQaRAG4I7qUpSMSOwtWVJ4z82aK/a+VmQw6n+ASoRJPaaW/fe5JwBvIgfUuz
-	FhT0fAI2LHwf2j+iDZEJAi5X4rZvgKKJebn6SV7LxobdL5eKF+GpzjA0JsBaAdosXnBGviou776
-	ZTZSsMEf2M9ZdBUl5kN/mc+80QUIEhaWvEXlxcTR6xolU33Xo/Iov8fX2vS5qCLyVeDNOu9h9ul
-	pLVLnlAujDZDkGLfvoe2lCdfySuUQfItUcayJTotU3mRXMZIDvUaiUlLppPe04G9CPtrzOzAY73
-	JIYcPy6Dphht43TrLgFRZEcJgCtuMB/wmezFlqNZRxGMaLBU2HNzINmo6FFdYLPCU9KWrjp0tD9
-	4/DC+leWynZ7wRsKA0fFH7/hzLRhTCveHd1kdDnoZODH9TrLvSYDLimvjmFN5JQ5OtF1QbDYcbc
-	hgLGH2TTt4SxmZ0Tf3BSqL4n6wB189x2+M6TOAEatfZWNG9+lQmeGrDS9L0mGfwjIr5Xgl6k0Rr
-	2NIUAMZG46oof/5itJNwMGdSaUqUl8DsWuRYFcEquM0L5BPG5tz3SJbPlJASnl0zwouVZ3+4ZEB
-	bZRwxq5y5kvC4JrRckeVXS7gdKyanW17HAd+gDuo0OL5wi5/IR914xcprRse7+B0tPZ2O9QJqQ=
-	=
-X-Received: by 2002:a05:6a00:3d44:b0:8a0:5eff:ad5b with SMTP id d2e1a72fcca58-8c7ddfafeecmr3911362b3a.33.1795205436562;
-        Fri, 20 Nov 2026 12:10:36 -0800 (PST)
-Received: from d.home.yangfl.dn42 ([2a09:bac5:6213:28::4:379])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8c86d821637sm2075227b3a.0.2026.11.20.12.10.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 12:10:36 -0800 (PST)
-From: David Yang <mmyangfl@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: David Yang <mmyangfl@gmail.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: sp805_wdt: re-enable the clock in the restart handler
-Date: Sat, 21 Nov 2026 04:10:26 +0800
-Message-ID: <20261120201029.1685193-1-mmyangfl@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XVFe2Ka5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0FF11F000C0;
+	Fri, 20 Nov 2026 20:19:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795205951;
+	bh=ln9TCKu4OUh7XIieI2sv04OsrhZ+dQENCnmItiBJ9ls=;
+	h=From:Subject:Reply-To:To:In-Reply-To:References:Date;
+	b=XVFe2Ka5TEnf4Ma8NILTKQD5aPJxYRHavl35W4vjL95gcsa31jg+hBlutMda/2kvO
+	 fNw0fnXG+GKxjGvgqtUpaT4m2DpTpTM1XBDwkTbA3uGPjP53rDpiVZYG/hsh5ouwtV
+	 Tm0ksI8lWlXnwvjoi+p/C3ktDMOvbondr2HtWNXuaT4K76Rk/U6s4piFqlZVmVdZzk
+	 3GrGWTxm/wCrkM+28laNl9XclAf+qquRM+Ofe0q4wh1XUBRIWov9LKDNR0tQYNasMC
+	 5o0+FHc4TfkeFnbpBgEjU6hHghzE2BAIf8wPmiIpWutL83oppCX/hyDOvfzxfy6wVI
+	 8Mdlew7ggd3Aw==
+Message-ID: <sashiko-outbox-226033@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] watchdog: sp805_wdt: re-enable the clock in the restart
+ handler
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "David Yang" <mmyangfl@gmail.com>, linux-watchdog@vger.kernel.org
+In-Reply-To: <20261120201029.1685193-1-mmyangfl@gmail.com>
+References: <20261120201029.1685193-1-mmyangfl@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 20:19:10 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -94,35 +58,63 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-wdt_restart() fail to reboot the system if the watchdog counter clock
-was previously disabled: If userspace cleanly stops the watchdog, the
-core calls wdt_disable() which disables wdt->clk. No reset comes.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [High] watchdog: sp805_wdt: sleeping clk_prepare_enable() call in
+  wdt_restart()
+- [Low] watchdog: sp805_wdt: missing Fixes trailer for wdt_restart()
+  clock fix
+--
 
-Re-enable the clock in it as in npcm_wdt.
+commit 800a9ee3ac4d2d74f9b4e848c39474209c8cef7f
+Author: David Yang <mmyangfl@gmail.com>
 
-Link: https://lore.kernel.org/r/20260911031916.A8E051F000FF@smtp.kernel.org
-Signed-off-by: David Yang <mmyangfl@gmail.com>
----
- drivers/watchdog/sp805_wdt.c | 3 +++
- 1 file changed, 3 insertions(+)
+> watchdog: sp805_wdt: re-enable the clock in the restart handler
+>
+> wdt_restart() fail to reboot the system if the watchdog counter clock
+> was previously disabled: If userspace cleanly stops the watchdog, the
+> core calls wdt_disable() which disables wdt->clk. No reset comes.
+>
+> Re-enable the clock in it as in npcm_wdt.
+>
+> Link: https://lore.kernel.org/r/20260911031916.A8E051F000FF@smtp.kernel.o=
+rg
+> Signed-off-by: David Yang <mmyangfl@gmail.com>
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index a14ff7ac0db4..20b2fbb7334d 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -138,6 +138,9 @@ wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
- {
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
- 
-+	/* For reset, we start the WDT clock and leave it running. */
-+	clk_prepare_enable(wdt->clk);
-+
- 	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
- 	writel_relaxed(0, wdt->base + WDTCONTROL);
- 	writel_relaxed(0, wdt->base + WDTLOAD);
--- 
-2.53.0
+[Severity: Low]
+Should this bug fix include a Fixes tag for the commit that introduced
+wdt_restart()?
 
+  Fixes: 6c5c0d48b686 ("watchdog: sp805: add restart handler")
+
+> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+> index a14ff7ac0db48..20b2fbb7334db 100644
+> --- a/drivers/watchdog/sp805_wdt.c
+> +++ b/drivers/watchdog/sp805_wdt.c
+> @@ -138,6 +138,9 @@ wdt_restart(struct watchdog_device *wdd, unsigned lon=
+g mode, void *cmd)
+>  {
+>  	struct sp805_wdt *wdt =3D watchdog_get_drvdata(wdd);
+> =20
+> +	/* For reset, we start the WDT clock and leave it running. */
+> +	clk_prepare_enable(wdt->clk);
+
+[Severity: High]
+Can wdt_restart() call clk_prepare_enable()?
+
+do_kernel_restart() invokes restart handlers via
+atomic_notifier_call_chain(&restart_handler_list, ...) under
+rcu_read_lock() with local interrupts disabled, whereas clk_prepare()
+acquires the sleeping prepare_lock mutex and calls ->prepare() callbacks.
+When wdt->clk is unprepared (either because the watchdog was never started
+or because wdt_disable() called clk_disable_unprepare()), this sleeps in
+atomic context and can deadlock or hang system reboot.
+
+Unlike sp805_wdt, npcm_wdt prepares its clock at probe time via
+devm_clk_get_optional_prepared() and uses clk_enable() / clk_disable() at
+runtime so that npcm_wdt_restart() only calls atomic-safe clk_enable().
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120201029.1685=
+193-1-mmyangfl@gmail.com?part=3D1
