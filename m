@@ -1,56 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=141.14.17.11
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795160168;
-	b=VZWye+cvOC04KYgdABWRF6aKxQNYcSsn3qBPS1KEdEseSWqIWg/1tS3WdXV3Ev0SGBWy
-	 APjMaWE/vcLl3XCEYREQnKtYnBeto2QSuiLYMMcuF44IdCqK/lOnO4orrI5MT4TqEwixY
-	 vWwhKSbw4pZB8X+uYsepUWNxre4zSLOLIYnFh5pUcPO2+fkRDYDP3SXQyZAia021m3aRM
-	 RBsZNogJH+yPeE8nnFm/523YYw8dgmJsOhqDoA2E/SBhuBb5p325nqK6M95VIEw1iGq/N
-	 UHfINF1XB6S6MFic/5dnnazR8Gfndk62PqWil4j6/fZMfNz2xJl3AY/yxY/i64Afb1g==
+	t=1795170243;
+	b=Wc19nw09I1XroQz/dL+0S2og42/8nlxaDm29aDGb5qf2xxqk4fpWxlhNjTftq1UL+JRf
+	 8TNjxiaWrcNIhOYGnteE+YIFo7/ixj4wejEDM76r6SgTnrob8gQcT8EuMdTHqqpkdY757
+	 WKIpgkoU6BW+3VG3Dop3DdSRU8Fa8AiDZWTf48OnU39rcj9LvfUn0Jgoq5QRBbMu92fxQ
+	 v2R6SY1G20lROn7iUl+j6l7s2TDCU+TyW8Vi0J4I2PcHpQ7NLrABUYD2u8MJO6xLoGR0O
+	 40Xrrhnk5vMhjLDUkYGkU9JGQJKnQ5zSgU+nBcNgGnbXDLKgKrf0NErLpxS1NyU3DsA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795160168;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=fZ2a/u1Yu8y3ckl9ttzxLCQiCCtp9LfUIdcTGLAvjBI=;
-	b=HD3qXyOhBVBB/YFjSaavHxTWfPsjaSF5EOJQWxvJ8oa2xeVeglxiKhSuleRZ6ulyYbOm
-	 /+4+wl+ZKjsRms4HS9GnyGFQBJaQZIJLwpzCqCicW/Wog0hH3QyR7gjBlZfjTi6AKlZza
-	 I3QU81KN6GrcOFwzv9SaY+EAWc87/+w1+DxdnVKi2MiSXqPPPDvN1pVG7tqAP5Lt54miF
-	 6NaW1OQDIi7JidQIRVHc7ZepYyLy69St/kjMYeXCrWKMLWpDr31XEDtoWKsvyfwQtVCLw
-	 d1CF0LGaxFHb8U3DZ/a5u20vnparv80TQzriHGPVlFObDlSiQE4brDyYU8B2EWPSZ1g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795170243;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:DKIM-Signature;
+	bh=cVfqNllX9psHaNp12DgFISsct/0PG6DEg+CaJsd/m3A=;
+	b=yy+ZcJ5OmfAEydUNbqPklADYhwjdvsaWCt9Q0sasLJnWZvwtgYwF/SUsaMkSJBtmZTZO
+	 A9Cy3UaNhcMvgu7fBg2Xf9lxaorlyC+T4UinKX/DZdKU5CpzVP/4PzmDi3MY0/FqSUjNa
+	 IGPlWpDP3gYVPBO1nTm5Y5b9o5uD/MsYI2XFxStYlKTh40kVkSr6TmRli7kEvrbMgRnMX
+	 FopS0HmYY2kJzBkeTlOarZIBqWwCiOKXXK0v82iZLnyLt4HcOkHZZe6f7l2/hIAMl5lnd
+	 hGKxmtwRXlJIhy/3Ou7IhVM9lzCRSRsthIzqS/aD2zEGw2XNalo6w1qHhA43HA9n+5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SQvGsENl;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=molgen.mpg.de;
+	spf=pass smtp.mailfrom=molgen.mpg.de;
+	dkim=pass header.d=molgen.mpg.de header.i=@molgen.mpg.de header.a=rsa-sha256 header.s=20260906 header.b=E9D0948W;
+	arc=none smtp.remote-ip=141.14.17.11
+Received: from mx3.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F407606A325;
-	Fri, 20 Nov 2026 07:36:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A75F606A325;
+	Fri, 20 Nov 2026 10:24:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4A75F606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=molgen.mpg.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=molgen.mpg.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SQvGsENl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1C01F000C4;
-	Fri, 20 Nov 2026 07:36:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795160167;
-	bh=fZ2a/u1Yu8y3ckl9ttzxLCQiCCtp9LfUIdcTGLAvjBI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SQvGsENl5ZOFCnFqwqN2mrl6NJqcelQoQ0eiinQ2DTLstpfHuLJvpnvYMPZSogfK6
-	 Q7smk+2lAGgsHBU0usvb+3MCeYbqengamoeATm9uz+QiysrpDX+dKnKHoe9etYVJks
-	 6i0Wc6gGmYgVR3SQJbXJiekOPmiPYn174Vudr4xfqGC5ww1H+214D0cP8RuseAv8hf
-	 +7xCRqFWTdeAsycgnHiBsEtErdOYYglLOLKd2gbvsH4EkJ4i0fZU9fPPtsXmWkEv+B
-	 DIuGJDqqgn37+4gheULiwzw43GgzSr4D7vi42S+O1tuiWXc/FYJvIaytdn7QCjxiS8
-	 3uVJpioj4ffOw==
-Message-ID: <sashiko-outbox-224633@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 3/5] mfd: aaeon: Add SRG-IMX8P MCU driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?VGhvbWFzIFBlcnJvdCAoU2NobmVpZGVyIEVsZWN0cmljKQ==?= <thomas.perrot@bootlin.com>
-Cc: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, imx@lists.linux.dev, linux-watchdog@vger.kernel.org, mfd@lists.linux.dev, robh@kernel.org, conor+dt@kernel.org, Frank.Li@kernel.org, lee@kernel.org
-In-Reply-To: <20261120-dev-b4-aaeon-mcu-driver-v10-3-a756687e7997@bootlin.com>
-References: <20261120-dev-b4-aaeon-mcu-driver-v10-0-a756687e7997@bootlin.com>
- <20261120-dev-b4-aaeon-mcu-driver-v10-3-a756687e7997@bootlin.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 07:36:06 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=molgen.mpg.de header.i=@molgen.mpg.de header.a=rsa-sha256 header.s=20260906 header.b=E9D0948W
+Received: from abreu.molgen.mpg.de (g42.guest.molgen.mpg.de [141.14.220.42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: pmenzel)
+	by mx.molgen.mpg.de (Postfix) with ESMTPSA id BD7564C2F3FFBD;
+	Fri, 20 Nov 2026 11:23:16 +0100 (CET)
+From: Paul Menzel <pmenzel@molgen.mpg.de>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Kees Cook <kees@kernel.org>,
+	Tony Luck <tony.luck@intel.com>,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Diogo Ivo <diogo.ivo@siemens.com>
+Cc: Paul Menzel <pmenzel@molgen.mpg.de>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] watchdog: intel_oc_wdt: Stop the watchdog during system sleep
+Date: Fri, 20 Nov 2026 11:23:09 +0100
+Message-ID: <20261120102311.621074-1-pmenzel@molgen.mpg.de>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -59,69 +61,161 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=molgen.mpg.de; s=20260906; 
+	t=1795170197; 
+	h=from:from:subject:date:message-id:mime-version:content-type:content-transfer-encoding; 
+	bh=cVfqNllX9psHaNp12DgFISsct/0PG6DEg+CaJsd/m3A=; 
+	b=E9D0948WYT4XQGSDlwqClbYwSMsgu4Z7IOCCeUZrEaXk4Xmivxu9lutVdODzUjX/JGyF7XUSEDWu
+	27e7IHwkFSDbJ6Fd/5qeKoxJuIKs7QJzcsmWZjHmElbOQS17KVDBTRGSeyn90eWvB5kiNJAd9vcmvj
+	Tf6ONk/mSwr8RKTtwZTuwOtt4cvWqGbYb1yTIAnlH+RtqibXY00wIZCV27OVtMB2ZQZu2RzcZf4K3y
+	YkMjUD4FfKUn5VQ1X9CpinLrLNl5ZPNXWuEhT9RqVilhv1PepTdq7zfBfpNXc8FN1IzhL9WurCb9Dy
+	XOhiz+Se8uDKX0G4rmSN/Jjyx2iEy1oA==
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] mfd: aaeon: unbounded GPIO argument in aaeon_mcu_volatile_reg()
---
+The driver has no system sleep callbacks, so a running watchdog keeps
+counting in suspend-to-idle. Suspend-to-idle stops the tick, so neither
+user space nor the watchdog core can ping it, and the watchdog resets
+the machine once the timeout expires.
 
-commit 3bd6a7daf3a3071df36fa41d3683d38fca074776
-Author: Thomas Perrot (Schneider Electric) <thomas.perrot@bootlin.com>
+On a Dell XPS 13 9310 (Tiger Lake, BIOS 3.17.0, no ACPI S3) with systemd
+`RuntimeWatchdogSec=30s` on /dev/watchdog-oc, both `rtcwake -m freeze -s
+900` and `rtcwake -m freeze -s 60` resulted in a reset about 30 s after
+entering suspend, without any message in the journal or in pstore. With
+the systemd runtime watchdog disabled, the system stayed in
+suspend-to-idle for 900 s and resumed normally.
 
-mfd: aaeon: Add SRG-IMX8P MCU driver
+Stop the watchdog in the noirq suspend phase and restart it, with a
+reload, in the noirq resume phase, as iTCO_wdt does. Check the enable
+bit in hardware rather than watchdog_active(), so a watchdog started by
+the firmware, which only the watchdog core pings, is covered too. If the
+control register is locked, the watchdog cannot be stopped, so leave it
+alone.
 
-This commit adds an MFD driver for the Aaeon SRG-IMX8P embedded controller,
-providing a custom I2C regmap bus and registering GPIO and watchdog child
-devices.
+Also program the timeout again on resume, whether or not the watchdog
+was running: the platform firmware may reset the control register, and
+when resuming from hibernation, it holds the timeout the boot kernel
+set. intel_oc_wdt_start() only sets the enable bit, so a timeout set
+with WDIOC_SETTIMEOUT would otherwise be lost.
 
-> diff --git a/drivers/mfd/aaeon-mcu.c b/drivers/mfd/aaeon-mcu.c
-> new file mode 100644
-> index 0000000000000..83a63e0b73739
-> --- /dev/null
-> +++ b/drivers/mfd/aaeon-mcu.c
+Unlike iTCO_wdt, do this for all sleep states and not only for
+suspend-to-idle, as it is not documented whether the platform firmware
+stops the OC watchdog in ACPI S3 or S4. Hangs in the device suspend and
+resume callbacks outside the noirq phases are still caught.
 
-[ ... ]
+Tested on a Dell XPS 13 9310 (BIOS 3.17.0) with the module built for
+7.4.0-rc1 and systemd RuntimeWatchdogSec=30s:
 
-> +static bool aaeon_mcu_volatile_reg(struct device *dev, unsigned int reg)
-> +{
-> +	/*
-> +	 * GPIO input registers are driven by external signals and can change
-> +	 * at any time without CPU involvement, always read from hardware.
-> +	 *
-> +	 * The watchdog status register reflects hardware state and can change
-> +	 * autonomously.
-> +	 *
-> +	 * All other registers are written by the driver and their values are
-> +	 * stable, so they can be safely cached.
-> +	 */
-> +	if (AAEON_MCU_REG_OPCODE(reg) =3D=3D AAEON_MCU_READ_GPIO_OPCODE)
-> +		return true;
-> +	if (reg =3D=3D AAEON_MCU_WDT_STATUS_REG)
-> +		return true;
-> +	return false;
-> +}
-> +
-> +static bool aaeon_mcu_readable_reg(struct device *dev, unsigned int reg)
-> +{
-> +	/*
-> +	 * Every opcode but the GPIO input read and the watchdog status is a
-> +	 * command: the frame sent for a read is identical to the one used to
-> +	 * write it, so reading such a register would execute the command.
-> +	 * Only the registers reflecting hardware state may be read.
-> +	 */
-> +	return aaeon_mcu_volatile_reg(dev, reg);
-> +}
+- rtcwake -m freeze -s 120 resumes normally; the stock module reset the
+  machine in 2 of 2 attempts.
+- TOV restore: with the watchdog armed, overwrite TOV with 0x3b (60 s) via
+  outl, as the firmware might, then rtcwake -m freeze -s 60. v1: register
+  0x0080603b after resume (TOV 60 s kept). v2: 0x0080601d (TOV 30 s
+  restored, EN set), watchdog still running 40 s later.
 
-[Severity: Low]
-Should aaeon_mcu_volatile_reg() bound the low-byte GPIO argument for
-AAEON_MCU_READ_GPIO_OPCODE to the valid GPIO index range (0x00..0x0b)?
+Fixes: 535d1784d8a9 ("watchdog: Add driver for Intel OC WDT")
+Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
+---
 
-AAEON_MCU_MAX_REGISTER is AAEON_MCU_REG(0x77, 0x0B), so regmap debugfs
-scans the entire 0x7200..0x72ff range.  Because aaeon_mcu_readable_reg()
-delegates to aaeon_mcu_volatile_reg() and only the opcode byte is checked,
-reading the debugfs registers file issues I2C READ_GPIO transfers for
-non-existent GPIO arguments 0x0c..0xff.
+Notes:
+    Changes in v2:
+    - Program the timeout (TOV) again on resume, also when the watchdog was
+      not running, as the firmware or, after hibernation, the boot kernel may
+      have changed it (Sashiko review of v1)
+    
+    v1: https://lore.kernel.org/all/20261119210358.610521-1-pmenzel@molgen.mpg.de/
+    
+    Tool use: Claude Code (claude-opus-5-5) found the reset while measuring
+    s2idle power, wrote the change and the commit message; compile-tested with
+    W=1 (CONFIG_PM_SLEEP=y/n), checkpatch-clean.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120-dev-b4-aae=
-on-mcu-driver-v10-0-a756687e7997@bootlin.com?part=3D3
+ drivers/watchdog/intel_oc_wdt.c | 52 +++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
+
+diff --git a/drivers/watchdog/intel_oc_wdt.c b/drivers/watchdog/intel_oc_wdt.c
+index 0b012aeb18e15..4400a2a8811c9 100644
+--- a/drivers/watchdog/intel_oc_wdt.c
++++ b/drivers/watchdog/intel_oc_wdt.c
+@@ -44,6 +44,7 @@ struct intel_oc_wdt {
+ 	struct resource *ctrl_res;
+ 	struct watchdog_info info;
+ 	bool locked;
++	bool suspended;
+ };
+ 
+ static int heartbeat;
+@@ -204,6 +205,7 @@ static int intel_oc_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	platform_set_drvdata(pdev, oc_wdt);
+ 	watchdog_set_drvdata(wdd, oc_wdt);
+ 	watchdog_set_nowayout(wdd, nowayout);
+ 	watchdog_stop_on_reboot(wdd);
+@@ -212,6 +214,55 @@ static int intel_oc_wdt_probe(struct platform_device *pdev)
+ 	return devm_watchdog_register_device(dev, wdd);
+ }
+ 
++/*
++ * Neither user space nor the watchdog core can ping the watchdog while the
++ * system sleeps, and in suspend-to-idle the counter keeps running, so stop the
++ * watchdog late in suspend and restart it early in resume. Check the hardware
++ * enable bit, as the watchdog may also have been started by the firmware.
++ */
++static int intel_oc_wdt_suspend_noirq(struct device *dev)
++{
++	struct intel_oc_wdt *oc_wdt = dev_get_drvdata(dev);
++
++	oc_wdt->suspended = false;
++
++	if (oc_wdt->locked ||
++	    !(inl(INTEL_OC_WDT_CTRL_REG(oc_wdt)) & INTEL_OC_WDT_EN))
++		return 0;
++
++	intel_oc_wdt_stop(&oc_wdt->wdd);
++	oc_wdt->suspended = true;
++
++	return 0;
++}
++
++static int intel_oc_wdt_resume_noirq(struct device *dev)
++{
++	struct intel_oc_wdt *oc_wdt = dev_get_drvdata(dev);
++
++	if (oc_wdt->locked)
++		return 0;
++
++	/*
++	 * The timeout in hardware may have been reset by the platform firmware
++	 * or, when resuming from hibernation, set by the boot kernel, and
++	 * intel_oc_wdt_start() does not program it.
++	 */
++	intel_oc_wdt_set_timeout(&oc_wdt->wdd, oc_wdt->wdd.timeout);
++
++	if (!oc_wdt->suspended)
++		return 0;
++
++	intel_oc_wdt_start(&oc_wdt->wdd);
++	intel_oc_wdt_ping(&oc_wdt->wdd);
++	oc_wdt->suspended = false;
++
++	return 0;
++}
++
++static DEFINE_NOIRQ_DEV_PM_OPS(intel_oc_wdt_pm_ops, intel_oc_wdt_suspend_noirq,
++			       intel_oc_wdt_resume_noirq);
++
+ static const struct acpi_device_id intel_oc_wdt_match[] = {
+ 	{ "INT3F0D" },
+ 	{ "INTC1099" },
+@@ -223,6 +274,7 @@ static struct platform_driver intel_oc_wdt_platform_driver = {
+ 	.driver = {
+ 		.name = DRV_NAME,
+ 		.acpi_match_table = intel_oc_wdt_match,
++		.pm = pm_sleep_ptr(&intel_oc_wdt_pm_ops),
+ 	},
+ 	.probe = intel_oc_wdt_probe,
+ };
+-- 
+2.54.0
+
