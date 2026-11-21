@@ -1,72 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.39
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795216420;
-	b=Jk+WVsgAWh7VXeTNm3ryYXDa0rBuUeah7Lyo1av84g3U7njMgyhZ8H9HtnucP0CYpXxo
-	 nUUoqkPPAHfT76lrI0svpBaZaXwGihf6AagufpdmoDW90cWMEoNrk94v/SK1ezBAWgWfA
-	 fSqGgF1v9yLFy9a2goHDqxLrrvMBim1loQ0iaQHJbtwsN2Sa6JYy5Ey0PW7bGRKv+MOi7
-	 YUtyV0WL0bJtYvm+9xehU/JLvoap//VgOhrahrGMnM+OEF5PgSqJyKzfFYSMCZwlf2VRe
-	 ubOabn00Ob9bAVJ9BokwI0JjubLAmM+lf1kIxgbHLA1erFtgAiVd/K4eVwtmBnWufnw==
+	t=1795224726;
+	b=CxiH+a2YEzAJDZvpy9F9nj5QTIg7CDgGOSpT/IcW0xpoKuREGkqkGijNd0nv3lI52e18
+	 IatHrr7gFt64udgC1RX8FqwsRNKAHuSRsbMgBDbtRr+ftlE1TCopwc8rvRlYTarfLmnQ7
+	 xlwSYq75vax67SZirCPEua52Ii2ifliMnn9K/ugpeeUoqjHRqaMmKuLOAZbC/MGODplGl
+	 /x+T43MDtIHvGlc3DkynxNdkJ5aos3rLvOeuuyaNadivkK53g0rqPRGgjLYbaODHlrkY7
+	 IRMznAJuZoXwn4YV081/GIF8ENRWmChGM77Md+r6DNBVTAy8BJp3lwY/pHzGH0IS97w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795216420;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795224726;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
-	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=ivVh0a31rtiZv8Of/UYSSj04P/7JrnjrfkqBrVy67PE=;
-	b=PbcygKVsPdllv5Fk6ennsLdi/HIESkxxiwunrV72i1GdDrQCfc9DdfoqpAwj4dFo2F19
-	 E+4NGf/Rnqp4fuEce8nhKG49qnaB6Ez2Gga1DuB5zKS74VGG3hYzrq7SZDahahOatRRYl
-	 dlb4hsV5C7S0XQvH2ap0rWTWlP+DyDlWw1IxXg5mqunvP/K8gw4fFFsd5PbIHSDpzuDC7
-	 J1VHEbESrhWCPOz5uORs0GbFY/14kzNzmVxS6o2B/EZ6gpitcv4kyFluyDi+g491R/+Uj
-	 +3x6/tbgC5O96eKD8pY9hJAEoR7J4z6uZnGTXdndFLaRUn1QlUhjyJOcUgvhil3GWcA==
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
+	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
+	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
+	 X-Local-Domain:X-CMAE-Envelope;
+	bh=rlDLliB+QOtD7Ziahgfuy5fLAO8NSvZb0oJ9Xi9dkRs=;
+	b=evmcL/6h1KgsMUnKQPzYO1ezJsiXYW4cPUmv5m9K6+BKSdEgRJ3L/uKqC4of61QCuEVg
+	 GXlPphJ4qDmmmhFblLLWZMHiNG8vzBryrcvC7ArzXb/4QPPgYBDFOXc/dNAW8QbmzC44v
+	 TZ/78KMeIc9lNWTvq9KsIWZxjTVXlRWh+U6FygGB2gmGQ3Bwz9tUkZPUPoECRUNYlCZtH
+	 n5i+I9OeFZ72QkJWpaHGu05SuTVdyPvht1w8t328Yb2vP7Te+tr6qPxD0yc9BIJe2Q0fk
+	 X2WT2VhIB7N6mr40QrwSzvuI2CAWnnDhOYMLQvHFewViIfqxs6w2HNqdx7Z39Lx+U4g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=bP3ktZhf;
-	arc=none smtp.remote-ip=44.202.169.39
-Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=s85U6r6i;
+	arc=none smtp.remote-ip=44.202.169.35
+Received: from omta036.useast.a.cloudfilter.net (omta036.useast.a.cloudfilter.net [44.202.169.35])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16B79606A688
-	for <linux-watchdog@vger.kernel.org>; Fri, 20 Nov 2026 23:13:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 16B79606A688
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9359E606A6B7
+	for <linux-watchdog@vger.kernel.org>; Sat, 21 Nov 2026 01:32:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9359E606A6B7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=bP3ktZhf
-Received: from eig-obgw-5007b.ext.cloudfilter.net ([10.0.29.167])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=s85U6r6i
+Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
 	by cmsmtp with ESMTPS
-	id UW0Tx8FXTOOJnUXnVxpgdO; Fri, 20 Nov 2026 23:13:37 +0000
+	id UYWRxlinu4vCDUZxTxvaoJ; Sat, 21 Nov 2026 01:32:03 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id UXnUxbaujxqjjUXnUx8q9z; Fri, 20 Nov 2026 23:13:37 +0000
-X-Authority-Analysis: v=2.4 cv=bZxrUPPB c=1 sm=1 tr=0 ts=6b00d421
+	id UZxSxy22MFhzrUZxSxNtef; Sat, 21 Nov 2026 01:32:03 +0000
+X-Authority-Analysis: v=2.4 cv=JY+8rVKV c=1 sm=1 tr=0 ts=6b00f493
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=Y_4GkthKQrV17t-anMIA:9 a=QEXdDO2ut3YA:10
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10
+ a=9C19SFpus36fZyHDVEEA:9 a=CjuIK1q_8ugA:10 a=O8hF6Hzn-FEA:10
  a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=ivVh0a31rtiZv8Of/UYSSj04P/7JrnjrfkqBrVy67PE=; b=bP3ktZhfItD+
-	cjT9M9X24SsysF11MCOtXaS54iXh+5ONE/XvAgv4FXzRD5zZugi8aTEtuTGRkAYbUzSbbeFzE4mAs
-	WeYgvfhZiEPwPgf9wEbjWSGFAA/jmxDN51HPgq3glwta3b7n4bnniB0msQYlmuf2Kyo9g1OuzwLOf
-	9QbfGTB472jtoPlZXsmKpVzjY2JWb3m8rs8K22DZ79IE34B8j2VC93rUElYPv5sDhDT/b/nXTsFai
-	c4PMN0xhp2dD+dglPTR/h5onmjvDCqaGjNqjGILOTgUNWQSmEBjzI89+TNKyOm44vm0g8MzT0hjO2
-	pKfkr0ufwqssD9+W2w35jw==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:43994)
+	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=rlDLliB+QOtD7Ziahgfuy5fLAO8NSvZb0oJ9Xi9dkRs=; b=s85U6r6iq7R9/waSVarOgreJWT
+	TrcqunRegDk7BrDXjdDvhXx4es4vrkbmwPEp/3XBkdSzvLV0rpgskhpqxgEx2LpS4+KKUjINzO9FQ
+	N8qo+XKoZEPkQ5ncqxoRpzH9szgXSczSvBnU049qKPUo5qHTwhpnZDOu3ZulJHkjpM3bjPSafwusf
+	cTrrqlsYnvVDZ+5aRuVGm9VQEzNd2HzH8xQe5TJUbJBqVkQvnvMBY8PhJJyXpdf32Onz9lyXd/pes
+	0NfotXZOc9IRhHefWSstRJPMu4Tvr46+Gcm/5hWdYWa+M9FhgTvoLJgwNOL+bsJtY0mILBfMwP5ie
+	rGoKgtRw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:37764 helo=server.roeck-us.net)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.1)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xUXnU-000000030BU-1Hj0;
-	Sat, 21 Nov 2026 04:43:36 +0530
-Message-ID: <8710a71f-a2fe-4dd4-83b1-8ca2cca00985@roeck-us.net>
-Date: Fri, 20 Nov 2026 15:13:35 -0800
+	id 1xUZxS-000000041yX-18L9;
+	Sat, 21 Nov 2026 07:02:02 +0530
+Date: Fri, 20 Nov 2026 17:32:00 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Kees Cook <kees@kernel.org>,
+	Tony Luck <tony.luck@intel.com>,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Diogo Ivo <diogo.ivo@siemens.com>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: intel_oc_wdt: Stop the watchdog during
+ system sleep
+Message-ID: <66a0d81c-13f4-40a2-bad1-96f9cf98deed@roeck-us.net>
+References: <20261120102311.621074-1-pmenzel@molgen.mpg.de>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -76,60 +86,9 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] watchdog: sp805_wdt: re-enable the clock in the restart
- handler
-To: David Yang <mmyangfl@gmail.com>, linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, linux-kernel@vger.kernel.org
-References: <20261120201029.1685193-1-mmyangfl@gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20261120201029.1685193-1-mmyangfl@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261120102311.621074-1-pmenzel@molgen.mpg.de>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -138,51 +97,64 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xUXnU-000000030BU-1Hj0
+X-Exim-ID: 1xUZxS-000000041yX-18L9
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:43994
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:37764
 X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 3
+X-Email-Count: 2
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfE+VsQR8UztpFRpgH5UZuk6BLdUxzkEuKGbgU0jmxudaow9YPVd4dGV9OdHwE0vUhzijKkWwde7wQu50ZgU+/7riX7De82YKKh5iH/s6bUJihlJGN9lV
- 1/5jV2H5Z074MxT94v4HhNjOKMN0uoCF4V0cINrLjIOGSIhBJvT0NdNsreYxo2OfqIShQ13gZ5pghQfOXI8b+pvbDVksp2wUM4nxjT2RmSNQfLcvn+v1Ux2W
+X-CMAE-Envelope: MS4xfJzJztyGDZaY4trzXT6xYnjc1g0qYOPGwOD6G+586p8RX9bkEvUdmLkz5Wu7JEZ42RYeJ2Ww/q5oNDqav1tvshINWKrysWsUEDW0q/10KgN7J89R7ngD
+ WAnQqRJxHnqEr+DG9SrOAlbu0PKETU2oGP0APieIQUKj+TF8hT4Cv7XxGqsKE+GZacJ5F1VbsYTwhXV2mSES0jlmTsLixa0NI9ayLnSeyk2Q7E/nou4PtIXU
 
-On 11/20/26 12:10, David Yang wrote:
-> wdt_restart() fail to reboot the system if the watchdog counter clock
-> was previously disabled: If userspace cleanly stops the watchdog, the
-> core calls wdt_disable() which disables wdt->clk. No reset comes.
+On Fri, Nov 20, 2026 at 11:23:09AM +0100, Paul Menzel wrote:
+> The driver has no system sleep callbacks, so a running watchdog keeps
+> counting in suspend-to-idle. Suspend-to-idle stops the tick, so neither
+> user space nor the watchdog core can ping it, and the watchdog resets
+> the machine once the timeout expires.
 > 
-> Re-enable the clock in it as in npcm_wdt.
+> On a Dell XPS 13 9310 (Tiger Lake, BIOS 3.17.0, no ACPI S3) with systemd
+> `RuntimeWatchdogSec=30s` on /dev/watchdog-oc, both `rtcwake -m freeze -s
+> 900` and `rtcwake -m freeze -s 60` resulted in a reset about 30 s after
+> entering suspend, without any message in the journal or in pstore. With
+> the systemd runtime watchdog disabled, the system stayed in
+> suspend-to-idle for 900 s and resumed normally.
 > 
-> Link: https://lore.kernel.org/r/20260911031916.A8E051F000FF@smtp.kernel.org
-> Signed-off-by: David Yang <mmyangfl@gmail.com>
-> ---
->   drivers/watchdog/sp805_wdt.c | 3 +++
->   1 file changed, 3 insertions(+)
+> Stop the watchdog in the noirq suspend phase and restart it, with a
+> reload, in the noirq resume phase, as iTCO_wdt does. Check the enable
+> bit in hardware rather than watchdog_active(), so a watchdog started by
+> the firmware, which only the watchdog core pings, is covered too. If the
+> control register is locked, the watchdog cannot be stopped, so leave it
+> alone.
 > 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index a14ff7ac0db4..20b2fbb7334d 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -138,6 +138,9 @@ wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
->   {
->   	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
->   
-> +	/* For reset, we start the WDT clock and leave it running. */
-> +	clk_prepare_enable(wdt->clk);
-> +
->   	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
->   	writel_relaxed(0, wdt->base + WDTCONTROL);
->   	writel_relaxed(0, wdt->base + WDTLOAD);
+> Also program the timeout again on resume, whether or not the watchdog
+> was running: the platform firmware may reset the control register, and
+> when resuming from hibernation, it holds the timeout the boot kernel
+> set. intel_oc_wdt_start() only sets the enable bit, so a timeout set
+> with WDIOC_SETTIMEOUT would otherwise be lost.
+> 
+> Unlike iTCO_wdt, do this for all sleep states and not only for
+> suspend-to-idle, as it is not documented whether the platform firmware
+> stops the OC watchdog in ACPI S3 or S4. Hangs in the device suspend and
+> resume callbacks outside the noirq phases are still caught.
+> 
+> Tested on a Dell XPS 13 9310 (BIOS 3.17.0) with the module built for
+> 7.4.0-rc1 and systemd RuntimeWatchdogSec=30s:
+> 
+> - rtcwake -m freeze -s 120 resumes normally; the stock module reset the
+>   machine in 2 of 2 attempts.
+> - TOV restore: with the watchdog armed, overwrite TOV with 0x3b (60 s) via
+>   outl, as the firmware might, then rtcwake -m freeze -s 60. v1: register
+>   0x0080603b after resume (TOV 60 s kept). v2: 0x0080601d (TOV 30 s
+>   restored, EN set), watchdog still running 40 s later.
+> 
+> Fixes: 535d1784d8a9 ("watchdog: Add driver for Intel OC WDT")
+> Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
 
-This probably needs a fix similar to commit 4e83ea5b2219 ("watchdog: npcm:
-fix sleeping clock call in restart handler") - leave the clock prepared
-all the time and only enable / disable it when starting or stopping the
-watchdog.
+Applied.
 
+Thanks,
 Guenter
-
