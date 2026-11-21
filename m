@@ -1,95 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795239050;
-	b=RpC8ap8HcOD5M5w5SSZRf+DgGEKUZpXsJdLmi+E3TJKk++VY7hqaOeNEDjGSYiXHCV8+
-	 CDstOqQgx5e8ii8iDNF4VEiU9w6Dxn6n/vDGmxIrYe0gZJV5tU7Aoco1SFWCetrC1NOlZ
-	 9kpq+kN0/o1DnnRyDNDqEvixDUie5VLaF54OsXxEJbt56N/pyaASHyr+DboCzgNIunmXf
-	 9oGnHwRt1Uzm3UW1rNiJexZYSKCBvElqYB1stLScAv0XY0eU3Wat5PxfpFAKldMhmcGQ0
-	 /lG8rzghxlVebYbNriFlVsdsIUnTSYWWM93h5PRMQrexANXfwiuyqlsppKXngotPJZQ==
+	t=1795257018;
+	b=MwSVX7Xw/GKaP0TfyBOr8MtkVz6AV17urdpeY3qCtXu9DlZbxFBhLAVQDpmkDb+MTMKx
+	 uY4keqf+F8kqV8z1VGIMMccAHceW3dIiCf8sB5Ri/11KpuoRoZyUHK1mbHkFozjgZvOD3
+	 DSrvC5TnPg/3Evewy2TCI27XvBUj3H70IAIx8snaJRN4TGVnObHdEeFVft0Aergvzyv5V
+	 mNAw0no5mRCKUEWzq8sKO/KqPy9EfdP2k3ItflvBTODWDP7WbDoE7zuPJz5FaJCAABQSZ
+	 WT6R2OoToD+JFcISJKX3MI4p+4gzKC7YcECmxonKrRNNhOuBNP/vQDqNqlBCO6dGWVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795239050;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795257018;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=6h7S1Z/Yg4pL1JyrxjPN4A6nDLlEh5v9NxEZIV677W4=;
-	b=CzfflOzaB83CtEY1fJyIqeU2tPHWuqDCIJVIUAW7GmYpubwsJVF9JzARaVr8bn/eVEu4
-	 wlvIRbTj/sMBsX+iectVA12il/VXmU8W7IeVmPNJwk80l50U1KsFZgqLkVA6JoGszW2Tu
-	 NOVJQcIBF4z9Ooz8+7MlLnbHxYLxsZA92miVng/6kq21d7WICEhPnM9Lc3m0/+1X2198Q
-	 CkiZKq2DhYNyq3zN6OnnDzmlX+dXYLrSwT0eAADFtKcNZv8ZTJ3n1q+43j4NBDpqt4xZP
-	 HKtL41sfk4aQoSBQKvC64AE2LPQYr2LLRwcA51EyEpJalqMiSEgyjF/LOeioUFSBC8A==
+	 From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Transfer-Encoding:MIME-Version:Content-Type;
+	bh=kVw6GMeWVHtwp4C/YrzbIL6SlnpGcWp+X6aGpcy0sFQ=;
+	b=TSjn+J4CG6yGFFrdhBdcYxo0KgzoRGmFLGwnJEXhOUcUR+tAF6RvnIOzZsXhipbGH/Cn
+	 vJ4w/ktPpnPPNrlLdMvg0Vl67qQ/XzVL4yN3NigF5Z0hllyb/W9bzlcXyUXjTiUHKGeS7
+	 9Hrz1z6mw1Wve4rzyCncFDtZ0DwLuTYJ9PrB7Ojzc8tqdaTV+XTzl+BzSYFnjG+2lD6Iw
+	 S4dYaV9u14BEEO/zsrbn0B3S/4XMn886ZNsxGoxStkZ+4jDlnCuDkA6olhd6g3CF/78ch
+	 pnIDgKXnX/99Vx3J6ucJGW9TCeFbZHZiuA6yWzevwUowwJPW/KuGd7M4sOsACe8IBuQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HDGIGh8X;
-	arc=none smtp.remote-ip=209.85.214.170
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=gZ3YnkHi;
+	arc=none smtp.remote-ip=209.85.208.178
+Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E78F606A69D
-	for <linux-watchdog@vger.kernel.org>; Sat, 21 Nov 2026 05:30:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E78F606A69D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA898606A325
+	for <linux-watchdog@vger.kernel.org>; Sat, 21 Nov 2026 10:30:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA898606A325
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HDGIGh8X
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2f0414c1062so8410515ad.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 Nov 2026 21:30:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=gZ3YnkHi
+Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-3ae1fd4252fso16680841fa.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 21 Nov 2026 02:30:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795239049; x=1795843849; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6h7S1Z/Yg4pL1JyrxjPN4A6nDLlEh5v9NxEZIV677W4=;
-        b=HDGIGh8XXuu6yFs5aKL2Y/+U8+5jXNrGXkzEe0/GwzpL/UTmJWLhS7qFFSs8ym2AfQ
-         DbHqnJ5ZwZHpzx0eNkroFT9fd4xzei1MuSH5OL6YnyzbxsFUj9CDnjQO5rqbG3PNPXtk
-         KRsryNkz7TqJ9bTVw4zPmpzSm9Qr/y74HZSfMAccWQwylHRQUoRVbFhwFc6RlPqvOHLU
-         YXLu2BoGm8Z5UervBGgFhGiRjcriO+KbWDi0ggPNI8+ycvFEw8mSALPMRKrTRrQku3P6
-         qP6sqX5lLXmE0ZW98Qdt+ZaIKpAdeVEWdqh4uSIeD5qh4EB1cotryl2Fcc/x5gmynWS9
-         +CJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795239049; x=1795843849;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1795257016; x=1795861816; darn=vger.kernel.org;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6h7S1Z/Yg4pL1JyrxjPN4A6nDLlEh5v9NxEZIV677W4=;
-        b=y4UokKeR8PIf6PDFo//2wb6JYgWXOuAY/DYz7dSO0CyWmxzoPGr4WaNRiLonCMSGMF
-         AvHHdyDhHce4JCj1Vzyal4D6aKttOueXcRxFqI4ObLAQzNsELlMhAPAWTl7VdIFRsCu0
-         NrVhft8IXv5xHUUs7x9SoohJneKS/+vQLc6coESeJbvL7KUpSteA32i2GPFbvnDepJAe
-         nmIGuN4VyZvAWBg0JdK9pqQ7PUkbKZRiKwBCinb2x0JVX3J3ZPRgkYkJc9UJlLd0gcTn
-         CqMxaePXnFVQSHmybyFjw53ZixakUWBIAP00Rp1DvMHVCp6MNMf1/NTCb0vgmaDHPhNM
-         9kxg==
-X-Forwarded-Encrypted: i=1; AL+hErEva0AYR7GvpmCGwRKrc47OEdEcspyZjaymwOpDy+XYA5DUhRQgAS2jrlhwc2jmckW6OOR2yBzTNcEvIOrmbw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/9R+vKO4taOn2iq1nKtOsvPD0ImXBA66e8rTBeVpDrNdH3Yfzq
-	sIn6W8eLGEuhpzLTfAvdVpNsssy82LzAcHy0YiK7pfxZUML/8w75i+Um
-X-Gm-Gg: AZFdTZc3R89ztN2EtCaohjLLljqV/pfNI4yKaVeWvGJx7v7xYZQcG78f3UF5j3sO7E7
-	doWuL4Q+TjaERs0XFil2ZRQLrCK+wsumoPFlvWUCKAJqLp8REYUuSq2u5SdfH77/QYCcaRntG0K
-	AsSg/xfD69CS1qNINORx+TgU7HXt7kZDhCeR6Vu43duI1lpSuq5DsoiTJfTHyDsdAMQ8ws7qzv5
-	v1O9jRUhv8iylM76bLgOPm0PNnj+RvGvX5Bl6JRZIiL1et8Z3+YOgUH5c5qxiUmAqLb2zSeuma7
-	AL6t7QiIDBm29jaqLVl1Qo1hc7m5daTLHcQXOA7Hc0AKWdW+eMWOFplVmwQTrKvF4Z//8n8PHB5
-	6KQG0bJwPiJWXc73rzX4Or6LGY5SPE+kx5N76dVRVKuS8r1nJAmqlSehJIvRFdWS/IsNu8++k59
-	PWriVRZGhGxg0AUcm+Fce/PjAT36t+7XpovvjhoSgXkJNOPVsrZrwygd3kHwawESZMwoEveyl/S
-	IgmcLNvNK1vtWly9bPkalJi54C3O4axPye5LY30j/ZLt4IkWOFssjHvT//xj4Pfq5fD1Wb2Rgl+
-	0m4h+/TKHqe6UbwIh05UDTjbHHci8i0fgTWyFQXA+bGswYP9
-X-Received: by 2002:a17:903:298c:b0:2e9:5714:6075 with SMTP id d9443c01a7336-2f03f117c82mr51260805ad.17.1795239049247;
-        Fri, 20 Nov 2026 21:30:49 -0800 (PST)
-Received: from localhost.localdomain ([115.73.20.187])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f0433a3a43sm18751085ad.62.2026.11.20.21.30.46
+        bh=kVw6GMeWVHtwp4C/YrzbIL6SlnpGcWp+X6aGpcy0sFQ=;
+        b=gZ3YnkHiT9lxYM+2ddCCC0t6F4DWz/Nk5WhlpF8hVe1VWHKVz0cgGp/+qgjQt41LMA
+         3N0cREWCdp4bZSWnnbVihOw2PpGFBVAUrSg4IaaGiiqO74Q1J0wfUDEdYUeL1M+gNBU7
+         LvnmmKZYs53lGmT5U3N9MuMEqkMKUze4viuIqFQ8bAUZ9lsiuDffu4f9LI+MOJ5BxkKB
+         pfZ3jqcdVDTk6QmW4xJ3V52i3YSJ7bN4xRhTxrvw/wp8Cgrp27FtudSk6Fxt/XrRWcCA
+         oE5nlhG/uB3GedMgZyoE8NfSZzZtmPEQ3qU6rh7DJt8Rar2ozmo74WjiE1v4PfQ1PYSj
+         2s/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795257016; x=1795861816;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kVw6GMeWVHtwp4C/YrzbIL6SlnpGcWp+X6aGpcy0sFQ=;
+        b=ZQ3N3iCQ+xYiF8/9zZ2FBMWOsD46rcqlWNo+xQICMcwpRyPnibRf4Nt/Xu0eyhyHR4
+         51ztUpU/VFWaj24fLEIwMx/qJ1vBGPVLhHa+0Y3dEm83PeoA4NmvuxvoPy/n+x9Rk3n0
+         9sURT/zrLU0RCo8UPAzg4TxHq6pk5/IjAr/x/bYUpliOgHex1SescvfDo36suwSs9PWL
+         1e7zSeEdyokxDkNdCR6C+2BZ+FejKgtNYdXZjyzYGcgfER7DFhkwfHC/cqGsIWgpwqmY
+         Fwv8PgPDQR9sLsvSxxhNL7bXzLXokjJcvrOCAeojapKCA8eF9FAL8G2x39bIW2c/wSkc
+         OYdA==
+X-Forwarded-Encrypted: i=1; AL+hErHmcH1ejRkyfTy9MvpYbRP3Y2bZp/+2Et9b+NdQQz62h0HSnbpZowgGsAdd7qD2ro1ZdAMvwQXq30SkdMMN9g==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8HLXDKTVmeV73QHjSybZzF5X5t4kLy2lgPOvaRIk3V8Z5jofmM
+	j1cioFEfn794PPjW/5IjhROWYvBG+HRdMRmMTx6pELO1eTcWZcb2f6uv
+X-Gm-Gg: AZFdTZeT3K9HmAKx9I2dGwG0BbxDEYnG9HXVyT7IW5K7xbtYNWXFCRUSlh/g6qdnoPR
+	B0aH0VQc08NjtrWzcia1YTW2h2IgmNVg5Ls/k4VnU7jj9WyCqAKo++8gftnKfo0+sM+h8IsAjq6
+	ItdR+dwIBUIm4OAy1mPVb8YrmqkRPyumqlvzhwbjqLp+hljPCgPzhJOvYBfvgN5yyZTekEBor3m
+	i3Bx1557L7rxbkrLKxntdsaVLkY1NGsxwG+yajKWmOabMkjwIFCzrNVpNpLoyQUyo6n4UVcD885
+	COz2txmbGkC7tgk9wTEefciyFVkjemVWevcMee0mOxtJhiHuc3uxL5vdkARt5gO1t1KuoAIyojv
+	+CiiFK7KfrRMqPkR8e/Ud3tR5cro80ff1DnEBwrfJEWWL27+ntvFb6UG9cJxI1r0SGeksu62eP0
+	HSi9tePc/aF7vb3Ow3KOURvdoo0P/q/FybnFbLzMPM/odnDiwl4/Io41Km31B6LPmU6cxObGTBk
+	Rex95CHziskaR3y4Cew6ioEwVB5NvJagnJiZQ7puBqk/9CHV/zkV2S52512voqQBrXrHrFfQW7s
+	pxh6bkUvlazIMRccg4b1huvw2RP856ym/0YF5N63vzxEFOlqYhYnsXo=
+X-Received: by 2002:ac2:4f08:0:b0:5bf:db9e:426d with SMTP id 2adb3069b0e04-5c1bc8217ddmr1883998e87.34.1795257015698;
+        Sat, 21 Nov 2026 02:30:15 -0800 (PST)
+Received: from [127.0.1.1] (ip-024-180.users.dtel.ru. [91.210.24.180])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5c1bd0171d7sm1257891e87.30.2026.11.21.02.30.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 21:30:48 -0800 (PST)
-From: Nhat Tran <nhat.tranminhk2@gmail.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Lars Poeschel <poeschel@lemonage.de>,
-	linux-watchdog@vger.kernel.org,
-	linux-omap@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Nhat Tran <nhat.tranminhk2@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH v2] watchdog: core: Don't report time left for a stopped watchdog
-Date: Sat, 21 Nov 2026 12:29:50 +0700
-Message-Id: <20261121052950.287506-1-nhat.tranminhk2@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        Sat, 21 Nov 2026 02:30:15 -0800 (PST)
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, linux-kernel@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+ linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v6] watchdog: Add ARM TWD (MPCore private) watchdog driver
+In-Reply-To: <377b89b7-90a3-41c9-88c4-fd3393055f91@roeck-us.net>
+References: <20261118-arm-twd-wdt-v6-1-ce5c85b45c63@gmail.com>
+ <377b89b7-90a3-41c9-88c4-fd3393055f91@roeck-us.net>
+Date: Sat, 21 Nov 2026 13:29:42 +0300
+Message-ID: <179525698278.4.12784611811620173233@gmail.com>
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -99,85 +100,48 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"; format="fixed"
 
-watchdog_get_timeleft() calls the driver's ->get_timeleft() regardless
-of whether the watchdog is running. It is reachable through the sysfs
-timeleft attribute, which is world readable with CONFIG_WATCHDOG_SYSFS=y,
-and through WDIOC_GETTIMELEFT, also after the watchdog was stopped with
-WDIOS_DISABLECARD while the device is still open.
+On Fri, Nov 20, 2026 at 08:35:52PM -0800, Guenter Roeck wrote:
+> One possibility might be to try cpufreq
+> functions (cpufreq_get / cpufreq_register_notifier) as fallback.
 
-Drivers may not be able to access the hardware while the watchdog is
-stopped. omap_wdt only holds a runtime PM reference while the watchdog
-is running, so on a BeagleBone Black (AM335x) reading the counter of a
-stopped watchdog triggers an external abort. Any unprivileged user can
-hit it through sysfs:
+Thanks, I implemented this for v7. Since the CPU and PERIPHCLK rates
+need not be equal, the fallback first measures the watchdog counter
+against monotonic time on CPU0, then uses cpufreq transition notifications
+to scale that fixed calibration reference. Calibration only reads an
+already enabled counter; an inactive counter is temporarily used in timer
+mode, with its original registers restored afterwards.
 
-  $ cat /sys/class/watchdog/watchdog0/timeleft
-  Unhandled fault: external abort on non-linefetch (0x1028) at 0xf9e35028
-  Internal error: : 1028 [#1] SMP ARM
-  PC is at omap_wdt_get_timeleft+0x4/0x14
-  LR is at watchdog_get_timeleft+0x24/0x130
-  Call trace:
-   omap_wdt_get_timeleft from watchdog_get_timeleft+0x24/0x130
-   watchdog_get_timeleft from timeleft_show+0x3c/0x80
-   timeleft_show from dev_attr_show+0x18/0x4c
-   dev_attr_show from sysfs_kf_seq_show+0xa0/0x138
-   ...
+The fallback assumes the PERIPHCLK/CPU ratio stays constant. Platforms
+with an independently changing divider still need a clock provider.
+Actual clock provider errors, including deferred probe, are preserved;
+the fallback is used only when no clock is supplied. It requires CPU_FREQ
+and an available CPU0 policy, deferring probe while the policy is absent.
 
-and the same happens with WDIOS_DISABLECARD followed by
-WDIOC_GETTIMELEFT on the open device, once the module has idled:
+Frequency changes reload the counter against the existing deadline, and
+the maximum timeout is bounded at the maximum hardware CPU frequency.
 
-  Call trace:
-   omap_wdt_get_timeleft from watchdog_get_timeleft+0x24/0x130
-   watchdog_get_timeleft from watchdog_ioctl+0x494/0x668
-   watchdog_ioctl from sys_ioctl+0x128/0xbcc
-   sys_ioctl from ret_fast_syscall+0x0/0x54
+> A MAINTAINERS entry would be preferred, but is not mandatory.
 
-If the ioctl comes before the module has idled, the read succeeds but
-reports 59 seconds left for a watchdog that is stopped.
+Kept the separate entry.
 
-A stopped watchdog will not reboot the system, so report 0 time left
-when neither WDOG_ACTIVE nor WDOG_HW_RUNNING is set, without calling
-into the driver. This matches the software fallback for drivers without
-->get_timeleft(), which already decays to 0 once the watchdog is no
-longer pinged.
+> I think we can call that on purpose. Maybe add a comment along that line
+> into the code to clarify that.
 
-Tested on a BeagleBone Black: with the watchdog stopped, both the sysfs
-attribute and WDIOC_GETTIMELEFT after WDIOS_DISABLECARD return 0; with
-the watchdog started through /dev/watchdog0, timeleft counts down as
-before (59, then 56 three seconds later).
+Added the comment and corrected the commit/cover description: the device
+PM callbacks retain the deadline, while the watchdog core's explicit
+keepalives before suspend and after resume refresh it normally.
 
-Fixes: 452fafed839e ("watchdog: omap_wdt: implement get_timeleft")
-Cc: stable@vger.kernel.org
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nhat Tran <nhat.tranminhk2@gmail.com>
----
-v1->v2:
-- Moved the check from omap_wdt into watchdog_get_timeleft(), as
-  suggested by Guenter, so it covers all drivers
-- Return 0 for a stopped watchdog; this also covers WDIOC_GETTIMELEFT
-  after WDIOS_DISABLECARD on an open device
+Full ARM GCC and Clang builds, module/modpost checks, and a GCC built-in
+build with CPU_FREQ=n pass, along with the host regressions. I also
+retested the exact v7 driver on Almond+ with PROVE_LOCKING: takeover,
+CPU1 ioctls, timeout reduction, keepalives followed by expiration/reset,
+and restart from CPU1 all passed. Those hardware runs use the DT-supplied
+clock; the clock-less fallback and DVFS are covered by model tests only.
 
-v1: https://lore.kernel.org/all/20261120124009.24264-1-nhat.tranminhk2@gmail.com/
----
- drivers/watchdog/watchdog_dev.c | 3 +++
- 1 file changed, 3 insertions(+)
+Sending v7 separately.
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index e8c1fcb53c56..b67a68316bda 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -435,6 +435,9 @@ static void watchdog_get_timeleft(struct watchdog_device *wdd,
- {
- 	*timeleft = 0;
- 
-+	if (!watchdog_active(wdd) && !watchdog_hw_running(wdd))
-+		return;
-+
- 	if (wdd->ops->get_timeleft) {
- 		*timeleft = wdd->ops->get_timeleft(wdd);
- 	} else {
--- 
-2.25.1
+Thanks,
+Fil
 
