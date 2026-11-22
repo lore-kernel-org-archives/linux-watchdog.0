@@ -1,99 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795343015;
-	b=O8eG0TYENNJglAsIiFZiOI94BSmC2WItKGTKN+sRsw+Ns74hcI6GMmu/R9plJzEVhvWn
-	 JDtKMnTpjKVp7YesdcV1JhA+gpzgC0DWF+zJbWW7wrbyXutir/PLa2xJcN1Pr3ykCuYqz
-	 M5QAPWUWrJjLo+4Y5hAQUw0ToRyUpU3leaCrllvwtMAxgS3HZyz1VYog3TPI2KCf8O2vc
-	 A8sMTk9F3h+Bzio2i2GAKxEZEycuw0x+NneY4XZt5WEVxuvHaay5r0169I8BBmeg6GLDM
-	 qOFP1+EOJqCLfZxz2c7xToqGJneVRJItp4TlPMjPCxwTCqn0Da3y17M7DXMpmsfGkgw==
+	t=1795364149;
+	b=Uh04jyyKYLt4a+DMhzgtaPH2WPi+XOxM6fxpP2KSeTMixfp3O6gSdAlqTc5C91Wvxb5I
+	 QItiIEXX4crI9VDVLa2feBeeaOCNQ3NDhzK+ATjAvylV2pm5wdxED9LVcvy/2Efi6Th1I
+	 VrD5Xrk1wbxw9V1sdZHPfLZFt/dnRjBMZxuoz7vFWEhL8RxXecGYT8FNmxwTmV4XFhAm3
+	 OaCyWwgynyo8ZuGBvqkU9KMuR83BNhlQAbuRiM2z6Zd4e66areiceVrSE6EmFhvRYE0ii
+	 7DXI98h7b/SZPH19KB5OJI6hYnZMgqUuAKpN+ydnHJYOq8l5pgLG0Zrwe8ULMttKL8g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795343015;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=cSubAhLf2nToqdpyL5hNhVaoMwlhz2nCl7Gn87Xueqo=;
-	b=okbQRXP4z864muzXdw914D+LpmQAsA6KO4IpSQ6TdOJWp7EaJXggH7Xf/7XzXwVfi0Tt
-	 HruxIspFqbkJoxr8QaNb4/sAAoPyicd7G9IcuRDOD4uHMELr6lE99AqnFQmLFlQu8mir/
-	 3MLbi7dN5hrs8N6HiHbIvK4tvQnqR1wHce8Qsg/dYj3gwMBrZRHN/xcDYSt54h/zZs+Qa
-	 rcZU7PvRXob4hO86RMRojsKS1AkH8KIgR01HmvLfY+hftJ540S7n6zvqGv/R2Alf6U261
-	 oJKBhUrGaY7klp532M5EMMyFU8nKvHNDA75q0cdfLBWzt8CECAJHqhrm3nRm/HyGVJQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795364149;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
+	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
+	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
+	 X-Local-Domain:X-CMAE-Envelope;
+	bh=yFbIKxOtbGbhWSKxjVzud7YqnlnyHUxqB3yMV82sccg=;
+	b=H/A3EEdvW8doA0ddEhgXJCFnx+eG0KkBoHpam6vQmwl98ixrvJwnOrDH3JCr3BOrqI6c
+	 TXQTSiMTax5n+XqL9kcuv0h0nQZ9c34l+5bmWJPZiYr+GUlIDrGBIYpPIcrKNeepjntLX
+	 TJchVsbEJAHR5VGCW9+nm3vOzAn6ITt1sHeD7i7g/dbn72IjLvkQZMVhxebPhScnce3uQ
+	 FzsPzJdGLv8SNhsk9OWXFiYl9Zwfqs857HSApNZLfZ6pqokoiC9Gn2zu6LSqnKX4kqZpH
+	 JeHtMdAen/uzQctI/P5XhG5dzoSVeOzUPcgpNxLdS/W/AIofuBXdMOhigMP74gqdmfw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UriH+rnc;
-	arc=none smtp.remote-ip=209.85.214.181
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b="F33svv/5";
+	arc=none smtp.remote-ip=35.89.44.33
+Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23721606A32C
-	for <linux-watchdog@vger.kernel.org>; Sun, 22 Nov 2026 10:23:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 23721606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87CB2606A332
+	for <linux-watchdog@vger.kernel.org>; Sun, 22 Nov 2026 16:15:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 87CB2606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UriH+rnc
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2f05bc71e01so7259295ad.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 22 Nov 2026 02:23:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795343014; x=1795947814; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=cSubAhLf2nToqdpyL5hNhVaoMwlhz2nCl7Gn87Xueqo=;
-        b=UriH+rncW5dbSem2k/IMc9Kh+RX8VYHC4eywgNMHqwQRSEq6rZUOBfKq5ywV07S8wv
-         yImnubBBBgIiR3KHa6l558qnoyw9fUfwGg/QX0rLcHz1icT7w806qTQcJuo0zAmQ4sZd
-         EyWL8eTiFIGcmqExv2CklrPO3Q+CpX5vOC68jofIDNjIBD4SH6soHvTdTbHbwmiNkSmP
-         aQtxX0RG/62iqUVCG0jbq/m219Dg+A2fKenLBKHrBt7GAZ5F5frWQz2T/6Ecb3UcUkvf
-         /rnURGXNRiyy/ZdxKrPSmmfzlVQixOO3jGHj/iOc0lQr2p4dxae/7HPVnpzMWSCXdOYx
-         WQBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795343014; x=1795947814;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=cSubAhLf2nToqdpyL5hNhVaoMwlhz2nCl7Gn87Xueqo=;
-        b=vfvGwz/zMU+A/lOhNLFbp60LeLSAgFXUiFHyW1C7jcLAR3XkKjg2Q+rHxuSgLCy/aK
-         4FIcZ7EWNEXd0gqxw4vz67K8pSt693UjHBahaHihovAEMuOcURhfWjyxlxz2At1kx4rn
-         iSDs4l5XMjJeihROtazHoQu0t2oiFHkE9nMm+EoGWBswsKRfPG7HBIoXCk7GBoft31rz
-         imIRDRvMyDTBYsy9uDYIybs9eNdHzu5ni+qXAeAHfXGIQ4AfNxRK3rI7F2umkdLdlXOr
-         1AzOCVK5dFeLPirEYIo45KiMp0zg8ggeLkurfBC4cnG6BivrjfRSzmaqeLgCrRLbo+G/
-         VA2g==
-X-Forwarded-Encrypted: i=1; AL+hErHoLI+tfmg/oBo/y36q4p2IoZgdlvjfvp/I9M+qrPL+vkrw5EVwmAQW1J37eAQS0QDAFlKnfVh0sXBsU0dxYA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+qtLCcsLjGKNVOFV3+WsFG2ZqKJ2ynu3FL0QhN5q5ZJ6lPO1EB
-	UyhdyOywdPM3Bzp1mP01Hje1hxTMyEkeRPQrEdrzON6/AD8rYmvfJFd3
-X-Gm-Gg: AZFdTZf7ZHKw8dSW/BavnV33z38FuVzbDZD32r8ilQJ8jF6XGo01U/Lw+ighHPgPZGV
-	DUj3wftPO70t7fABppOlG+IMK5Snar5UVii68/QMgrWg2Jx4JgsaiF/xdH+OgeUVA1+9c+UJS75
-	27sENJx78rdlVFtRG9auS6mNc6YXIZxmcj6XygZpHLvFh17E05z7c9NScroFULOo2kiGQNFqGOt
-	lKPiOx1GdJdpMUdMxZPZ4ebn5krJ2/K5LedWDmCI7SFS+YVjNotmORi36h2OV8fjF0v5A5Bhbox
-	e/NNP887fKun69Gx8NV76sc+LtPAxiXMwZfP2rL4yOvvl6euPJLYy0GT2zGByvy0mCZVhTtA+0S
-	zJBafYc3VqWVf3U6TxotjzN7hsA5kcfA8IR6AM4E+8G52mGJIsuey7KTa9dCOHKqC0Y/gL5RxPm
-	CNFNcplU/NHVgaDkEYb99k/37y8BV7zYI9Uia6xj4ThQXyhxU9qMtYmiZ+l0bxxWwbeLQvYFuFv
-	8GHG/d3Gjq5ARUotpuAZ/wPknUF2tMBrJ1d7SGq8Bbo/KbPBum5c7c4E/OkN/sbEG0zaZ0kbM+f
-	iXFLWa1gtpbT8V3Z1TefC501tRyPum9/c4nwSJnykvhDV+8ThsE=
-X-Received: by 2002:a17:90b:4a48:b0:3b3:b5b4:e4a9 with SMTP id 98e67ed59e1d1-3b41c7ac07amr7895999a91.3.1795343014416;
-        Sun, 22 Nov 2026 02:23:34 -0800 (PST)
-Received: from fedora.tailc1fb0a.ts.net ([134.82.71.171])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b41aab4729sm12098095a91.0.2026.11.22.02.23.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2026 02:23:34 -0800 (PST)
-From: Artem Novak <artem122novak@gmail.com>
-To: linux@roeck-us.net
-Cc: artem122novak@gmail.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	florian.fainelli@broadcom.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=F33svv/5
+Received: from eig-obgw-6007b.ext.cloudfilter.net ([10.0.30.166])
+	by cmsmtp with ESMTPS
+	id V6wxxPqXvAR1iVAEGxRbZW; Sun, 22 Nov 2026 16:15:48 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id VAEFxlvfP3nNNVAEFxlRP8; Sun, 22 Nov 2026 16:15:47 +0000
+X-Authority-Analysis: v=2.4 cv=TuLmhCXh c=1 sm=1 tr=0 ts=6b031533
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
+ a=xqVzBJ8tQ9rw--ji0ZwA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=yFbIKxOtbGbhWSKxjVzud7YqnlnyHUxqB3yMV82sccg=; b=F33svv/5hnq6PbKGM9TkpeVuhX
+	S27cSmSggZCyEea4kmQ8ox80WzzpLNqhbdRn7P8fr1jwTWCtwi80IzK3KQ4JFfn7HqgOIUVsTTqZ0
+	SdG0Dy1u2yGCwsV8k7w4wXgElMZmrO4xNQ1BgE1gGPQvjC14O1BCnK6WQqVtuDZGvhE6O89h6WzDJ
+	Mga35wHzjatLeb6ImCc1+zIESk8SsUEki3vOI6hLNBzGlVksd9jRqu3URTqB3IMBu8tdpy/+P6IEz
+	e18WwLrK2vux/1Dt2okxKQ/iZV4aAZlYLNwY1acH3SgY0uJKG21JawI76KTY3l05za4ihWPA2hcAo
+	xh8gJx3A==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:44242 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xVAEF-00000002YAx-09Tb;
+	Sun, 22 Nov 2026 21:45:47 +0530
+Date: Sun, 22 Nov 2026 08:15:46 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Artem Novak <artem122novak@gmail.com>
+Cc: bcm-kernel-feedback-list@broadcom.com, florian.fainelli@broadcom.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	linux-rpi-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	wim@linux-watchdog.org
-Subject: [PATCH v2] watchdog: bcm2835: add newline to dev_info message
-Date: Sun, 22 Nov 2026 04:23:28 -0600
-Message-ID: <20261122102328.207524-1-artem122novak@gmail.com>
-X-Mailer: git-send-email 2.56.1
-In-Reply-To: <20261122082943.173681-1-artem122novak@gmail.com>
+	linux-watchdog@vger.kernel.org, wim@linux-watchdog.org
+Subject: Re: [PATCH v2] watchdog: bcm2835: add newline to dev_info message
+Message-ID: <e9a71a95-3b8d-4e69-aefa-174446b1b19a@roeck-us.net>
 References: <20261122082943.173681-1-artem122novak@gmail.com>
+ <20261122102328.207524-1-artem122novak@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -103,29 +84,58 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261122102328.207524-1-artem122novak@gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xVAEF-00000002YAx-09Tb
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:44242
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 2
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfPciZct3mRl1QCDe8InFfFtm8mpBOX/SoOAdQaPHFS/yyijp8qWgpBqES0576AISce5ISB+x7W5QifIt8COHVeudOa6STg30wfLMjsFUMTiRNTF/ftDm
+ HeejDWSp92MOjX8rkJqMbghCe73C5viAQdHYFYUcXhLhkmqg3gHa+Berd+ehl6CR18WgInfNbCxs1d8nofTU/7oiZNMFf1FixykPeEjZ9HxsNUjutFTVcE+h
 
-Add a newline to the watchdog timer initialization message so that
-the message is properly terminated in the kernel log.
+On Sun, Nov 22, 2026 at 04:23:28AM -0600, Artem Novak wrote:
+> Add a newline to the watchdog timer initialization message so that
+> the message is properly terminated in the kernel log.
+> 
+> Signed-off-by: Artem Novak <artem122novak@gmail.com>
 
-Signed-off-by: Artem Novak <artem122novak@gmail.com>
----
- drivers/watchdog/bcm2835_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied.
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index 755954cbadee..df08236d2689 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -213,7 +213,7 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 					      SYS_OFF_PRIO_DEFAULT,
- 					      bcm2835_power_off, wdt);
- 
--	dev_info(dev, "Broadcom BCM2835 watchdog timer");
-+	dev_info(dev, "Broadcom BCM2835 watchdog timer\n");
- 	return 0;
- }
- 
--- 
-2.56.1
+> ---
 
+For future patches: Change log goes here.
+
+Thanks,
+Guenter
+
+>  drivers/watchdog/bcm2835_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+> index 755954cbadee..df08236d2689 100644
+> --- a/drivers/watchdog/bcm2835_wdt.c
+> +++ b/drivers/watchdog/bcm2835_wdt.c
+> @@ -213,7 +213,7 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
+>  					      SYS_OFF_PRIO_DEFAULT,
+>  					      bcm2835_power_off, wdt);
+>  
+> -	dev_info(dev, "Broadcom BCM2835 watchdog timer");
+> +	dev_info(dev, "Broadcom BCM2835 watchdog timer\n");
+>  	return 0;
+>  }
+>  
