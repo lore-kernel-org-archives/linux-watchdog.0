@@ -1,100 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795330692;
-	b=IEx6SE6YSvrya1DK67pVyDZEBb52jCFZl99N/qdMV14XNw2kqZVcoK9wSmwXFMIaCugG
-	 LnHCfcxZZum3oTC1sgtLwWDkimHD8ztETAZ2Be+1MVtXrZqm6qIoDkahPmdCBOQxMUvib
-	 xNXXm0VYUaM8DJoPDUkeIpV8W6SgI0rTBn93jrqlzLRuF0ewRo3EG0oUNLx5GJEYqA6Pl
-	 6sMDdxLBVPQuouH4zh9ZCOXEBNMHUTUbIrp9pE8FGRM5QeOOsq2BPzbnKA3FERcXSb0TS
-	 jbPxHYsjtOZiindq1MdJ8/U3VLVGQN0gfxl9TU8jvBkMkz9GNRnkbUvYn7GRR9gxWeA==
+	t=1795330999;
+	b=3o3ZxcsNCssHXzj3G9nwQiAOCbMocgNb7qs2JYb5WwGl+PCSH+ZsAa6xlGql4474+1eP
+	 f1sYR8FZpIf5ctR10UFaaPM6nCxU1s/Ju4bHzw5smTMTbwN7Gm2HN9lYQUEj8PxYze4uG
+	 qkJKyBVW9dm0hRiz+Sx0wal1dkHj8fwuKyIL6ucve3epaefztTOONqbspqwXzHcsOWbqQ
+	 M3LJ18cvvpLnuk7LQ/OQqAc7K+mfKlnbl7XcR02r5hZCnwr11r04hlp9dGPv8vheNfsDW
+	 99JhgVD6W99hg2pWwVgLkWL4Toia1tQOLj1nz8L0Z+WMhQEG7wBwmKzLT3fIiHpy3kA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795330692;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=w+PnSLxKsJCEKZh3Ds403ivdl+AA4FlpjzNhhNO09oY=;
-	b=GmTi5OhOrqp8uwSO/RuDe+LoraPKTzg+x4tEmjPTR20GPYamRZye3gKsu2Vn811mjRxl
-	 0lb+w7FeqH8PCXHKI/pNKUucyKF5jmcnxafFzVWPOURyCp0TujnKbCGQtkBMp93AYIbPL
-	 SUTPqFsc9AwG+DJaSB6Hu36VPA1rgB88U4D96C5Du7ylKNO3JkB6VJ9pVs0U8p/8x9Buv
-	 lNoCPHs9gcVVOukXuem2tpjV7j54k097no5CWJxUWbKneZXdV+w9Dvbn2d6Y1e8bNcGMV
-	 n0VyW9VfB68xU0Q8jnHWY9BNR41i+osN4Fjrcp91ONFyaMlVEPhc7BOZ/1F9ELTKqgQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795330999;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=FGv+M23/3tHrt6xfC1VMgCGhjU3kLcdSUSdtLMyqS3A=;
+	b=DhiMyqabcKOFjtPlFU+95Ns3BAwgm9ICYIYSQJWXHTOtnE0h5EFcEHdgEmwYTkjL5Pmr
+	 3izfP2nscNBO3MDr1yDPyaGCmZTqFqkzQZ7yliAughV4fc4AsvYLx8SgugPe6s81tPmbi
+	 BzAwTLDLaPPVQoWIyJe1yKKE7fZ6jdXsuQvLU4Lh8XN0LV/qW7Bt7sy9kVVb9vaNTn11M
+	 UrowjxfoJZjqMD7zLSuslblOBHW7J9mRfTDOdlQplQrCh7P9LwRO6wqDVwLzucuIVCLc2
+	 duhd8gRN+BGebv85yFibv8sfIxLt59jPVCLPMVbQy/sR3i4Qf+JcKwBsYr2/wvG0bDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oKY8UVpz;
-	arc=none smtp.remote-ip=209.85.214.178
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D+ez74Wz;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93065606A320
-	for <linux-watchdog@vger.kernel.org>; Sun, 22 Nov 2026 06:58:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 93065606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5C55606A320;
+	Sun, 22 Nov 2026 07:03:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oKY8UVpz
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2efe591a1f6so7658245ad.2
-        for <linux-watchdog@vger.kernel.org>; Sat, 21 Nov 2026 22:58:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795330691; x=1795935491; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=w+PnSLxKsJCEKZh3Ds403ivdl+AA4FlpjzNhhNO09oY=;
-        b=oKY8UVpzKhjVKafswLUERPYGhhuJRjrxLQQvx/ETBnU7BjQ2U1eW5Eec82p9yUZSQM
-         69uRrRN49rT5ki6eGLZdjWpK0iFa9hFcu4wc9nXn/Bp8SqlS5ABwSjJmy/8SKLjMcNSN
-         E45Kc9P9FXDD8FCZB3Mse459Ccr+1VPgxJPHu5mX2h+V5P9u7qGOFfTVZx8K/aAkuydZ
-         g3ubIm4r9b91xF+Qu40r4Ubh2J3pqSOdr9cABqN+bT+F6GnzohxpwXn/mB+bDsF4hX18
-         jSuFLH9ww06Mwg+e8v0l+jJ+6Vqdg5L2tEdLXp+P0a5oEa7Sq73XhcG8d2SVKjJI9B4u
-         vPGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795330691; x=1795935491;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=w+PnSLxKsJCEKZh3Ds403ivdl+AA4FlpjzNhhNO09oY=;
-        b=F5RLjdHkfaeZjMzC5l7qaIsrL4t0fPslwtxuukFsxTPFx7RCFn0Dneshskr17kKBnT
-         B0Oma1BNht+xGg1IHG55tTq14xSm6iBLctXWXta0jeUvGF1HWWyRQUQhP5+Kkkm17jjj
-         w9Wdz0WmXT6tpGT+FSAbMIigmoN74cQNDLYgkRiCk2FrGaXBf5qfAKP+cxQ2jdg+Xc3G
-         N/aMMljES7P/fhLt0+HrESyq+ZOBE5iI78T7lR9UL+Tgw2/VDh0uTMTGYujwpXzS8Bjd
-         5arZ4OY+wvTR8Td/SWx+ZaZVfUR5HsVc+ezO/UaPqSTy4s6WMns7wewfbnTAfnrb2KNK
-         S3Tg==
-X-Gm-Message-State: APuU4Z9Sph36sHz20Kfe32jxKW8x1xa+fRXnX1Ygasohqa9hLfesvgyF
-	te+I553hRLYan508qg+x99tqwmqRHKrn8wpfxsup8MSUccFsvhivZOiSD0vKIhri0zc=
-X-Gm-Gg: AZFdTZe7/ON730oL94ObZbVR26Zlh7MwISz5wotis3Xw447FTQEtgof60zT7g/TBlS8
-	cj9gALGIiFKWo37U3HkAv7J3gEarkLeLFQOquZmXMz9zGVCYHS5+ny/Y7BymLbbHsLCoB92HJSO
-	pmiIQ3YTNEGkKOrOXyi2G+DkSpALeaXmAssgQCXrYnQXx89MFjYKa3qDEG296XYiWu5nBf/VaoC
-	RwHk7kTLo2npKAhnYIygaspLBNu6lbcqLnKP9fMQ33N1ms1FFnzCRxEkxC8M6o/RZPtXavkFZK8
-	fJqHhUTJC0SGe5NdmTBiMLU37WwHeGR4+sUUm+MseOiVfmWM9/ViaXdTZs8k7uQGvbVcU+0uDps
-	oJa0Ekz0MCMOI6JgvLf4KigXb0qZeFY/4k+N3bBmYcwFk3rVnsnuhCZjw6KnsHUULTMi+liH8wA
-	Z5b7Xn3/YHIqYR8W7UmhcftCpk9vYpA6puTsAuloa/bK0bDOPdUvml1i/xZHUYxYsBZGes5xYAy
-	E8V4R1jnIiVY3HZocNL3TX7ZZb47jyuC+vYBa1RMFfq3FhFNZa/hqibLFB//wifns56ZSeKc1qZ
-	R/az9IbNQtRRm4/zIAXBLi52kG89gqZfWT/SPl2FlHyUsynRIfzX
-X-Received: by 2002:a17:903:240c:b0:2f0:3382:cf52 with SMTP id d9443c01a7336-2f03f156ddemr67246795ad.15.1795330690792;
-        Sat, 21 Nov 2026 22:58:10 -0800 (PST)
-Received: from d.home.yangfl.dn42 ([2a09:bac5:6213:28::4:379])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f03f120016sm34287345ad.58.2026.11.21.22.58.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Nov 2026 22:58:10 -0800 (PST)
-From: David Yang <mmyangfl@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: David Yang <mmyangfl@gmail.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Wei Xu <xuwei5@hisilicon.com>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 4/4] MAINTAINERS: Add HiSilicon STB drivers entry
-Date: Sun, 22 Nov 2026 14:55:23 +0800
-Message-ID: <20261122065549.3265519-5-mmyangfl@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261122065549.3265519-1-mmyangfl@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D+ez74Wz
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 269FC1F000C4;
+	Sun, 22 Nov 2026 07:03:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795330999;
+	bh=FGv+M23/3tHrt6xfC1VMgCGhjU3kLcdSUSdtLMyqS3A=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=D+ez74Wzb3kGTMFB1/31bomH7G+O1NC+UVENmfWe9eqIg3AuOLl498Eqjk0QygiMn
+	 gVhCkGnjYXsMPVU+/bp/g0Rjo50+9URbD2joZFtfKCZdn92Lqi2MTCoTX4dSThIX2j
+	 wyzVI2afEAvj5DoB9knm0DK1O6f9m1ALbQU1jjVjeFtmARgnyuhD5wFW4OBgQ3Gg+6
+	 VGb7lHDL/VwcpM2NHLyQKqgOLF3VbOiQKUqsInogF3jV898pw7mmVO1gV/eDzVCZs8
+	 tb5kx9TSJ5iIq4egYWaIbYOQ9cAkXbIgRXid7ROr96TJ+58rKuJyox5an2T7zs/l/F
+	 i3rx1SrHORqhA==
+Message-ID: <sashiko-outbox-227779@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/4] dt-bindings: watchdog: Add HiSilicon STB watchdog
+ binding
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "David Yang" <mmyangfl@gmail.com>, linux-watchdog@vger.kernel.org
+Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org
+In-Reply-To: <20261122065549.3265519-2-mmyangfl@gmail.com>
 References: <20261122065549.3265519-1-mmyangfl@gmail.com>
+ <20261122065549.3265519-2-mmyangfl@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 22 Nov 2026 07:03:18 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -103,36 +60,55 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add a MAINTAINERS entry for the HiSilicon STB platform drivers, covering
-the histb-wdt watchdog driver and the existing histb-rng hardware RNG
-driver.
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Low] dt-bindings: watchdog: redundant word binding in commit subject
+- [Low] dt-bindings: watchdog: non-canonical property order in example
+  node
+--
 
-Signed-off-by: David Yang <mmyangfl@gmail.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+commit a1622b56fb454eac20ec415b3fb13ffbe0760e8a
+Author: David Yang <mmyangfl@gmail.com>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2ac5128b756e..f248a04b925c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12187,6 +12187,13 @@ S:	Maintained
- F:	Documentation/devicetree/bindings/mfd/hisilicon,hi6421-spmi-pmic.yaml
- F:	drivers/mfd/hi6421-spmi-pmic.c
- 
-+HISILICON STB DRIVERS
-+M:	David Yang <mmyangfl@gmail.com>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/watchdog/hisilicon,histb-wdt.yaml
-+F:	drivers/char/hw_random/histb-rng.c
-+F:	drivers/watchdog/histb_wdt.c
-+
- HISILICON TRUE RANDOM NUMBER GENERATOR V2 SUPPORT
- M:	Weili Qian <qianweili@huawei.com>
- S:	Maintained
--- 
-2.53.0
+dt-bindings: watchdog: Add HiSilicon STB watchdog binding
 
+This commit adds a Device Tree binding schema for the watchdog controller
+found on HiSilicon STB SoCs.
+
+> dt-bindings: watchdog: Add HiSilicon STB watchdog binding
+
+[Severity: Low]
+The "dt-bindings:" prefix already states that the patch adds a binding, so
+"binding" at the end of the subject is redundant and can be dropped:
+"dt-bindings: watchdog: Add HiSilicon STB watchdog".
+
+> diff --git a/Documentation/devicetree/bindings/watchdog/hisilicon,histb-w=
+dt.yaml b/Documentation/devicetree/bindings/watchdog/hisilicon,histb-wdt.ya=
+ml
+> new file mode 100644
+> index 0000000000000..c0a8ccdb482a4
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/hisilicon,histb-wdt.yaml
+
+[ ... ]
+
+> +examples:
+> +  - |
+> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
+> +
+> +    watchdog@8a2c000 {
+> +        compatible =3D "hisilicon,hi3798cv200-wdt", "hisilicon,histb-wdt=
+";
+> +        reg =3D <0x8a2c000 0x1000>;
+> +        interrupts =3D <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
+> +        clocks =3D <&crg 0>;
+> +    };
+
+[Severity: Low]
+In the example node, clocks should be listed before interrupts to follow
+the canonical property order used in the properties list above.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261122065549.3265=
+519-1-mmyangfl@gmail.com?part=3D1
