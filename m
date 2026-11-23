@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.251.105.195
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795427394;
-	b=5rCe9s6DGRa2phro5dsjg2G8p8siyfiEy0QxHm7b4lL4QWFTEfiCdz1uu892ykqI71zK
-	 HnQCJR7hdsGZ3Vn8MBoHUJVBGtyR4SGb8ctBJw1cZX3NBXnKqZ8Ie8O5uMjEQj6HJ5dFv
-	 KiT8WiCbpGCuDagPgarKJPhX0cP9dZKe9x3Z5pyfAe1K7Q+P6K8QLjzoeXH1ey4cE2NdK
-	 y+S8BaTt4c7Rloq2Rx0hgQ26t4lfFGWmkZrPVhxHwBTMWV9I2fhShpUwAzrkR7F+VTYTu
-	 MYXdBnBl9RndQ3Rn4WSgy+PVPG0FZe03MtO7tthgUE9w4Vj+v88WhxxFC8I5UMCh3UQ==
+	t=1795427396;
+	b=IaNxNIioP4Y5LPQUz8wvHkYcBFM8nqTUNxPH9Lpf6e691pUmEZ6XSvRttPLSRx5KchIE
+	 qHknzNR4EtWCQ6Ct3NbBJdtcmGJH0nA+JLft/uER34nLHeQBM5bt22AY77AJMsrc8xAnV
+	 NvMlbZ/irWbcHqrbkdsKgC4MJi18+wpE9UlhkWotFtf3x5r2JF5NFBYQLvkzUfUuwZwIk
+	 q006tpmHcTvsqTgMqDDu9sPQ5TUOd6Yag/iZNyMHh7T11pVTxFRHf/G5cm3r4kmrRl7k+
+	 OIDWWRHHxuEXzTqHfLCQNUBFNSmRZDgvKGZItqqVFUTEakVhk/fCxVKy0Ik+fkfvTvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795427394;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795427396;
 	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=P2zIkU1n+ita+RQHERTvlRIt6fwGcjgFl4MCMyC3UWg=;
-	b=2F3+2y0enTiVUR80o/S2Y1yWUNGep3lA1K5HQ6YLFCmh5XmMBhNlfoS/sBwMrH5Ecy5W
-	 BFHZWnFD6Crb8AK1/AlDIYRxsIA1tgFJ/VLYqwcpAaeBe862V9XttKnpNq3al+SKqWGHJ
-	 iVX3e+WJS2le6iIg81oiBMgVsanTXjb5knYCxjfOAipF31ovMoM/tZp9ZO7xQZuVceW/9
-	 ZYH7XZ8Pqi0DqBZTEDx+XJVWIw8sCM6Hk7LXPB8QANbaBh+nsisNmsw+t77KvyRStLSp5
-	 7KABpcQuRAn6l4txhUK6HiOmG+K6tw/79uYcTjwshe94G9ZMAqrpVnTAVZngc+mWr8A==
+	bh=+9PCTbh71L1HM3bKlGiIOaVmykcBeQmvpI3vljck9JA=;
+	b=q9cEratgpxXRkbkRmBgowVTCUMOEvsH9gcVQeYCps4M7L8hcaUM/toS379NSmj7QNJri
+	 hApWcYxOt5fJZ3g7KH3i5Rfoqf6dAwgn1GoOjJ6RFSZco4k1yvjozcRwsAOExMso/bAR3
+	 hwAyjXysREsXGochQxp7AHpWWmGlBZAfIkxT4bB/7fVpdUJsediuO33CbaVHnWmbKhFC8
+	 n7TqtRnBolxuhHNTi53PobHnyDGZ69g1FUzWN/0mpub/D8QPql2w2guoTmwbAzzx7JEqc
+	 qsqHvs5jcE4siMLs81rbPsdn8Zqpq5jHyFMn+Kb9LaxeOEjVMM62WX6mwT0tdYmKnOw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=collabora.com;
 	spf=pass smtp.mailfrom=collabora.com;
-	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=g5N90EsV;
+	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bFm2De2+;
 	arc=none smtp.remote-ip=148.251.105.195
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C6B6606A321;
-	Mon, 23 Nov 2026 09:49:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3C6B6606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A04606A686;
+	Mon, 23 Nov 2026 09:49:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62A04606A686
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=g5N90EsV
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bFm2De2+
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1795427392;
-	bh=WXScrJpd1VjqcBYjrIdUvV1HdNJY+7in8XAjuH3YRSw=;
+	s=mail; t=1795427395;
+	bh=qDlQ72Vc7Hc/VU08uITBDl9vO+AOoQTLBFQhPb/BZh4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=g5N90EsVCPTZzWR0NPIPT7fBHsvfVDWyhuTrZMo7RhSyElWQMOmtjdzhgd8lPn5rl
-	 FeP1BcC1QSVA/V8VNaxwyRZCEenCYOFzcgHDckyyoyK0welKFuEOr/2Ik+ppy4DDYH
-	 MGtc6kEjCIPbcy7igwxPTSFgj/io9GbElUS6Ok+shiKK6Qn/8dPUaxgIQaQcIYeuWg
-	 zR5QpgBcfkTFcEdfWuA8mV0hEIpiRGMPtBzcFGRlgCdze/mqxCZRqCRY7y85NzLQh7
-	 4oL+k4wYnkDjF1eCxV2SbUs6B0hZLxEYK6lW6AbQQCNVUdy3BZkmBMoZ/GjgV2kir+
-	 QgIGDES/Sw7GQ==
+	b=bFm2De2+DX6rpDbSTnze1A9rSRSqcnUXretTh32/Cn7I2RwdAEgrER/L4mivzh9xL
+	 hRdrV2rdAkTMcCIe4Eo9oyWwOoNQMJX8aG188briw+qLRAVDGfxaqO5ESMYsvncL45
+	 xXLiDVaNc0XBiNKBv7R2ruM3/NdVD7h5FTYRVBV+iAmdAAS4y86KMKzTD5LqmJYItx
+	 umsbfw6IFNS8mNWp/5iufwz98gKEmde2YZnXUM4cgJg7298j7Qb1vbyljEE0k75wTZ
+	 tYd36wNlizoEd6o5rq/jQ3r0MBJjyxl9U7qf9hkmNvkCvzjoBrZ9uaK5HIuAatTDOx
+	 781Ab+hMHvKxg==
 Received: from [100.64.1.21] (unknown [100.64.1.21])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 4226B17E031C;
-	Mon, 23 Nov 2026 10:49:51 +0100 (CET)
-Message-ID: <32462cca-ea45-4af2-8c59-4e8a6d8ea0a5@collabora.com>
-Date: Mon, 23 Nov 2026 10:49:50 +0100
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 249EF17E0CD7;
+	Mon, 23 Nov 2026 10:49:54 +0100 (CET)
+Message-ID: <d367dd8e-d712-49c5-a2ae-30a9b3a41d35@collabora.com>
+Date: Mon, 23 Nov 2026 10:49:53 +0100
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -62,8 +62,7 @@ List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 6/9] dt-bindings: input: mediatek,mt6779-keypad: Add
- compatible for MT6895
+Subject: Re: [PATCH v2 4/9] watchdog: mediatek: Add support for MT6895
 To: Alexander Letuchiy <asalde.le1@gmail.com>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
  <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
@@ -80,17 +79,20 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org,
  linux-input@vger.kernel.org, phone-devel@vger.kernel.org
 References: <20261113-initial-mt6895-v2-0-4ab0aa9fa391@gmail.com>
- <20261113-initial-mt6895-v2-6-4ab0aa9fa391@gmail.com>
+ <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Content-Language: en-US
-In-Reply-To: <20261113-initial-mt6895-v2-6-4ab0aa9fa391@gmail.com>
+In-Reply-To: <20261113-initial-mt6895-v2-4-4ab0aa9fa391@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 11/13/26 20:05, Alexander Letuchiy wrote:
-> Add a compatible string for the keypad of the MediaTek MT6895 (Dimensity
-> 8000/8100) SoC. Its registers are the same as on MT6779, so it works
-> with the existing driver through the mediatek,mt6779-keypad fallback.
+> Add the compatible for the watchdog of the MediaTek MT6895 (Dimensity
+> 8000/8100) SoC. Its watchdog registers are the same as on the other
+> supported SoCs.
+> 
+> The TOPRGU reset layout of MT6895 is not known yet, so the entry has no
+> match data and no reset controller is registered.
 > 
 > Signed-off-by: Alexander Letuchiy <asalde.le1@gmail.com>
 
