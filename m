@@ -1,61 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795436742;
-	b=cEEqtTTAmajlVjp0YC0oz2zN6pFuScGGMYJoyzkJbYV+H7trfxTSVH/xrBVqBjjoQknM
-	 Io/uOJPEtCZJMl0nM71fn3xn99hgkKRUIz0SO3Pxa6Q3CTl3xuGDy4ZNDvm232HlPPGoM
-	 O6lbCU+5RpmQE1AREAicpKUm1toi8mLeh46B4GblrTFcKwlC3bvDkAWviroLgcfxNIjnj
-	 Dz8xePXJ+J0/3sQL9NW32hAZ6L1DbdhJZLgET48Pozs82kDhxDdFlEe8/sFnacJADgdSR
-	 YW02qGxrqJKFeiXzETCqZobg0sISm1/p00ywb7X6UxEIxlkioPtDR3oG6FVTQZZFJ0A==
+	t=1795464724;
+	b=Z6P02ARWRdD80vO/9qPHvv2Gyv/v2/pXbkF0t3QbDjfO08Ke6X3CArBUgPjpQaQ3o9m9
+	 uUVy2sQ7Jp1BuJsmT4MRNbCiw0W9+d2JyeKxpHs7aL3v2PvEHRKlW3p4FrwCh7wCtJQDh
+	 LjBF04JnLsopcoTK/sQcvw/R0PPESapgAh1ktVpT033C0hOheEuWB9xrzhDuawJWjksgp
+	 ROzzwq3HHkurktSCrUxwm5ZVrUGhfqs/rX7WlZ71on0GUyCGYMEKfbRKOqf9eb3GpIMX+
+	 EHEgnhB8XxddndYXasV7FjCf3/GpU29u9VSbcEsj36CKsE9jtsNRDsEoTRNiyq2DSQw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795436742;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=bqbUZFybYwrKL6TCArPSsR3vEqPnEk4U4p4dC8FCLAE=;
-	b=YRsbGhQb8u/2FJLZvC9z55yAaFUIRmNEPIJZoJfQYJ8jdWtQr6ynkCYCyflFSgbU7po2
-	 /tXsUSFS6ZlMxwRSj6kAut1hQxReQI4gJcZ8JjVAwtuDlpeoYXyDi/Kc5ArMzhiGTPyTO
-	 HlQZs9VqqDsKAgellj3vzmzzQpRUN7s8tcgpibr3OP6jGzuS7jjOZjOqsKBX2MA5KxV7c
-	 XmiZ8X/uCBMlEro9AMak77qWTr6yC+eKMHwG9H7XUJBiSzlkQNlBsvHoxCOWe57TCYVLY
-	 6kq+Wx8r1bykmOr8bgwYsA2qqIG18YdEfDE2bwIxgIzJWlE1yrSZ+MmYDM8qproVIwg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795464724;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
+	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
+	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
+	 X-Local-Domain:X-CMAE-Envelope;
+	bh=NK2TAdN7QxXlztQobC5fKCMiso1wIiEVmRdbWsstQAk=;
+	b=XLrZdYIPhQ83FTLcR/JwDZHwVCYCCONdkooF5yx+9UCy7XakBeyzmsOEadj/2qMy+6H2
+	 3Fr+9B85YG3hzmRWll5Y5KgpOx5SBPd0FAP6n89AUTFMeEUgoQH5af1Dd/qJPJ4Pm+Trv
+	 XuMn71NMjcRYZ4pgVJZEPB+N7fnTHO9W5Q7kvGFYwMcos7tLIxt2xoQ/X+DOEuArKkcwM
+	 VGnAnTsFF//mYVfngq4DoRzl3Mf1Jcfo/5djfC3NNxYkbQE7IzDGMuSYyhhPDIwAVFSrK
+	 pXUytrdjAb1Rq/whv1K3EffaOcRFf6PTOOcA4+GRXJsx+wjKy+kGDkRULgQfPfoolhw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OyV2PCBJ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=nqwqg11w;
+	arc=none smtp.remote-ip=44.202.169.35
+Received: from omta036.useast.a.cloudfilter.net (omta036.useast.a.cloudfilter.net [44.202.169.35])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2425D606A31A;
-	Mon, 23 Nov 2026 12:25:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CA0B606A326
+	for <linux-watchdog@vger.kernel.org>; Mon, 23 Nov 2026 20:12:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3CA0B606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OyV2PCBJ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DABDE1F000CA;
-	Mon, 23 Nov 2026 12:25:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795436741;
-	bh=bqbUZFybYwrKL6TCArPSsR3vEqPnEk4U4p4dC8FCLAE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=OyV2PCBJJ+im5vPd3xyuANOjncvF8C1bCv0h2kafDuHWsWqdc/RrtvsCYCVBNf2sZ
-	 hE8C8j9By19o58nXKo0bTBiZ0GAz2TZNmv4aqVbpHjweT2AK85Zg+d16vRzfO7CZ+C
-	 AFvtpIPT225W1kPUPuknuXCiO7sFli/BTDxuca7TfKmKf4j1uu/jfFxKI9ZqMuaiHJ
-	 B3o+6+rPu/2M3n7j88L69i0B6a4B1eI9A4yY0smhPoAWmze7f8VgV6psvWfExo31w3
-	 Qd3CKUTnqX52ta8UzCFXREkp+AvTCMznaLYdScQ7nhxgDQX6UDLZax39fa9ZdfkO5t
-	 4on4/LFaOVg5g==
-Date: Mon, 23 Nov 2026 13:25:37 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Rui Cao <i@udp0.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Sean Wang <sean.wang@mediatek.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org, linux-serial@vger.kernel.org, 
-	phone-devel@vger.kernel.org, Roman Vivchar <rva333@protonmail.com>
-Subject: Re: [PATCH v2 2/5] dt-bindings: watchdog: mediatek,mtk-wdt: Add
- MT6833
-Message-ID: <20261123-puffin-of-splendid-fertility-fb7ba0@quoll>
-References: <20261117-mt6833-base-v2-0-058a0685c40c@udp0.com>
- <20261117-mt6833-base-v2-2-058a0685c40c@udp0.com>
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=nqwqg11w
+Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
+	by cmsmtp with ESMTPS
+	id VYWMxwcDq4vCDVaORxDwHb; Mon, 23 Nov 2026 20:12:03 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id VaOQxE3Y7YskhVaORxGVo1; Mon, 23 Nov 2026 20:12:03 +0000
+X-Authority-Analysis: v=2.4 cv=CKMqXQrD c=1 sm=1 tr=0 ts=6b049e13
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
+ a=KKAkSRfTAAAA:8 a=EUspDBNiAAAA:8 a=p6fxDhJg9I0BSXovcPcA:9 a=CjuIK1q_8ugA:10
+ a=cvBusfyB2V15izCimMoJ:22 a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=NK2TAdN7QxXlztQobC5fKCMiso1wIiEVmRdbWsstQAk=; b=nqwqg11wPGBOPBl0au8ZN/l02z
+	mOqyg267Xy8LoWIcDlxOs3ZjdSTIQdidEv+vDmzYr9onPkx+WhTmH0f23M0+PMAZg7FFSbOCJ67LE
+	MOBCINlW5qfxUiryS7sF+ZJXH2gRoZzknafRaVwDLrif99Vpts4sq119kfdlfVXgt7aeTK4s/k5LR
+	N6OBoJldfk6ZYxDQiRc22tRjzkW7s7zYQ2uWiPJ1SnQwoylcAQNNIVeNDsvC9lmm18YAlkNYXVZtR
+	LmCe1m3f6AtqmAamDEe0OvPfUwqYDJxM8+D7AxiFwktxrTbAEcg9ZJWHZu68DAzvUos4wZ10hyErQ
+	yqb6FFQg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:49156 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xVaOQ-00000001dt3-1HPJ;
+	Tue, 24 Nov 2026 01:42:02 +0530
+Date: Mon, 23 Nov 2026 12:12:01 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: David Yang <mmyangfl@gmail.com>
+Cc: linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Viresh Kumar <vireshk@kernel.org>,
+	Andre Przywara <andre.przywara@arm.com>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: watchdog: arm,sp805: reference the
+ PrimeCell binding
+Message-ID: <1266dc98-b755-4112-8c1a-0ad54164dbaf@roeck-us.net>
+References: <20261114184257.535546-1-mmyangfl@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -65,25 +89,52 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261117-mt6833-base-v2-2-058a0685c40c@udp0.com>
+In-Reply-To: <20261114184257.535546-1-mmyangfl@gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xVaOQ-00000001dt3-1HPJ
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:49156
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 27
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfHunjyTh6cQV4JLpIcw+YP6OtgRHo3NL6wifxtqtIWGkxOOWvuMcUP7gnfL7fx6VRb5AIlK6J/w6FOIXs/5Xs/Fr7eoPV4RfG+2nMBxNTlK+6v+A4y2Q
+ b/datfhG+PGFjD6rUmZIejwPx6QvKrUoBMhG+3zJFfj/LO1/VeNl5EfZE1CgRCaPXGEDkoxTMEwiR0LjxkYf4/LnVdHR9+Fp4OK9RXzgX6OqEMSL9dxT8Xoq
 
-On Tue, Nov 17, 2026 at 05:11:32PM +0800, Rui Cao wrote:
-> Add MediaTek's MT6833 (Dimensity 700) as a compatible of its own.
+On Sun, Nov 15, 2026 at 02:42:33AM +0800, David Yang wrote:
+> Unlike the other PrimeCell bindings, the binding ends in
+> unevaluatedProperties: false without referencing
+> /schemas/arm/primecell.yaml#, so arm,primecell-periphid is not an
+> evaluated property on an arm,sp805 node. Two nodes in the tree carry
+> that property regardless -- watchdog@a2c000 in hisi-x5hd2.dtsi and
+> watchdog@8000 in mps2.dtsi.
 > 
-> It can't fall back to mediatek,mt6589-wdt, which also describes
-> MT6589's twelve TOPRGU reset lines: MediaTek's kernel for MT6833 resets
-> the connectivity CPU through bit 12 of WDT_SWSYSRST, past them, and has
-> no full reset table for the SoC to take one from.
+> `make CHECK_DTBS=y`:
 > 
-> Signed-off-by: Rui Cao <i@udp0.com>
-> ---
->  Documentation/devicetree/bindings/watchdog/mediatek,mtk-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
+>   watchdog@a2c000 (arm,sp805): Unevaluated properties are not allowed
+>   ('arm,primecell-periphid' was unexpected)
+> 
+> Add the reference so the property becomes evaluable; both nodes then
+> validate.
+> 
+> Fixes: 73d3e43f9813 ("dt-bindings: watchdog: sp-805: Convert to Json-schema")
+> Signed-off-by: David Yang <mmyangfl@gmail.com>
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Applied.
 
-Best regards,
-Krzysztof
-
+Thanks,
+Guenter
