@@ -1,90 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795476539;
-	b=VG/yCsQGJMxSsUwmb9E9kQ/o5tPRMRLYCbLqU+K5n3f/W+a9Y6SWprXXRZGdg4q5mjVh
-	 zFEHsA/8xcTuq5Lponapgo29w7oS+XEWwP4TQwbAB2soKiDiacbPzzweWJSk2oHWtPb9b
-	 BJTfjLrzx5WbF9WZYsQeKPNU15kqbqnLlH/aoGZEGt9jqpQzyv4TJHxXi0LeWGyRGDo7r
-	 QuHZsG11Eif1KUFDwonyV4y9oIgrDe2h0MSk5WziYpBweQRMNiftMxkn1VkEeNf+TYqjs
-	 +B5KbKEBmlSpP2NWm3PcHO8w3UK2oV0XhGWyOe/AJZ4RaJdXrAUJsYKeV3hyuELgdWw==
+	t=1795483712;
+	b=POEmGjI92LtpgikQwcmNO1uvTpNXQ8X1lOleUL7EyWMjcDeRwQVN4QOpr5PIrWl2OdCu
+	 kGMXpEBiUj42Fqbdl3wghteP0BlQ+B2RPJhoCY+MKRiCNmnZV4PtpRc4dQXTCewjHAfKx
+	 2Lpob2A/ZNh87AJ2I8YAb4kmIpBnaq9P6fUnP1mFXNiBXcGneF1LZdq58QDGHUJmVX09z
+	 D8IewcJq5kPT1qVSTDeuePvuqrFwe61AW3ZHfM8Tf01uymSkAOjE4AelUhw0UlwVjjUO2
+	 FbYuhNfsn1MzONPa4UxBvWxwN+9f/bO2JL+9CYlNN+5HuG8NVFMTFk5G5Du8OguHR0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795476539;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795483712;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=rpYvPmxHqeKMEWXcXjP8ETFzglI6N3DO0hpa9d/C1iQ=;
-	b=XYvyvRr39PN99lh+AgzoKy/jF1TPZkniAA0HH+dO6av/bahzXNwfmzT8ZQ/A1DoubMfD
-	 CsoYVA47cuf94CS6kSbBWkOxktxjp9KnNDLmkma7MqJZ22Xl4hRx14Os20H6jXYIwqUL9
-	 hF23T27tohwIpJMlYcRZDKN6F44duO8p9vn26ImlN9dNDlD0hwcMGxo9uqtIH6y86MP1J
-	 QUSVDPvCz1Tuoz8xb0+EXAO4Iw5h7qrIbHYYCi7szaAefndpggNOoI5ZuA68seKPI6aU3
-	 lKm/UXLJz33dHIv/iDNUdMsnT1U/nCIJL/gRrbgNQrNM6hpn8AH1WHX69wmvLFDRgdQ==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=k1hUmWFG5GUv5dEmsxSMypms0FRXPv0dsfB0/VoVKS8=;
+	b=dtnmvqovBm+I6MfmijWdCO1Z5FsYmwpOGxtNAKRj5mpr2MiZkv3Hx8KrxmvE+CJ+sd8h
+	 /Ar4xsZ7hYKAsdjgC/x1f/Ogfu7Q97G0RTQpbCTA+NjU7AuYgNEXU/LOEYcudFU8KP2O0
+	 E5qI48oClTwbwoTRlLUI6U7yjHiWtfwWy+d8Tlpxub3ZvNbtg0fzs4u9JM8nefZDGDa6l
+	 meHT+jqzpyzU3W8K3ZmdcY2bifMw0ZKbG6m4URvd1c4y67PJsNmhX7Yw7HbdgDOgYfgwO
+	 8eOX/zSJi69kPWMY5H3vdXVsgs/zpoeis0/F2+A8v/amnUCSzL/E/8VvZbouoL+XJtA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chromium.org;
-	spf=pass smtp.mailfrom=chromium.org;
-	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=YjnyPR7Y;
-	arc=none smtp.remote-ip=209.85.218.43
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dSW+NJmz;
+	arc=none smtp.remote-ip=209.85.210.171
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47796606A31E
-	for <linux-watchdog@vger.kernel.org>; Mon, 23 Nov 2026 23:28:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47796606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03E7A606A327
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 01:28:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 03E7A606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=YjnyPR7Y
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-c515319dd89so448592166b.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Nov 2026 15:28:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dSW+NJmz
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-8b32bc605d9so1834616b3a.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Nov 2026 17:28:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1795476538; x=1796081338; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=rpYvPmxHqeKMEWXcXjP8ETFzglI6N3DO0hpa9d/C1iQ=;
-        b=YjnyPR7YVly0s5R4EIOAOSrlZqToBo6tlCbIW7tEFfNO8XxT+kAql+AcVaCHqX8Djv
-         +TPIaDD/OrWeK6+xp4GGl1PcwY2AgorPwv7WPoZCJEk3d/mwOr+hNeylYg03a9XKXtGm
-         Nye6IMMtXFUt71NOxSeCwoELF4NXtW02hF57U=
+        d=gmail.com; s=20260707; t=1795483711; x=1796088511; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=k1hUmWFG5GUv5dEmsxSMypms0FRXPv0dsfB0/VoVKS8=;
+        b=dSW+NJmzISfK/j5aHCTR6DFklJgcWC+dMJDQYKMwBVBVcNFTqNsk1m0Pge9sSadbP/
+         xM+ai5CJVbyqjyg8gowTYXCN9EKeJOKDjJjF9cIcMgqh5rjYSJ5YDGoCL0p4ax2HsyfR
+         PQlR4Cc6rfPIDvJeSG+t6IQy2ZqE4B7tDxR7vd3Y2/Min2ckJcQsUjx2nwarvSqGA73g
+         m55dOWlDqOZwsvKg5v53Z8p+jzyDv+k9sJHv7E/SPCQwPzZRYan3RG+cHoCulGsPTmVa
+         XInkezb1+2a+/LVMpHOCB8D62PyngqclyqSIDOdPgGoEvoPs6+PB+fkwmA/Lizi4fQZU
+         T2GQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795476538; x=1796081338;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rpYvPmxHqeKMEWXcXjP8ETFzglI6N3DO0hpa9d/C1iQ=;
-        b=lbO55FR2zCnlmievdcDSo6WBXOpExEHkVl5EuX4Nu7UG7HCwf4AaWS2ssCpJxMejGp
-         buUUty25K03WcCkE21Gj+yhhRiK9txktGks4bpqg/hjNcyas3onaER5V333MvsFnFi3a
-         NSoFZBjemS9Xath1nFqpn8MLuySRS6+xR1clTd5dkwHt+5mxe1gnQjTv4HeBhuklFDAX
-         5xjr0U+0L9tw0NOR4GjFolNBoRqox98eClIK0RxVN2UPBQ60C4wjFMsKzvEwgZz/G1cU
-         fVa5xPUIdMTM2uCNWN5yN6zi67NrAJ59zZTERgcPVUj/rGQ7aRczFDe4DfB/rGfA7iCD
-         0iFQ==
-X-Forwarded-Encrypted: i=1; AL+hErEYvi4fcgGFtNYe036MM7Zs7LmMKRmrBLKZ1qkLm2wojXp7h/zREfd09OkvP/XcnJqN4057AAaMuPuYiQcBMw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+OiZUD0zCu+h5RZsXO/PysJxQ/a2HejgvnOKKz17GKfcw30g4b
-	qCSrsS7xIX93Ytv2KPGHnIGFZ2u34eCW5Q2qdBnjqh+3a7aTuCoGgIYWkvJ/YH0Go5hTIVxxlxE
-	jPSFP1Jb4
-X-Gm-Gg: AZFdTZe9fJPjrJ8UxPkXQDGtDPXQbN+bKQ7bSuUKOvbYkf4R+rX7TXnW7G4Ft+ZeXQs
-	KbW6Ewktf0+ZzvDhztYsv6fT1rUU+Ui7wOU8lg2P3F7TZ6V70Zk0RBcoKj+EJNwppFHanWgYlVW
-	QBdZdy7pXLIVzCOBDI0auKzz5hzYefizG4ffl4p5yDGxFyHDgPgkMg4V230644r2xztRC3lbENm
-	xzkoAwopEvZP+rzbL7c/Cd1mzHF2LNCNz2ecHi94xIDr2Lh9h5PPYJhQOT48ULqgC2rQ1jRnkL1
-	2CvK9WZd6syvR24HdniJ6pGTZEDtwWSoJ+Dtz4pRuSVHchv6Qsmsxxo41ywGcC4MtRHMzRc8cUx
-	xTBQATFNyFy2Q6MR/sZ9w9oBVgiHR39WtChAOk67x038DAkSdfWE22G8tIpGvZ34EcAf4KM1W7k
-	Z7s6T+oKnICr1hTCOsADGo56fWU+XIETbQYsqepObXSWnwt/IMs0kK66bcCno6KKXquNsCVFcW6
-	QcjOEu3NxEIhvZfcmXsAy3BzD17/go3GjYrIfjpEsbWxsRyHQSjI63sWs3NKOzqaj62sWQtr2xI
-	YMxckRq7p7kYu93O1pEBmxxXyB9AWcwRjCoGAUMDV+bUc3jM+GzeFoSpC+rc1MiTAx37
-X-Received: by 2002:a17:906:d553:b0:c4d:906:e979 with SMTP id a640c23a62f3a-c513a420146mr1063043966b.3.1795476537672;
-        Mon, 23 Nov 2026 15:28:57 -0800 (PST)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com. [209.85.221.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513aea5b9dsm450545866b.47.2026.11.23.15.28.56
-        for <linux-watchdog@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Nov 2026 15:28:56 -0800 (PST)
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-490d59c3f0aso1796173f8f.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Nov 2026 15:28:56 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErECT0jxea51TI8C3fuFWDPVNWK0mKREPHMkdPPjjWWx6GXtyHWzfm3sx+xN1LXF8ra/jb+RE5iEfIei9EqrvA==@vger.kernel.org
-X-Received: by 2002:a5d:5846:0:b0:492:e1a6:90f9 with SMTP id
- ffacd0b85a97d-4abb3c37b61mr23717515f8f.18.1795476536084; Mon, 23 Nov 2026
- 15:28:56 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795483711; x=1796088511;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=k1hUmWFG5GUv5dEmsxSMypms0FRXPv0dsfB0/VoVKS8=;
+        b=VbVKrQ+q591m1ne78LjmVP0EuorX+QGpqS7bVRdPvL87rH58+KumUcEZ24/Pponolo
+         OpYXF1qlEgVnlA3w9wEiq+bTwK/HGdS7y/5G85qfZt68yYmL8us444Tv2kur/YxiPiuq
+         kwXxgH1D712etjXu50E0RC1N5RwJoKq0bW7lJatQepYK7487oNDabaPjaFtDM/ZAbsUX
+         9cIDR2mAokU1X0g+jXFdXTAEhIhN8pbQj5uaF1r5EMGlbIrXT10dXuaGuvDvjAXlJ4EB
+         OUSfa25uTKlyEP7z3kuG3wwCnDRAaVls9WXS8oIMxodAVWAxtHy1ZyIGIiY4b33TLglf
+         +JWw==
+X-Gm-Message-State: APuU4Z9fl8f0J8899SQbxNggY3szC6ojS4RpAggum9BK1loSIM4JikM0
+	9o6eR63KwmeYfQOQPd3ic0i7HIeerfsNj6gABY1HnI1U+QnF0KVuX1TJ6nBm60yn
+X-Gm-Gg: AZFdTZe2xzWfC+GPyzw1OfpKiJxcW9YW5XuAFo1dfkNPPE9R/XS5rliTiiQQlVt8kEr
+	vAZQygWcoTJTZOLJJGv4Dh8wsJzy1PTQ9w69kRh8A/8SAN1Zzz63lLrWMt/L7lGw/sZelUDSa+v
+	PzSLdiqfkbof/tn7YOC9RK8Y6aO2wD4TDZOOUYg9TmKV6T1IS+XHT488I1GuP+u3Qxmvh3OpnLw
+	bymMujrzmuuaXRfAONu2Ih8Pt7EyjmmxPtkki4uiNyEM/E8W/KVfctcZWG4ZtNZ7Lq5kNLIf4xP
+	aBhVln9xxfG3QjF4B7i1FCfJAQVaQSP0FGhuSdCf3b/zNEH34CyGjxmG8BfYNYyhGmpKaJnkWx2
+	xmll+50RmxRcUGjBHdxILt9oyQTL/vXn4YT5eUhBZuA5v1NOr0pPXgQlf5zZC4GmagS29RLHGLZ
+	RcjqGgX4Ktl278y2m7lrh9WQ7PjNj4c74JqeT0OLiJn4HAF2lcTmt2DIDImByssp9A1HUJ8iCqd
+	laoWU0aXwHABrDBxqADL2FkfnOk9mOm5o60fB30JZ/95zdEqjK7VPIlx8R2EYhgwDP8sD64evPi
+	ADEv+IwpbUMMzK0GzaoudVGPlcEj70R5sJp41G/zZAOHQlX5B2bTst6a+tnYmaY58AkXipyWb9x
+	D
+X-Received: by 2002:a05:6a00:1788:b0:88c:fa50:1a86 with SMTP id d2e1a72fcca58-8c87c09ec5fmr11915415b3a.25.1795483710678;
+        Mon, 23 Nov 2026 17:28:30 -0800 (PST)
+Received: from d.home.yangfl.dn42 ([2a09:bac1:7680:d30::4d0:8e])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8c872e457d1sm6115243b3a.30.2026.11.23.17.28.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 17:28:30 -0800 (PST)
+From: David Yang <mmyangfl@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: David Yang <mmyangfl@gmail.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wei Xu <xuwei5@hisilicon.com>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v2 0/4] watchdog: histb: Add HiSilicon STB watchdog driver
+Date: Tue, 24 Nov 2026 09:27:34 +0800
+Message-ID: <20261124012755.328774-1-mmyangfl@gmail.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -94,86 +101,34 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261112031629.396819-1-mrungta@google.com> <20261112031629.396819-5-mrungta@google.com>
-In-Reply-To: <20261112031629.396819-5-mrungta@google.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Mon, 23 Nov 2026 15:28:44 -0800
-X-Gmail-Original-Message-ID: <CAD=FV=U65s1rzG=VqbRur-UdcMf=6rcjMfoXbOBtyiw1jAyPgQ@mail.gmail.com>
-X-Gm-Features: Aa3M54pAb5UUWg8n7puuFK8qjUeDvkCKqsnby00WFwsuj_cqspTt6STuvC8TlBQ
-Message-ID: <CAD=FV=U65s1rzG=VqbRur-UdcMf=6rcjMfoXbOBtyiw1jAyPgQ@mail.gmail.com>
-Subject: Re: [PATCH v4 4/7] genirq: Export NMI APIs for qcom-wdt
-To: Mayank Rungta <mrungta@google.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, Marc Zyngier <maz@kernel.org>, 
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, linux-watchdog@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	"Kirill A . Shutemov" <kas@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi,
+The watchdog integrated on HiSilicon STB SoCs reuses the register layout
+of sp805, but deviates from the standard sp805 in several ways that make
+the existing sp805 driver unusable on these SoCs. Add a dedicated
+platform driver to handle these SoC-specific semantics natively without
+regressing generic SP805 users.
 
-On Wed, Nov 11, 2026 at 7:16=E2=80=AFPM Mayank Rungta <mrungta@google.com> =
-wrote:
->
-> Currently, request_nmi(), free_nmi(), enable_nmi(), and disable_nmi() are
-> restricted to built-in kernel code because they are not exported.
->
-> Export these symbols with EXPORT_SYMBOL_FOR_MODULES() restricted to the
-> qcom-wdt module so it can register and manage its pretimeout NMI when
-> built as a loadable module.
->
-> Signed-off-by: Mayank Rungta <mrungta@google.com>
-> ---
->  kernel/irq/manage.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-> index 073fd3595d2c..ace4d2796382 100644
-> --- a/kernel/irq/manage.c
-> +++ b/kernel/irq/manage.c
-> @@ -852,6 +852,7 @@ void disable_nmi(unsigned int irq)
->         if (!__disable_irq_nosync(irq))
->                 __synchronize_nmi(desc, true);
->  }
-> +EXPORT_SYMBOL_FOR_MODULES(disable_nmi, "qcom-wdt");
->
->  void __enable_irq(struct irq_desc *desc)
->  {
-> @@ -919,6 +920,7 @@ void enable_nmi(unsigned int irq)
->  {
->         enable_irq(irq);
->  }
-> +EXPORT_SYMBOL_FOR_MODULES(enable_nmi, "qcom-wdt");
->
->  static int set_irq_wake_real(unsigned int irq, unsigned int on)
->  {
-> @@ -2189,6 +2191,7 @@ const void *free_nmi(unsigned int irq, void *dev_id=
-)
->
->         return __cleanup_nmi(irq, desc);
->  }
-> +EXPORT_SYMBOL_FOR_MODULES(free_nmi, "qcom-wdt");
->
->  /**
->   * request_threaded_irq - allocate an interrupt line
-> @@ -2455,6 +2458,7 @@ int request_nmi(unsigned int irq, irq_handler_t han=
-dler,
->
->         return retval;
->  }
-> +EXPORT_SYMBOL_FOR_MODULES(request_nmi, "qcom-wdt");
+v2:
+ - fix issues reported by sashiko
+v1: https://lore.kernel.org/r/20261122065549.3265519-1-mmyangfl@gmail.com
 
-The patch is fine and I'd be fine with it landing. That being said,
-looking at this patch with fresh eyes today, I think it can be
-improved. :-)
+David Yang (4):
+  dt-bindings: watchdog: hisilicon,histb-wdt: Add HiSilicon STB watchdog
+  watchdog: histb: Add HiSilicon STB watchdog driver
+  arm64: dts: hisilicon: hi3798cv200: Add watchdog node
+  MAINTAINERS: Add HiSilicon STB drivers entry
 
-I think we could make disable_nmi() and enable_nmi() simply
-EXPORT_SYMBOL_GPL() and then only lock down the symbol for
-request_nmi(). This means we don't need to update 3 separate places
-every time we add a new watchdog driver allowed to use NMI. People
-can't (properly) use the other two functions if they can't call
-request_nmi() anyway, right?
+ .../watchdog/hisilicon,histb-wdt.yaml         |  56 ++++
+ MAINTAINERS                                   |   8 +
+ .../arm64/boot/dts/hisilicon/hi3798cv200.dtsi |   8 +
+ drivers/watchdog/Kconfig                      |   8 +
+ drivers/watchdog/Makefile                     |   1 +
+ drivers/watchdog/histb_wdt.c                  | 305 ++++++++++++++++++
+ 6 files changed, 386 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/hisilicon,histb-wdt.yaml
+ create mode 100644 drivers/watchdog/histb_wdt.c
 
+-- 
+2.53.0
 
--Doug
