@@ -1,88 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795554387;
-	b=l+D6f1xRbYF+dI0oxz7TaXY5sphd7d73n57pfOg7M2hIwGGYHz8vXn89IZzAy8ivjghQ
-	 rDXzFfQPxowZjQ11Y414PjsBuDVBm4yQgT7ksd4QVX992xQNLvSi6f3MDuRmgBUxiLikv
-	 ywqf1TBgjWc+/1Fzx/2O0UiArbGkSYeR6yoHkGEUAqCbQNc0Ba/RvCl84nV7XKnKY/z00
-	 HsB3Iek69RoR904kmuH2K9aI42XFjsBLYtKDjEyExw+j09leu88p585WjFK7jf29bVUSE
-	 j7TGMSfEkwvjwfmT6KbBSMQpuaZL6P+maoxcpDyLcqtPVwX+3+DaQtlTowoOYA+W/FQ==
+	t=1795554390;
+	b=u2b/tUbf+l2w527jVEpmsMULbmconcVa+dg/g4XDbWU0DTOntAwe+I13N0bntDxgzZkr
+	 MCQQhO9aHRjTyurf7L0EAOiDbK1YPfZ4i3lpFDwksr6u9wsKaFB5Zv9UvlDcwtWNKVPpi
+	 P67a1TlDtRXyKEJAqKj2iqNtBGp/qTeXkcW5Z/OUraW6DjA8p9zLTZ4B94pQYWiroJ18R
+	 NrRtStY3u7aIziqVc14TcuAR2IUGn/m9sC2JsBR7eC9g4cP45LFavJo0j3ifuQHvbD9jc
+	 qWQuE61bN4B3ve6/kIsRtEYzBndO2X256Kx+jnWRcCH1DE4+i2VErQzXTk5gArpzwjg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795554387;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795554390;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key;
-	bh=lNAaswrlG/59voK0420Q09D/s4OeQ1/KcKb6MhRwXG4=;
-	b=wlFReBlu89fLuWxsVsKC953cBT6zODSbi/zftletEZq8j5Lqbdl6O2xA4NZMrS63ZlLb
-	 Ah9Xx/la67CfeDTielB8V1Adtrh3EKMzlCw1mhmKsxPHn63y9AJwH2kdEkOIVjNATx/42
-	 PLY3KJfOX5kBETPQvJsBB3TBA1i2wsRsgqtkA1ZzAU/5DqCf2Zs9WLOEz5nrbGHQd9f47
-	 VvhktTCFqJ5L42MtkLUOWAqYfX5ACF54WdpinBeWkFud6Lv8qYIqYNrHYBBOKS6/Bw621
-	 YhZlQCy05Als/ibyDkFLBzkXLnXAh7GVoMaIH9sRYDfRODNVmZ5MF6UT3dmdbJTpGcA==
+	bh=39S0aJdHWIRyJr9J3YXH1gyMCf139eDsPFo3E4VheKE=;
+	b=HOdo6UV+/t6DPh0Py1BU/nl6F7tf/GCE1YwB4YLRpEa3eyN+Qjul0R83gUmmj9/SVCNz
+	 bctmPdlCbnsk+xBu2ULdAd0YvqrG52PJvu9pLbn9FhI2b80wwuzu3Wv1/PUdeKnwNgNTB
+	 uAhT8DKACnC5BcWaHWF1ZZlbGqM9G/1hh7xkZSq1S/nK21kBQsD0fURFonHjaSKAp8AaT
+	 oq3Y9brDDR7av0g1tPYBuQnLmg366T3w26PzHmI9x/t0/SkSKxMfGrJoRdKRgq85K5TU0
+	 u7Cph9fnXNgUm/nGDJHty0VwVB+Jp2uN5AGx3L4XUEA6VzmK3StaR0tCOsNihghTGNg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nM66Qirx;
-	arc=none smtp.remote-ip=209.85.208.172
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ka3i1QcM;
+	arc=none smtp.remote-ip=209.85.208.173
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5604606A336
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 21:06:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A5604606A336
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE35D606A33B
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 21:06:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DE35D606A33B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=nM66Qirx
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-3ae25d9e2fdso51713231fa.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 13:06:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ka3i1QcM
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-3ae417eb235so40454491fa.3
+        for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 13:06:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795554385; x=1796159185; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795554388; x=1796159188; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=lNAaswrlG/59voK0420Q09D/s4OeQ1/KcKb6MhRwXG4=;
-        b=nM66QirxXo8lJFAl/96/3+7oSdudDPzwD0KFHXIFXevFQgXZvH1CAn54rdGiOjjIyd
-         pYzp7aXjpGaluKDR1+sR2Dpqjtksx33A3rgSzJiq+5teCnlX4RAgzl8JLzkxRW7AcoLK
-         M5QWAQ8KseDuCOC5WfWxYQZU0vW4r3/Nu7y2NCX5TDfIP4GMEDhJarvdxQ1N//LI1WgB
-         fD/Y6q05Y/fEyH0oiC0Z0hxEoJMgRRIjsAhBFmiedIpIiO1SfPvu6YbxfVTv27RdU/Q/
-         T2kIEd/6cmjx9amkSCEhQFl3mFJGYba/hlBY5esjtfgG9jLCr8K8M49u6Pfby24cxpiV
-         K1tw==
+        bh=39S0aJdHWIRyJr9J3YXH1gyMCf139eDsPFo3E4VheKE=;
+        b=Ka3i1QcMwgj9n7g4v8b4yXKIMd6UgursfRCNBPDOgQhogBvy47twgV+SNmIxwsJaRp
+         uBm7dXlHNNGzFgKCgDw8TOjiKicY2tEhLQVQUOnxrU3pVO2U7d7mAuqp5Or+yEqG3a13
+         0GlLIOd4ENdJCByGc9txCcf7HL3IRRsARqYGQeKa+1KbwfwHZ0rexHF1srG0qyCmCTk7
+         pBPmPXXC1ji8zcGreTCQ+2uw7ag2QBpiTEOZMLrvWfHM0x4PrwQeru+jH4b5ViYHuVyU
+         rntzTzRkcNmvmExS2X6MkGHYYrJ1+DymkZAIjqzqOGm6//WJgOKtfqzF2L482PTu0TXQ
+         BDkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795554385; x=1796159185;
+        d=1e100.net; s=20260707; t=1795554388; x=1796159188;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lNAaswrlG/59voK0420Q09D/s4OeQ1/KcKb6MhRwXG4=;
-        b=jIyliKzulbMhzuXqWvn5DiYDH76q/R74SDUE1gFPE0rlhDGB1PGoCTAaUBJkYg6/Ne
-         SpiCKlTpWu0nxyPP6bAyIEhxfasD3WmLTiLswVnmV9l5UzeyfwyMuoNFiTWnL6e6QbJC
-         W+90ZiB5Ae2A9CBD+DGAaHXysXwDmZl9OFdU2ACOCcNDsmRddeKcnPIQQ1oQOtl6HW0v
-         hwCo/aRDDxJ/Lu9JkCJdoVi5TOi1RsKjIQfgoLWhzKXjWZB/XCkJFjhHOX6ws2INz6kQ
-         NA5yG9Zds1LXXpn2Iy/CIx/JojQUFYSHuwi2brMwEHnlygCTTlh6eoK8OqBGJ0a2W3nk
-         tIeQ==
-X-Forwarded-Encrypted: i=1; AL+hErEt89y76dhlBnrkvdGcJXMHZ1+Opn9xeGSBH6ULXO+A1PvuUBleyWzRudnZbH1nTU71Ywz3D+xmGlh7J5fzlw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8g6pg8RtOE6W6PbBnGlCDSc9vH0FvHk+ZiDiYtVzI13HDx3N7J
-	EyS9x9CLgPnaapoNX7NhCD1SlECBmtJmooRrOw+hgCJF22RsX+R3n4xO
-X-Gm-Gg: AZFdTZdWuXWbjNmuMmov5+xKDmIt9/+yjih6ZLOqrZdg74k/4wMVKdeiz2E8mFEUn5z
-	1HBAYnPZpKeqF3hTtKECM0AHwZED9t2puJoYpZW6ReSxel4JGXl4qNkoQ9lLJaAD474yMuQUkyE
-	w0aFKBXtxzbzwOOG2ppTSrOFi416nL97KTxUG6UFhzjauRe6sW4+tqBoptcMf/4c9E81gqydwLA
-	LXe7N5209bkpW86wgsU9CBHVaovsU9TqfYyk8dzRy0d8YyMyKB/ODNj+nDJPBhEwacwGPpeLHs/
-	W26NHYWNvAFNjOSkTttcojxrhx3cA++7GkgD+JpJhLWDg1z/u7EN5Jr4vp8nZBOtwWmVWxn/2Pa
-	ffGD6N9Qi2TM09+ntf0YRd3CcvwYFeG9P58lRHBycyA6tIfFU71kRZEHk4ppkc5Ia+Gm6Du6kky
-	142Ad+bU6Sii4ZJi2ciUKzE5X6gqX9Sxw31WyU8zHinlmnPAVnaD8GEsWpCrtUKtIciHzeZoixK
-	lpIx0vi/m93lE+KNWwOC1exiN75xDJbcqLrsBZ9otbLFh6dsUslPXW8rbY/9PbkVNGBtOL0nLHU
-	vnwpeO1t1Gb5uwRZrCQzk3+r80FXuz6BU07EsUQ3m8MTfwJLHSYXaWP+k6YHyw==
-X-Received: by 2002:a05:6512:31c3:b0:5bf:b945:4334 with SMTP id 2adb3069b0e04-5c1bc907788mr4479568e87.67.1795554384653;
-        Tue, 24 Nov 2026 13:06:24 -0800 (PST)
+        bh=39S0aJdHWIRyJr9J3YXH1gyMCf139eDsPFo3E4VheKE=;
+        b=JaSsmPae0FSRDYl2bg+sf23VlCrerXhxGRkonmZRYhjg2HnQvQdLZi3XBZaRpPdJyw
+         7vHgFlHz1Ev69QFfh9Krp/8i6T3H9m/+dOLMnQRr+cpprmV04PlZBkq36u9MkWvNzxaz
+         tb5H5V9qxg+09KJCZMKSPbaY4kKbvmHZP8o+5ZcMTbuKVviO9tzUuyqCvAmkYSxO4Bes
+         t+tYMX27RQvVwovEX34/Bog2zYBs7bOHZyXBw8WT1cHrrV1U69nmGcfT+ILOUmS2JnLW
+         S6KIQPzyxtrw6tMhpDoaqtK6IYNtVFIN9WDMLMWYEPrilQBlv2Kc6DAoMXaFsvoT5vTc
+         58wQ==
+X-Forwarded-Encrypted: i=1; AL+hErHm2Mr8bwVW+ItJdCJDbP5xUuLznBDqQsfQfQBLor1+BxofYIRC7ZhU9A7bl8UZefVK/XF4hf+6IXroMCLETQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/9FYwnCGwIkbrdkywl6aSkh+n/edubLmZeAEFX9hWaexgyQNy+
+	8wZ4i4hEQS6JoLOrhMy67vvmf99lisq2mFZfKLKL6CP1ZE0UI8fpeESe
+X-Gm-Gg: AZFdTZfoR5ZLaWSJyRJDdYWmIn9qjkaLw5t0ix0SEFD3SlhACugO3j+HCExfbYfyGi8
+	+K44FVE0LcQk5MysE+ns7ZL0kKm+H/S2N8PUSKCZWuzudhJ1RIeS8ZVC1KpRZOlrfIoyRsEAfKG
+	V+g7A/5NG43pMKk46oUbVMO4hYeNQXE3DuM5s9cIiGs/Jun4xVeN0ZRDcQpoyzGbhbnwxtlQQAG
+	lai6uehZeG4fgqCvHNe095X+lI60GN1WDn/WSlKSGavlM9kBsicrL2Z19e9esOe8Duq9rzzzOpj
+	K37m9cd45w1IfYREB8t4Pt4jM77xMkiiZFqLviHPG/eFASqdMKOyI9QcRDp+Oj9UQAcq29PBVqp
+	zQqgdCBmGmzvu7zajZ/18UkY4vTGC5CPJJ//qWf2ynPCLOWaWU02rDFP5oYFIkkdI1EksBcM6AI
+	A7gdAcIBZqCO6x6/PiJ3M2MJe+FwBOCIUIPBYZHzpV0fiJwE5ysM/6chBqWmINOpqdeJEYERoj2
+	KYevzJhpvWo69alo943fG29JeAsA7SuRsihPFtB10gkTqJvg+3hDODRCo9RWn+WHhcLjWjP2yF+
+	gBANv/3orLsUJiFsdSKb1NoCFTdykScGnKXLDqy0
+X-Received: by 2002:a05:6512:6d2:b0:5c1:57c4:a756 with SMTP id 2adb3069b0e04-5c1bc67ecfcmr4578403e87.9.1795554387810;
+        Tue, 24 Nov 2026 13:06:27 -0800 (PST)
 Received: from [192.168.0.15] ([2a02:a312:c59b:a180:251a:f25f:80fa:af1d])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5c1bd041813sm4099045e87.53.2026.11.24.13.06.22
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5c1bd041813sm4099045e87.53.2026.11.24.13.06.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 13:06:24 -0800 (PST)
+        Tue, 24 Nov 2026 13:06:27 -0800 (PST)
 From: Artur Kowalski <arturkow2000@gmail.com>
-Date: Tue, 24 Nov 2026 22:06:03 +0100
-Subject: [PATCH v2 5/6] soc/tegra: pmc: Add a partition power off notifier
+Date: Tue, 24 Nov 2026 22:06:04 +0100
+Subject: [PATCH v2 6/6] watchdog: tegra20_wdt: Stop on VDE power off
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -94,7 +94,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261124-t20-for-upstream-v2-5-440116846f97@gmail.com>
+Message-Id: <20261124-t20-for-upstream-v2-6-440116846f97@gmail.com>
 References: <20261124-t20-for-upstream-v2-0-440116846f97@gmail.com>
 In-Reply-To: <20261124-t20-for-upstream-v2-0-440116846f97@gmail.com>
 To: Daniel Lezcano <daniel.lezcano@kernel.org>, 
@@ -114,222 +114,351 @@ Cc: linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
  clamor95@gmail.com, Artur Kowalski <arturkow2000@gmail.com>, 
  linux-clk@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7068;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=11358;
  i=arturkow2000@gmail.com; s=default; h=from:subject:message-id;
- bh=EIJn9URgd+OIum2dJE2qaWWljUi0FVplkW6brLl+DU4=;
- b=owGbwMvMwCVmYeTc/TaVxZzxtFoSQzbrH+fSmPkGfSuWePWJPL+426dkmlJn31Xlf1Msbzg2/
- giyfrOso5SFQYyLQVZMkcXsodAXnnle7ze83NoJM4eVCWQIAxenAExkvTnDP8ULh96eNvhvu6Qn
- +vcil+RlVw6ufMaqXSWh/fH4tWy1qlCGPzz1RUFvd68+nvbFZZ/Cp50n43+t1lvNvPLEPhOG8FM
- X9zIBAA==
+ bh=tn4wJe9hYRRwGHyBOLf6IjcClTEqhQuMn6rAi8XzVQw=;
+ b=owGbwMvMwCVmYeTc/TaVxZzxtFoSQzbrH2fxB0V8LMxJWz9uezTrp8ynlBkH1Xaf39ad/KZit
+ 723jzZ/RykLgxgXg6yYIovZQ6EvPPO83m94ubUTZg4rE8gQBi5OAZjIcT2Gv3Jmsi8ZDu3s0ss/
+ Ffdrs453LNPc5y6FO++v/nEgTGjPyX8M/2P/nw15IHpcOzVsfoNOudqxA1eOdOkVhwduzGWf/yY
+ 8jR8A
 X-Developer-Key: i=arturkow2000@gmail.com; a=openpgp;
  fpr=F60710C8D69E03A01A2801CD87A47D20C2709637
 
-After a watchdog reset, which doesn't reset the PMC, Tegra20's boot ROM
-hangs if the VDE partition is powered off. Unless booted with
+A watchdog reset doesn't reset the PMC, and Tegra20's boot ROM hangs
+after it if the VDE power partition is off. Unless booted with
 tegra_pmc.vde_always_on=1, the PMC driver powers the partition off when
-it registers it, and genpd powers it off while the VDE is idle. The
-Tegra20 watchdog driver will need to stop the watchdog before that
-happens.
+it registers it, and genpd powers it off whenever the VDE is idle. A
+watchdog started by the bootloader can still catch hangs early during
+boot, before that happens.
 
-genpd notifiers can't be used for this: they only reach devices attached
-to the domain, which the watchdog isn't, and the partitions are powered
-off before their genpds are registered. Add a notifier that is called
-before a partition is powered off, from tegra_powergate_set(), which all
-power off paths go through.
+Register a PMC partition power off notifier to stop the watchdog before
+the VDE partition is powered off for the first time. If the partition is
+already off, a watchdog left running by the bootloader is stopped
+instead of taken over. Afterwards the watchdog refuses to start with
+-EBUSY, as a reset would hang, even if the partition is powered on
+again. If the notifier can't be registered, the driver warns and keeps
+the watchdog running.
 
-When a notifier is registered, it is also called for every partition that
-is already powered off, except one kept powered on with
-tegra_pmc.vde_always_on, which the PMC driver powers on when it registers
-it. A lock is held across both the notification and the power off, so a
-partition can't be powered off unnoticed while a notifier is being
-registered. Registration uses the early PMC, so it works before the PMC
-driver has probed, which is when the partitions are first powered off.
-The notifier, including the hook on the power off path, is therefore only
-built on 32-bit ARM, the only architecture with an early PMC.
+The notifier runs outside of the watchdog core's locking, so it only
+stops the hardware, under a mutex shared with the watchdog operations,
+and leaves the core's state alone. Clearing WDOG_HW_RUNNING there would
+race with the core, and leak the module and device references the core
+holds for a running watchdog. The core therefore keeps considering a
+watchdog stopped this way as running, which shows as follows:
+
+- While the device is closed, the core keeps pinging, which fails
+  without effect, and holds its references, as for any watchdog that
+  can't be stopped. They are released when the driver is unbound.
+- Opening the device fails with -EBUSY, as the core pings a watchdog it
+  considers running instead of starting it, and starting fails as well.
+- If user space has the device open, keepalives and timeout changes
+  fail with -EBUSY, so it finds out that the watchdog is gone.
+
+Stopping is the default. With tegra_pmc.vde_always_on=1, the partition
+is never powered off, so the watchdog stays usable. Booting with
+tegra20_wdt.stop_on_vde_off=0 also keeps it usable, but at the risk of
+the system hanging instead of rebooting.
+
+The watchdog is stopped even with nowayout, as a watchdog that can't
+reset the system is of no use. Booting with
+tegra20_wdt.stop_on_vde_off=0 keeps a nowayout watchdog running after
+the partition is powered off.
 
 Signed-off-by: Artur Kowalski <arturkow2000@gmail.com>
 ---
- drivers/soc/tegra/pmc.c | 105 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/soc/tegra/pmc.h |  19 +++++++++
- 2 files changed, 124 insertions(+)
+ Documentation/watchdog/watchdog-parameters.rst |   5 +
+ drivers/watchdog/tegra20_wdt.c                 | 184 ++++++++++++++++++++++---
+ 2 files changed, 170 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
-index abef3fed637ff..d959ae4d0f13b 100644
---- a/drivers/soc/tegra/pmc.c
-+++ b/drivers/soc/tegra/pmc.c
-@@ -31,6 +31,7 @@
- #include <linux/irq.h>
- #include <linux/irq_work.h>
+diff --git a/Documentation/watchdog/watchdog-parameters.rst b/Documentation/watchdog/watchdog-parameters.rst
+index 8f454c82521a8..1c62d2ad22f7a 100644
+--- a/Documentation/watchdog/watchdog-parameters.rst
++++ b/Documentation/watchdog/watchdog-parameters.rst
+@@ -609,6 +609,11 @@ tegra20_wdt:
+     nowayout:
+ 	Watchdog cannot be stopped once started
+ 	(default=kernel config parameter)
++    stop_on_vde_off:
++	Stop the watchdog for good when the VDE partition is powered
++	off, as a reset would hang the boot ROM. This takes precedence
++	over nowayout. Booting with tegra_pmc.vde_always_on=1 keeps the
++	partition, and with it the watchdog, usable (default=1)
+ 
+ -------------------------------------------------
+ 
+diff --git a/drivers/watchdog/tegra20_wdt.c b/drivers/watchdog/tegra20_wdt.c
+index aa90d538f92f3..0f15805927d20 100644
+--- a/drivers/watchdog/tegra20_wdt.c
++++ b/drivers/watchdog/tegra20_wdt.c
+@@ -9,11 +9,15 @@
+ #include <linux/io.h>
  #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
 +#include <linux/notifier.h>
- #include <linux/of_address.h>
- #include <linux/of_clk.h>
  #include <linux/of.h>
-@@ -520,6 +521,34 @@ static struct tegra_pmc *early_pmc = &(struct tegra_pmc) {
- 	.base = NULL,
- 	.suspend_mode = TEGRA_SUSPEND_NOT_READY,
+ #include <linux/platform_device.h>
+ #include <linux/stringify.h>
+ #include <linux/watchdog.h>
+ 
++#include <soc/tegra/pmc.h>
++
+ /* Timer registers */
+ #define TIMER_PTV			0x0
+ #define TIMER_EN			BIT(31)
+@@ -40,6 +44,9 @@
+ struct tegra20_wdt {
+ 	struct watchdog_device	wdd;
+ 	void __iomem		*tmr_regs;
++	struct notifier_block	powergate_nb;
++	struct mutex		lock;		/* hardware and vde_off */
++	bool			vde_off;
  };
-+
+ 
+ #define WDT_HEARTBEAT 120
+@@ -55,10 +62,26 @@ MODULE_PARM_DESC(nowayout,
+ 	"Watchdog cannot be stopped once started (default="
+ 	__stringify(WATCHDOG_NOWAYOUT) ")");
+ 
+-static int tegra20_wdt_start(struct watchdog_device *wdd)
 +/*
-+ * Notified before a partition is powered off. The lock is held across the
-+ * notification and the power off, so that a notifier being registered either
-+ * sees the partition still powered or is notified.
++ * After a watchdog reset, Tegra20's boot ROM hangs if the VDE partition is
++ * powered off, which the PMC driver does when it registers the partition,
++ * unless booted with tegra_pmc.vde_always_on=1. By default, the watchdog is
++ * therefore only used until the partition is powered off for the first time,
++ * which still allows a watchdog started by the bootloader to catch hangs early
++ * during boot. tegra_pmc.vde_always_on=1 keeps the watchdog usable for good.
++ * Clearing this keeps it usable as well, but at the risk of the system
++ * hanging instead of rebooting. This takes precedence over nowayout, as a
++ * watchdog that can't reset the system is of no use. Clear this to keep a
++ * nowayout watchdog running.
 + */
-+static DEFINE_MUTEX(tegra_powergate_nh_lock);
-+static RAW_NOTIFIER_HEAD(tegra_powergate_nh);
++static bool stop_on_vde_off = true;
++module_param(stop_on_vde_off, bool, 0);
++MODULE_PARM_DESC(stop_on_vde_off,
++	"Stop the watchdog for good when the VDE partition is powered off, even with nowayout (default=1)");
 +
-+static void tegra_powergate_power_off_begin(unsigned int id)
-+{
-+	mutex_lock(&tegra_powergate_nh_lock);
-+	raw_notifier_call_chain(&tegra_powergate_nh,
-+				TEGRA_PMC_POWERGATE_POWER_OFF, &id);
-+}
-+
-+static void tegra_powergate_power_off_end(void)
-+{
-+	mutex_unlock(&tegra_powergate_nh_lock);
-+}
-+#else
-+static inline void tegra_powergate_power_off_begin(unsigned int id)
-+{
-+}
-+
-+static inline void tegra_powergate_power_off_end(void)
-+{
-+}
- #endif
++static int __tegra20_wdt_start(struct tegra20_wdt *wdt)
+ {
+-	struct tegra20_wdt *wdt = watchdog_get_drvdata(wdd);
+-	u32 period = wdd->timeout * USEC_PER_SEC / 2;
++	u32 period = wdt->wdd.timeout * USEC_PER_SEC / 2;
  
- #ifdef MODULE_PARAM_PREFIX
-@@ -731,8 +760,14 @@ static int tegra_powergate_set(struct tegra_pmc *pmc, unsigned int id,
- 		return 0;
- 	}
- 
-+	if (!new_state)
-+		tegra_powergate_power_off_begin(id);
-+
- 	err = pmc->soc->powergate_set(pmc, id, new_state);
- 
-+	if (!new_state)
-+		tegra_powergate_power_off_end();
-+
- 	mutex_unlock(&pmc->powergates_lock);
- 
- 	return err;
-@@ -5167,6 +5202,76 @@ int tegra_pmc_cpu_remove_clamping(unsigned int cpuid)
- 	return tegra_pmc_powergate_remove_clamping(early_pmc, id);
+ 	writel(TIMER_EN | TIMER_PERIODIC | (period - 1),
+ 	       wdt->tmr_regs + TIMER_PTV);
+@@ -72,9 +95,8 @@ static int tegra20_wdt_start(struct watchdog_device *wdd)
+ 	return tegra20_clk_watchdog_enable(true);
  }
  
-+/**
-+ * tegra_pmc_powergate_register_notifier() - get notified of partition power off
-+ * @nb: notifier block
-+ *
-+ * The notifier is called with %TEGRA_PMC_POWERGATE_POWER_OFF and a pointer to
-+ * the partition ID (unsigned int) as data before a partition is powered off,
-+ * from a context that may sleep. The PMC's partition locks are held, so the
-+ * notifier must not call back into the PMC to control partitions or register
-+ * notifiers. Its return value is ignored. It is also called for every partition
-+ * that is already powered off before this function returns, so a partition is
-+ * either still powered once the function returns or the notifier has been
-+ * called for it. A partition that is kept powered on (tegra_pmc.vde_always_on)
-+ * is never reported, as the driver powers it on when it registers it.
-+ *
-+ * This works before the PMC driver has probed, as the PMC is set up early on
-+ * 32-bit ARM, so it covers the partitions that the driver powers off when it
-+ * registers them.
-+ */
-+int tegra_pmc_powergate_register_notifier(struct notifier_block *nb)
+-static int tegra20_wdt_stop(struct watchdog_device *wdd)
++static int __tegra20_wdt_stop(struct tegra20_wdt *wdt)
+ {
+-	struct tegra20_wdt *wdt = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+ 	ret = tegra20_clk_watchdog_enable(false);
+@@ -86,32 +108,90 @@ static int tegra20_wdt_stop(struct watchdog_device *wdd)
+ 	return ret;
+ }
+ 
++static int tegra20_wdt_start(struct watchdog_device *wdd)
 +{
-+	unsigned int id;
-+	int err;
++	struct tegra20_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret;
 +
-+	mutex_lock(&tegra_powergate_nh_lock);
++	mutex_lock(&wdt->lock);
 +
-+	err = raw_notifier_chain_register(&tegra_powergate_nh, nb);
-+	if (err)
++	/* a reset would hang with the VDE partition powered off */
++	if (wdt->vde_off)
++		ret = -EBUSY;
++	else
++		ret = __tegra20_wdt_start(wdt);
++
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int tegra20_wdt_stop(struct watchdog_device *wdd)
++{
++	struct tegra20_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret;
++
++	mutex_lock(&wdt->lock);
++	ret = __tegra20_wdt_stop(wdt);
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
+ static int tegra20_wdt_ping(struct watchdog_device *wdd)
+ {
+ 	struct tegra20_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret = 0;
++
++	mutex_lock(&wdt->lock);
++
++	/*
++	 * The notifier stopped the watchdog behind the core's back, which keeps
++	 * considering it running. Fail the pings, so that opening the device
++	 * fails, and user space that has it open finds out.
++	 */
++	if (wdt->vde_off) {
++		ret = -EBUSY;
 +		goto unlock;
++	}
+ 
+ 	/*
+ 	 * Clearing the interrupt alone doesn't restart the timer's period, so
+ 	 * the reset could follow as soon as half the timeout after the ping.
+ 	 * Rewriting the timer setting restarts the period. The interrupt is
+-	 * cleared afterwards, so one fired in between doesn't count.
++	 * cleared afterwards, so one fired in between doesn't count. While
++	 * stopped, the timer setting reads back as 0, so this doesn't start it.
+ 	 */
+ 	writel(readl(wdt->tmr_regs + TIMER_PTV), wdt->tmr_regs + TIMER_PTV);
+ 	writel(TIMER_PCR_INTR_CLR, wdt->tmr_regs + TIMER_PCR);
+ 
+-	return 0;
++unlock:
++	mutex_unlock(&wdt->lock);
 +
-+	/* the base is switched to the driver's mapping under this lock */
-+	mutex_lock(&early_pmc->powergates_lock);
++	return ret;
+ }
+ 
+ static int tegra20_wdt_set_timeout(struct watchdog_device *wdd,
+ 				   unsigned int timeout)
+ {
+-	wdd->timeout = timeout;
++	struct tegra20_wdt *wdt = watchdog_get_drvdata(wdd);
++	int ret = 0;
+ 
+-	/* starting again reprograms the running watchdog */
+-	if (watchdog_active(wdd))
+-		return tegra20_wdt_start(wdd);
++	mutex_lock(&wdt->lock);
+ 
+-	return 0;
++	if (wdt->vde_off) {
++		ret = -EBUSY;
++	} else {
++		wdd->timeout = timeout;
 +
-+	if (early_pmc->base && early_pmc->soc) {
-+		for (id = 0; id < early_pmc->soc->num_powergates; id++) {
-+			/* powered on when the driver registers it */
-+			if (tegra_powergate_is_always_on(id))
-+				continue;
++		/* starting again reprograms the running watchdog */
++		if (watchdog_active(wdd))
++			ret = __tegra20_wdt_start(wdt);
++	}
 +
-+			if (tegra_powergate_is_powered(early_pmc, id) == 0)
-+				nb->notifier_call(nb,
-+						  TEGRA_PMC_POWERGATE_POWER_OFF,
-+						  &id);
++	mutex_unlock(&wdt->lock);
++
++	return ret;
+ }
+ 
+ static const struct watchdog_info tegra20_wdt_info = {
+@@ -130,30 +210,96 @@ static const struct watchdog_ops tegra20_wdt_ops = {
+ 	.set_timeout =	tegra20_wdt_set_timeout,
+ };
+ 
++/*
++ * This runs outside of the watchdog core's locking, and possibly before the
++ * watchdog is registered, so it must not touch the core's state, such as
++ * WDOG_ACTIVE and WDOG_HW_RUNNING. The core keeps considering a stopped
++ * watchdog as running, along with the references it holds for it, and the
++ * operations refuse to start or ping it instead.
++ */
++static int tegra20_wdt_powergate_notify(struct notifier_block *nb,
++					unsigned long event, void *data)
++{
++	struct tegra20_wdt *wdt = container_of(nb, struct tegra20_wdt,
++					       powergate_nb);
++	unsigned int id = *(unsigned int *)data;
++
++	if (event != TEGRA_PMC_POWERGATE_POWER_OFF ||
++	    id != TEGRA_POWERGATE_VDEC)
++		return NOTIFY_DONE;
++
++	mutex_lock(&wdt->lock);
++
++	if (!wdt->vde_off) {
++		wdt->vde_off = true;
++		__tegra20_wdt_stop(wdt);
++
++		dev_info(wdt->wdd.parent,
++			 "VDE powered off, watchdog stopped for good\n");
++	}
++
++	mutex_unlock(&wdt->lock);
++
++	return NOTIFY_OK;
++}
++
++static void tegra20_wdt_unregister_notifier(void *data)
++{
++	struct tegra20_wdt *wdt = data;
++
++	tegra_pmc_powergate_unregister_notifier(&wdt->powergate_nb);
++}
++
+ static int tegra20_wdt_init(struct platform_device *pdev,
+ 			    struct tegra20_wdt *wdt,
+ 			    void __iomem *regs)
+ {
+ 	struct device *dev = &pdev->dev;
+-	int ret;
++	int ret, err;
+ 
+ 	wdt->tmr_regs = regs;
+ 
++	ret = devm_mutex_init(dev, &wdt->lock);
++	if (ret)
++		return ret;
++
++	/*
++	 * If the VDE partition is already powered off, the notifier is called
++	 * right away and stops a watchdog left running by the bootloader.
++	 */
++	if (stop_on_vde_off) {
++		wdt->powergate_nb.notifier_call = tegra20_wdt_powergate_notify;
++
++		err = tegra_pmc_powergate_register_notifier(&wdt->powergate_nb);
++		if (err) {
++			dev_warn(dev, "failed to register VDE notifier: %d\n",
++				 err);
++		} else {
++			ret = devm_add_action_or_reset(dev,
++					tegra20_wdt_unregister_notifier, wdt);
++			if (ret)
++				return ret;
 +		}
 +	}
 +
-+	mutex_unlock(&early_pmc->powergates_lock);
+ 	/*
+ 	 * The bootloader may leave the watchdog running. Take it over with
+ 	 * our own timeout and timer 1, and let the core ping it until user
+ 	 * space opens the device.
+ 	 */
+-	if (tegra20_clk_watchdog_is_enabled()) {
++	mutex_lock(&wdt->lock);
 +
-+unlock:
-+	mutex_unlock(&tegra_powergate_nh_lock);
-+
-+	return err;
-+}
-+EXPORT_SYMBOL(tegra_pmc_powergate_register_notifier);
-+
-+/**
-+ * tegra_pmc_powergate_unregister_notifier() - unregister a power off notifier
-+ * @nb: notifier block registered with tegra_pmc_powergate_register_notifier()
-+ */
-+int tegra_pmc_powergate_unregister_notifier(struct notifier_block *nb)
-+{
-+	int err;
-+
-+	mutex_lock(&tegra_powergate_nh_lock);
-+	err = raw_notifier_chain_unregister(&tegra_powergate_nh, nb);
-+	mutex_unlock(&tegra_powergate_nh_lock);
-+
-+	return err;
-+}
-+EXPORT_SYMBOL(tegra_pmc_powergate_unregister_notifier);
-+
- bool tegra_pmc_core_domain_state_synced(void)
- {
- 	return early_pmc->core_domain_state_synced;
-diff --git a/include/soc/tegra/pmc.h b/include/soc/tegra/pmc.h
-index 53f6d02889dbd..c574a6e81a1ad 100644
---- a/include/soc/tegra/pmc.h
-+++ b/include/soc/tegra/pmc.h
-@@ -231,14 +231,33 @@ static inline void tegra_pmc_enter_suspend_mode(enum tegra_suspend_mode mode)
- #endif
- #endif
++	if (!wdt->vde_off && tegra20_clk_watchdog_is_enabled()) {
+ 		dev_info(dev, "watchdog left running by the bootloader, taking it over (timeout %u sec)\n",
+ 			 wdt->wdd.timeout);
+-		ret = tegra20_wdt_start(&wdt->wdd);
+-		if (ret)
+-			return ret;
+-		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
++		ret = __tegra20_wdt_start(wdt);
++		if (!ret)
++			set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
+ 	}
  
-+/* event of the partition power off notifier, data points to the partition ID */
-+#define TEGRA_PMC_POWERGATE_POWER_OFF	0
+-	return 0;
++	mutex_unlock(&wdt->lock);
 +
-+struct notifier_block;
-+
- #if defined(CONFIG_ARM) && defined(CONFIG_SOC_TEGRA_PMC)
- bool tegra_pmc_core_domain_state_synced(void);
-+int tegra_pmc_powergate_register_notifier(struct notifier_block *nb);
-+int tegra_pmc_powergate_unregister_notifier(struct notifier_block *nb);
- #else
- /* needed for COMPILE_TEST */
- static inline bool tegra_pmc_core_domain_state_synced(void)
- {
- 	return false;
++	return ret;
  }
-+
-+static inline int
-+tegra_pmc_powergate_register_notifier(struct notifier_block *nb)
-+{
-+	return -ENOSYS;
-+}
-+
-+static inline int
-+tegra_pmc_powergate_unregister_notifier(struct notifier_block *nb)
-+{
-+	return -ENOSYS;
-+}
- #endif
  
- #endif /* __SOC_TEGRA_PMC_H__ */
+ static int tegra20_wdt_probe(struct platform_device *pdev)
 
 -- 
 2.56.1
