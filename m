@@ -1,82 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795511596;
-	b=FMVTOm8JUtxHhCCem7EELf6n+XsB7Of1iKNYFFG8QICRkpzsLscTflfrUVdezpnWxmJb
-	 wGzkZ5fJphYQpuBj6vKNbXEVaWd9WWHCyTpZDQd6sGagEwxp9M/9mnE3NQRL5xLBePUMM
-	 OP0d9IjE3FpGPd+gooFM+DowN2zgeRy0p+dJRTOy1r/jlV/4SeNk3lblpw9ntQnqIMbRg
-	 vfxnzss8a4hPIWISm9HshxpbMAFrK3VpYYCu9Ua9TJu9KWa8+XF3nGeYUQ+W2ZVsZwRr8
-	 I3dPu/vUm9gALkYEboW9M3znTsDNfEjhj+98eRcaQxHySZtD+PIfZl9U0ODROPdlKBA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795511596;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=xSsbExyRgnMf+870sb8Orxcq7FevQGTwTXR3rzktG7Q=;
-	b=bOE/R4uYQm4MXoQql0eyL33N5JlpUBNgyFADirKFdYLO2hp3wrz0X+MHnXG5jheNsbWT
-	 VDEFiGHQBqI8qOTLYA9Ud8c7aQ1b5em8oxCZULp3scTfXzgENZCPYez/DgHmlalwC0xQe
-	 LMY0cTZwyLDVX/rNPjNxIE2Dtm6/a7n1c29wl7G9A1SxhJlGAVCDBRw9p4WgvqLPYFBH9
-	 jstXE4Y2BFm7IrrmUWrI3i/0rxsM45HLDvs1URW+Mbh5PsfYxvT+maKcFLCY8jOlzdIII
-	 ksKHx+M28+80uPGm6g9tJeirNp1I9j7QKCGwvNcjuvzFzsU4IKuF8btIWsEV/XukkDA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ihL73dio;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795512126;
+	b=BjxTzHicU96W9aaLTjDKLe4h6I4a3pBJOoU2wKQ2VOCtZcSAvAbu9r+geVp6xBbabxiz
+	 X9FdBbwOmAPdQtWbzotJyZvMpWSkhdIOlAiD2eni9sAO69JWAVzzJhJTiCl00al0amYvi
+	 Jq4oPBQprOVHk9sNH5HU185q8lwjm11TvQgAj7Bpt+9yXLkLPAvthNb2NWHY404PO4uJ4
+	 sujJXD2QrWOynJ7ekh6lUEE0PHyn8ZsWwaQmDEdhcMpcMupdYUMpGJSdvLmaNaQYu4WRY
+	 BfocuUwVl64/znbBlQbeDemvO7yPTDwzWeRZuqkkUAgGP6YHxr61DYnKWGOlpAgNVWg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795512126;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Lb6my5FSJvWsKhWZWYQZN9OfYvHuCz8dE2fTFZGx0hk=;
+	b=Dm1wawHUa/A1O5CAbmSgYrJcBb4Iz3XfWrht6qDCT0VKi5j9fCYTlx1fRxicXx6SusXx
+	 It5jaCYok+EmWvHESM6lN2ITKwDZ3OHOCq+z2krdbIZwlkbRcu/51wgkok9gh6KEQsYN7
+	 W0cs9NbHjddicbkgmdwObRxVnGw3KvLczsOuPsPD7Lz8va6H3DtGogsUevL+oETzim20q
+	 77qfb941wSjwitByGOYHgpcvUZqrh2Ib426kug93Sy5w39YO4fbW2JmlEIJmGxdJGMqxn
+	 MMe+R9xSHn6dCzGAGW4wSyQnseJbWuAWkxFhDe3ZxmVsFLyHDGVn5vE0h0BFTHfxBVg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BlESMlYS;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18390606A68F
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 09:22:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BlESMlYS
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795512125;
+	b=rUvEo+SvC2UthA5WPqAW/0Z7c18cxDYdnYUlt6/vxVwyMl6qsegDh95d1O6j81FrVk8l
+	 P48cQeugDt/tfbjr+s8IyQQa2tou7KPpFCU4ff6/wrAQBmcvIfjPTynKP+5jRLDFdffeT
+	 pQ2Ztn7yMkfH/0QA5haTW3BzNcG7a7s+KrMyhsJ0pN5b2xf/fZjWfKeEHIDAjaOZcDpmb
+	 dlpW76ZCY+w5Dd3x6PFEpYFhG5nuqWrnOE5qcSGTLS8EZDQl6FN2YF5EVDyhlFHWFWYCz
+	 AVTAbYWO0eMJP4se7Z05QWW7Rk5jwHGDxENNIVXyZylLkNl7ysp2j16jBBMXO+e+GpA==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795512125;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Lb6my5FSJvWsKhWZWYQZN9OfYvHuCz8dE2fTFZGx0hk=;
+	b=D/PBFD6xfdwNRyIw1A2OUn7ou9gqXD/E3N0pMjgK1VZpLifW7xf/UGOa3pNj2UxW3nOc
+	 zprCcm+19vfMnU2UtqCXNhE/EB6aPQRSKYrEKhFYYOytTjyJnVhvVDLjHsg40c7qaGrHq
+	 cMpQf4/H+J5wI93wPJ5K4V4ePIELQvhdRO03tY/4yqLmeU4p2xf/8kk0yMuiHS200AK5S
+	 KRwYFAgqXVwxeAHEx8iy7PyMrTEWCyeoS2/BAJT0yVvosRAl4pbf6jjOoMjvq5qwuhWZQ
+	 i+AGvbOBB1lNo3q7BGX+X3g0l4mYOL1bAH73STkUNNFRG8REKaw5peuq4FoULL0HsqQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 806B2606A321;
-	Tue, 24 Nov 2026 09:13:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 806B2606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ihL73dio
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AO34t3q1217161;
-	Tue, 24 Nov 2026 09:12:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=xSsbEx
-	yRgnMf+870sb8Orxcq7FevQGTwTXR3rzktG7Q=; b=ihL73dioksztXNZnGZbjw2
-	vMmp1i+5gD4IytODK13i1tm3UiSXhtQejWRwEEFHDxDd6KasikNSpBGwzCiqMW9y
-	l0n9xochs9ZjDrxfde70KqEmxRLFzgp6+tNoi2l9Gss0pN1GbNrXB9scWCOY6rEb
-	53W0T3RREPteHzSKIGXLX7HqYVDLmnpAFInxWI4Zd9m4zeC5oxXX2+crsyV+L3nz
-	sX+xSunzxYef/0CeLHORk9wFcow+nEUjThTEF93AYX4nLlbFyf/aUzeyLA6Q1yWv
-	SNWZmQ6sKyDoJEVcMRCie6z+h2LXF48WAYeX7XXeKiEdxe1VRTSr4AqPRMbFrerA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34gv6kfa-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 24 Nov 2026 09:12:36 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AO8rXAt021968;
-	Tue, 24 Nov 2026 09:12:36 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j3pmk20du-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Nov 2026 09:12:36 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AO9CZVm3015528
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Nov 2026 09:12:35 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B2FD158052;
-	Tue, 24 Nov 2026 09:12:35 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3780258054;
-	Tue, 24 Nov 2026 09:12:27 +0000 (GMT)
-Received: from [9.43.57.13] (unknown [9.43.57.13])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Nov 2026 09:12:26 +0000 (GMT)
-Message-ID: <80be72d2-c357-4709-aede-a030e6751f25@linux.ibm.com>
-Date: Tue, 24 Nov 2026 14:42:25 +0530
+	by smtp.kernel.org (Postfix) with ESMTPS id C87681F000D2;
+	Tue, 24 Nov 2026 09:21:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795512125;
+	bh=Lb6my5FSJvWsKhWZWYQZN9OfYvHuCz8dE2fTFZGx0hk=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=BlESMlYSoe8UUWHv14/hbKYcg1vNlb6HeFhYhw/a5ts2xSFaR/LA5hUnQ+DPb1/2j
+	 0JLxBNoH1t3h5nJJNMp1PQEOl48UHzKdGvvrercEt24vJ8jQ3gJ+9SDvwfbxA93/IJ
+	 T7VZ+O8KW61sZVqfZXHP0DsoImhPHwYqsyvt1iWhTuU4zbavZ/0DbikmzQy6Hw1e+k
+	 2/Wsz0gS4tlB5g5s6KB0XwDs1IChXuccMC4CavocLbolu1ILzQx5KshRaf143KdQ1F
+	 j3cg4iepkzIByS5jSBOM0jFEehlYov+T9cCdXs1B9erhCzxc3aD8jrY9dezBQVET+k
+	 eZngvmNW66MhA==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 4A4464C97C;
+	Tue, 24 Nov 2026 09:21:59 +0000 (UTC)
+From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
+Date: Tue, 24 Nov 2026 12:21:59 +0300
+Subject: [PATCH] watchdog: arm_twd: Protect the clock snapshot until
+ notifier registration
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -86,95 +83,94 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 3/3] powerpc: dts: turris1x.dts: Use wdi-gpios for the
- watchdog
-To: Josef Schlehofer <pepe.schlehofer@gmail.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck
- <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>
-Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linusw@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>,
-        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-References: <20261124050118.87944-1-pepe.schlehofer@gmail.com>
- <20261124050118.87944-4-pepe.schlehofer@gmail.com>
-Content-Language: en-US
-From: Madhavan Srinivasan <maddy@linux.ibm.com>
-In-Reply-To: <20261124050118.87944-4-pepe.schlehofer@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261124-arm-twd-clock-notifier-v1-1-62933570ae27@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMTQ6CMBBA4auQWTsJbQpGr2Jc4HQK409rplVJC
+ He3yvJbvLdAZhXOcGwWUH5LlhQrzK4BmoY4MoqvBtva3hjrcNAHlo9Huie6YUxFgrCi25Pxh45
+ 9GxzU+KkcZP6PT+fN+XW5MpXfDdb1C5QDF3B6AAAA
+X-Change-ID: 20261124-arm-twd-clock-notifier-47c1d95ed0f4
+To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795512118; l=2819;
+ i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
+ bh=p2sYExYr/jO4sa/Pzc9YiL7jgTYBz7CEinmU5GG86Do=;
+ b=VKSH9DQH5NzG5wXNQbbOG5bM9NbRQJgeAnhBSlyzzi6f4pHjXYtULw/lPg3h+b5QIcFQJ/Czw
+ eEoM9dcRDujDm1+ygFz9bhuJ7EyXNGWMydoWQ6zWkzX9PVC+5WhAtZm
+X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
+ pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
+X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
+ auth_id=1085
+X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Reply-To: filipp.dunsky@gmail.com
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=CYCdd7rl c=1 sm=1 tr=0 ts=6b055505 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=pGLkceISAAAA:8 a=VPMLOkGST9yvVNcXXMQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDAzNSBTYWx0ZWRfXyh5/t0L+cfiZ
- 8dY9+ntlJy9nMb8kW/Kk6FSRM6YaGcb/sE8DSmUUV3w9Zoxh4RpkT3O9V2SS2FVSEX1VVliERmj
- WPK3BZ9QXnpAPuGZZ5baH6P7HnDXbdc=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDAzNSBTYWx0ZWRfX1nq9qCieY781
- I0vSM4rsVO8F+5RQlfdmK0Bv65ydnU+esyZNHdRWYucAnNIEkNBEg33aQbDn0eBp2lrurAnk6x0
- ytouiBYyBVe3Fwo+QRPbeFQyg3kL81HyPf57AvhXVN4QyQoKc2Py3LmHf8eTd+fIszGQlqZI3DN
- C9hXFjgEqb4/hvsXak82gfwyojPqmXggbGOAJTZ1uCyMbKVq0Nq5PHmbrKh+7BjlB4RsT2JoWKQ
- AbHIjelxUrw53iqwUHs3jqv5hauN566AHaAtUzlW8bD6Qx/iPaeF25USGrLeWL25l2Er9iKJdWT
- UyJp53Q88fxf/n6Hh8WylFt8aIQDq0a7AmKZaLXqTGq5zbO99rpqGMMCbG+usBB2ngMXJjvtOR5
- DCELC8J7tYmhZGJszQoRjME6mpaL9mQRMVjls0CgrFpjYuW9I3qQzo0DnU4etyZVZ1+bs3eWIOS
- v9h/L5MRkF+86eMUsVA==
-X-Proofpoint-ORIG-GUID: 5blUheAGpVWOvEiAQCnnklA3GVUVcbJB
-X-Proofpoint-GUID: K3ywaFCt4ZKf6N8a2r1PcnE6SwWAnn0E
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-24_01,2026-11-23_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- clxscore=1011 spamscore=0 bulkscore=0 impostorscore=0 adultscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611240035
+
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+
+A clock rate change can complete after clk_get_rate() returns but before
+probe registers the clock notifier. The driver then misses that change
+and keeps the old rate when programming the watchdog counter.
+
+Take temporary rate exclusivity before reading the clock rate and release
+it after registering the notifier. This protects the snapshot against
+changes from other consumers, including changes to an ancestor clock,
+until subsequent transitions can be observed. Release the protection on
+the zero-rate and notifier registration error paths as well.
+
+Fixes: 52d91ea73e05 ("watchdog: Add ARM TWD (MPCore private) watchdog driver")
+Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
+---
+This is a single-fix follow-up against watchdog-next, rather than a new
+revision of the accepted driver series. A rate change from another CCF
+consumer can finish between the rate snapshot and notifier installation.
+Temporary rate exclusivity closes that handoff without retaining the CCF
+prepare lock or holding the watchdog mutex across a CCF call.
+
+Validation: the old and fixed clock-backed probe branches, actual CCF
+functions and the actual TWD notifier were exercised with 25 deterministic
+interleaving/unwind cases under both GCC and Clang ASan/UBSan. The full
+modified driver also builds as an ARM module with W=1, with all imports
+resolved. These are offline checks; no changing-clock hardware test is
+claimed. The separate maximum-timeout policy for future faster clock
+rates is unchanged.
+---
+ drivers/watchdog/arm_twd_wdt.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/arm_twd_wdt.c b/drivers/watchdog/arm_twd_wdt.c
+index f83770109..aa974da23 100644
+--- a/drivers/watchdog/arm_twd_wdt.c
++++ b/drivers/watchdog/arm_twd_wdt.c
+@@ -553,13 +553,21 @@ static int twd_wdt_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, PTR_ERR(clk), "failed to get clock\n");
+ 
+ 	if (clk) {
++		/* Keep the rate snapshot stable until its notifier is installed. */
++		ret = clk_rate_exclusive_get(clk);
++		if (ret)
++			return dev_err_probe(dev, ret, "failed to protect clock rate\n");
++
+ 		wdt->rate = clk_get_rate(clk);
+-		if (!wdt->rate)
++		if (!wdt->rate) {
++			clk_rate_exclusive_put(clk);
+ 			return dev_err_probe(dev, -EINVAL, "clock rate is zero\n");
++		}
+ 
+ 		wdt->max_rate = wdt->rate;
+ 		wdt->clk_nb.notifier_call = twd_wdt_clk_notify;
+ 		ret = devm_clk_notifier_register(dev, clk, &wdt->clk_nb);
++		clk_rate_exclusive_put(clk);
+ 		if (ret)
+ 			return dev_err_probe(dev, ret, "failed to register clock notifier\n");
+ 	} else {
+
+---
+base-commit: 43495d289b7cc30f95791fb7cd7999d766b659b8
+change-id: 20261124-arm-twd-clock-notifier-47c1d95ed0f4
+
+Best regards,
+--  
+Fil Dunsky <filipp.dunsky@gmail.com>
 
 
-On 11/24/26 10:31 AM, Josef Schlehofer wrote:
-> The watchdog node passes its WDI GPIO in a gpios property, which the
-> maxim,max63xx binding does not define and the max63xx_wdt driver does
-> not read. dtbs_check reports it for watchdog@2:
->
->    Unevaluated properties are not allowed ('gpios' was unexpected)
->
-> Rename it to wdi-gpios, which the binding defines and the driver reads.
-
-Acked-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-
-> Signed-off-by: Josef Schlehofer <pepe.schlehofer@gmail.com>
-> ---
->
-> Notes:
->      Changes in v4:
->      - new patch
->
->   arch/powerpc/boot/dts/turris1x.dts | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/powerpc/boot/dts/turris1x.dts b/arch/powerpc/boot/dts/turris1x.dts
-> index dff1ea074d9d..494a96a1f78c 100644
-> --- a/arch/powerpc/boot/dts/turris1x.dts
-> +++ b/arch/powerpc/boot/dts/turris1x.dts
-> @@ -363,7 +363,7 @@
->   				 */
->   				compatible = "maxim,max6370";
->   				reg = <0x02 0x01>;
-> -				gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
-> +				wdi-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
->   			};
->   
->   			reboot@d {
