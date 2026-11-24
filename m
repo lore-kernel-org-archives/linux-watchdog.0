@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795526467;
-	b=Mlit3B8ZMKdoW6S3fxVsjBL4m2H1mPysfrykqT2tqJVeKESXsAH+yBwG8aMOlYNIXYwZ
-	 AXMhhTwHTo2a8Ol8KRcdl6QWPRP8nMw9zUw0fBKc6A4Co8pQ1uZwV3SsCd887OLJcQTVK
-	 IqU1n/QTaPOvBiQ7uomU/w0amuVAAS6mK/+vGkMhjw44CAaiqdBDzx9+DLlm3YPkx2svQ
-	 V/CJsV8KXulUJ17TstvAp2dQ7U1d3JW9v/PdfTZldl6bQdi+9EDl4Gp0X40yZ8hFzCygx
-	 /qRxBjI1JxgxNfH0pTdUxy/XGRH9mlEImQVQ2TdQZ3AJKoGH1sPlstF/cLJvCZ6tRnA==
+	t=1795527432;
+	b=1vel+nHyN62N4Qb6orzeKdS/LLJL98wCcz3VYziEsPRu+MSaHzjw3pwaK4Sion1q69e8
+	 eq6DBGWR3CUem+kVIG2Jtrayqzlr/5i9FKy9rqRqMe/ZLnsVeR9Rl9KrjYhRlSgQZxcsP
+	 y5xVwbGE6lINu9WhXQqpEFxZ0B2YVtlsKddI3/QoF5OKdOxLOabEz47v9PwI3bRyApKIb
+	 KuLq9AtEtUZXtivFkfi5zCLJzNB57zP/byHb+KguBqaeVSMjHvZaw1+KVqcKLH0tk8uQS
+	 vmOu9yceWF3zchZO9TbLk94s3Xw6UyPdALLbYhyQJT3wjwCG4HkkozwsQhM4JSDdHnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795526467;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795527432;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=+iSVu8qqF/88Gntq+d1NmCdy+CfilI+U+uaEh9W3mRM=;
-	b=fL6ip+1VdHYnNv5eZP0bhbaz01VYJka5f/EJwYAbo7gtKQbj/UNL/FPRh1j+4rtZ6Fy8
-	 GHdI+AIJ80hUuBm7OG1zarMZoct+uBbk/WzwWPcksfYfU/Szq3ZjiqrmaLgegdD/GAX36
-	 iploWzyRfUlP1adJ+AUaHehw7x3bJdwXfBK+dl5o/6soLJe7Z0w43iFsJMKhQnz4E7XPh
-	 oDF5D8Csk44dfx7ICq77R0mQ+sq5MR35Qed2fHl8s3wvtY+APNE5pC0+Li3fQ31ixYL9n
-	 TjAoS81cumHCG8TazrcE59yrolg9Dio9e+TSQq7RFdAamKyyTkGR3SbL/KkXQhCH4uA==
+	bh=oji5cmvbgflzhFHjSCMTUWtZwZgJealtItojcsW5v8E=;
+	b=sP1SuS/l1cZVnkofjUPtzg2AiLThDbgMq4DNQura7D4fsLepepWCmUmGilEVOIfe+jsY
+	 Jfrsmf+xvUdqUdgN53KM85pmN2cHxyftKfSFpmQTyb8R8tln2miNxm//LlnHLURShMKtl
+	 fSq2aAsmTOHerNO9cvZa4dzD7SO7aWapAR6EjX9Yflxm5wMxgVntZ5UrkfW91eE4akmWs
+	 5z2+cv9iHnISB+zoVAB+F6BUMHJU9h/2pIn2g4curWXYfq8eLeGZbzh6d2vyZdsilgHRN
+	 yKggzS2f+KFqVbtIuagja78E0rwfIrpXT0LZE/2a18J77/j7ICC9colAxpQSWR78NCQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pn9zYKYU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZE6muCls;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9679606A326
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 13:21:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370C8606A686
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 13:37:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pn9zYKYU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A6531F000ED;
-	Tue, 24 Nov 2026 13:21:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZE6muCls
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 631C61F000E6;
+	Tue, 24 Nov 2026 13:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795526467;
-	bh=+iSVu8qqF/88Gntq+d1NmCdy+CfilI+U+uaEh9W3mRM=;
+	s=k20260515; t=1795527431;
+	bh=oji5cmvbgflzhFHjSCMTUWtZwZgJealtItojcsW5v8E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Pn9zYKYUtfelFf4nC6hrxH3A+7A0Z0edlczvUZX6KHX2HGayyJfFgaNG6fEzjxOD0
-	 BNdw8cRedKq0mYSU2MfOV78bYNgteRSWZK1oXOpQqH+fbBi9toTJqlvvZzROEL8Hh5
-	 DtHqxwvIHEnMgR1zA8qRzyT7onYpxl92TcYLAqCSsqpHukNbB9nyjJDlsSi/q4si5v
-	 BfQEi+afrABoD83Af85WNnzRZm9RrSISWg/CgfWd3L0RO4TPhrCMmNj5chdKu4Dc42
-	 DhQC6FdV42X4jNRnTMzINLxO75o6q3bsbyVWLSkofVFr7xyiojEBKQqJgqhDszchIj
-	 aOdciOpJzfPLg==
-Message-ID: <sashiko-outbox-231195@kernel.org>
+	b=ZE6muClsF/iqxq/9EtoA7XP6VHwCadYhufxybPDvR94BnkcXi+5NidoLM8ul+WkTK
+	 3+1BxN3TFc/xa44Q80h4qn1zGciYdVudrG5SmFwFbaJiYkiXrco6jJUVRN1VZlM/4E
+	 wL87ToDfjjdQnYmyab2N5V9gsd9/lBO+9Zmgfato4fNBEPtaaYr6LuRpxSQO4d+eib
+	 tg8La00qhMcHokddWLlHwuAI05X+OSpspddy6qgjN2n6fjp+cA3jvhPtIdpR1nGH4X
+	 w0sD8XL9fw8TJ4IbjiVYantjyQ5UQ1byt3BVgIA8CUNmEafsGS5S62Sd/FsN3urn4k
+	 0i80WrZ6ootKw==
+Message-ID: <sashiko-outbox-231227@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v4 1/2] RISC-V: Add defines for the RISC-V SBI
- watchdog extension
+Subject: Re: [RFC PATCH v4 2/2] drivers/watchdog: Add RISC-V SBI watchdog
+ driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Prajwal N" <prajwal.n@oss.qualcomm.com>
 Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20261124131542.613271-2-prajwal.n@oss.qualcomm.com>
+In-Reply-To: <20261124131542.613271-3-prajwal.n@oss.qualcomm.com>
 References: <20261124131542.613271-1-prajwal.n@oss.qualcomm.com>
- <20261124131542.613271-2-prajwal.n@oss.qualcomm.com>
+ <20261124131542.613271-3-prajwal.n@oss.qualcomm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 13:21:06 +0000
+Date: Tue, 24 Nov 2026 13:37:10 +0000
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -61,67 +61,156 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] riscv: sbi: inconsistent WDT vs WATCHDOG naming in asm/sbi.h
+Thank you for your contribution! Sashiko AI review found 4 potential
+issues to consider:
+- [Medium] watchdog: riscv_sbi_wdt: unclamped timeout bounds in
+  sbiwdt_init_attributes()
+- [Medium] watchdog: riscv_sbi_wdt: stale firmware pretimeout in
+  sbiwdt_init_attributes()
+- [Medium] watchdog: riscv_sbi_wdt: missing running state check in
+  sbiwdt_probe()
+- [Medium] watchdog: riscv_sbi_wdt: probe fails in sbiwdt_probe()
+  without S-mode IMSIC
 --
 
-commit 0a75cf9d3428dfcabb80b08ac219176e7b70a095
+commit 7154e44eab330baa1ded9a131b702c04ae8a2530
 Author: Prajwal N <prajwal.n@oss.qualcomm.com>
 
-RISC-V: Add defines for the RISC-V SBI watchdog extension
+drivers/watchdog: Add RISC-V SBI watchdog driver
 
-This commit adds the extension ID, function IDs, and attribute IDs for the
-RISC-V SBI watchdog extension to arch/riscv/include/asm/sbi.h.
+This commit adds a Linux watchdog driver for the RISC-V SBI watchdog
+extension, including MSI-based pretimeout notification support.
 
-> diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
-> index fd6266a7b3395..f2b0b0c9f6b13 100644
-> --- a/arch/riscv/include/asm/sbi.h
-> +++ b/arch/riscv/include/asm/sbi.h
-> @@ -40,6 +40,7 @@ enum sbi_ext_id {
->  	SBI_EXT_FWFT =3D 0x46574654,
->  	SBI_EXT_MPXY =3D 0x4D505859,
->  	SBI_EXT_DBTR =3D 0x44425452,
-> +	SBI_EXT_WDT =3D 0x574454,
-> =20
->  	/* Experimentals extensions must lie within this range */
->  	SBI_EXT_EXPERIMENTAL_START =3D 0x08000000,
-> @@ -536,6 +537,31 @@ union sbi_dbtr_shmem_entry {
->  	struct sbi_dbtr_id_msg id;
->  };
-> =20
-> +/* SBI watchdog function IDs */
-> +enum sbi_ext_wdt_fid {
-> +	SBI_EXT_WATCHDOG_READ_ATTRIBUTE =3D 0,
-> +	SBI_EXT_WATCHDOG_WRITE_ATTRIBUTE,
-> +	SBI_EXT_WATCHDOG_WRITE_NOTIF_MSI_MESSAGE,
-> +	SBI_EXT_WATCHDOG_START,
-> +	SBI_EXT_WATCHDOG_STOP,
-> +	SBI_EXT_WATCHDOG_PAT,
-> +};
+> diff --git a/drivers/watchdog/riscv_sbi_wdt.c b/drivers/watchdog/riscv_sb=
+i_wdt.c
+> new file mode 100644
+> index 0000000000000..8e3db98547882
+> --- /dev/null
+> +++ b/drivers/watchdog/riscv_sbi_wdt.c
+[ ... ]
+> +/* Initialize the watchdog attributes */
+> +static int sbiwdt_init_attributes(struct sbiwdt *wdt)
+> +{
+> +	int ret;
+> +	u32 attr_val;
+> +	u32 timeout_usec;
 > +
-> +/* SBI watchdog attributes */
-> +enum sbi_ext_wdt_attribute_id {
-> +	SBI_WATCHDOG_CAPABILITY			=3D 0x00000000,
-> +	SBI_WATCHDOG_STATE			=3D 0x00000001,
-> +	SBI_WATCHDOG_MIN_PERIOD			=3D 0x00000002,
-> +	SBI_WATCHDOG_PERIOD			=3D 0x00000003,
-> +	SBI_WATCHDOG_TIME_LEFT			=3D 0x00000004,
-> +	SBI_WATCHDOG_NOTIF_TIME			=3D 0x00000005,
-> +	SBI_WATCHDOG_NOTIF_MSI_ADDR_LOW		=3D 0x00000006,
-> +	SBI_WATCHDOG_NOTIF_MSI_ADDR_HIGH	=3D 0x00000007,
-> +	SBI_WATCHDOG_NOTIF_MSI_DATA		=3D 0x00000008,
-> +	SBI_WATCHDOG_ATTR_MAX			=3D 0x00000009,
-> +	SBI_WATCHDOG_ATTR_RESERVED_MAX		=3D 0xFFFFFFFF
-> +};
+> +	/* Read watchdog capability from firmware */
+> +	ret =3D sbiwdt_read_attribute(SBI_WATCHDOG_CAPABILITY, &attr_val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	wdt->attrs.wdt_capability =3D attr_val;
 
-[Severity: Low]
-This isn't a bug, but the other extensions in asm/sbi.h use the same
-acronym across SBI_EXT_<EXT>, enum sbi_ext_<ext>_fid, SBI_EXT_<EXT>_*, and
-SBI_<EXT>_*.  Here the extension ID and enum names use WDT / wdt while the
-enumerators use SBI_EXT_WATCHDOG_* and SBI_WATCHDOG_* instead of
-SBI_EXT_WDT_* and SBI_WDT_*.
+[Severity: Medium]
+As reported by Guenter Roeck on RFC v3 [1], should sbiwdt_init_attributes()
+check SBI_WATCHDOG_STATE and either stop an active watchdog or set
+WDOG_HW_RUNNING on wdt->wdd.status?
+
+wdt_state is declared in struct sbiwdt_attributes, but SBI_WATCHDOG_STATE is
+never read.  If the bootloader, firmware, or a pre-kexec kernel leaves the
+watchdog running, writing SBI_WATCHDOG_PERIOD below can fail in firmware, or
+watchdog_register_device() will not start the kernel keepalive worker before
+userspace opens /dev/watchdog.
+
+> +
+> +	/*
+> +	 * Read watchdog min period supported in firmware
+> +	 * The firmware ensures the MIN_PERIOD is in valid range
+> +	 */
+> +	ret =3D sbiwdt_read_attribute(SBI_WATCHDOG_MIN_PERIOD, &attr_val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (!attr_val)
+> +		attr_val =3D 1;
+> +
+> +	wdt->attrs.wdt_min_period =3D attr_val;
+> +	wdt->wdd.min_timeout =3D usec_to_sec_ceil(wdt->attrs.wdt_min_period);
+> +
+> +	/* Initialize the watchdog timeout to default value */
+> +	timeout_usec =3D sec_to_usec(SBI_WATCHDOG_DEFAULT_TIMEOUT);
+> +	ret =3D sbiwdt_write_attribute(SBI_WATCHDOG_PERIOD, timeout_usec);
+> +	if (ret)
+> +		return ret;
+> +
+> +	wdt->attrs.wdt_period =3D timeout_usec;
+> +	wdt->wdd.timeout =3D SBI_WATCHDOG_DEFAULT_TIMEOUT;
+> +	wdt->wdd.max_timeout =3D U32_MAX / USEC_PER_SEC;
+
+[Severity: Medium]
+As reported by Guenter Roeck on RFC v3 [2], what happens if firmware reports
+SBI_WATCHDOG_MIN_PERIOD greater than 60 seconds, or near U32_MAX?
+
+Writing an unclamped 60-second SBI_WATCHDOG_DEFAULT_TIMEOUT to
+SBI_WATCHDOG_PERIOD will be rejected by firmware when wdt_min_period exceeds
+60,000,000 us, failing probe.  Also, if wdt_min_period is between
+4,294,000,001 and U32_MAX, usec_to_sec_ceil() rounds min_timeout up to 4295
+seconds while max_timeout is 4294 seconds, causing
+watchdog_check_min_max_timeout() to reset both bounds to 0 and allowing
+userspace timeouts that overflow u32 in sec_to_usec().
+
+> +
+> +	/*
+> +	 * Initialize the pretimeout to default value
+> +	 * The firmware ensures the pretimeout init value is 0
+> +	 */
+> +	wdt->attrs.wdt_notif_time =3D 0;
+> +	wdt->wdd.pretimeout =3D 0;
+> +
+> +	return 0;
+> +}
+
+[Severity: Medium]
+Does sbiwdt_init_attributes() leave a stale SBI_WATCHDOG_NOTIF_TIME program=
+med
+in firmware across module reload, driver rebind, or kexec?
+
+Neither sbiwdt_stop() nor driver teardown clears SBI_WATCHDOG_NOTIF_TIME in
+firmware, and sbiwdt_init_attributes() only zeroes wdt->wdd.pretimeout in
+memory after writing SBI_WATCHDOG_PERIOD.  If a previous instance configure=
+d a
+pretimeout of 60 seconds or more, writing the 60-second default period fails
+probe; if it configured 1 to 59 seconds, firmware keeps firing unexpected
+pretimeout MSIs and rejects later sbiwdt_set_timeout() calls at or below the
+stale firmware pretimeout.  Writing 0 to SBI_WATCHDOG_NOTIF_TIME before
+programming SBI_WATCHDOG_PERIOD would keep software and firmware in sync.
+
+[ ... ]
+
+> +static int sbiwdt_probe(struct platform_device *pdev)
+> +{
+[ ... ]
+> +	/* Setup MSI if the capability is available */
+> +	if (wdt->attrs.wdt_capability & SBI_WATCHDOG_CAP_MSI_SUPPORT_MASK) {
+> +		imsic_global =3D imsic_get_global_config();
+> +		if (!imsic_global)
+> +			return dev_err_probe(dev, -ENODEV, "IMSIC firmware node is unavailabl=
+e\n");
+> +
+> +		msi_domain =3D irq_find_matching_fwnode(imsic_global->fwnode,
+> +							DOMAIN_BUS_PLATFORM_MSI);
+> +
+> +		if (!msi_domain)
+> +			return dev_err_probe(dev, -ENODEV,
+> +					     "IMSIC platform MSI domain is unavailable\n");
+
+[Severity: Medium]
+Should a missing S-mode IMSIC or platform MSI domain abort the entire watch=
+dog
+probe when firmware sets SBI_WATCHDOG_CAP_MSI_SUPPORT_MASK?
+
+On platforms or guests without an S-mode IMSIC platform MSI domain (such as
+systems using PLIC or wired APLIC), returning -ENODEV here prevents basic
+watchdog registration instead of falling back to non-pretimeout operation w=
+ith
+sbiwdt_info.
+
+[1] https://lore.kernel.org/r/23c02c91-0f92-46aa-86e7-5d9692d9ba8a@roeck-us=
+.net
+[2] https://lore.kernel.org/r/23c02c91-0f92-46aa-86e7-5d9692d9ba8a@roeck-us=
+.net
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124131542.6132=
-71-1-prajwal.n@oss.qualcomm.com?part=3D1
+71-1-prajwal.n@oss.qualcomm.com?part=3D2
