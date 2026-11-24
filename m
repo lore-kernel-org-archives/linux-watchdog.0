@@ -1,112 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795496486;
-	b=1UN3AR/r49oBnDlxP1mV3iUQn1QzCgS2/LeNsSsXWv4n8hlKeito5R8usXG8i5zgDAxL
-	 TdzdEvbieJXlQLimgrVbDWvzC9kxocqAN8iytqSgxYi1iItAnZDXnlDxHujiy2WKwNM8a
-	 dxBxj0pCFqXieuYdlYuVE8v7L4gNu2THrtbkD8KEpaSw85fbzTvTAgZPMGqPzYx3svCK+
-	 0QMAqGsVtzh9Y6I9FGxYNwFPLK5bMN/dAkxgMYrwvdhGG3mrwmubXP0KbK5YuCVglXU5M
-	 2dvtyVTUnqlXnrI5O2GvwH9HspiWD4uBuX4soa+c+ub+4zkYPq+VSRsejE/VqYL0jVQ==
+	t=1795511596;
+	b=FMVTOm8JUtxHhCCem7EELf6n+XsB7Of1iKNYFFG8QICRkpzsLscTflfrUVdezpnWxmJb
+	 wGzkZ5fJphYQpuBj6vKNbXEVaWd9WWHCyTpZDQd6sGagEwxp9M/9mnE3NQRL5xLBePUMM
+	 OP0d9IjE3FpGPd+gooFM+DowN2zgeRy0p+dJRTOy1r/jlV/4SeNk3lblpw9ntQnqIMbRg
+	 vfxnzss8a4hPIWISm9HshxpbMAFrK3VpYYCu9Ua9TJu9KWa8+XF3nGeYUQ+W2ZVsZwRr8
+	 I3dPu/vUm9gALkYEboW9M3znTsDNfEjhj+98eRcaQxHySZtD+PIfZl9U0ODROPdlKBA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795496486;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=SpABV9aKqp6smud8Wfu98a7VX6J5hPF06e5DetAJnC8=;
-	b=LRaXn5/JgyE5yBdcwLZ8M5FI7SKbm6YTyQ/a3T8JMeKIvqsv2Q6W6V3e8VcBWKsc+RyW
-	 s6vZyjCFhPrRuDyowAaZX76Ght7UG3Q4tsMf3gRk0IWFxAu85CVkRWhpLT0iSk2a3Dmem
-	 07Zsy6vqS8/3go5XjPIUdsnCwgJh4/S30iT0BBWdsd/MSuPOXZcGpdvsc5VkgZXKkNOI6
-	 OzPSkI59hR6iUu2zkXpssikF7kzpy0SQRJt66ktrMAmL9q1jLsqyYtLzmO8AEn+8nZpbe
-	 29ep+/46e3oyULLlZKxoKAaAbprhR1qWH9Q0wddH+ppeDoH3t1zPQ5NhGSzgFpac1jA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795511596;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Authority-Analysis:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=xSsbExyRgnMf+870sb8Orxcq7FevQGTwTXR3rzktG7Q=;
+	b=bOE/R4uYQm4MXoQql0eyL33N5JlpUBNgyFADirKFdYLO2hp3wrz0X+MHnXG5jheNsbWT
+	 VDEFiGHQBqI8qOTLYA9Ud8c7aQ1b5em8oxCZULp3scTfXzgENZCPYez/DgHmlalwC0xQe
+	 LMY0cTZwyLDVX/rNPjNxIE2Dtm6/a7n1c29wl7G9A1SxhJlGAVCDBRw9p4WgvqLPYFBH9
+	 jstXE4Y2BFm7IrrmUWrI3i/0rxsM45HLDvs1URW+Mbh5PsfYxvT+maKcFLCY8jOlzdIII
+	 ksKHx+M28+80uPGm6g9tJeirNp1I9j7QKCGwvNcjuvzFzsU4IKuF8btIWsEV/XukkDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kiTuZlf5;
-	arc=none smtp.remote-ip=209.85.128.44
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ihL73dio;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B92E606A33D
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 05:01:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0B92E606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 806B2606A321;
+	Tue, 24 Nov 2026 09:13:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 806B2606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kiTuZlf5
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4bb9d8e8e90so11538475e9.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 23 Nov 2026 21:01:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795496484; x=1796101284; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=SpABV9aKqp6smud8Wfu98a7VX6J5hPF06e5DetAJnC8=;
-        b=kiTuZlf5E9gkEl0zpKfnaUwlFCPbBI/X8mc9mf/rp6Q+KzKRxRQNm5aoSgmhHF8hyr
-         EP0QeMBmCe/gmVUZkPYNIx3ttCLhaiKAFfMRiNZmw4BDSJioK+NhAZvw3hYwq3h3Dqru
-         eVmRqxmZ/KoSXO0OWipEOutNvMJmw3sYs9h/2lBeWEfSl2usDxuuLZpBNtkKNWRoNsqF
-         1TNqwp27o4ywTLakbf12Gd3XMlp6sKXLvRBBCpvNSEBjoybzHbluCXoxRG7gf0Tb96sQ
-         fRGN07sshGxYtYNgdhqJHiCAsAJAnbKoMsytfo8W5f7qEGYO1zDO+qyqpm/CJ0wu8nZE
-         ENoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795496484; x=1796101284;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SpABV9aKqp6smud8Wfu98a7VX6J5hPF06e5DetAJnC8=;
-        b=I/z+vI5FvSV0VDeMBBvfiSCsaxY15m3JKdujs1xgZRIYZs1L7E4Gj/5jv8D0ZuvgwD
-         od+AcYBZ2Mt4gUvTB2KiTvgYRpQjAsbs/JGUivjhdRU7ZRITZ/QnoqV0pg1QMof2gJ8s
-         xXpvkdFvLIpT+ulpMASRTjMUcrePFKRrf377dAGqcnuswIiWSKiBgsYWaogpkS78UALe
-         5ftWCg+r0OOlavvTVhnP1yt6/0S34WVelTPqHhgf1sMBLJy30xokrXPkJ1BcyucK95LF
-         +Bb9nvybb/VppypBfDSkA0El+CihEWqVGLlD7fUuKb46ogThrZj1mhoMW8yDa0F4S1G6
-         uyzg==
-X-Forwarded-Encrypted: i=1; AL+hErH0h7uJ8MZSFHYzZxFU0AF2yrjKF5LFTmqKRR/zetbKp41CSrovvxrXlWvK7djD23Nfdx/YZZHWdRgSjCw8hw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8fF+SIZ4Wd1FQj+iN1Rpd53wTOUsaf+zhIvdbZmGbD4j5By99F
-	O4ntmygDy1Y5hh/Ufsm4/yjNg5hQqA9z/MQ4Ds6vpT6hKFn0v5c3xqPf
-X-Gm-Gg: AZFdTZd2Ah6b/VIXu1lh6U4zyDfd/hlV29Ji07LHsubTdF4i8df5hojYiVRkhzApfEE
-	3ND3YnxHXYgpMgCtgLCy/ExEL8+bM/iJXEnEY78cLDCLAL7x9fSVmGJaTZKpJqKGToNV39gRB+E
-	l1I7Vl20nFIOBJCZEuZ6PpzJ5erUxai3NBBMjBNKPNXWmwSespHmE/KzPT9VSaFgVP5Rgn0o2A8
-	IwpYQlv35kljJ4vuWXq2h4gnks7GXCk7RD95rrDxUEYx5BZ9I8I5HK8MM+iQyeWUl9rMZ4rSkv0
-	4PVBV/gmQMcIfVp16AobW0Emzhn3cX0X45XgtYIjvOzZRZRYUmnwT0+NJaLQrORDbyJW8ZlFtqM
-	hLsM0R6PV9DuzBQvPdIlMIlm34JZhQ3Wl51sjN/1V0J78I07lD9rUj2QxiB5mQAyQyY7nc8PAKE
-	EUUqM63aA67gEo9bt44qVDJNcEIv6yYWU1F0JLwlK79rjkV4MJrfgumySJ3G13jIMT8B/FwMNjW
-	Fr6NpQolWXqfMOCfLm/B+JU36ShlSDItMqmlq/uAM9+J7MqsnmJpH1ax+msoTeLgexDxxbgMZMH
-	SxSSPSQpgBisE0qqOwHCs8ui58goNFn8cThNRqIqxQgf9V4ZNxa4BR0rDMdPOqpOarvgqtyQLfO
-	t6t0lJIockJHCQT+fBg65Da9VwrCABBKHMg6O26Phn6ow5l6G47SG4sdgJRMR52HuigKT4tK9OU
-	41unLcwVOfukjRI8uOXGKvIKY4cfKd3tU/1nOLitjCW6mwrumyp5aq
-X-Received: by 2002:a05:600c:674f:b0:4bb:56bb:1196 with SMTP id 5b1f17b1804b1-4bb8880fb9bmr266365245e9.23.1795496484431;
-        Mon, 23 Nov 2026 21:01:24 -0800 (PST)
-Received: from localhost.localdomain (dynamic-2a00-1028-8388-a84e-f512-85ee-fdbe-0621.ipv6.o2.cz. [2a00:1028:8388:a84e:f512:85ee:fdbe:621])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb88442693sm353489155e9.1.2026.11.23.21.01.23
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 23 Nov 2026 21:01:23 -0800 (PST)
-From: Josef Schlehofer <pepe.schlehofer@gmail.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Cc: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-	=?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Marc Zyngier <maz@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 3/3] powerpc: dts: turris1x.dts: Use wdi-gpios for the watchdog
-Date: Tue, 24 Nov 2026 06:01:18 +0100
-Message-ID: <20261124050118.87944-4-pepe.schlehofer@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20261124050118.87944-1-pepe.schlehofer@gmail.com>
-References: <20261124050118.87944-1-pepe.schlehofer@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ihL73dio
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AO34t3q1217161;
+	Tue, 24 Nov 2026 09:12:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=xSsbEx
+	yRgnMf+870sb8Orxcq7FevQGTwTXR3rzktG7Q=; b=ihL73dioksztXNZnGZbjw2
+	vMmp1i+5gD4IytODK13i1tm3UiSXhtQejWRwEEFHDxDd6KasikNSpBGwzCiqMW9y
+	l0n9xochs9ZjDrxfde70KqEmxRLFzgp6+tNoi2l9Gss0pN1GbNrXB9scWCOY6rEb
+	53W0T3RREPteHzSKIGXLX7HqYVDLmnpAFInxWI4Zd9m4zeC5oxXX2+crsyV+L3nz
+	sX+xSunzxYef/0CeLHORk9wFcow+nEUjThTEF93AYX4nLlbFyf/aUzeyLA6Q1yWv
+	SNWZmQ6sKyDoJEVcMRCie6z+h2LXF48WAYeX7XXeKiEdxe1VRTSr4AqPRMbFrerA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34gv6kfa-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 24 Nov 2026 09:12:36 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AO8rXAt021968;
+	Tue, 24 Nov 2026 09:12:36 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j3pmk20du-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Nov 2026 09:12:36 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AO9CZVm3015528
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 24 Nov 2026 09:12:35 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B2FD158052;
+	Tue, 24 Nov 2026 09:12:35 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3780258054;
+	Tue, 24 Nov 2026 09:12:27 +0000 (GMT)
+Received: from [9.43.57.13] (unknown [9.43.57.13])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 24 Nov 2026 09:12:26 +0000 (GMT)
+Message-ID: <80be72d2-c357-4709-aede-a030e6751f25@linux.ibm.com>
+Date: Tue, 24 Nov 2026 14:42:25 +0530
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -116,39 +86,95 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 3/3] powerpc: dts: turris1x.dts: Use wdi-gpios for the
+ watchdog
+To: Josef Schlehofer <pepe.schlehofer@gmail.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck
+ <linux@roeck-us.net>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>
+Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linusw@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>,
+        linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <20261124050118.87944-1-pepe.schlehofer@gmail.com>
+ <20261124050118.87944-4-pepe.schlehofer@gmail.com>
+Content-Language: en-US
+From: Madhavan Srinivasan <maddy@linux.ibm.com>
+In-Reply-To: <20261124050118.87944-4-pepe.schlehofer@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=CYCdd7rl c=1 sm=1 tr=0 ts=6b055505 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=pGLkceISAAAA:8 a=VPMLOkGST9yvVNcXXMQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDAzNSBTYWx0ZWRfXyh5/t0L+cfiZ
+ 8dY9+ntlJy9nMb8kW/Kk6FSRM6YaGcb/sE8DSmUUV3w9Zoxh4RpkT3O9V2SS2FVSEX1VVliERmj
+ WPK3BZ9QXnpAPuGZZ5baH6P7HnDXbdc=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDAzNSBTYWx0ZWRfX1nq9qCieY781
+ I0vSM4rsVO8F+5RQlfdmK0Bv65ydnU+esyZNHdRWYucAnNIEkNBEg33aQbDn0eBp2lrurAnk6x0
+ ytouiBYyBVe3Fwo+QRPbeFQyg3kL81HyPf57AvhXVN4QyQoKc2Py3LmHf8eTd+fIszGQlqZI3DN
+ C9hXFjgEqb4/hvsXak82gfwyojPqmXggbGOAJTZ1uCyMbKVq0Nq5PHmbrKh+7BjlB4RsT2JoWKQ
+ AbHIjelxUrw53iqwUHs3jqv5hauN566AHaAtUzlW8bD6Qx/iPaeF25USGrLeWL25l2Er9iKJdWT
+ UyJp53Q88fxf/n6Hh8WylFt8aIQDq0a7AmKZaLXqTGq5zbO99rpqGMMCbG+usBB2ngMXJjvtOR5
+ DCELC8J7tYmhZGJszQoRjME6mpaL9mQRMVjls0CgrFpjYuW9I3qQzo0DnU4etyZVZ1+bs3eWIOS
+ v9h/L5MRkF+86eMUsVA==
+X-Proofpoint-ORIG-GUID: 5blUheAGpVWOvEiAQCnnklA3GVUVcbJB
+X-Proofpoint-GUID: K3ywaFCt4ZKf6N8a2r1PcnE6SwWAnn0E
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-24_01,2026-11-23_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1011 spamscore=0 bulkscore=0 impostorscore=0 adultscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611240035
 
-The watchdog node passes its WDI GPIO in a gpios property, which the
-maxim,max63xx binding does not define and the max63xx_wdt driver does
-not read. dtbs_check reports it for watchdog@2:
 
-  Unevaluated properties are not allowed ('gpios' was unexpected)
+On 11/24/26 10:31 AM, Josef Schlehofer wrote:
+> The watchdog node passes its WDI GPIO in a gpios property, which the
+> maxim,max63xx binding does not define and the max63xx_wdt driver does
+> not read. dtbs_check reports it for watchdog@2:
+>
+>    Unevaluated properties are not allowed ('gpios' was unexpected)
+>
+> Rename it to wdi-gpios, which the binding defines and the driver reads.
 
-Rename it to wdi-gpios, which the binding defines and the driver reads.
+Acked-by: Madhavan Srinivasan <maddy@linux.ibm.com>
 
-Signed-off-by: Josef Schlehofer <pepe.schlehofer@gmail.com>
----
-
-Notes:
-    Changes in v4:
-    - new patch
-
- arch/powerpc/boot/dts/turris1x.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/powerpc/boot/dts/turris1x.dts b/arch/powerpc/boot/dts/turris1x.dts
-index dff1ea074d9d..494a96a1f78c 100644
---- a/arch/powerpc/boot/dts/turris1x.dts
-+++ b/arch/powerpc/boot/dts/turris1x.dts
-@@ -363,7 +363,7 @@
- 				 */
- 				compatible = "maxim,max6370";
- 				reg = <0x02 0x01>;
--				gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
-+				wdi-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
- 			};
- 
- 			reboot@d {
--- 
-2.54.0 (Apple Git-157)
-
+> Signed-off-by: Josef Schlehofer <pepe.schlehofer@gmail.com>
+> ---
+>
+> Notes:
+>      Changes in v4:
+>      - new patch
+>
+>   arch/powerpc/boot/dts/turris1x.dts | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/powerpc/boot/dts/turris1x.dts b/arch/powerpc/boot/dts/turris1x.dts
+> index dff1ea074d9d..494a96a1f78c 100644
+> --- a/arch/powerpc/boot/dts/turris1x.dts
+> +++ b/arch/powerpc/boot/dts/turris1x.dts
+> @@ -363,7 +363,7 @@
+>   				 */
+>   				compatible = "maxim,max6370";
+>   				reg = <0x02 0x01>;
+> -				gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
+> +				wdi-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
+>   			};
+>   
+>   			reboot@d {
