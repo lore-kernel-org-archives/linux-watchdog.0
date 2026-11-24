@@ -1,57 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795527432;
-	b=1vel+nHyN62N4Qb6orzeKdS/LLJL98wCcz3VYziEsPRu+MSaHzjw3pwaK4Sion1q69e8
-	 eq6DBGWR3CUem+kVIG2Jtrayqzlr/5i9FKy9rqRqMe/ZLnsVeR9Rl9KrjYhRlSgQZxcsP
-	 y5xVwbGE6lINu9WhXQqpEFxZ0B2YVtlsKddI3/QoF5OKdOxLOabEz47v9PwI3bRyApKIb
-	 KuLq9AtEtUZXtivFkfi5zCLJzNB57zP/byHb+KguBqaeVSMjHvZaw1+KVqcKLH0tk8uQS
-	 vmOu9yceWF3zchZO9TbLk94s3Xw6UyPdALLbYhyQJT3wjwCG4HkkozwsQhM4JSDdHnQ==
+	t=1795533054;
+	b=YygwZQgdb9gfsT0aOn0rxjt6GaxhATaBSA7dyiDsN50gpBhRJjUEuYR0BbGQojK7t8c7
+	 suEW9ZySKocs+mqrJewhDz4wtTd8ZZoiEupWXhAdKMMZStDw3s8ZcIvh95MrPrhjZospS
+	 KSQMyqFr43ifzshr9C3niE0cG7nU9QWxmBHtuNzTRukQpI2U2RYDYYnUWasag8+714yD9
+	 WUuo5nw7GVjmrx9AfB4Mcq1DXYnwzO6m1AMQt59BV1xnokP1BXj8ybD0rwsTGJ9MS/dBB
+	 Y+MzAEwNEJDG1ahhM4GaB/jZUTreV3vk7MKPFzUisVfs6ONmY7tlvjAOajKk9T9THhA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795527432;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=oji5cmvbgflzhFHjSCMTUWtZwZgJealtItojcsW5v8E=;
-	b=sP1SuS/l1cZVnkofjUPtzg2AiLThDbgMq4DNQura7D4fsLepepWCmUmGilEVOIfe+jsY
-	 Jfrsmf+xvUdqUdgN53KM85pmN2cHxyftKfSFpmQTyb8R8tln2miNxm//LlnHLURShMKtl
-	 fSq2aAsmTOHerNO9cvZa4dzD7SO7aWapAR6EjX9Yflxm5wMxgVntZ5UrkfW91eE4akmWs
-	 5z2+cv9iHnISB+zoVAB+F6BUMHJU9h/2pIn2g4curWXYfq8eLeGZbzh6d2vyZdsilgHRN
-	 yKggzS2f+KFqVbtIuagja78E0rwfIrpXT0LZE/2a18J77/j7ICC9colAxpQSWR78NCQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795533054;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
+	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
+	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
+	 X-Local-Domain:X-CMAE-Envelope;
+	bh=x8UciKAmG7U28D+T0BB/FxXbIfUnkVtlC+pz9Z7I8JE=;
+	b=DtnVScVyemYY6tqNNO5RyweopxM/5tQIwOdOAbEgCcU9MKg5twWXgtnhUN+O+wV/wZ4f
+	 731Yo88aRyfyTNNcb2FJKGmYc/2j0PaLLsKs3tJEZCzpfvpIQfi4NS/ImRP5VBpbPCP3t
+	 UP3ou9+Z1SQ+4Y79JFKuaJ0Y2K9468FPEzYLxO6ER0V3LvMgxkQaiK8y5otzUTRauDx3+
+	 UCamYwUF+HbLEQpZ3IiOJnzWGk50wkh7uPxti2FbEs7S3dSmyNtgiWDmL98Nkn/8Oofjh
+	 Bp7jv4zkqMH9OBAdOzmJo5Db8Qa4lPnO7OChMYjbaC7evEBmeKSH1uq96YRmx5IXxLg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZE6muCls;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=dsQNvZ3S;
+	arc=none smtp.remote-ip=44.202.169.39
+Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370C8606A686
-	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 13:37:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8245606A31E
+	for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2026 15:10:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D8245606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZE6muCls
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 631C61F000E6;
-	Tue, 24 Nov 2026 13:37:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795527431;
-	bh=oji5cmvbgflzhFHjSCMTUWtZwZgJealtItojcsW5v8E=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZE6muClsF/iqxq/9EtoA7XP6VHwCadYhufxybPDvR94BnkcXi+5NidoLM8ul+WkTK
-	 3+1BxN3TFc/xa44Q80h4qn1zGciYdVudrG5SmFwFbaJiYkiXrco6jJUVRN1VZlM/4E
-	 wL87ToDfjjdQnYmyab2N5V9gsd9/lBO+9Zmgfato4fNBEPtaaYr6LuRpxSQO4d+eib
-	 tg8La00qhMcHokddWLlHwuAI05X+OSpspddy6qgjN2n6fjp+cA3jvhPtIdpR1nGH4X
-	 w0sD8XL9fw8TJ4IbjiVYantjyQ5UQ1byt3BVgIA8CUNmEafsGS5S62Sd/FsN3urn4k
-	 0i80WrZ6ootKw==
-Message-ID: <sashiko-outbox-231227@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v4 2/2] drivers/watchdog: Add RISC-V SBI watchdog
- driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Prajwal N" <prajwal.n@oss.qualcomm.com>
-Cc: linux-watchdog@vger.kernel.org
-In-Reply-To: <20261124131542.613271-3-prajwal.n@oss.qualcomm.com>
-References: <20261124131542.613271-1-prajwal.n@oss.qualcomm.com>
- <20261124131542.613271-3-prajwal.n@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 13:37:10 +0000
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=dsQNvZ3S
+Received: from eig-obgw-5007b.ext.cloudfilter.net ([10.0.29.167])
+	by cmsmtp with ESMTPS
+	id VqnAxNaCIOOJnVsAWxFcTl; Tue, 24 Nov 2026 15:10:52 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id VsADxyYVExqjjVsAExH6vC; Tue, 24 Nov 2026 15:10:34 +0000
+X-Authority-Analysis: v=2.4 cv=bZxrUPPB c=1 sm=1 tr=0 ts=6b05a8fc
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
+ a=bttbqOl1rAlbph8SnnIA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=x8UciKAmG7U28D+T0BB/FxXbIfUnkVtlC+pz9Z7I8JE=; b=dsQNvZ3StQrnIav4+ZR6NHflo2
+	pfDVq/qZLaEqJzYDLuZQ9euY6qsrhfA48uqqhzFsFG6RAQcSAtFl8wW+0P004hlfcnnZg6aar3/I+
+	gQK3zf/GwqKbE7gsDgRr/T6eADIQvM5Ip6tgVa68gupASw5dRyrUJmFLWT+99lAiOPNaXjYnLPzol
+	dLZuDABrCLrYwveHtTty1nTySGGR8OWfv9XlFW+jeqXs45a75fHNUSDd6+DIpcCgX9Qf3X3uCkEkP
+	MeuS7tPsnsxwrZl1FwQj+TIPMIR0zFGtyqVdY0P6jp67RkzN+uLDSyqoRclVPucaZtxjz1uZhGP8B
+	PpyWZgww==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:43094 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xVsAD-00000001C1A-298I;
+	Tue, 24 Nov 2026 20:40:33 +0530
+Date: Tue, 24 Nov 2026 07:10:32 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Fil Dunsky <filipp.dunsky@gmail.com>
+Cc: linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: Re: [PATCH] watchdog: arm_twd: Protect the clock snapshot until
+ notifier registration
+Message-ID: <595b7a44-66f8-4e8f-bdb1-09aef25ab7b9@roeck-us.net>
+References: <20261124-arm-twd-clock-notifier-v1-1-62933570ae27@gmail.com>
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -60,157 +81,62 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261124-arm-twd-clock-notifier-v1-1-62933570ae27@gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xVsAD-00000001C1A-298I
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:43094
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 10
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfAj+lGuFd9iW6PtIzBi4up7S55/2tB44CEVHgD5pnu1qeIdihN2ps36i07H19LjpyzgdkP6yOeqpg74IvxBENLaRTmvvxywlKTSfpzz6K2TqnK05LoKi
+ tiZT6dqfhIcqswlnptA7iwqSQFlFs3J18kTreitgG7G1xpsihX3TNp/dYY5PLJPeCrnK4QmK8wItgqO5sIxmqXJV3oyIDxPxC6fTynEIZWLWT2VoASbxaxf4
 
-Thank you for your contribution! Sashiko AI review found 4 potential
-issues to consider:
-- [Medium] watchdog: riscv_sbi_wdt: unclamped timeout bounds in
-  sbiwdt_init_attributes()
-- [Medium] watchdog: riscv_sbi_wdt: stale firmware pretimeout in
-  sbiwdt_init_attributes()
-- [Medium] watchdog: riscv_sbi_wdt: missing running state check in
-  sbiwdt_probe()
-- [Medium] watchdog: riscv_sbi_wdt: probe fails in sbiwdt_probe()
-  without S-mode IMSIC
---
+On Tue, Nov 24, 2026 at 12:21:59PM +0300, Fil Dunsky wrote:
+> From: Fil Dunsky <filipp.dunsky@gmail.com>
+> 
+> A clock rate change can complete after clk_get_rate() returns but before
+> probe registers the clock notifier. The driver then misses that change
+> and keeps the old rate when programming the watchdog counter.
+> 
+> Take temporary rate exclusivity before reading the clock rate and release
+> it after registering the notifier. This protects the snapshot against
+> changes from other consumers, including changes to an ancestor clock,
+> until subsequent transitions can be observed. Release the protection on
+> the zero-rate and notifier registration error paths as well.
+> 
+> Fixes: 52d91ea73e05 ("watchdog: Add ARM TWD (MPCore private) watchdog driver")
+> Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
+> ---
+> This is a single-fix follow-up against watchdog-next, rather than a new
+> revision of the accepted driver series. A rate change from another CCF
+> consumer can finish between the rate snapshot and notifier installation.
+> Temporary rate exclusivity closes that handoff without retaining the CCF
+> prepare lock or holding the watchdog mutex across a CCF call.
+> 
+> Validation: the old and fixed clock-backed probe branches, actual CCF
+> functions and the actual TWD notifier were exercised with 25 deterministic
+> interleaving/unwind cases under both GCC and Clang ASan/UBSan. The full
+> modified driver also builds as an ARM module with W=1, with all imports
+> resolved. These are offline checks; no changing-clock hardware test is
+> claimed. The separate maximum-timeout policy for future faster clock
+> rates is unchanged.
 
-commit 7154e44eab330baa1ded9a131b702c04ae8a2530
-Author: Prajwal N <prajwal.n@oss.qualcomm.com>
+Squashed into original patch.
 
-drivers/watchdog: Add RISC-V SBI watchdog driver
-
-This commit adds a Linux watchdog driver for the RISC-V SBI watchdog
-extension, including MSI-based pretimeout notification support.
-
-> diff --git a/drivers/watchdog/riscv_sbi_wdt.c b/drivers/watchdog/riscv_sb=
-i_wdt.c
-> new file mode 100644
-> index 0000000000000..8e3db98547882
-> --- /dev/null
-> +++ b/drivers/watchdog/riscv_sbi_wdt.c
-[ ... ]
-> +/* Initialize the watchdog attributes */
-> +static int sbiwdt_init_attributes(struct sbiwdt *wdt)
-> +{
-> +	int ret;
-> +	u32 attr_val;
-> +	u32 timeout_usec;
-> +
-> +	/* Read watchdog capability from firmware */
-> +	ret =3D sbiwdt_read_attribute(SBI_WATCHDOG_CAPABILITY, &attr_val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	wdt->attrs.wdt_capability =3D attr_val;
-
-[Severity: Medium]
-As reported by Guenter Roeck on RFC v3 [1], should sbiwdt_init_attributes()
-check SBI_WATCHDOG_STATE and either stop an active watchdog or set
-WDOG_HW_RUNNING on wdt->wdd.status?
-
-wdt_state is declared in struct sbiwdt_attributes, but SBI_WATCHDOG_STATE is
-never read.  If the bootloader, firmware, or a pre-kexec kernel leaves the
-watchdog running, writing SBI_WATCHDOG_PERIOD below can fail in firmware, or
-watchdog_register_device() will not start the kernel keepalive worker before
-userspace opens /dev/watchdog.
-
-> +
-> +	/*
-> +	 * Read watchdog min period supported in firmware
-> +	 * The firmware ensures the MIN_PERIOD is in valid range
-> +	 */
-> +	ret =3D sbiwdt_read_attribute(SBI_WATCHDOG_MIN_PERIOD, &attr_val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (!attr_val)
-> +		attr_val =3D 1;
-> +
-> +	wdt->attrs.wdt_min_period =3D attr_val;
-> +	wdt->wdd.min_timeout =3D usec_to_sec_ceil(wdt->attrs.wdt_min_period);
-> +
-> +	/* Initialize the watchdog timeout to default value */
-> +	timeout_usec =3D sec_to_usec(SBI_WATCHDOG_DEFAULT_TIMEOUT);
-> +	ret =3D sbiwdt_write_attribute(SBI_WATCHDOG_PERIOD, timeout_usec);
-> +	if (ret)
-> +		return ret;
-> +
-> +	wdt->attrs.wdt_period =3D timeout_usec;
-> +	wdt->wdd.timeout =3D SBI_WATCHDOG_DEFAULT_TIMEOUT;
-> +	wdt->wdd.max_timeout =3D U32_MAX / USEC_PER_SEC;
-
-[Severity: Medium]
-As reported by Guenter Roeck on RFC v3 [2], what happens if firmware reports
-SBI_WATCHDOG_MIN_PERIOD greater than 60 seconds, or near U32_MAX?
-
-Writing an unclamped 60-second SBI_WATCHDOG_DEFAULT_TIMEOUT to
-SBI_WATCHDOG_PERIOD will be rejected by firmware when wdt_min_period exceeds
-60,000,000 us, failing probe.  Also, if wdt_min_period is between
-4,294,000,001 and U32_MAX, usec_to_sec_ceil() rounds min_timeout up to 4295
-seconds while max_timeout is 4294 seconds, causing
-watchdog_check_min_max_timeout() to reset both bounds to 0 and allowing
-userspace timeouts that overflow u32 in sec_to_usec().
-
-> +
-> +	/*
-> +	 * Initialize the pretimeout to default value
-> +	 * The firmware ensures the pretimeout init value is 0
-> +	 */
-> +	wdt->attrs.wdt_notif_time =3D 0;
-> +	wdt->wdd.pretimeout =3D 0;
-> +
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Does sbiwdt_init_attributes() leave a stale SBI_WATCHDOG_NOTIF_TIME program=
-med
-in firmware across module reload, driver rebind, or kexec?
-
-Neither sbiwdt_stop() nor driver teardown clears SBI_WATCHDOG_NOTIF_TIME in
-firmware, and sbiwdt_init_attributes() only zeroes wdt->wdd.pretimeout in
-memory after writing SBI_WATCHDOG_PERIOD.  If a previous instance configure=
-d a
-pretimeout of 60 seconds or more, writing the 60-second default period fails
-probe; if it configured 1 to 59 seconds, firmware keeps firing unexpected
-pretimeout MSIs and rejects later sbiwdt_set_timeout() calls at or below the
-stale firmware pretimeout.  Writing 0 to SBI_WATCHDOG_NOTIF_TIME before
-programming SBI_WATCHDOG_PERIOD would keep software and firmware in sync.
-
-[ ... ]
-
-> +static int sbiwdt_probe(struct platform_device *pdev)
-> +{
-[ ... ]
-> +	/* Setup MSI if the capability is available */
-> +	if (wdt->attrs.wdt_capability & SBI_WATCHDOG_CAP_MSI_SUPPORT_MASK) {
-> +		imsic_global =3D imsic_get_global_config();
-> +		if (!imsic_global)
-> +			return dev_err_probe(dev, -ENODEV, "IMSIC firmware node is unavailabl=
-e\n");
-> +
-> +		msi_domain =3D irq_find_matching_fwnode(imsic_global->fwnode,
-> +							DOMAIN_BUS_PLATFORM_MSI);
-> +
-> +		if (!msi_domain)
-> +			return dev_err_probe(dev, -ENODEV,
-> +					     "IMSIC platform MSI domain is unavailable\n");
-
-[Severity: Medium]
-Should a missing S-mode IMSIC or platform MSI domain abort the entire watch=
-dog
-probe when firmware sets SBI_WATCHDOG_CAP_MSI_SUPPORT_MASK?
-
-On platforms or guests without an S-mode IMSIC platform MSI domain (such as
-systems using PLIC or wired APLIC), returning -ENODEV here prevents basic
-watchdog registration instead of falling back to non-pretimeout operation w=
-ith
-sbiwdt_info.
-
-[1] https://lore.kernel.org/r/23c02c91-0f92-46aa-86e7-5d9692d9ba8a@roeck-us=
-.net
-[2] https://lore.kernel.org/r/23c02c91-0f92-46aa-86e7-5d9692d9ba8a@roeck-us=
-.net
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124131542.6132=
-71-1-prajwal.n@oss.qualcomm.com?part=3D2
+Thanks,
+Guenter
