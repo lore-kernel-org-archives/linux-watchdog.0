@@ -1,56 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795678241;
-	b=38Bbdft99gzS5MgHJeTLoV8sUHqshnF5tDEYkrsBbfmMlxSvFYTFhO3ez5uiDUwWMKHx
-	 CkqbgQTb0GI4a6/Sx0BNUIgAz3y9H8PVXE+KmWTxcrt8C6k3ksr28gkJ5r0lI2nOj8NRt
-	 OYzAz8xKUcgqUGkrNs6wYa/ND+F85QzOWcpMhFpzYOGTu4DKVZWMu6rWP7hKPnF7vXntd
-	 W29vj4nscmKwokbaxkD+kMxiilBkHaJMW7QMC5+er9R08rVQ4o2ZDhUtch3VV2VIF6R/e
-	 cohy1EXex2Uxi+LNom1YghXcE4DfIJtPZgm7ttjq8PwaaH/dhmU7BzkBK8E+qD3gMZw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795678241;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=xO6WyGa2eRIEDyJ/2WQsa8VZvDalp4Evwvz00NFfkoQ=;
-	b=UA1G5AGg82zDomF8RMkXT2z7lA8U2JAYvTgwOcsVcOZtLfPZl4l07c3QDKD3mFGexVYQ
-	 dcge4CHUvnae/8q98dR3OpsfEmo74vrdm4Bpg4du/AxgoLFEVdr/LMXOF+7rs7lmrsgew
-	 zy+jbX2Te+CrpBxK4YNDICTwXqinjR7O283vqpf0keOJzTlZQJoxvWiR5wOREL3DzSGpO
-	 u3guaRzVWtZI9uRPx5Xj2M59JUpmhuThJMv+j6W590p7i1MHWM8HLyxrTeozvN9Km5ZYP
-	 LOMlnMxxKzsjM5fd7IDlHKlNnt1GKONhzZ3SNbf4YpOBdrAPJ6H5luPmIpaVnNL16MQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OUO2anzo;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795696881;
+	b=qrayohOCcaYI9FOCDIAFuPYpbkGhk98Kuy++857w7xrd4+Hw70Ef7akBYBHevSlbCQFV
+	 HdV/KJuP+iXAIZ+z0jXUh31vCMz5OSaabudXPc+4T9Csg7k+ZdNRUCIOn3nDyTC44aBIo
+	 EyB3o6l5onvIM4/JUj8zChnQr3SzYEtZwLyAoWJN/AgKO9xTDIoOgLhZqN5QguonY4cXI
+	 PAjNhloZ2FYygWFS63xhQnVvJDpavsqeGZG/ya7tBC0O0KvqPg9k6JHbfD9OIRrWjKdUh
+	 h5RSnxcHGx1sn9MV8WzLAZXu6L6qywr7MXJ6e+RCxvP3xpZDKt6JFMtFVOm8kXmFJQQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795696881;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=4KBHPFKj2qwMwwc1Q5EeyKyjx5sRcICnCsSXsgsl/EE=;
+	b=qpVD7ppmLKf6+i6wVDOO8b53CnCiMzSqy35Slx96XOyNfUS2GVY+hFeVzuVRxnKQy2ip
+	 wXLpCKvb1YfhIsauWK+keRxgE/InE6UCyhB3mASgofqxrRltTg6mrvSCq3I03rZORJ8j/
+	 gyrimnbmAnL/Jh7yM11wcD8pWcNANvGOVNyG2153SJ7ce1+wk0QnK3zj1OM7hZu/p47Dn
+	 aGhBb10YtNNI3k4LROlSPknjjdncBvBOP80yn38TuYMsrxC9D/xRyiBYpSN5WxRHdxnUL
+	 zn3zOQbfSQv7adcFWHa3dkJzCd6Wc0AyBb7Ai0ILsrIhrgy0WH/fZ7hS6xxNOixZvDg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PfN1xX9k;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 849C9606A31C;
-	Thu, 26 Nov 2026 07:30:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1603B606A31C;
+	Thu, 26 Nov 2026 12:41:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OUO2anzo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A192A1F000C6;
-	Thu, 26 Nov 2026 07:30:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PfN1xX9k
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795696880;
+	b=0giCUYlg4+PRXuKfluGu/SL+E+qi14URCwSFc+H1PJNkevCfTwe5XRD38F7VwcmIgM6y
+	 S1z1oN3tzSN7AHmidxBx7PcOJRP4ICCrp7RvhasKDfao47CgsUF0CzanNpd5XtS0pWOR4
+	 cUteVzTRb5/x4mDbTKmHaOlE622v6JdYWLTZAusYSxzRr04Re4WMJyxQpKRcbPkRpW1IM
+	 IlW1A/wAaMRHKt44tOL1XzK8OLliY7XNrXqnOCN1irHfq/Bb+U5XZpsZ5moSEOlax3/dD
+	 NbhnNrBFK9vEqE5C2yxYxkP85fAn8+Ia4v7U3gBJA7KKsfsvR1qE5zptun9H4z2ZDTQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795696880;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=4KBHPFKj2qwMwwc1Q5EeyKyjx5sRcICnCsSXsgsl/EE=;
+	b=JFhwhBVW64vefDob9oI9CwcwEtKTBuiABfeZ/Y9b/ObTBtLiaSI2VYJ7vJ1E6tJlJjWu
+	 Q9C+GIr64cwLA4XoAcdyAkQOv7YOoFn/EixiX99ULIxKzdmEgHKtpZvgxRdmme+ERpBiP
+	 u9kuYOu1KnhCZqSn3yg91fIOnGp2qnJbCn6XlnBlLTaJSwX/IbBbx5nniTmIknvzw4wmi
+	 Ejdkfu2x05BMrfBE2AvjXTrZ1eii1XRGb1fQkOxWQHjE53LIdjhGKFCB9HepebDCtrnXu
+	 75wNT91jcik5dtx/t7Eb/d1pc2wRh64n7ag38a+WHLmZMuRJkADpJ+8W30eEAzG5NUQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 515B91F000C0;
+	Thu, 26 Nov 2026 12:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795678241;
-	bh=xO6WyGa2eRIEDyJ/2WQsa8VZvDalp4Evwvz00NFfkoQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OUO2anzoGCMzU1dS8mz7qTKe8B94A4ZnQtM5RkIW7IJgX9cTZr1deDA8tSeCorgaj
-	 y1ibzrs+hes0e/WXH0uPqNoJGk6dxaDIXyOmv4Q8bxCUECO4WZnsCralfkiDC1LhvX
-	 EKCzC+puUdCBzxaE/H/CVxt60WF0keYV+NBSfg0Q5uP7dQmvObw5pvF1Cx+MhG3ISr
-	 6JOl8fwTfyy1R5dsemFfAiblb1AQ/YP2an/Fe+a5KOrkQ87ZwRwyXoscN0V0xOccs5
-	 SzBPlPClzfhFnkuZQBBDfuF5AkxuvaFeAuDfQkrAtC71yXF42L4bj6GBcaQ7r8Ub3l
-	 cEJS+VA4NoS6g==
-Message-ID: <sashiko-outbox-234957@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>, linux-rtc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-Cc: robh@kernel.org, conor+dt@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261126071124.2383368-3-shivprakash.gupta@nxp.com>
-References: <20261126071124.2383368-1-shivprakash.gupta@nxp.com>
- <20261126071124.2383368-3-shivprakash.gupta@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 26 Nov 2026 07:30:40 +0000
+	s=k20260515; t=1795696880;
+	bh=4KBHPFKj2qwMwwc1Q5EeyKyjx5sRcICnCsSXsgsl/EE=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=PfN1xX9kd5AqWKofZh8IYqxlbUTacqnGLFw1493G/odWB2yawRI3jvJI6Ej4zxbAF
+	 5LaZELBYfcsJQAE8jXTF2uzMsIugkP63jMzs8agCkJ20zJMo4oI9be+3aqywq5Al0D
+	 YfnjuwC2rmUp3URdLqIaHDlPIaFJ0EIFihpWaFWnf+Ltudm/1XqQWYEH7OaRUZL0P4
+	 eHnOBsaWym7TmzhmbtpHpf+u7/W1Lk1h1ab/umRoCPLYHcEWSH/1/pQ+mF9wIJcRlr
+	 /zjj85Srj9+u/slWUe3VxNUq6DeButiVDFp8aGvrqrylCmHKYsMOrgreLIuRABVOxo
+	 UfFMtJXsE/sIg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 99CD64D4CC;
+	Thu, 26 Nov 2026 12:41:16 +0000 (UTC)
+From: Roman Vivchar via B4 Relay <devnull+rva333.protonmail.com@kernel.org>
+Date: Thu, 26 Nov 2026 14:39:55 +0200
+Subject: [PATCH 2/8] dt-bindings: serial: mediatek,uart: add mt6768
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -59,136 +81,64 @@ List-Subscribe: <mailto:linux-watchdog+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261126-6768-init-v1-2-abc364a2447e@protonmail.com>
+References: <20261126-6768-init-v1-0-abc364a2447e@protonmail.com>
+In-Reply-To: <20261126-6768-init-v1-0-abc364a2447e@protonmail.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Sean Wang <sean.wang@mediatek.com>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Philipp Zabel <p.zabel@pengutronix.de>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+ linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+ Roman Vivchar <rva333@protonmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795696875; l=876;
+ i=rva333@protonmail.com; s=20260510; h=from:subject:message-id;
+ bh=E3ForiWHUX2QUXzzHv/US4eQykht5PXx8WEv7OuTHPM=;
+ b=t+TAPIl29ebfaMD+EKRgGeR2Otx1pnk2948kk4fZJ5YjA3NtG6E6FVSNFQBKjzT62Vtu95jC3
+ cMizYbY5L5YBYF2g3deQVFwO7mOVPdyY3k/c64IUaWPRY21vVaKdWrE
+X-Developer-Key: i=rva333@protonmail.com; a=ed25519;
+ pk=zww/nWjBGoQ4POXCG0BV6fx2iuXK6jx77rsKPA5YK5Y=
+X-Endpoint-Received: by B4 Relay for rva333@protonmail.com/20260510 with
+ auth_id=777
+X-Original-From: Roman Vivchar <rva333@protonmail.com>
+Reply-To: rva333@protonmail.com
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] rtc: pcf8525: devm_rtc_register_device() called before INTA
-  setup in probe
---
+From: Roman Vivchar <rva333@protonmail.com>
 
-commit ac013f157325db026a034ab7ceb349efee94dcf3
-Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Add a compatible string for the mt6768 UART that is compatible with the
+mt6577.
 
-rtc: pcf8525: Add NXP PCF8525 RTC driver
+Signed-off-by: Roman Vivchar <rva333@protonmail.com>
+---
+ Documentation/devicetree/bindings/serial/mediatek,uart.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-This commit adds an I2C RTC driver for the NXP PCF8525 with calendar,
-alarm, timestamp capture, crystal aging offset, and backup switchover
-support.
+diff --git a/Documentation/devicetree/bindings/serial/mediatek,uart.yaml b/Documentation/devicetree/bindings/serial/mediatek,uart.yaml
+index 5bd8a8853ae0..1ef0629c6015 100644
+--- a/Documentation/devicetree/bindings/serial/mediatek,uart.yaml
++++ b/Documentation/devicetree/bindings/serial/mediatek,uart.yaml
+@@ -31,6 +31,7 @@ properties:
+               - mediatek,mt6589-uart
+               - mediatek,mt6755-uart
+               - mediatek,mt6765-uart
++              - mediatek,mt6768-uart
+               - mediatek,mt6779-uart
+               - mediatek,mt6795-uart
+               - mediatek,mt6797-uart
 
-> diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> new file mode 100644
-> index 0000000000000..2b23b17d6750c
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-pcf8525.c
-[ ... ]
-> +static ssize_t timestamp0_show(struct device *dev,
-> +			       struct device_attribute *attr, char *buf)
-> +{
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
-> +	unsigned int ctrl4;
-> +	time64_t ts =3D 0;
-> +	int ret;
-> +
-> +	guard(mutex)(&pcf8525->ts_mutex);
-> +
-> +	if (pcf8525->irq_enabled) {
-> +		if (!pcf8525->ts_valid)
-> +			return 0;
-> +
-> +		ts =3D pcf8525->ts;
-> +	} else {
-> +		ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL4, &ctrl4);
-> +		if (ret)
-> +			return ret;
-> +
-> +		if (!(ctrl4 & PCF8525_CTRL4_TSF))
-> +			return 0;
-> +
-> +		ret =3D pcf8525_ts_read(pcf8525, PCF8525_REG_TS1_SEC, &ts);
-> +		if (ret)
-> +			return ret =3D=3D -ENODATA ? 0 : ret;
-> +	}
-> +
-> +	return sysfs_emit(buf, "%lld\n",
-> +			  (long long)pcf8525_ts_apply_offset(pcf8525, ts));
-> +}
-[ ... ]
-> +static int pcf8525_setup_inta(struct i2c_client *client,
-> +			      struct pcf8525 *pcf8525, int irq)
-> +{
-> +	struct device *dev =3D &client->dev;
-> +	bool handled;
-> +	int ret;
-> +
-> +	/* INTA is still masked, so drain all stale flags before enabling it. */
-> +	ret =3D pcf8525_service_inta(dev, pcf8525, &handled);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to drain pending INTA\n");
-> +
-> +	ret =3D devm_request_threaded_irq(dev, irq, NULL, pcf8525_irq,
-> +					IRQF_ONESHOT, dev_name(dev), dev);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to request INTA IRQ\n");
-> +
-> +	pcf8525->irq_enabled =3D true;
-[ ... ]
-> +static int pcf8525_probe(struct i2c_client *client)
-> +{
-[ ... ]
-> +	ret =3D devm_rtc_register_device(pcf8525->rtc);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (irq > 0) {
-> +		ret =3D pcf8525_setup_inta(client, pcf8525, irq);
-> +		if (ret)
-> +			return ret;
-> +	} else if (wakeup) {
-> +		ret =3D pcf8525_setup_wakeup_only(dev, pcf8525);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	return 0;
-> +}
+-- 
+2.56.1
 
-[Severity: Medium]
-Should pcf8525_setup_inta() and pcf8525_setup_wakeup_only() run before
-devm_rtc_register_device()?
 
-Registering the RTC device first exposes the sysfs attributes and /dev/rtcX
-before pending INTA flags are drained and before pcf8525->irq_enabled is
-set:
-
-CPU0                              CPU1
-pcf8525_probe()
-  devm_rtc_register_device()
-  pcf8525_setup_inta()
-    pcf8525_service_inta()
-      pcf8525_handle_ts()
-        lock(&pcf8525->ts_mutex)
-        regmap_write(CTRL4, 0)
-        pcf8525->ts_valid =3D true
-        unlock(&pcf8525->ts_mutex)
-                                  timestamp0_show()
-                                    lock(&pcf8525->ts_mutex)
-                                    if (pcf8525->irq_enabled) // false
-                                    regmap_read(CTRL4, &ctrl4)
-                                    !(ctrl4 & TSF) -> returns 0
-    devm_request_threaded_irq()
-    pcf8525->irq_enabled =3D true
-
-Because pcf8525_handle_ts() clears PCF8525_CTRL4_TSF in hardware and caches
-the timestamp in pcf8525->ts while pcf8525->irq_enabled is still false, a
-concurrent reader of timestamp0 takes the polling branch, sees TSF cleared,
-and returns 0 instead of the captured timestamp.
-
-In the wakeup-only path, pcf8525_setup_wakeup_only() also clears
-PCF8525_CTRL2_AF and unmasks INTA after devm_rtc_register_device() has
-already read the alarm state, and on driver unbind devres masks INTA and
-frees the IRQ before unregistering the RTC device while
-pcf8525->irq_enabled remains true.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261126071124.2383=
-368-1-shivprakash.gupta@nxp.com?part=3D2
