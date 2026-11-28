@@ -1,97 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795852799;
-	b=0VZrpZXXZvtW/m7an2Gfmh36jZ+0DY+D/P5mWIaRukQzXz6coOx+wvtrSfEOgEsyBgJE
-	 1g8DmWtPmlLWx/b8ZuaOaPyzcODiN7uZYyRNQdPI0rvYbHJhC+TNHwZB4zPo572kItak7
-	 o9q1rcZ2AfJ1xkrN89PxZRvwikp/ryCeSetE94u7ExlDFZxhZXyBP4xQliaZoM+CSXsr4
-	 v0dQKsz+EwUc1Mv9nkGnmdoCPTsTfxd1424eLlezfiaPZpmBzTI3HbQLF/d75N2iK87z1
-	 zikAxqQv4O9fftfr3XVCZzJy4JSKxr4dJm2z4ASr4ARxHQvJO+TRASu9Rqfx0PWP7aw==
+	t=1795881730;
+	b=bdnb5XAfG8wiPKIiVhO6CddqO+X3r0B1g+io05YLtZuHMZJ9Kq+jLVPGTjtRaD4jTMRA
+	 0XNsMnQMB5o/qHOqaGqC6VI0cEuqzu0jRVliwxkUFEz+WWupwzyWA/QOvACiglD5gKPAT
+	 oiDaYjL7fRExTPg6KIynSm4ynkYdokLdUZf1HYy9viTlBTbnWu1dpim7vdUMNypvyuKQy
+	 1EvThk0xO7UNjGGsr/W8PBjofnzdXfGjPxPmAM0NjTSBgExmnTKw0phV5NiRRMoU7XnFO
+	 Xm0BxuYntrHWi+p7EX6J0R5AccK63tTI6yX97zhOgJ5cMwTh/zdwD6BPdslCAOpXu8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795852799;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=rECzFDCKo4XXlZnw/34prSvNBZQ0YYwmq2ei4FG0uow=;
-	b=lkeEjtuwrd5cfYW6e+uEEYwv8z1EG8OGLFuCWw0iRkEzCwHYeOIolFjQAIF33U9C8Ocu
-	 zpAcOdywySRZ0STmYoOGMfWc3XFP3zjXG/X16hQebS0AB47xdgfZlLibGlcEQe1fPxinI
-	 D5mLGZ1prESbNLjFf39KWpuiAmuL9eZ6SZS/SbBb5lYI3DcliVbpnQNLmvOMxzawHyp6b
-	 MILths7O8OerMedviks/h16F1yO1eznv/B57UZvoOrI/J8udC0e1CqN1a2fKnXHPRIXCw
-	 jhqW/ddKtHS4UEEIA3Vnmb6aAL3bBXrXGOSaCzgf8V06BnD7Cw5nvoNSqvUxC+iTKTw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795881730;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=D7mhCQGAXsJxHlhUIFdNYQH08H9wjkgkdnyW3xCag88=;
+	b=4vN0tKBEfewbD6BSWswjoQLjapAZQPXJziSjSGzGhoCIhjw2RojVthrqASHs0gMtf45U
+	 Hn/dJ7mAF2WrNPKtdFp7JEqTZ427bSaGTpLgQFweM4XFwVjZYSeaeyTKmf7nJi7BCGsg6
+	 iOqSYop54oVR1Wgt09uHBDtOeWyomo/XJAz5uOkOrZZUOcEZm5vsaALu0e1f+cmfyAvze
+	 EdRAAKQzmdKKTofCrLM4Aa5Z02B/tmqDkcVBXrWnL1XNM4BkKyrp/ILdgewZfuWXdf2Ob
+	 DL2CM5OOBVZV6z1NEyYxjsFA267aUpvlmybmk7w5egvxOE8OUkCda7QfbPJUxLa/BZg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b="i/U/to+v";
-	arc=none smtp.remote-ip=209.85.221.46
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=pT16GHIm;
+	arc=none smtp.remote-ip=35.89.44.39
+Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDAC2606A321
-	for <linux-watchdog@vger.kernel.org>; Sat, 28 Nov 2026 07:59:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CDAC2606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6904606A31C
+	for <linux-watchdog@vger.kernel.org>; Sat, 28 Nov 2026 16:02:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C6904606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=i/U/to+v
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-4a42b34e930so7725046f8f.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 27 Nov 2026 23:59:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795852797; x=1796457597; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=rECzFDCKo4XXlZnw/34prSvNBZQ0YYwmq2ei4FG0uow=;
-        b=i/U/to+vCmL1lcMOCEc3owu39hWkCjDpqJ213buTkVu7MoriXmrx+7OGqlR5mKjN0K
-         HJznAwo3QdHX+mccxMSx8rXVqDLQlnkM3P4KKsZD+//BlVONCBDPn8pZ4yevOzRiXp/I
-         gJxK0s6juwE0bQ5bE/7yzG82cu1twxYL71VfcfhRCV7DMYxDCXh5JSCk5HmLwiBDbGcK
-         /3LWwAPMgikzdeET6ZLrmfguyXOEAu3q8eXawDWa1Mz3qgEI2CVV/tpVSCKAYuyGlmKD
-         c7Nrf1KPWTMmTIelV6zqs20Kg89Kf0hmSLldDN2UR8QXyMgoiMgC0Yrgxd++VBF30AKW
-         lUrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795852797; x=1796457597;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rECzFDCKo4XXlZnw/34prSvNBZQ0YYwmq2ei4FG0uow=;
-        b=dDPRu/m/woNzW/PPWzDMqnlRTPMxhL6Y9lRkmxV/WxKlMajf+XhQx2ibdZY5wcLgpk
-         C/0AGWinpmhhzPSuXesgyDtRX1h1qUgleih1H7HY7N11/ZMcbA+ei/OQ9zcbOeYfx2CP
-         ZLaRAV48PkOdUDbBWZ5rS3fsgwapC8pPtxUiVHwzsdX7PhemF3jTatWG5TWeA4z+nEzi
-         QeKn1AljNi7sHqTBQeFcJPq2RnMsuYrlniilAML0V8gr2J9feRvyHyLZdgX/ayGDqB/6
-         rn+ooKq//mwcSAnPLcitNfsK9HOTAFiqzb6FgE8p9EOzCrpWBnRxyLOaUXRMDaq5+41z
-         HYaA==
-X-Forwarded-Encrypted: i=1; AL+hErELoxeiAsNqvU7IO4rD+ysj/NbR7x8SqieaYjVoZ/p1WFydRsgYpJ/EZv5w6vhz0oVS90bOscpVE8indSPEfg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9ZIOBvqL6cj+3EfHWRPOJEpufCphX34IRl7imJTtUV7sU9PZLy
-	oXnc45T6o3bL5XXXSScmASTRvyL1TYa1CDUwCNDle9eD91vMYUhYsJ6C5I5e60NXBb8=
-X-Gm-Gg: AZFdTZddrDbYjuHD0m/DU95lWAq/kY0/LIgICRZYAxuJvr7JZd3r0KlLxfH4svNxmkc
-	3v9v3igQ3txlDD6YYDW2vgrPdyigTJJQWPeSaWk5blr2FFlY7SITyszSiwFmURNslEpoj9MiYbX
-	x28EumyCaK6/uHpyTz/rkuDKXoUkIrYKgtylmgxAzUz6gBmygs8h5ssHUMhAkZ+F0T7KTdQpVKj
-	CkA5MESxVeRfuUpMUP9Y7Jm0TLt+l9agmbrgvMMLqnh/PzWgtbp6TtzUQkxD2gSQXZGO9uLVOP7
-	sDHOyNH8LCQ2PZRrHUM4XKLwim5yDzzBhpS7ToFwVCJ7NLLGzq42VxjwTUu89Vl/NFRddpcFHvH
-	qwKHumB7fU7mn3elG9mf/hRr8Yu3eQwcRTgbk0roZ0XsCwNvYFjlQ+le2jo98zQvNmnqy9o4rji
-	Z0HGIMbfVFbEYitkSFrBzOpxqxrH0T/gBAFuZg/a/d880i22WUr6llg+lB3b93uRI2iHShL/6rc
-	5ZTor/cm/OUtLKNK4ATEG3qgSblHZAgQdrko+PrNhpBwuyZgkH6eKePk1kIFujQsPKDZ+2ptx3w
-	DfJPUNbvLQoST3nYwFcjLh8/j8p73gZxnzzGAliPiyj2xTTKjwILZ6remkHcXtSSjZs7t9VTsMq
-	n
-X-Received: by 2002:a05:6000:2893:b0:493:f3f2:2241 with SMTP id ffacd0b85a97d-4abb272746fmr52992473f8f.23.1795852797142;
-        Fri, 27 Nov 2026 23:59:57 -0800 (PST)
-Received: from localhost (ip-005-146-085-079.um05.pools.vodafone-ip.de. [5.146.85.79])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4ab6b110ba3sm42679550f8f.35.2026.11.27.23.59.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Nov 2026 23:59:55 -0800 (PST)
-Date: Sat, 28 Nov 2026 08:59:53 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
-	alexandre.belloni@bootlin.com, krzk+dt@kernel.org, robh@kernel.org, conor+dt@kernel.org, 
-	linux@roeck-us.net, wim@linux-watchdog.org, vikash.bansal@nxp.com, 
-	priyanka.jain@nxp.com, lakshay.piplani@nxp.com
-Subject: Re: [PATCH v6 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
-Message-ID: <awqJkqQ_8tXGIqo9@monoceros>
-References: <20261127083807.2844507-1-shivprakash.gupta@nxp.com>
- <20261127083807.2844507-3-shivprakash.gupta@nxp.com>
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=pT16GHIm
+Received: from eig-obgw-5007b.ext.cloudfilter.net ([10.0.29.167])
+	by cmsmtp with ESMTPS
+	id WzIpxfeL0yb4YXKsFxaTp3; Sat, 28 Nov 2026 16:02:03 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id XKsDxoKzvxqjjXKsExopT4; Sat, 28 Nov 2026 16:02:02 +0000
+X-Authority-Analysis: v=2.4 cv=bZxrUPPB c=1 sm=1 tr=0 ts=6b0afafb
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8 a=ehiMHvdStT9DuECwCHUA:9
+ a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=D7mhCQGAXsJxHlhUIFdNYQH08H9wjkgkdnyW3xCag88=; b=pT16GHImOL/2gx4zzPvV0LZSSB
+	aLW+20WXWownCnS8IXMRBr237EqGk+y7Q9/z/xXDWIE3xCRjA8AYJOKWCNuaa3HWvy4rWb0m9ntTq
+	28ExAV88AtVaoEJFXayOszPrUzgwnzGHdl4MbCQ7PiDheaSQ/8mADpipz6q0PGw8LhZpBnW1ZkaOQ
+	w46BMc/B+02U8zPW+RDOzQckvbarCmYQsbNYjx8cKYjkavKz4o93PCR4DE9qyhjC0p1i7UziLLYkZ
+	MRH59hssKjHHvet00fgCMCEfAnv072CcPqmR9pPFDq/j8wk+Zn5X0j1SoaI8N0bo1W0v00qg8DMal
+	gdmAbSXA==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:40634 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.2)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xXKsD-00000003ozm-2zn7;
+	Sat, 28 Nov 2026 21:32:01 +0530
+From: Guenter Roeck <linux@roeck-us.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [GIT PULL] watchdog fixes for v7.4-rc5
+Date: Sat, 28 Nov 2026 08:02:00 -0800
+Message-ID: <20261128160200.988864-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.45.2
 X-Mailing-List: linux-watchdog@vger.kernel.org
 List-Id: <linux-watchdog.vger.kernel.org>
 List-Post: <mailto:linux-watchdog@vger.kernel.org>
@@ -101,45 +80,83 @@ List-Unsubscribe: <mailto:linux-watchdog+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-watchdog+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="5kez4omv4kntvob6"
-Content-Disposition: inline
-In-Reply-To: <20261127083807.2844507-3-shivprakash.gupta@nxp.com>
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xXKsD-00000003ozm-2zn7
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:40634
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 2
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfIuaLiWRn4cvfeufyukPDl2pmhmBzqmKyqzhltEFX5i7oZ36wIom+jgI8Bg6TbeJvF57fUqc3XZGwLn5lNGPtdTqYtZ0hxJqSB4fNiKVTIxUhd+lPup7
+ uGsx6ub7zRP7jAJn9IFCy5OlJe12SSz82LhD7a/ExZQbZwTAKdT2KWpxQmyGN+CgdaESCW7QX7KryGaP8gwx+9yS2m2zQC2hBY9z24Ld+PKMNknxIuaNCOkw
 
+Hi Linus,
 
---5kez4omv4kntvob6
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH v6 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
-MIME-Version: 1.0
+Please pull watchdog fixes for Linux v7.4-rc5 from signed tag:
 
-Hello,
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-v7.4-rc5
 
-On Fri, Nov 27, 2026 at 02:08:05PM +0530, Shiv Prakash Gupta wrote:
-> +#include <linux/i2c.h>
-> [...]
-> +#include <linux/mod_devicetable.h>
+Thanks,
+Guenter
+------
 
-Both of_device_id and i2c_device_id are provided by <linux/i2c.h>
-without additional build dependencies as are introduced by
-<linux/mod_devicetable.h>. So please drop the latter.
+The following changes since commit b6a9fa34ce4187cb69d3c588a4bbffc31ce5db8f:
 
-Best regards
-Uwe
+  Linux 7.4-rc4 (2026-11-22 14:57:40 -0800)
 
---5kez4omv4kntvob6
-Content-Type: application/pgp-signature; name="signature.asc"
+are available in the Git repository at:
 
------BEGIN PGP SIGNATURE-----
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-v7.4-rc5
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsKifYACgkQj4D7WH0S
-/k7agQf/dUy7wCorcL/I4owilXhYjnsXPrSYVFuZTI3zBHYDbdxpHZa80WwZlBG7
-E4SFU0OwJbEJe6jfB4zfEAJno76UQtmfOsPNrRBjhVwTHfHa+eurWy0zb9D/2CE3
-T9IHil5xV6MLLjEsteKu/ubZ5uOQpl/GemFXCbkkgQnOoNk3fu9vTRW3m81xJ9bm
-uNWYCMXorvZ4Wx7PB2OLQd5RwRNUormhf1E7zoUUE4ilF3XfUbBOvueHDCr0dCy2
-b/wJgjIiQzRLVsEcMQ1QhPUbCxlrMuzkchAgFdHqygmuxVmNh8Sz3yBHvjK4aG4Y
-MLYKgxWCCTBVfnXialkv/zpFTTAkgg==
-=jkpr
------END PGP SIGNATURE-----
+for you to fetch changes up to 4aa6ef16095644ecd8ece085384ea65543867dca:
 
---5kez4omv4kntvob6--
+  dt-bindings: watchdog: arm,sp805: reference the PrimeCell binding (2026-11-28 02:44:27 -0800)
+
+----------------------------------------------------------------
+watchdog fixes for v7.4-rc5
+
+* core: return 0 from watchdog_get_timeleft() when neither WDOG_ACTIVE
+  nor WDOG_HW_RUNNING is set instead of calling ->get_timeleft(),
+  avoiding hardware accesses on stopped watchdogs (such as external
+  aborts in omap_wdt via sysfs timeleft or WDIOC_GETTIMELEFT).
+
+* intel_oc_wdt: add noirq suspend/resume callbacks to stop a running,
+  unlocked watchdog during system sleep (including firmware-started
+  watchdogs) so it does not reset the machine in suspend-to-idle, and
+  restore the configured timeout and restart it on resume.
+
+* sp805: keep the clock prepared from probe and call clk_enable() in
+  the atomic restart handler so reboot still works after the watchdog
+  has been stopped and its clock disabled.
+
+* dt-bindings: reference /schemas/arm/primecell.yaml# in arm,sp805.yaml
+  so arm,primecell-periphid passes DT schema validation.
+
+----------------------------------------------------------------
+David Yang (2):
+      watchdog: sp805: re-enable the clock in the restart handler
+      dt-bindings: watchdog: arm,sp805: reference the PrimeCell binding
+
+Nhat Tran (1):
+      watchdog: core: Don't report time left for a stopped watchdog
+
+Paul Menzel (1):
+      watchdog: intel_oc_wdt: Stop the watchdog during system sleep
+
+ .../devicetree/bindings/watchdog/arm,sp805.yaml    |  1 +
+ drivers/watchdog/intel_oc_wdt.c                    | 52 ++++++++++++++++++++++
+ drivers/watchdog/sp805_wdt.c                       | 17 +++++--
+ drivers/watchdog/watchdog_dev.c                    |  3 ++
+ 4 files changed, 70 insertions(+), 3 deletions(-)
